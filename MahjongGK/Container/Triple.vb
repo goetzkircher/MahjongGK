@@ -39,7 +39,7 @@ Public Class Triple
     Public Property x As Integer
     Public Property y As Integer
     Public Property z As Integer
-    Public Property Valide As ValidePlace
+    Public Property Valide As ValidePlaceEnum
     ' Hinweis: Wenn ToString vorhanden ist, sind <DebuggerDisplay("{DebuggerView}")>
     ' und der Code hier nicht nötig.
     ' nur für den Debugger – wird nicht serialisiert/angezeigt
@@ -58,11 +58,11 @@ Public Class Triple
         Me.x = x : Me.y = y : Me.z = z
     End Sub
 
-    Sub New(x As Integer, y As Integer, z As Integer, Valide As ValidePlace)
+    Sub New(x As Integer, y As Integer, z As Integer, Valide As ValidePlaceEnum)
         Me.x = x : Me.y = y : Me.z = z : Me.Valide = Valide
     End Sub
 
-    Sub New(tripl As Triple, Valide As ValidePlace)
+    Sub New(tripl As Triple, Valide As ValidePlaceEnum)
         Me.x = tripl.x : Me.y = tripl.y : Me.z = tripl.z : Me.Valide = Valide
     End Sub
 

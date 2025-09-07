@@ -51,14 +51,14 @@ Public Module Konstanten
     'verdauen kann, ist wieder eine andere Frage.
 
     'Steine nebeneinander
-    Public Const MJ_STEINE_SIDEBYSIDE_XMAX As Integer = 60
-    Public Const MJ_STEINE_OVERANOTHER_YMAX As Integer = 20
-    Public Const MJ_STEINE_LAYER_ZMAX As Integer = 10
+    Public Const MJ_STEINE_MAXX_SIDEBYSIDE As Integer = 60
+    Public Const MJ_STEINE_MAXY_OVERANOTHER As Integer = 20
+    Public Const MJ_STEINE_MAXZ_LAYER As Integer = 10
 
     ''' <summary>
     ''' Theoretischer Wert zur Begrenzung der maximal erzeugten Steine.
     ''' </summary>
-    Public Const MJ_STEINE_MAXCOUNT As Integer = MJ_STEINE_SIDEBYSIDE_XMAX * MJ_STEINE_OVERANOTHER_YMAX * MJ_STEINE_LAYER_ZMAX
+    Public Const MJ_STEINE_MAXCOUNT As Integer = MJ_STEINE_MAXX_SIDEBYSIDE * MJ_STEINE_MAXY_OVERANOTHER * MJ_STEINE_MAXZ_LAYER
     Public Const MJ_STEINE_VORRATMAXDEFAULT As Integer = 500
     Public Const MJ_STEINE_VORRATNACHSCHUBSCHWELLEDEFAULT As Integer = 250
 
@@ -206,8 +206,8 @@ Public Module Konstanten
         {"MJ_SPIELFELD_MIN_HEIGHT", MJ_SPIELFELD_MIN_HEIGHT},
         {"MJ_STEINE_SIDEBYSIDE_MIN", MJ_STEINE_SIDEBYSIDE_MIN},
         {"MJ_STEINE_OVERANOTHER_MIN", MJ_STEINE_OVERANOTHER_MIN},
-        {"MJ_STEINE_SIDEBYSIDE_MAX", MJ_STEINE_SIDEBYSIDE_XMAX},
-        {"MJ_STEINE_OVERANOTHER_MAX", MJ_STEINE_OVERANOTHER_YMAX},
+        {"MJ_STEINE_SIDEBYSIDE_MAX", MJ_STEINE_MAXX_SIDEBYSIDE},
+        {"MJ_STEINE_OVERANOTHER_MAX", MJ_STEINE_MAXY_OVERANOTHER},
                                                                   _
         {"MJ_STEINE_SUMMESTEINE042_ALLE", MJ_STEINE_SUMMESTEINE042_ALLE},
         {"MJ_STEINE_SUMMESTEINE042_NORMAL", MJ_STEINE_SUMMESTEINE042_NORMAL},

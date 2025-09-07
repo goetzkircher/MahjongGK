@@ -42,7 +42,7 @@ Namespace Spielfeld
 
         Public Sub DoPaintSpielfeld_Paint(gfx As Graphics, rectOutput As Rectangle, timeDifferenzFaktor As Double, clear As Boolean)
 
-            If AktRendering = Rendering.None OrElse clear OrElse IsNothing(AktSpielfeldInfo) OrElse IsNothing(AktSpielfeldInfo.SteinInfos) OrElse AktSpielfeldInfo.SteinInfos.Count = 0 Then
+            If AktRendering = RenderingEnum.None OrElse clear OrElse IsNothing(AktSpielfeldInfo) OrElse IsNothing(AktSpielfeldInfo.SteinInfos) OrElse AktSpielfeldInfo.SteinInfos.Count = 0 Then
                 gfx.Clear(INI.Spielfeld_BackgroundColor)
                 Exit Sub
             End If

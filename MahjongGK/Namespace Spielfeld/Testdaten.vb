@@ -49,27 +49,27 @@ Namespace Spielfeld
 
                 Dim tplr As Triple
                 tplr = .SearchPlace(centerXyz, Direction.Left)
-                If tplr.Valide = ValidePlace.Yes Then
+                If tplr.Valide = ValidePlaceEnum.Yes Then
                     .AddSteinToSpielfeld(SteinIndexEnum.Bambus2, tplr)
                 End If
 
                 tplr = .SearchPlace(centerXyz, Direction.LeftUp)
-                If tplr.Valide = ValidePlace.Yes Then
+                If tplr.Valide = ValidePlaceEnum.Yes Then
                     .AddSteinToSpielfeld(SteinIndexEnum.Bambus3, tplr)
                 End If
 
                 tplr = .SearchPlace(centerXyz, Direction.RightDown)
-                If tplr.Valide = ValidePlace.Yes Then
+                If tplr.Valide = ValidePlaceEnum.Yes Then
                     .AddSteinToSpielfeld(SteinIndexEnum.Bambus4, tplr)
                 End If
 
                 tplr = .SearchPlace(tplr, Direction.Up)
-                If tplr.Valide = ValidePlace.Yes Then
+                If tplr.Valide = ValidePlaceEnum.Yes Then
                     .AddSteinToSpielfeld(SteinIndexEnum.Bambus5, tplr)
                 End If
 
                 tplr = .SearchPlace(tplr, Direction.Up)
-                If tplr.Valide = ValidePlace.Yes Then
+                If tplr.Valide = ValidePlaceEnum.Yes Then
                     .AddSteinToSpielfeld(SteinIndexEnum.Bambus6, tplr)
                 End If
 

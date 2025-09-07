@@ -207,7 +207,7 @@ Public Class Werkbank
             Do
                 Dim tplR As Triple = SearchPlace(tpl, direction:=Direction.Right)
                 Select Case tplR.Valide
-                    Case ValidePlace.NoFundamentFound   'Zeilenende erreicht.
+                    Case ValidePlaceEnum.NoFundamentFound   'Zeilenende erreicht.
                         tpl.y += 2 'Eine Steinreihe tiefer weitersuchen
                         tpl.x = 1
                         If tpl.y > arrFB.GetUpperBound(1) - 1 Then
@@ -225,7 +225,7 @@ Public Class Werkbank
                             Return False
                         End If
 
-                    Case ValidePlace.Yes, ValidePlace.NoFundamentFound
+                    Case ValidePlaceEnum.Yes, ValidePlaceEnum.NoFundamentFound
                         ' FoundResult.NoFundament ist in diesem Fall OK, er wird zum freischwebendem Stein.
                         'SetStein rekursiv, aber mit jetzt gültigen Werten aufrufen
                         AddSteinToSpielfeld(SteinIndexEnum.ErrorSy, tplR)
@@ -266,16 +266,16 @@ Public Class Werkbank
     Public Function IsValidePlace(triple As Triple) As Triple
 
         If Not triple.IsInsideSpielfeldBounds(arrFB) Then
-            Return New Triple(triple, ValidePlace.OutsideBorder)
+            Return New Triple(triple, ValidePlaceEnum.OutsideBorder)
         Else
             If IsFreePlace(triple) Then
                 If HasFundament(triple) Then
-                    Return New Triple(triple, ValidePlace.Yes)
+                    Return New Triple(triple, ValidePlaceEnum.Yes)
                 Else
-                    Return New Triple(triple, ValidePlace.NoFundamentFound)
+                    Return New Triple(triple, ValidePlaceEnum.NoFundamentFound)
                 End If
             Else
-                Return New Triple(triple, ValidePlace.Occupied)
+                Return New Triple(triple, ValidePlaceEnum.Occupied)
             End If
         End If
 
@@ -442,10 +442,10 @@ Public Class Werkbank
         If tpl.z = 0 Then
             Do
                 If Not tpl.IsInsideSpielfeldBounds(arrFB) Then
-                    Return New Triple(tpl, ValidePlace.OutsideBorder)
+                    Return New Triple(tpl, ValidePlaceEnum.OutsideBorder)
                 Else
                     If IsFreePlace(tpl) Then
-                        Return New Triple(tpl, ValidePlace.Yes)
+                        Return New Triple(tpl, ValidePlaceEnum.Yes)
                     End If
                 End If
                 tpl = IncDirection(tpl, direction)
@@ -456,9 +456,9 @@ Public Class Werkbank
 
                 If Not tpl.IsInsideSpielfeldBounds(arrFB) Then
                     If fFoundFreePlace Then
-                        Return New Triple(tpl, ValidePlace.NoFundamentFound)
+                        Return New Triple(tpl, ValidePlaceEnum.NoFundamentFound)
                     Else
-                        Return New Triple(tpl, ValidePlace.OutsideBorder)
+                        Return New Triple(tpl, ValidePlaceEnum.OutsideBorder)
                     End If
                 Else
                     Dim fFound As Boolean = IsFreePlace(tpl)
@@ -468,7 +468,7 @@ Public Class Werkbank
                     End If
 
                     If fFound AndAlso HasFundament(tpl) Then
-                        Return New Triple(tpl, ValidePlace.Yes)
+                        Return New Triple(tpl, ValidePlaceEnum.Yes)
                     End If
 
                 End If
@@ -523,11 +523,11 @@ Public Class Werkbank
             Dim tpl3 As Triple = IsValidePlace(tpl2)
 
             Select Case tpl3.Valide
-                Case ValidePlace.Yes
+                Case ValidePlaceEnum.Yes
                     Return tpl3
-                Case ValidePlace.NoFundamentFound
+                Case ValidePlaceEnum.NoFundamentFound
                     'nächster Versuch
-                Case ValidePlace.OutsideBorder
+                Case ValidePlaceEnum.OutsideBorder
                     Return tpl3
             End Select
         Loop
@@ -552,12 +552,12 @@ Public Class Werkbank
 
         If IsFreePlace(tpl) Then
             If HasFundament(tpl) Then
-                tpl.Valide = ValidePlace.Yes
+                tpl.Valide = ValidePlaceEnum.Yes
             Else
-                tpl.Valide = ValidePlace.NoFundamentFound
+                tpl.Valide = ValidePlaceEnum.NoFundamentFound
             End If
         Else
-            tpl.Valide = ValidePlace.NoFundamentFound
+            tpl.Valide = ValidePlaceEnum.NoFundamentFound
         End If
 
         Return tpl

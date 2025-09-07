@@ -59,11 +59,11 @@ Namespace Spielfeld
         Public Property EditorSpielfeldInfo As SpielfeldInfo = Nothing
         Public Property WerkbankSpielfeldInfo As SpielfeldInfo = Nothing
 
-        Public Property AktRendering As Rendering
+        Public Property AktRendering As RenderingEnum
             Get
                 Return RuntimeOnly_AktRendering
             End Get
-            Set(value As Rendering)
+            Set(value As RenderingEnum)
                 RuntimeOnly_AktRendering = value
             End Set
         End Property

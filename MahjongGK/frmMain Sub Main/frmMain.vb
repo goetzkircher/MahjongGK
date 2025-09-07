@@ -41,7 +41,7 @@ Public Class frmMain
     ''' Hier ist der Einstieg ins Spiel
     ''' </summary>
     ''' <param name="startRenderingWithOrToggleTo"></param>
-    Private Sub InitialisierungSpielfeldEditorAndWerkbank(startRenderingWithOrToggleTo As Rendering)
+    Private Sub InitialisierungSpielfeldEditorAndWerkbank(startRenderingWithOrToggleTo As RenderingEnum)
         If Not _initialisierungSpielfeldEditorAndWerkbankIsDone Then
 
             'Hier werden die Anfangs-Spiele/Editor/Werkbanksdaten zugewiesen
@@ -50,16 +50,16 @@ Public Class frmMain
             _initialisierungSpielfeldEditorAndWerkbankIsDone = True
         End If
         Select Case startRenderingWithOrToggleTo
-            Case Rendering.Spielfeld
+            Case RenderingEnum.Spielfeld
                 AktVisibleUserControl = VisibleUserControl.Spielfeld
-                Spielfeld.AktRendering = Rendering.Spielfeld
+                Spielfeld.AktRendering = RenderingEnum.Spielfeld
 
-            Case Rendering.Editor
+            Case RenderingEnum.Editor
                 AktVisibleUserControl = VisibleUserControl.Editor
-                Spielfeld.AktRendering = Rendering.Editor
-            Case Rendering.Werkbank
+                Spielfeld.AktRendering = RenderingEnum.Editor
+            Case RenderingEnum.Werkbank
                 AktVisibleUserControl = VisibleUserControl.Werkbank
-                Spielfeld.AktRendering = Rendering.Werkbank
+                Spielfeld.AktRendering = RenderingEnum.Werkbank
             Case Else
         End Select
     End Sub
@@ -67,10 +67,10 @@ Public Class frmMain
     '######################################################################################################
 
     Private Sub Toggle()
-        If Spielfeld.AktRendering = Rendering.Spielfeld Then
-            Spielfeld.AktRendering = Rendering.Werkbank
+        If Spielfeld.AktRendering = RenderingEnum.Spielfeld Then
+            Spielfeld.AktRendering = RenderingEnum.Werkbank
         Else
-            Spielfeld.AktRendering = Rendering.Spielfeld
+            Spielfeld.AktRendering = RenderingEnum.Spielfeld
         End If
     End Sub
 
@@ -78,7 +78,8 @@ Public Class frmMain
         Dim icr As New IniCommentReader(INI.AllIniManagersFullPath)
         Dim sb As New System.Text.StringBuilder
         sb.Append(icr.GetKommentar(NameOf(INI.Editor_UsingEditor), seperator:=CommentSeperator.CrLf))
-        sb.Append(icr.GetKommentar(NameOf(INI.IfRunningInIDE_Grafik16x16Directory), seperator:=CommentSeperator.Tilde))
+        sb.Append(icr.GetKommentar(NameOf(INI.IfRunningInIDE_Grafik16x16Directory_Ressourcen), seperator:=CommentSeperator.Tilde))
+        sb.Append(icr.GetKommentar(NameOf(INI.IfRunningInIDE_Grafik16x16Directory_Other), seperator:=CommentSeperator.Tilde))
         sb.Append(icr.GetKommentar(NameOf(INI.Rendering_BitmapHighQuality), seperator:=CommentSeperator.Tilde))
         sb.Append(icr.GetKommentar(NameOf(INI.Sonstiges_AppGrafikSatz), seperator:=CommentSeperator.Tilde))
         MessageBoxFormatiert.ShowInfo(sb.ToString, "Kommentare")
@@ -89,7 +90,7 @@ Public Class frmMain
     End Sub
 
     Private Sub Go()
-        InitialisierungSpielfeldEditorAndWerkbank(startRenderingWithOrToggleTo:=Rendering.Spielfeld)
+        InitialisierungSpielfeldEditorAndWerkbank(startRenderingWithOrToggleTo:=RenderingEnum.Spielfeld)
     End Sub
 
     Private Sub Parkplatz()
@@ -214,14 +215,14 @@ Public Class frmMain
 
 
         AddHandler INI.EventsOnly_RefreshUINachIniÄnderung_Event, AddressOf RefreshUINachIniÄnderung
-        AddHandler INI.Rendering_AktMaxSteineXYZ_Event, AddressOf RefreshToolstripMainAktMaxSteineXYZ
+        AddHandler INI.Rendering_AktMaxSteineXYZ_Event, AddressOf RefreshToolStripExMainAktMaxSteineXYZ
         AddHandler INI.RuntimeOnly_AktRendering_Event, AddressOf UpdateGrpEditorButtons
-        AddHandler INI.RuntimeOnly_ToolboxAktiv_Event, AddressOf UpdateToolboxButton
+        AddHandler INI.RuntimeOnly_ToolboxAktiv_Event, AddressOf ShowOrHideToolboxAndUpdateToolboxButton
         '()
 
         'Das Menue wird dynamisch erzeugt, damit es
         'übersichtlicher wird, als die statische Erzeugung im Designer.
-        BuildMenu(Me.MenuStripMain)
+        BuildMenu(Me.MenuStripExMain)
 
         BuildBottomToolStrip()
 
@@ -244,9 +245,9 @@ Public Class frmMain
 
     Private Sub frmMain_Disposed(sender As Object, e As EventArgs) Handles Me.Disposed
         RemoveHandler INI.EventsOnly_RefreshUINachIniÄnderung_Event, AddressOf RefreshUINachIniÄnderung
-        RemoveHandler INI.Rendering_AktMaxSteineXYZ_Event, AddressOf RefreshToolstripMainAktMaxSteineXYZ
+        RemoveHandler INI.Rendering_AktMaxSteineXYZ_Event, AddressOf RefreshToolStripExMainAktMaxSteineXYZ
         RemoveHandler INI.RuntimeOnly_AktRendering_Event, AddressOf UpdateGrpEditorButtons
-        RemoveHandler INI.RuntimeOnly_ToolboxAktiv_Event, AddressOf UpdateToolboxButton
+        RemoveHandler INI.RuntimeOnly_ToolboxAktiv_Event, AddressOf ShowOrHideToolboxAndUpdateToolboxButton
     End Sub
 
 #End Region
@@ -498,7 +499,7 @@ Public Class frmMain
 
     Private Sub BuildBottomToolStrip()
         ' Basis
-        With ToolStripMain
+        With ToolStripExMain
             .Dock = DockStyle.Bottom
             .GripStyle = ToolStripGripStyle.Hidden
             .AutoSize = False
@@ -515,31 +516,31 @@ Public Class frmMain
         ' Debug-Gruppe (links) – nur wenn Debugger.IsAttached
         ' =======================
         If Debugger.IsAttached Then
-            ToolStripMain.Items.Add(MkBtnText("dbg_ini", "INI",
+            ToolStripExMain.Items.Add(MkBtnText("dbg_ini", "INI",
             Sub() INI.IniEditieren(),
             If(INI.Sonstiges_ShowToolTips, "INI während der Laufzeit bearbeiten", Nothing)))
 
-            'ToolStripMain.Items.Add(MkBtnText("dbg_explorer", "Explorer",
+            'ToolStripExMain.Items.Add(MkBtnText("dbg_explorer", "Explorer",
             'Sub() Process.Start("explorer.exe", AppDataDirectory),
             'If(INI.Sonstiges_ShowToolTips, "Öffnet AppData-Verzeichnis", Nothing)))
 
-            ToolStripMain.Items.Add(MkBtnText("dbg_go", "Go",
+            ToolStripExMain.Items.Add(MkBtnText("dbg_go", "Go",
             Sub() Go(),
             If(INI.Sonstiges_ShowToolTips, "frmMain Sub Go ausführen", Nothing)))
 
-            ToolStripMain.Items.Add(MkBtnText("dbg_toggle", "Tgl",
+            ToolStripExMain.Items.Add(MkBtnText("dbg_toggle", "Tgl",
             Sub() Toggle(),
             If(INI.Sonstiges_ShowToolTips, "frmMain Sub Toggle ausführen", Nothing)))
 
-            ToolStripMain.Items.Add(MkBtnText("dbg_test1", "T1",
+            ToolStripExMain.Items.Add(MkBtnText("dbg_test1", "T1",
             Sub() Test1(True),
             If(INI.Sonstiges_ShowToolTips, "frmMain Sub Test1 ausführen", Nothing)))
 
-            ToolStripMain.Items.Add(MkBtnText("dbg_test2", "T2",
+            ToolStripExMain.Items.Add(MkBtnText("dbg_test2", "T2",
             Sub() Test2(),
             If(INI.Sonstiges_ShowToolTips, "frmMain Sub Test2 ausführen", Nothing)))
 
-            '  ToolStripMain.Items.Add(New ToolStripSeparator())
+            '  ToolStripExMain.Items.Add(New ToolStripSeparator())
 
             ' ---- Dateiexplorer aufrufen ----
             Dim cbo1 As New ToolStripComboBox("dbg_fileexpl") With {
@@ -551,7 +552,8 @@ Public Class frmMain
             Dim entries As (Label As String, Query As String)() = {
                 ("AppDataDir", AppDataDirectory),
                 ("Download", INI.IfRunningInIDE_DownloadDirectory),
-                ("Gfx 16x16", INI.IfRunningInIDE_Grafik16x16Directory)
+                ("Gfx 16x16 Ressou", INI.IfRunningInIDE_Grafik16x16Directory_Ressourcen),
+                ("Gfx 16x16 Andere", INI.IfRunningInIDE_Grafik16x16Directory_Other)
             }
 
             ' Items befüllen
@@ -572,7 +574,7 @@ Public Class frmMain
                     End If
                 End Sub
 
-            ToolStripMain.Items.Add(cbo1)
+            ToolStripExMain.Items.Add(cbo1)
 
 
 
@@ -587,20 +589,15 @@ Public Class frmMain
                 ("Neutral (Anthrazit)", "404040", ""),
                 ("Checked (Schwarz)", "000000", ""),
                 ("UnChecked (Grau)", "A0A0A0", ""),
-                ("Error / Stop (Rot)", "C00000", "error"),
+                ("Error/Stop (Rot)", "C00000", "error"),
                 ("Warnung (Orange)", "CC6600", "warning"),
-                ("Bestätigen / Redo (Grün)", "008000", "redo"),
-                ("Tipps / Info (Blau)", "0066CC", "help info tip"),
-                ("Screenshot / Tools (Violett)", "663399", "screenshot camera"),
-                ("Optionen (Grau-Blau)", "3A6E7F", "settings options"),
-                ("Hellgrau", "B0B0B0", "outline"),
-                ("Weiß", "FFFFFF", "filled"),
-                ("Schwarz", "000000", "solid"),
-                ("Thema: Undo/Redo (Neutral)", "404040", "undo redo"),
-                ("Thema: Editor/Werkzeuge (Neutral)", "404040", "edit build tools"),
-                ("Thema: Tipps/Hinweise (Neutral)", "404040", "lightbulb tips"),
-                ("Thema: Anzeige/Ansicht (Neutral)", "404040", "visibility view"),
-                ("Thema: Ordner/Datei (Neutral)", "404040", "folder file")
+                ("Aktiv (Grün)", "008000", ""),
+                ("MouseOver (Blau)", "0066CC", ""),
+                ("Tipps/Info (Blau)", "0066CC", ""),
+                ("Optionen (Grau-Blau)", "3A6E7F", ""),
+                ("Hellgrau", "B0B0B0", ""),
+                ("Weiß", "FFFFFF", ""),
+                ("Schwarz", "000000", "")
             }
 
             ' Items befüllen
@@ -622,8 +619,8 @@ Public Class frmMain
                     End If
                 End Sub
 
-            ToolStripMain.Items.Add(cbo2)
-            ToolStripMain.Items.Add(New ToolStripSeparator())
+            ToolStripExMain.Items.Add(cbo2)
+            ToolStripExMain.Items.Add(New ToolStripSeparator())
 
             AttachToolStripComboOverflowTooltip(cbo1)
             AttachToolStripComboOverflowTooltip(cbo2)
@@ -634,15 +631,15 @@ Public Class frmMain
         ' Editor-Gruppe (links), nur wenn Allowed
         ' =======================
         If INI.Editor_UsingEditorAllowed Then
-            ToolStripMain.Items.Add(MkBtnImg("grpEditor_player", GetAppGrafik(AppGrafikName.Spieler), Sub() DoSpielfeld(),
+            ToolStripExMain.Items.Add(MkBtnImg("grpEditor_player", GetAppGrafik(AppGrafikName.Spieler), Sub() DoSpielfeld(),
             If(INI.Sonstiges_ShowToolTips, "Ruft das Spiel auf.", Nothing)))
-            ToolStripMain.Items.Add(MkBtnImg("grpEditor_editor", GetAppGrafik(AppGrafikName.Editor), Sub() DoEditor(),
+            ToolStripExMain.Items.Add(MkBtnImg("grpEditor_editor", GetAppGrafik(AppGrafikName.Editor), Sub() DoEditor(),
             If(INI.Sonstiges_ShowToolTips, "Ruft den Editor auf.", Nothing)))
-            ToolStripMain.Items.Add(MkBtnImg("grpEditor_werkbank", GetAppGrafik(AppGrafikName.Werkbank), Sub() DoWerkbank(),
+            ToolStripExMain.Items.Add(MkBtnImg("grpEditor_werkbank", GetAppGrafik(AppGrafikName.Werkbank), Sub() DoWerkbank(),
             If(INI.Sonstiges_ShowToolTips, "Ruft die Werkbank auf.", Nothing)))
-            ToolStripMain.Items.Add(MkBtnImg("grpEditor_toolbox", GetAppGrafik(AppGrafikName.Werkzeug), Sub() DoToolBox(),
+            ToolStripExMain.Items.Add(MkBtnImg("grpEditor_toolbox", GetAppGrafik(AppGrafikName.Werkzeug), Sub() DoToolBox(),
             If(INI.Sonstiges_ShowToolTips, "Ruft die Werkzeugkiste auf.", Nothing)))
-            ToolStripMain.Items.Add(New ToolStripSeparator())
+            ToolStripExMain.Items.Add(New ToolStripSeparator())
 
             ' Enabled-Zustand abhängig von UsingEditor
             SetGroupEnabled("grpEditor", INI.Editor_UsingEditor)
@@ -652,18 +649,18 @@ Public Class frmMain
         ' =======================
         ' Status-Gruppe (links)
         ' =======================
-        ToolStripMain.Items.Add(MkLbl("stat_size", "Feldgröße: 00/00/00"))
-        ToolStripMain.Items.Add(New ToolStripSeparator())
-        'ToolStripMain.Items.Add(MkLbl("stat_title", "Steine:"))
-        'ToolStripMain.Items.Add(New ToolStripSeparator())
-        ToolStripMain.Items.Add(MkLbl("stat_total", "Summe Steine: 000"))
-        ToolStripMain.Items.Add(New ToolStripSeparator())
-        ToolStripMain.Items.Add(MkLbl("stat_current", "Aktuell: 000"))
-        ToolStripMain.Items.Add(New ToolStripSeparator())
-        ToolStripMain.Items.Add(MkLbl("stat_sel", "wählbar: 00"))
-        ToolStripMain.Items.Add(New ToolStripSeparator())
-        ToolStripMain.Items.Add(MkLbl("stat_pairs", "Paare: 00"))
-        ToolStripMain.Items.Add(New ToolStripSeparator())
+        ToolStripExMain.Items.Add(MkLbl("stat_size", "Feldgröße: 00/00/00"))
+        ToolStripExMain.Items.Add(New ToolStripSeparator())
+        'ToolStripExMain.Items.Add(MkLbl("stat_title", "Steine:"))
+        'ToolStripExMain.Items.Add(New ToolStripSeparator())
+        ToolStripExMain.Items.Add(MkLbl("stat_total", "Summe Steine: 000"))
+        ToolStripExMain.Items.Add(New ToolStripSeparator())
+        ToolStripExMain.Items.Add(MkLbl("stat_current", "Aktuell: 000"))
+        ToolStripExMain.Items.Add(New ToolStripSeparator())
+        ToolStripExMain.Items.Add(MkLbl("stat_sel", "wählbar: 00"))
+        ToolStripExMain.Items.Add(New ToolStripSeparator())
+        ToolStripExMain.Items.Add(MkLbl("stat_pairs", "Paare: 00"))
+        ToolStripExMain.Items.Add(New ToolStripSeparator())
 
 
 
@@ -672,18 +669,18 @@ Public Class frmMain
         ' Einfüge-Reihenfolge = von rechts nach links
         ' =======================
 
-        ToolStripMain.Items.Add(MkBtnImgRight("act_screenshot", GetAppGrafik(AppGrafikName.Screenshot), Sub() DoTakeScreenShot(),
+        ToolStripExMain.Items.Add(MkBtnImgRight("act_screenshot", GetAppGrafik(AppGrafikName.Screenshot), Sub() DoTakeScreenShot(),
         If(INI.Sonstiges_ShowToolTips, "Erzeugt einen ScreenShot vom Spiel/Editor/Werkbank.", Nothing)))
 
-        ToolStripMain.Items.Add(MkBtnImgRight("act_statistik", GetAppGrafik(AppGrafikName.Statistik), Sub() DoStatistik(),
+        ToolStripExMain.Items.Add(MkBtnImgRight("act_statistik", GetAppGrafik(AppGrafikName.Statistik), Sub() DoStatistik(),
             If(INI.Sonstiges_ShowToolTips, "Statistische Daten zum Spiel", Nothing)))
 
-        ToolStripMain.Items.Add(MkSepRight())
+        ToolStripExMain.Items.Add(MkSepRight())
 
         ' '' 4) Label "Zeige:"
-        ''ToolStripMain.Items.Add(MkLblRight("act_show_lbl", "Zeige:"))
+        ''ToolStripExMain.Items.Add(MkLblRight("act_show_lbl", "Zeige:"))
 
-        ToolStripMain.Items.Add(MkBtnImgTextRight("act_tip1", GetAppGrafik(AppGrafikName.Tip), "",
+        ToolStripExMain.Items.Add(MkBtnImgTextRight("act_tip1", GetAppGrafik(AppGrafikName.Tip), "",
             Sub() DoTipEinzel(),
             If(INI.Sonstiges_ShowToolTips, "Schalter: Zeigt permanent wählbare Steine an.", Nothing)))
 
@@ -698,11 +695,11 @@ Public Class frmMain
             End Sub,
             If(INI.Sonstiges_ShowToolTips, "Schalter vereinfachte Spielregel: Alle Winde können untereinander Paare bilden.", Nothing))
 
-        ToolStripMain.Items.Add(chkWinds)
+        ToolStripExMain.Items.Add(chkWinds)
 
-        ToolStripMain.Items.Add(MkSepRight())
+        ToolStripExMain.Items.Add(MkSepRight())
 
-        ToolStripMain.Items.Add(MkBtnImgTextRight("act_wählbar", GetAppGrafik(AppGrafikName.Tipps), "",
+        ToolStripExMain.Items.Add(MkBtnImgTextRight("act_wählbar", GetAppGrafik(AppGrafikName.Tipps), "",
             Sub() DoTipAlle(),
             If(INI.Sonstiges_ShowToolTips, "Tip: Zeigt alle wählbaren Paare an.", Nothing)))
 
@@ -715,24 +712,24 @@ Public Class frmMain
                     ' ggf. Refresh/Neuzeichnen hier
                 End Sub,
                 If(INI.Sonstiges_ShowToolTips, "Tip: Zeigt alle wählbaren Steine an.", Nothing))
-        ToolStripMain.Items.Add(chkSel)
+        ToolStripExMain.Items.Add(chkSel)
 
 
-        ToolStripMain.Items.Add(MkSepRight())
+        ToolStripExMain.Items.Add(MkSepRight())
 
-        ToolStripMain.Items.Add(MkBtnImgRight("act_restart", GetAppGrafik(AppGrafikName.Restart), Sub() DoReDo(),
+        ToolStripExMain.Items.Add(MkBtnImgRight("act_restart", GetAppGrafik(AppGrafikName.Restart), Sub() DoReDo(),
             If(INI.Sonstiges_ShowToolTips, "Stell das Spiel auf die Ausgangsstellung zurück", Nothing)))
 
-        ToolStripMain.Items.Add(MkBtnImgRight("act_redo", GetAppGrafik(AppGrafikName.Redo), Sub() DoReDo(),
+        ToolStripExMain.Items.Add(MkBtnImgRight("act_redo", GetAppGrafik(AppGrafikName.Redo), Sub() DoReDo(),
             If(INI.Sonstiges_ShowToolTips, "Arbeitet wieder vorwärts, solange das noch möglich ist", Nothing)))
 
-        ToolStripMain.Items.Add(MkBtnImgRight("act_undo", GetAppGrafik(AppGrafikName.Undo), Sub() DoUndo(),
+        ToolStripExMain.Items.Add(MkBtnImgRight("act_undo", GetAppGrafik(AppGrafikName.Undo), Sub() DoUndo(),
             If(INI.Sonstiges_ShowToolTips, "Setzt das letzte Steinpaar wieder auf das Spielfeld", Nothing)))
 
-        ToolStripMain.Items.Add(MkSepRight())
+        ToolStripExMain.Items.Add(MkSepRight())
 
-        ToolStripMain.ResumeLayout()
-        ToolStripMain.PerformLayout()
+        ToolStripExMain.ResumeLayout()
+        ToolStripExMain.PerformLayout()
     End Sub
 
     ' --- Helper: Labels ---
@@ -810,7 +807,7 @@ Public Class frmMain
 
     ' --- Gruppe aktivieren/deaktivieren (per Namenspräfix) ---
     Private Sub SetGroupEnabled(prefix As String, enabled As Boolean)
-        For Each it As ToolStripItem In ToolStripMain.Items
+        For Each it As ToolStripItem In ToolStripExMain.Items
             If it.Name IsNot Nothing AndAlso it.Name.StartsWith(prefix, StringComparison.OrdinalIgnoreCase) Then
                 it.Enabled = enabled
             End If
@@ -845,15 +842,15 @@ Public Class frmMain
     ''' - Editor-Gruppe aktivieren/deaktivieren
     ''' </summary>
     Public Sub RefreshUINachIniÄnderung()
-        If ToolStripMain Is Nothing Then Exit Sub
+        If ToolStripExMain Is Nothing Then Exit Sub
 
         _isRefreshing = True
         Try
             ' 1) ToolTips (global für ToolStrip-Items)
-            ToolStripMain.ShowItemToolTips = INI.Sonstiges_ShowToolTips
+            ToolStripExMain.ShowItemToolTips = INI.Sonstiges_ShowToolTips
 
             ' 2) Toggle: "alle wählbaren Steine anzeigen"
-            Dim btnShowSel As ToolStripButton = TryCast(ToolStripMain.Items("opt_show_sel"), ToolStripButton)
+            Dim btnShowSel As ToolStripButton = TryCast(ToolStripExMain.Items("opt_show_sel"), ToolStripButton)
             If btnShowSel IsNot Nothing Then
                 btnShowSel.Checked = INI.Spielbetrieb_ShowSelectableStones
                 ' Bild entsprechend dem Zustand (hier Dummy – bei dir echte Grafiken einsetzen)
@@ -866,7 +863,7 @@ Public Class frmMain
             End If
 
             ' 3) Toggle: "Winde bilden gemeinsame Paargruppe"
-            Dim btnWinds As ToolStripButton = TryCast(ToolStripMain.Items("opt_winds_onegrp"), ToolStripButton)
+            Dim btnWinds As ToolStripButton = TryCast(ToolStripExMain.Items("opt_winds_onegrp"), ToolStripButton)
             If Not IsNothing(btnWinds) Then
                 btnWinds.Checked = INI.Spielbetrieb_WindsAreInOneClickGroup
                 btnWinds.Image = If(btnWinds.Checked, GetAppGrafik(AppGrafikName.WindsChecked), GetAppGrafik(AppGrafikName.WindsUnChecked))
@@ -888,7 +885,7 @@ Public Class frmMain
                 ' ...
             End If
 
-            ToolStripMain.PerformLayout()
+            ToolStripExMain.PerformLayout()
 
         Finally
             _isRefreshing = False
@@ -897,7 +894,7 @@ Public Class frmMain
 
     ' Hilfsfunktion: ToolTipText sicher setzen (falls Item existiert)
     Private Sub SafeSetTip(itemName As String, tip As String)
-        Dim it As ToolStripItem = ToolStripMain.Items(itemName)
+        Dim it As ToolStripItem = ToolStripExMain.Items(itemName)
         If it IsNot Nothing Then it.ToolTipText = tip
     End Sub
 
@@ -992,15 +989,15 @@ Public Class frmMain
 #Region "ToolStrip unten Event-Verarbeitung"
 
     Private Sub DoSpielfeld()
-        InitialisierungSpielfeldEditorAndWerkbank(startRenderingWithOrToggleTo:=Rendering.Spielfeld)
+        InitialisierungSpielfeldEditorAndWerkbank(startRenderingWithOrToggleTo:=RenderingEnum.Spielfeld)
     End Sub
 
     Private Sub DoEditor()
-        InitialisierungSpielfeldEditorAndWerkbank(startRenderingWithOrToggleTo:=Rendering.Editor)
+        InitialisierungSpielfeldEditorAndWerkbank(startRenderingWithOrToggleTo:=RenderingEnum.Editor)
     End Sub
 
     Private Sub DoWerkbank()
-        InitialisierungSpielfeldEditorAndWerkbank(startRenderingWithOrToggleTo:=Rendering.Werkbank)
+        InitialisierungSpielfeldEditorAndWerkbank(startRenderingWithOrToggleTo:=RenderingEnum.Werkbank)
     End Sub
 
     Private Sub DoToolBox()
@@ -1036,9 +1033,9 @@ Public Class frmMain
 
     End Sub
 
-    Private Sub RefreshToolstripMainAktMaxSteineXYZ()
+    Private Sub RefreshToolStripExMainAktMaxSteineXYZ()
 
-        Dim lblSize As ToolStripLabel = TryCast(ToolStripMain.Items("stat_size"), ToolStripLabel)
+        Dim lblSize As ToolStripLabel = TryCast(ToolStripExMain.Items("stat_size"), ToolStripLabel)
 
         lblSize.Text = $"Feldgröße: {INI.Rendering_AktMaxSteineX}/{INI.Rendering_AktMaxSteineY}/{INI.Rendering_AktMaxSteineZ}"
 
@@ -1048,10 +1045,10 @@ Public Class frmMain
     ''' Aktualisiert die Statuswerte (Gesamt, Aktuell, Wählbar, Paare).
     ''' </summary>
     Public Sub UpdateStatus(gesamt As Integer, aktuell As Integer, waehlbar As Integer, paare As Integer)
-        Dim lblGesamt As ToolStripLabel = TryCast(ToolStripMain.Items("stat_total"), ToolStripLabel)
-        Dim lblAktuell As ToolStripLabel = TryCast(ToolStripMain.Items("stat_current"), ToolStripLabel)
-        Dim lblWaehlbar As ToolStripLabel = TryCast(ToolStripMain.Items("stat_sel"), ToolStripLabel)
-        Dim lblPaare As ToolStripLabel = TryCast(ToolStripMain.Items("stat_pairs"), ToolStripLabel)
+        Dim lblGesamt As ToolStripLabel = TryCast(ToolStripExMain.Items("stat_total"), ToolStripLabel)
+        Dim lblAktuell As ToolStripLabel = TryCast(ToolStripExMain.Items("stat_current"), ToolStripLabel)
+        Dim lblWaehlbar As ToolStripLabel = TryCast(ToolStripExMain.Items("stat_sel"), ToolStripLabel)
+        Dim lblPaare As ToolStripLabel = TryCast(ToolStripExMain.Items("stat_pairs"), ToolStripLabel)
 
         If lblGesamt IsNot Nothing Then lblGesamt.Text = $"{gesamt} Gesamt"
         If lblAktuell IsNot Nothing Then lblAktuell.Text = $"{aktuell} Aktuell"
@@ -1068,27 +1065,27 @@ Public Class frmMain
             Exit Sub
         End If
 
-        Dim btnPlayer As ToolStripButton = TryCast(ToolStripMain.Items("grpEditor_player"), ToolStripButton)
-        Dim btnEditor As ToolStripButton = TryCast(ToolStripMain.Items("grpEditor_editor"), ToolStripButton)
-        Dim btnWerkbank As ToolStripButton = TryCast(ToolStripMain.Items("grpEditor_werkbank"), ToolStripButton)
+        Dim btnPlayer As ToolStripButton = TryCast(ToolStripExMain.Items("grpEditor_player"), ToolStripButton)
+        Dim btnEditor As ToolStripButton = TryCast(ToolStripExMain.Items("grpEditor_editor"), ToolStripButton)
+        Dim btnWerkbank As ToolStripButton = TryCast(ToolStripExMain.Items("grpEditor_werkbank"), ToolStripButton)
 
         Select Case INI.RuntimeOnly_AktRendering
-            Case Rendering.None
+            Case RenderingEnum.None
                 btnPlayer.Image = GetAppGrafik(AppGrafikName.Spieler)
                 btnEditor.Image = GetAppGrafik(AppGrafikName.Editor)
                 btnWerkbank.Image = GetAppGrafik(AppGrafikName.Werkbank)
 
-            Case Rendering.Editor
+            Case RenderingEnum.Editor
                 btnPlayer.Image = GetAppGrafik(AppGrafikName.Spieler)
                 btnEditor.Image = GetAppGrafik(AppGrafikName.EditorAktiv)
                 btnWerkbank.Image = GetAppGrafik(AppGrafikName.Werkbank)
 
-            Case Rendering.Spielfeld
+            Case RenderingEnum.Spielfeld
                 btnPlayer.Image = GetAppGrafik(AppGrafikName.SpielerAktiv)
                 btnEditor.Image = GetAppGrafik(AppGrafikName.Editor)
                 btnWerkbank.Image = GetAppGrafik(AppGrafikName.Werkbank)
 
-            Case Rendering.Werkbank
+            Case RenderingEnum.Werkbank
                 btnPlayer.Image = GetAppGrafik(AppGrafikName.Spieler)
                 btnEditor.Image = GetAppGrafik(AppGrafikName.Editor)
                 btnWerkbank.Image = GetAppGrafik(AppGrafikName.WerkbankAktiv)
@@ -1096,25 +1093,65 @@ Public Class frmMain
 
     End Sub
 
-    Private Sub UpdateToolboxButton()
-        If Not INI.Editor_UsingEditorAllowed Then
-            Exit Sub
+    'Das ist diese Methode, sie ist angesiedelt in FrmMain.
+    'Sie wird per Event aus der INI heraus aufgerufen.
+    '(Dort gibt es eine Sektion [OnlyRuntime] mit einem Key ToolboxAktiv As Boolean,
+    'der von überall heraus geschaltet werden kann.)
+    Private Sub ShowOrHideToolboxAndUpdateToolboxButton()
+        ' 1) Immer auf dem UI-Thread ausführen (INI-Event könnte im Hintergrund kommen)
+        If Me.InvokeRequired Then
+            Me.BeginInvoke(New MethodInvoker(AddressOf ShowOrHideToolboxAndUpdateToolboxButton))
+            Return
         End If
-        Dim btnToolBox As ToolStripButton = TryCast(ToolStripMain.Items("grpEditor_toolbox"), ToolStripButton)
+
+        If Not INI.Editor_UsingEditorAllowed Then Exit Sub
+
+        ' 2) Button sicher ermitteln
+        Dim btnToolBox As ToolStripButton = Nothing
+        Dim item As ToolStripItem = Nothing
+        If ToolStripExMain.Items.ContainsKey("grpEditor_toolbox") Then
+            item = ToolStripExMain.Items("grpEditor_toolbox")
+            btnToolBox = TryCast(item, ToolStripButton)
+        End If
+
         If INI.RuntimeOnly_ToolboxAktiv Then
-            btnToolBox.Image = GetAppGrafik(AppGrafikName.WerkzeugAktiv)
-            If IsNothing(_frmToolBox) Then
-                _frmToolBox = New frmToolBox
+            If btnToolBox IsNot Nothing Then
+                btnToolBox.Image = GetAppGrafik(AppGrafikName.WerkzeugAktiv)
+                btnToolBox.Checked = True
             End If
-            _frmToolBox.Show()
+
+            ' 3) Instanz sicherstellen
+            If _frmToolBox Is Nothing OrElse _frmToolBox.IsDisposed Then
+                _frmToolBox = New frmToolBox() With {
+                .ShowInTaskbar = False,
+                .TopMost = False   ' Relativ zu Owner statt absolut
+            }
+                ' Empfehlung in frmToolBox:
+                ' Private Sub frmToolBox_FormClosing(...) Handles Me.FormClosing
+                '   If e.CloseReason = UserClosing Then e.Cancel = True : Me.Hide()
+                ' End Sub
+            End If
+
+            ' 4) Als Owned-Form von frmMain anzeigen → bleibt über frmMain, aber nicht über anderen Apps
+            _frmToolBox.Show(Me)       ' Owner setzen
+            _frmToolBox.BringToFront() ' sicher nach vorne holen
+            ' Optional:
+            ' _frmToolBox.Activate()
+
         Else
-            btnToolBox.Image = GetAppGrafik(AppGrafikName.Werkzeug)
-            If Not IsNothing(_frmToolBox) Then
+            If btnToolBox IsNot Nothing Then
+                btnToolBox.Image = GetAppGrafik(AppGrafikName.Werkzeug)
+                btnToolBox.Checked = False
+            End If
+
+            If _frmToolBox IsNot Nothing AndAlso Not _frmToolBox.IsDisposed Then
                 _frmToolBox.Hide()
             End If
         End If
-
     End Sub
+
+
+
 #End Region
 
 

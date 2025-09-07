@@ -88,7 +88,7 @@ Namespace Umfeld
                         For idxY As Integer = .yMin To .yMax
                             Dim tplQuestion As New Triple(idxX, idxY, idxZ)
                             Dim steinPos3D As Triple = wb.IsValidePlace(tplQuestion)
-                            If steinPos3D.Valide = ValidePlace.Yes Then
+                            If steinPos3D.Valide = ValidePlaceEnum.Yes Then
                                 'Stein mit zufälliger SteinIndexEnum setzen.
                                 wb.AddSteinToSpielfeld(CType(_rnd.Next(1, 43), SteinIndexEnum), steinPos3D)
                             End If
@@ -113,7 +113,7 @@ Namespace Umfeld
                         For idxY As Integer = .yMin To .yMax Step 2
                             Dim tplQuestion As New Triple(idxX, idxY, idxZ)
                             Dim steinPos3D As Triple = wb.IsValidePlace(tplQuestion)
-                            If steinPos3D.Valide = ValidePlace.Yes Then
+                            If steinPos3D.Valide = ValidePlaceEnum.Yes Then
                                 wb.AddSteinToSpielfeld(CType(_rnd.Next(1, 43), SteinIndexEnum), steinPos3D)
                             End If
                         Next
@@ -140,7 +140,7 @@ Namespace Umfeld
                         For idxY As Integer = .yMin + idxZ * mulY To .yMax - idxZ * mulY Step 2
                             Dim tplQuestion As New Triple(idxX, idxY, idxZ)
                             Dim tplAnswer As Triple = wb.IsValidePlace(tplQuestion)
-                            If tplAnswer.Valide = ValidePlace.Yes Then
+                            If tplAnswer.Valide = ValidePlaceEnum.Yes Then
                                 wb.AddSteinToSpielfeld(CType(_rnd.Next(1, 43), SteinIndexEnum), tplAnswer)
                             End If
                         Next
@@ -185,7 +185,7 @@ Namespace Umfeld
                                 Dim tplQuestion As New Triple(idxX, idxY, idxZ)
                                 Dim tplAnswer As Triple = wb.IsValidePlace(tplQuestion)
 
-                                If tplAnswer.Valide = ValidePlace.Yes Then
+                                If tplAnswer.Valide = ValidePlaceEnum.Yes Then
                                     'Das ist hier nur eine Sicherheitsgurt.
                                     '(Schützt vor Programmierfehlern, die sichtbar werden, weil der Stein dann fehlt.)
                                     wb.AddSteinToSpielfeld(CType(_rnd.Next(1, 43), SteinIndexEnum), tplAnswer)

@@ -45,7 +45,7 @@ Namespace Spielfeld
         Private _visibleUserControlOnBeginnPause As frmMain.VisibleUserControl
         Private _bmpFrozen As Bitmap = Nothing
 
-        Private _lastRendering As Rendering
+        Private _lastRendering As RenderingEnum
 
         Private _lastRectOutput As New Rectangle
 
@@ -85,16 +85,16 @@ Namespace Spielfeld
             _visibleUserControlSic = visibleUCtl
             FrameScheduler.Reset()
             RenderTimer.Start()
-            SpielfeldDaten.AktRendering = Rendering.None
-            _lastRendering = Rendering.None
+            SpielfeldDaten.AktRendering = RenderingEnum.None
+            _lastRendering = RenderingEnum.None
             _initialisierungLäuft = True
         End Sub
         Public Sub PaintSpielfeld_DeInitialisierung()
             _currentControl = Nothing
             SpielfeldDaten.VisibleUserControl = frmMain.VisibleUserControl.None
             RenderTimer.Stop()
-            SpielfeldDaten.AktRendering = Rendering.None
-            _lastRendering = Rendering.None
+            SpielfeldDaten.AktRendering = RenderingEnum.None
+            _lastRendering = RenderingEnum.None
             _initialisierungLäuft = False
         End Sub
         '
@@ -108,8 +108,8 @@ Namespace Spielfeld
             SpielfeldDaten.VisibleUserControl = _visibleUserControlSic
             FrameScheduler.Reset()
             RenderTimer.Start()
-            SpielfeldDaten.AktRendering = Rendering.None
-            _lastRendering = Rendering.None
+            SpielfeldDaten.AktRendering = RenderingEnum.None
+            _lastRendering = RenderingEnum.None
             _initialisierungLäuft = True
         End Sub
 
@@ -145,6 +145,7 @@ Namespace Spielfeld
         Private WithEvents RenderTimer As New Timer With {
             .Interval = INI.Rendering_RenderTimerInterval}
 
+        <DebuggerStepThrough>
         Private Sub RenderTimer_Tick(sender As Object, e As EventArgs) Handles RenderTimer.Tick
 
             If _currentControl Is Nothing OrElse _currentControl.IsDisposed Then
@@ -228,12 +229,10 @@ Namespace Spielfeld
                 _EndePause = False
                 If _startIniUpdate Then
                     _startIniUpdate = False
-                    Application.DoEvents()
                     INI.UpDateIni(_raiseIniEvents, _readNewIni)
                     _raiseIniEvents = IniEvents.None
                     _readNewIni = False
                     _forceUpdate = True
-                    Application.DoEvents()
                     _takteAussetzen = 30
                     Exit Sub
                 End If
@@ -246,12 +245,12 @@ Namespace Spielfeld
                 Exit Sub
             End If
 
-            If _initialisierungLäuft And AktRendering <> Rendering.None Then
+            If _initialisierungLäuft And AktRendering <> RenderingEnum.None Then
                 'Es muss sichergestellt sein, daß _initialisierungLäuft korrekt rückgestellt wird
                 'deshalb wird hier die Prüfung vorab durchgeführt, die in UpdateSpielfeld
                 'auch durchgeführt wird, aber ohne Möglichkeit im Fehlerfall das Flag stehen zu lassen.
                 Select Case AktRendering
-                    Case Rendering.Spielfeld
+                    Case RenderingEnum.Spielfeld
                         If Not IsNothing(SpielfeldDaten.PlayerSpielfeldInfo) Then
                             If Not IsNothing(SpielfeldDaten.PlayerSpielfeldInfo.SteinInfos) Then
                                 _initialisierungLäuft = False
@@ -263,7 +262,7 @@ Namespace Spielfeld
                             End If
                         End If
 
-                    Case Rendering.Werkbank
+                    Case RenderingEnum.Werkbank
                         If Not IsNothing(SpielfeldDaten.WerkbankSpielfeldInfo) Then
                             If Not IsNothing(SpielfeldDaten.WerkbankSpielfeldInfo.SteinInfos) Then
                                 _initialisierungLäuft = False
@@ -275,7 +274,7 @@ Namespace Spielfeld
                             End If
                         End If
 
-                    Case Rendering.Editor
+                    Case RenderingEnum.Editor
                         If Not IsNothing(SpielfeldDaten.EditorSpielfeldInfo) Then
                             If Not IsNothing(SpielfeldDaten.EditorSpielfeldInfo.SteinInfos) Then
                                 _initialisierungLäuft = False

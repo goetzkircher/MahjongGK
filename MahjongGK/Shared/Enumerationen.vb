@@ -498,7 +498,7 @@ End Enum
 ''' mit ungleich Yes auf "Nicht Valide" zu schließen, ohne genauer
 ''' hinzugucken, aus welchem Grund.
 ''' </summary>
-Public Enum ValidePlace
+Public Enum ValidePlaceEnum
     NotSet
     Yes
     NoFundamentFound 'in der Schicht darunter gibt es keinen
@@ -507,9 +507,63 @@ Public Enum ValidePlace
     OutsideBorder    'Spielfeldrand erreicht.
 End Enum
 
-Public Enum Rendering
+Public Enum RenderingEnum
     None
     Spielfeld
     Editor
     Werkbank
+End Enum
+
+#Region "Enums und Konstanten"
+' Datei-Menü getrennt für Editor/Werkbank (unterschiedlich erweiterbar)
+Public Enum EditorFileCmd
+    LadenInterne
+    LadenEigene
+    Speichern
+    SpeichernUnter
+End Enum
+
+Public Enum WerkbkFileCmd
+    LadenInterne
+    LadenEigene
+    Speichern
+    Speichern_unter
+End Enum
+
+' Werkbank: Basisformen
+Public Enum BasisformEnum
+    Linie
+    Winkel
+    UForm
+    Rechteck
+    Kreis
+    Pyramide
+    Kegel
+    Zufall
+End Enum
+
+' Platzhalter
+Public Enum PlatzhalterEditor
+    Item1
+    Item2
+End Enum
+
+Public Enum PlatzhalterWerkbank
+    Item1
+    Item2
+End Enum
+
+
+#End Region
+
+Public Enum KompassEnum
+    None
+    N
+    NO
+    O
+    SO
+    S
+    SW
+    W
+    NW
 End Enum

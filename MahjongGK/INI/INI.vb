@@ -19,9 +19,10 @@
 '#                                                                         #
 '###########################################################################
 '
+
 '
 
-Imports System.IO
+
 Imports System.Reflection
 
 Public Module INI
@@ -620,6 +621,8 @@ Public Module INI
 
 #End Region
 
+#Region "Hinweis"
+
     'Hinweis:
     'Die Reihenfolge beachten.
     'Aus ihr ergibt sich die Reihenfolge der Werte in der INI.
@@ -644,6 +647,9 @@ Public Module INI
         End Set
     End Property
 
+#End Region
+
+#Region "IfRunningInIDE_... Properties"
 
     Private _IfRunningInIDE_ShowAllStones As Boolean?
     ''' <summary>
@@ -725,9 +731,22 @@ Public Module INI
         End Set
     End Property
 
-    Public Property IfRunningInIDE_Grafik16x16Directory As String
+    Public Property IfRunningInIDE_Grafik16x16Directory_Ressourcen As String
         Get
-            Dim [Default] As String = "C:\Users\goetz\Documents\Visual Studio\MahjongGK\Grafiken\Grafiken16x16"
+            Dim [Default] As String = "C:\Users\goetz\Documents\Visual Studio\MahjongGK\Grafiken\Grafiken16x16_Ressourcen"
+            Dim comment As String = "Nur in der IDE sichtbar gibt es in FrmMain unten zwei Buttons ""DwnLd"" und ""Gfx"", die" &
+                                    "~den Windows Dateiexplorer mit dem Dowwnloadverzeichniss und dem Grafikverzeichniss öffnen." &
+                                    "~Hier ist der lokale Pfad auf Ihrem Rechner einzugeben. Default: der Pfad auf meinem Rechner."
+
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As String)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+        End Set
+    End Property
+    Public Property IfRunningInIDE_Grafik16x16Directory_Other As String
+        Get
+            Dim [Default] As String = "C:\Users\goetz\Documents\Visual Studio\MahjongGK\Grafiken\Grafiken16x16_Andere"
             Dim comment As String = "Nur in der IDE sichtbar gibt es in FrmMain unten zwei Buttons ""DwnLd"" und ""Gfx"", die" &
                                     "~den Windows Dateiexplorer mit dem Dowwnloadverzeichniss und dem Grafikverzeichniss öffnen." &
                                     "~Hier ist der lokale Pfad auf Ihrem Rechner einzugeben. Default: der Pfad auf meinem Rechner."
@@ -751,8 +770,7 @@ Public Module INI
         End Set
     End Property
 
-
-
+#End Region
 
 #Region "Rendering"
     '  Public Enum TileSetInUse
@@ -1600,13 +1618,13 @@ Public Module INI
     ''' <returns></returns>
     Public Property ToolBox_Rectangle As Rectangle
         Get
-            Dim [Default] As New Rectangle(100, 100, frmToolBox.FrmToolboxWidth, frmToolBox.FrmToolboxHeight) '
+            Dim [Default] As New Rectangle(100, 100, frmToolBox.MJ_FRMTOOLBOX_WIDTH, frmToolBox.MJ_FRMTOOLBOX_HEIGHT) '
             Dim comment As String = Nothing
             Dim rc As Rectangle = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
 
             ' --- Größe absichern 
-            rc.Width = frmToolBox.FrmToolboxWidth
-            rc.Height = frmToolBox.FrmToolboxHeight
+            rc.Width = frmToolBox.MJ_FRMTOOLBOX_WIDTH
+            rc.Height = frmToolBox.MJ_FRMTOOLBOX_HEIGHT
 
             ' Arbeitsbereich des Monitors ermitteln, der dem Rechteck am nächsten ist
             Dim wa As Rectangle = Screen.FromRectangle(rc).WorkingArea
@@ -1629,19 +1647,115 @@ Public Module INI
     End Property
 
 
+    Public Property ToolBox_FeldSizeXmax() As Integer
+        Get
+            Dim [Default] As Integer = 30
+            Dim comment As String = $"Maximale Anzahl der Steine nebeneinander. Gültig: 1 bis {MJ_STEINE_MAXX_SIDEBYSIDE}, Default = 30"
+            Dim value As Integer = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            Return Math.Max(1, Math.Min(MJ_STEINE_MAXX_SIDEBYSIDE, value))
+        End Get
+        Set(value As Integer)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+        End Set
+    End Property
+    Public Property ToolBox_FeldSizeYmax() As Integer
+        Get
+            Dim [Default] As Integer = 15
+            Dim comment As String = $"Maximale Anzahl der Steine übereinander. Gültig: 1 bis {MJ_STEINE_MAXY_OVERANOTHER}, Default = 15"
+            Dim value As Integer = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            Return Math.Max(1, Math.Min(MJ_STEINE_MAXY_OVERANOTHER, value))
+        End Get
+        Set(value As Integer)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+        End Set
+    End Property
+    Public Property ToolBox_FeldSizeZmax() As Integer
+        Get
+            Dim [Default] As Integer = 10
+            Dim comment As String = $"Maximale Anzahl der Steine aufeinander. Gültig: 1 bis {MJ_STEINE_MAXZ_LAYER}, Default = 10"
+            Dim value As Integer = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            Return Math.Max(1, Math.Min(MJ_STEINE_MAXZ_LAYER, value))
+        End Get
+        Set(value As Integer)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+        End Set
+    End Property
+    Public Property ToolBox_FeldSizeX(bform As BasisformEnum) As Integer
+        Get
+            Dim [Default] As Integer = 10
+            Dim comment As String = Nothing
+            If bform = 0 Then
+                comment = "Die jeweiligen aktuellen Werte der Basisformen in der Toolbox. Default für X = 10, Y = 10, Z = 5"
+            End If
+            Dim value As Integer = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), [Default], comment)
+            Return Math.Max(1, Math.Min(MJ_STEINE_MAXX_SIDEBYSIDE, value))
+        End Get
+        Set(value As Integer)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), value.ToString)
+        End Set
+    End Property
+    Public Property ToolBox_FeldSizeY(bform As BasisformEnum) As Integer
+        Get
+            Dim [Default] As Integer = 10
+            Dim comment As String = Nothing
+            Dim value As Integer = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), [Default], comment)
+            Return Math.Max(1, Math.Min(MJ_STEINE_MAXX_SIDEBYSIDE, value))
+        End Get
+        Set(value As Integer)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), value.ToString)
+        End Set
+    End Property
+    Public Property ToolBox_FeldSizeZ(bform As BasisformEnum) As Integer
+        Get
+            Dim [Default] As Integer = 5
+            Dim comment As String = Nothing
+            Dim value As Integer = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), [Default], comment)
+            Return Math.Max(1, Math.Min(MJ_STEINE_MAXZ_LAYER, value))
+        End Get
+        Set(value As Integer)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), value.ToString)
+        End Set
+    End Property
+
+
+    Public Property ToolBox_NameBasisformForSaving(bform As BasisformEnum) As String
+        Get
+            Dim [Default] As String = bform.ToString & "_1"
+            Dim comment As String = Nothing
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), [Default], comment)
+        End Get
+        Set(value As String)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), value.ToString)
+        End Set
+    End Property
+
+    Public Property ToolBox_AktBasisform As BasisformEnum
+        Get
+            Dim [Default] As String = BasisformEnum.Pyramide.ToString
+            Dim comment As String = Nothing
+            Dim zRetVal As String = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            Dim result As BasisformEnum
+            If Not [Enum].TryParse(Of BasisformEnum)(zRetVal, True, result) Then
+                result = BasisformEnum.Pyramide
+            End If
+            Return result
+        End Get
+        Set(value As BasisformEnum)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+        End Set
+    End Property
 
 #End Region
-
 
 #Region "RuntimeOnly"
 
     Public Event RuntimeOnly_AktRendering_Event()
-    Private _RuntimeOnly_AktRendering As Rendering
-    Public Property RuntimeOnly_AktRendering As Rendering
+    Private _RuntimeOnly_AktRendering As RenderingEnum
+    Public Property RuntimeOnly_AktRendering As RenderingEnum
         Get
             Return _RuntimeOnly_AktRendering
         End Get
-        Set(value As Rendering)
+        Set(value As RenderingEnum)
             _RuntimeOnly_AktRendering = value
             RaiseEvent RuntimeOnly_AktRendering_Event()
         End Set
@@ -1661,7 +1775,6 @@ Public Module INI
 
 #End Region
 
-
 #Region "EventsOnly"
 
     Public Event EventsOnly_RefreshUINachIniÄnderung_Event()
@@ -1672,7 +1785,6 @@ Public Module INI
     End Sub
 
 #End Region
-
 
 #Region "Ini Editieren"
 
@@ -1927,7 +2039,26 @@ Public Module INI
 
 #End Region
 
+#Region "Interne Verwaltung"
+
 #Region "Hilfsfunktionen"
+    ''' <summary>
+    ''' Hängt die Enumeration als Text an den key.
+    ''' </summary>
+    ''' <param name="funktionsname"></param>
+    ''' <param name="enumToString"></param>
+    ''' <returns></returns>
+    Private Function FolderAndKeyFrom(funktionsname As String, enumToString As String) As (folder As String, key As String)
+
+        Dim fakf As (folder As String, key As String) = FolderAndKeyFrom(funktionsname)
+
+        If Not String.IsNullOrEmpty(enumToString) Then
+            fakf.key &= "_" & enumToString
+        End If
+        Return fakf
+
+    End Function
+
     Private Function FolderAndKeyFrom(funktionsname As String) As (folder As String, key As String)
 
         ' Getter-/Setter-Präfixe entfernen
@@ -2008,62 +2139,185 @@ Public Module INI
 
     End Function
 
+
+#Region "Initialisierung der Default-Werte"
+
+    ' Liefert alle Werte eines Enum-Typs als Object()-Array
+    Private Function GetEnumValues(t As Type) As Object()
+        Dim arr As System.Array = [Enum].GetValues(t)
+        Dim result(arr.Length - 1) As Object
+        arr.CopyTo(result, 0)
+        Return result
+    End Function
+
+    ' Prüft, ob alle Typen Enums sind
+    Private Function AreAllEnums(types As Type()) As Boolean
+        For Each tp As Type In types ' <- Typ ergänzt
+            If Not tp.IsEnum Then Return False
+        Next
+        Return True
+    End Function
+
+    ' Kartesisches Produkt der Enumwerte der Parametertypen
+    Private Iterator Function EnumArgumentCombinations(paramTypes As Type()) As IEnumerable(Of Object())
+        If paramTypes Is Nothing OrElse paramTypes.Length = 0 Then
+            Yield New Object() {}
+            Return
+        End If
+
+        Dim valueSets As New List(Of Object())()
+
+        For Each pt As Type In paramTypes
+            valueSets.Add(GetEnumValues(pt))
+        Next
+
+        Dim indices(valueSets.Count - 1) As Integer
+        Dim lengths(valueSets.Count - 1) As Integer
+        For i As Integer = 0 To valueSets.Count - 1 '  
+            lengths(i) = valueSets(i).Length
+        Next
+
+        Dim done As Boolean = (valueSets.Count = 0)
+        While Not done
+            Dim args(valueSets.Count - 1) As Object
+            For i As Integer = 0 To valueSets.Count - 1
+                args(i) = valueSets(i)(indices(i))
+            Next
+            Yield args
+
+            Dim pos As Integer = valueSets.Count - 1
+            While pos >= 0
+                indices(pos) += 1
+                If indices(pos) < lengths(pos) Then
+                    Exit While
+                Else
+                    indices(pos) = 0
+                    pos -= 1
+                End If
+            End While
+            If pos < 0 Then done = True
+        End While
+    End Function
+
     Public Sub AllIniManagersInitAllDefaultsAndSave()
 
         AllIniManagersSetInitialisierungAktiv(True)
 
-        ' Hole alle öffentlichen Shared Methoden/Properties des Moduls
-        Dim methods As MemberInfo() = GetType(INI).GetMembers(BindingFlags.Public Or BindingFlags.Static)
+        ' Alle öffentlichen Shared Member des Moduls INI holen
+        Dim allMembers As MemberInfo() =
+        GetType(INI).GetMembers(BindingFlags.Public Or BindingFlags.Static)
 
-        ' Filtere nur Property-Getter oder Methoden mit Unterstrich im Namen
-        Dim gefilterte As New List(Of MemberInfo)
-        For Each item As MemberInfo In methods
-            If item.Name.Contains("_") AndAlso
-                Not item.Name.StartsWith("get_") AndAlso
-                Not item.Name.StartsWith("set_") AndAlso
-                (TypeOf item Is MethodInfo AndAlso
-                CType(item, MethodInfo).GetParameters().Length = 0 OrElse
-                TypeOf item Is PropertyInfo) Then
-                gefilterte.Add(item)
-            End If
-        Next
+        ' Filtern (nur Member mit "_" und keine get_/set_-Accessor)
+        Dim gefilterte As List(Of MemberInfo) =
+        allMembers.
+        Where(Function(m) m.Name.Contains("_"c) AndAlso
+                          Not m.Name.StartsWith("get_", System.StringComparison.OrdinalIgnoreCase) AndAlso
+                          Not m.Name.StartsWith("set_", System.StringComparison.OrdinalIgnoreCase) AndAlso
+                          (TypeOf m Is PropertyInfo OrElse TypeOf m Is MethodInfo)).
+        OrderBy(Function(m) m.Name).
+        ToList()
 
         If gefilterte.Count = 0 Then
+            AllIniManagersSetInitialisierungAktiv(False)
             Exit Sub
-
         End If
 
-        gefilterte.OrderBy(Function(m) m.Name)
-
-        ' Jetzt rufe sie alle auf
+        ' Aufruf
         For Each member As MemberInfo In gefilterte
             Try
                 If TypeOf member Is PropertyInfo Then
-                    Dim p As PropertyInfo = CType(member, PropertyInfo)
-                    p.GetValue(Nothing, Nothing) ' Aufruf des Getters
+                    Dim p As PropertyInfo = DirectCast(member, PropertyInfo)
+                    If Not p.CanRead Then
+                        Continue For
+                    End If
+
+                    Dim indexParams As ParameterInfo() = p.GetIndexParameters()
+                    If indexParams Is Nothing OrElse indexParams.Length = 0 Then
+                        ' Normale (parameterlose) Property
+                        p.GetValue(Nothing, Nothing)
+                    Else
+                        ' Index-Property: nur wenn alle Parameter Enums sind
+                        Dim paramTypes As Type() = indexParams.Select(Function(pi) pi.ParameterType).ToArray()
+                        If AreAllEnums(paramTypes) Then
+                            For Each args As Object() In EnumArgumentCombinations(paramTypes) ' <- Typ ergänzt
+                                p.GetValue(Nothing, args)
+                            Next
+                        End If
+                    End If
+
                 ElseIf TypeOf member Is MethodInfo Then
-                    Dim mi As MethodInfo = CType(member, MethodInfo)
-                    mi.Invoke(Nothing, Nothing)
+                    Dim mi As MethodInfo = DirectCast(member, MethodInfo)
+                    Dim pars As ParameterInfo() = mi.GetParameters()
+
+                    If pars Is Nothing OrElse pars.Length = 0 Then
+                        mi.Invoke(Nothing, Nothing)
+                    Else
+                        Dim paramTypes As Type() = pars.Select(Function(pi) pi.ParameterType).ToArray()
+                        If AreAllEnums(paramTypes) Then
+                            For Each args As Object() In EnumArgumentCombinations(paramTypes) ' <- Typ ergänzt
+                                mi.Invoke(Nothing, args)
+                            Next
+                        End If
+                    End If
                 End If
+
             Catch ex As Exception
-                ' Optional Logging
+                ' Defensives Logging
                 Console.WriteLine("Fehler beim Aufruf von " & member.Name & ": " & ex.Message)
             End Try
         Next
 
         AllIniManagersSetInitialisierungAktiv(False)
-
         AllIniManagersSaveIniFileIfNotExisting()
-
-
     End Sub
-
-
 
 #End Region
 
-
 #Region "UpDateIni"
+
+    '  'geschrieben von ChatGPT 5
+    ' ──────────────────────────────────────────────────────────────────────────────
+    '   ARCHITEKTUR & REGELN FÜR DAS INI-SYSTEM
+    ' ──────────────────────────────────────────────────────────────────────────────
+    '
+    ' • Alle Properties, die mit der INI synchronisiert werden sollen, müssen
+    '   im Namen mindestens einen Unterstrich "_" enthalten.
+    '
+    ' • Zwei Property-Arten werden automatisch berücksichtigt:
+    '   1) Normale (nicht-indexierte) Properties → via GetIniPropertiesWithUnderscore()
+    '   2) Enum-indexierte Properties → via GetIniIndexedPropertiesWithEnumIndex()
+    '      (z. B. ToolBox_FeldSizeX(Basisform))
+    '
+    ' • Typenvielfalt:
+    '   - Unterstützt werden alle gängigen ValueTypes (Integer, Double, Date, Enum, Color,
+    '     Point, Size, Rectangle, …), Strings, Fonts sowie weitere ICloneable-Typen.
+    '   - Enum-Werte können in der INI als Name ("Linie") oder als Zahl gespeichert sein;
+    '     CoerceForProperty wandelt sie automatisch korrekt zurück.
+    '
+    ' • Caches & Events:
+    '   - ResetIniCaches leert alle internen Cache-Felder (Shared "_...").
+    '   - RaiseAllIniEvents löst alle registrierten Events neu aus.
+    '   - ResetIniCachesAndRaiseAllIniEvents kombiniert beide Schritte.
+    '
+    ' • Arbeitsweise von UpDateIni:
+    '   1) Neue *.tmp laden (ggf. Org→Tmp kopieren).
+    '   2) Alle relevanten Properties auslesen und ihre Werte merken.
+    '   3) Org-INI laden.
+    '   4) Gemerkte Werte über die Property-Setter zurückschreiben
+    '      (→ dadurch BasisIni.WriteValue + Events).
+    '   5) Alles abspeichern und Caches/Events zurücksetzen.
+    '
+    ' • Sicherheit:
+    '   - RaiseIniEvents wird während des Kopiervorgangs deaktiviert und
+    '     danach auf den ursprünglichen Zustand zurückgesetzt.
+    '   - Fehler führen zum Abbruch und zur Wiederherstellung des Originalzustands.
+    '
+    ' Damit gilt:
+    '   Wenn eine neue Property den Grundregeln entspricht (Unterstrich im Namen,
+    '   Indexer optional als Enum), wird sie automatisch mitgezogen.
+    '
+    ' ──────────────────────────────────────────────────────────────────────────────
+    '
 
     'geschrieben von ChatGPT 5
     'Reflexion auf Modul-Properties: GetType(INI) funktioniert, da ein Module als statische
@@ -2092,87 +2346,74 @@ Public Module INI
     Public Sub UpDateIni(raiseIE As IniEvents, readNewIniFromIniTmp As Boolean)
 
         For Each manager As IniManager In AllIniManagers
+            ' ... (unverändert bis zur Liste) ...
 
-            Dim orgPath As String = manager.FileFullPath
-            Dim tmpPath As String = manager.FileFullTmpPath
-
-            If Not IO.File.Exists(orgPath) Then
-                'Im eingebautem IniEditor wurde alles gelöscht und dann gespeichert,
-                'Der IniEditor löscht darauhin die INI, sie muß neu aufgebaut werden.
-                '(Der IniEditor schreibt nie in die *.ini, sondern in die *.ini.tmp)
-                AllIniManagersBackupRaiseIniEvents()
-                AllIniManagersSetRaiseIniEvents(IniEvents.None)
-                AllIniManagersInitAllDefaultsAndSave()
-                AllIniManagersRestoreRaiseIniEvents()
-            End If
-
-
-            ' Sicherheitsprüfungen & Vorbereitung
-            If Not readNewIniFromIniTmp Then
-                ' Interner Weg: Org → Tmp kopieren
-                manager.CopyOrgFileToTmpFile()
-            End If
-
-            ' Jetzt müssen genau zwei Dateien existieren: Org & Tmp
-
-            If Not IO.File.Exists(orgPath) Then
-                Throw New FileNotFoundException("Org-INI nicht gefunden.", orgPath)
-            End If
-
-            If Not File.Exists(tmpPath) Then
-                'wenn nichts da ist (beim Programmstart)
-                'mit einer Kopie des Originals weiterarbeiten.
-                manager.CopyOrgFileToTmpFile()
-            End If
-
-            ' RaiseIniEvents sichern und fürs Laden ausschalten
             manager.BackupValueRaiseIniEvents()
             manager.RaiseIniEvents = IniEvents.None
 
-            ' Container für Werte aus der neuen INI
-            Dim newValues As New List(Of (Prop As PropertyInfo, Value As Object))()
+            ' --- zwei Container: einfache Props & indexierte Enum-Props ---
+            Dim newValuesSimple As New List(Of (Prop As PropertyInfo, Value As Object))()
+            Dim newValuesIndexed As New List(Of (Prop As PropertyInfo, IndexArgs As Object(), Value As Object))()
 
             Try
-                ' 1) Neue INI laden (Tmp)
-                manager.LoadTmpFile()
 
-                ResetIniCaches() 'sonst werden beim Auslesen die alten Werte ausgelesen
+                If Not readNewIniFromIniTmp Then
+                    ' Szenario A: Org → Tmp kopieren
+                    manager.CopyOrgFileToTmpFile()
+                Else
+                    ' Szenario B: Tmp ist bereits bereitgestellt
+                    ' 1) Tmp laden
+                    manager.LoadTmpFile()
+                End If
 
-                ' 2) Alle relevanten Properties (mit Unterstrich) auslesen und merken
+                ' Caches zurücksetzen, damit die Properties neu aus der (Tmp-)INI lesen
+                ResetIniCaches()
+
+                ' 2a) Einfache (nicht-indexierte) INI-Properties lesen/merken
                 For Each p As PropertyInfo In GetIniPropertiesWithUnderscore()
                     Dim cur As Object = p.GetValue(Nothing, Nothing)
-                    newValues.Add((p, CloneIfNeeded(cur)))
+                    newValuesSimple.Add((p, CloneIfNeeded(cur)))
+                Next
+
+                ' 2b) Indexierte INI-Properties mit Enum-Index lesen/merken
+                For Each p As PropertyInfo In GetIniIndexedPropertiesWithEnumIndex()
+                    Dim idxTypes As Type() =
+                     p.GetIndexParameters().Select(Function(pi) pi.ParameterType).ToArray()
+
+                    For Each idxArgs As Object() In EnumerateIndexArgTuples(idxTypes)
+                        Dim cur As Object = p.GetValue(Nothing, idxArgs)
+                        newValuesIndexed.Add((p,
+                              DirectCast(idxArgs.Clone(), Object()),
+                              CloneIfNeeded(cur)))
+                    Next
                 Next
 
                 ' 3) Zur Org-INI zurück
                 manager.LoadOrgFile()
 
-                ' 4) Event-Steuerung wie gewünscht setzen
+                ' 4) Event-Steuerung setzen
                 manager.RaiseIniEvents = raiseIE
 
-                ' 5) Alle gemerkten Werte in die Org-INI zurückschreiben
-                For Each entry As (Prop As PropertyInfo, Value As Object) In newValues
-                    ' Der Setter der jeweiligen Property ruft intern BasisIni.WriteValue auf
-                    ' und triggert – abhängig von RaiseIniEvents – die entsprechenden Events.
-                    entry.Prop.SetValue(Nothing, entry.Value, Nothing)
+                ' 5a) Einfache Werte zurückschreiben
+                For Each entry As (Prop As PropertyInfo, Value As Object) In newValuesSimple
+                    entry.Prop.SetValue(Nothing, CoerceForProperty(entry.Prop, entry.Value), Nothing)
+                Next
+
+                ' 5b) Indexierte Werte zurückschreiben
+                For Each entry As (Prop As PropertyInfo, IndexArgs As Object(), Value As Object) In newValuesIndexed
+                    entry.Prop.SetValue(Nothing, CoerceForProperty(entry.Prop, entry.Value), entry.IndexArgs)
                 Next
 
             Catch
-                ' Bei Fehlern Ursprungszustand wiederherstellen und Fehler weiterreichen
                 manager.RestoreValueRaiseIniEvents()
                 Throw
             End Try
 
-            ' 6) RaiseIniEvents auf ursprünglichen Zustand zurück
             manager.RestoreValueRaiseIniEvents()
-
-            'und die geänderte INI zurückschreiben
-            manager.Save(alwaysSave:=True) 'auch wenn nichts geändert wurde rückschreiben.
-
+            manager.Save(alwaysSave:=True)
         Next
 
         ResetIniCachesAndRaiseAllIniEvents()
-
     End Sub
 
     ''' <summary>
@@ -2246,7 +2487,7 @@ Public Module INI
 
             If backing Is Nothing Then
 #If DEBUG Then
-                Debug.WriteLine($"RaiseAllIniEvents: Kein Backing-Field für Event '{ev.Name}'.")
+                ' Debug.WriteLine($"RaiseAllIniEvents: Kein Backing-Field für Event '{ev.Name}'.")
 #End If
                 Continue For
             End If
@@ -2268,7 +2509,7 @@ Public Module INI
         Next
 
 #If DEBUG Then
-        Debug.WriteLine($"RaiseAllIniEvents: {eventCount} Events; {handlersCalled} Handler aufgerufen.")
+        ' Debug.WriteLine($"RaiseAllIniEvents: {eventCount} Events; {handlersCalled} Handler aufgerufen.")
 #End If
 
         Return handlersCalled
@@ -2347,7 +2588,132 @@ Public Module INI
         Return value
     End Function
 
+    ' --- NEU: Helfer, der Werte auf den Property-Typ formt (inkl. Enum & Nullable(Of Enum)) ---
+    Private Function CoerceForProperty(prop As PropertyInfo, value As Object) As Object
+        If value Is Nothing Then Return Nothing
 
+        Dim targetType As Type = prop.PropertyType
+        Dim isNullable As Boolean =
+            targetType.IsGenericType AndAlso targetType.GetGenericTypeDefinition() Is GetType(Nullable(Of ))
+        Dim nonNullType As Type = If(isNullable, Nullable.GetUnderlyingType(targetType), targetType)
+
+        ' Bereits passend?
+        If nonNullType.IsAssignableFrom(value.GetType()) Then
+            Return value
+        End If
+
+        ' ENUMS (auch Flags, auch Nullable(Of Enum))
+        If nonNullType.IsEnum Then
+            ' String → Enum.Parse (IgnoreCase, erlaubt auch "A, B" bei <Flags>-Enums)
+            If TypeOf value Is String Then
+                Dim s As String = DirectCast(value, String)
+                If String.IsNullOrWhiteSpace(s) Then
+                    Return If(isNullable, Nothing, Activator.CreateInstance(nonNullType))
+                End If
+                Return [Enum].Parse(nonNullType, s, ignoreCase:=True)
+            End If
+
+            ' Numerisch → Enum.ToObject
+            If IsNumeric(value) Then
+                Dim raw As Long = Convert.ToInt64(value, Globalization.CultureInfo.InvariantCulture)
+                Return [Enum].ToObject(nonNullType, raw)
+            End If
+
+            ' Fallback: Wenn der Wert sich z. B. als anderes Enum mit gleicher Basiszahl darstellt
+            Try
+                Dim raw As Long = Convert.ToInt64(value, Globalization.CultureInfo.InvariantCulture)
+                Return [Enum].ToObject(nonNullType, raw)
+            Catch
+                ' Ignorieren → weiter unten allgemeiner Fallback
+            End Try
+        End If
+
+        ' Alle anderen (nur wenn sinnvoll konvertierbar; Color/Point/... lassen wir unangetastet)
+        Try
+            If isNullable Then
+                Return Convert.ChangeType(value, nonNullType, Globalization.CultureInfo.InvariantCulture)
+            Else
+                Return Convert.ChangeType(value, targetType, Globalization.CultureInfo.InvariantCulture)
+            End If
+        Catch
+            ' Wenn nicht wandelbar, Original zurückgeben (SetValue würde sonst selbst aussteigen)
+            Return value
+        End Try
+    End Function
+
+    ' --- NEU: prüft, ob ALLE Typen Enums (oder Nullable(Of Enum)) sind
+    Private Function AreAllEnumOrNullableEnum(types As Type()) As Boolean
+        For Each t As Type In types
+            If t.IsGenericType AndAlso t.GetGenericTypeDefinition() Is GetType(Nullable(Of )) Then
+                t = Nullable.GetUnderlyingType(t)
+            End If
+            If t Is Nothing OrElse Not t.IsEnum Then Return False
+        Next
+        Return True
+    End Function
+
+    ' --- NEU: liefert alle INI-Properties mit Unterstrich, die INDEXER sind und deren Index-Parameter (alle) Enum/Nullable(Of Enum) sind
+    Private Function GetIniIndexedPropertiesWithEnumIndex() As IEnumerable(Of PropertyInfo)
+        Dim flags As BindingFlags = BindingFlags.Public Or BindingFlags.Static Or BindingFlags.DeclaredOnly
+        Return GetType(INI).GetProperties(flags).
+        Where(Function(p) p.CanRead AndAlso p.CanWrite).
+        Where(Function(p) p.Name.Contains("_")).
+        Where(Function(p)
+                  Dim idx As ParameterInfo() = p.GetIndexParameters()
+                  If idx Is Nothing OrElse idx.Length = 0 Then Return False
+                  Return AreAllEnumOrNullableEnum(idx.Select(Function(pi) pi.ParameterType).ToArray())
+              End Function)
+    End Function
+
+    ' --- NEU: kartesisches Produkt der Enumwerte über mehrere Index-Parameter (meist 1 Param).
+    Private Iterator Function EnumerateIndexArgTuples(indexParamTypes As Type()) As IEnumerable(Of Object())
+        Dim lists As New List(Of Object())()
+        '
+        For Each t As Type In indexParamTypes
+            Dim isNullable As Boolean = t.IsGenericType AndAlso t.GetGenericTypeDefinition() Is GetType(Nullable(Of ))
+            Dim nonNull As Type = If(isNullable, Nullable.GetUnderlyingType(t), t)
+            Dim vals As System.Array = [Enum].GetValues(nonNull)
+            ' Für Nullable(Of Enum) könntest du hier auch Nothing anbieten – in deinem Szenario nicht nötig.
+            Dim objs(vals.Length - 1) As Object
+            Dim i As Integer = 0
+            For Each v As Object In vals
+                objs(i) = v
+                i += 1
+            Next
+            lists.Add(objs)
+        Next
+
+
+        ' kartesisches Produkt
+        Dim idxCount As Integer = lists.Count
+        Dim counters(idxCount - 1) As Integer
+        Dim lengths As Integer() = lists.Select(Function(a) a.Length).ToArray()
+
+        If idxCount = 0 Then
+            Yield Array.Empty(Of Object)()
+            Return
+        End If
+
+        While True
+            Dim pick(idxCount - 1) As Object
+            For i As Integer = 0 To idxCount - 1
+                pick(i) = lists(i)(counters(i))
+            Next
+            Yield pick
+
+            Dim pos As Integer = idxCount - 1
+            While pos >= 0
+                counters(pos) += 1
+                If counters(pos) < lengths(pos) Then Exit While
+                counters(pos) = 0
+                pos -= 1
+            End While
+            If pos < 0 Then Exit While
+        End While
+    End Function
+
+#End Region
+#End Region
 #End Region
 
 End Module

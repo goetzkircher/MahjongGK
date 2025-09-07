@@ -119,6 +119,7 @@
     <Compile Include="Formulare\frmToolBox.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="frmToolBox\PlacementSameGrid.vb" />
     <Compile Include="INI\FrmIniEditor.vb">
       <SubType>Form</SubType>
     </Compile>
@@ -142,11 +143,35 @@
     <Compile Include="UserControls\Editor\UCtlEditor.vb">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="UserControls\Verschiedene kleine\BuddySlider.vb">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UserControls\Verschiedene kleine\BuddySliderPopup.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UserControls\Verschiedene kleine\KompassRose.vb">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UserControls\Verschiedene kleine\MenuStripEx.vb">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="UserControls\Verschiedene kleine\Num2UpDown.Designer.vb">
       <DependentUpon>Num2UpDown.vb</DependentUpon>
     </Compile>
     <Compile Include="UserControls\Verschiedene kleine\Num2UpDown.vb">
       <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UserControls\Verschiedene kleine\Positionierer.vb">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UserControls\Verschiedene kleine\ReferencePoint.vb">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UserControls\Verschiedene kleine\StartingPoint.vb">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UserControls\Verschiedene kleine\ToolStripEx.vb">
+      <SubType>Component</SubType>
     </Compile>
     <Compile Include="UserControls\Werkbank\UCtlWerkbank.Designer.vb">
       <DependentUpon>UCtlWerkbank.vb</DependentUpon>
@@ -221,6 +246,7 @@
     <Compile Include="UserControls\Spielfeld\UCtlSpielfeld.vb">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="Werken %28Bausteine erzeugen%29\WerkstückLayout.vb" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Formulare\frmToolBox.resx">
@@ -308,10 +334,34 @@
     <Content Include="Namespace Spielfeld\_Variablennamen %28Auszug%29.txt" />
     <None Include="Resources\Werkzeugkiste.png" />
     <None Include="Resources\Editor.png" />
-    <None Include="Resources\EditorAktiv.png" />
     <None Include="Resources\Error.png" />
     <None Include="Resources\handyman_16dp_008000_FILL0_wght400_GRAD0_opsz20.png" />
     <None Include="Resources\handyman_16dp_404040_FILL0_wght400_GRAD0_opsz20.png" />
+    <None Include="Resources\CompassE.png" />
+    <None Include="Resources\CompassEsel.png" />
+    <None Include="Resources\CompassN.png" />
+    <None Include="Resources\CompassNO.png" />
+    <None Include="Resources\CompassNOsel.png" />
+    <None Include="Resources\CompassNsel.png" />
+    <None Include="Resources\CompassNW.png" />
+    <None Include="Resources\CompassNWsel.png" />
+    <None Include="Resources\CompassS.png" />
+    <None Include="Resources\CompassSE.png" />
+    <None Include="Resources\CompassSEsel.png" />
+    <None Include="Resources\CompassSsel.png" />
+    <None Include="Resources\CompassSW.png" />
+    <None Include="Resources\CompassSWsel.png" />
+    <None Include="Resources\CompassW.png" />
+    <None Include="Resources\CompassWsel.png" />
+    <None Include="Resources\EditorAktiv.png" />
+    <None Include="Resources\EditorFileCmd_Laden_Eigene.png" />
+    <None Include="Resources\EditorFileCmd_Speichern.png" />
+    <None Include="Resources\ErrorGrafik.png" />
+    <None Include="Resources\FileOpen.png" />
+    <None Include="Resources\FileSave.png" />
+    <None Include="Resources\FolderOpen.png" />
+    <None Include="Resources\PfeilDn.png" />
+    <None Include="Resources\PfeilUp.png" />
     <None Include="Resources\Redo.png" />
     <None Include="Resources\Restart.png" />
     <None Include="Resources\Screenshot.png" />
@@ -325,13 +375,28 @@
     <None Include="Resources\Undo.png" />
     <None Include="Resources\Werkbank.png" />
     <None Include="Resources\WerkbankAktiv.png" />
-    <None Include="Resources\WindsChecked.png" />
-    <None Include="Resources\WindsUnChecked.png" />
-    <None Include="Resources\ErrorGrafik.png" />
+    <None Include="Resources\WerkbkFileCmd_Speichern.png" />
+    <None Include="Resources\WerkbkrFileCmd_Laden_Eigene.png" />
+    <None Include="Resources\WerkkbkFileCmd_Speichern.png" />
     <None Include="Resources\Werkzeug.png" />
     <None Include="Resources\WerkzeugAktiv.png" />
-    <None Include="Resources\PfeilDn.png" />
-    <None Include="Resources\PfeilUp.png" />
+    <None Include="Resources\WindsChecked.png" />
+    <None Include="Resources\WindsUnChecked.png" />
+    <None Include="Resources\CompassNmover.png" />
+    <None Include="Resources\CompassNOmover.png" />
+    <None Include="Resources\CompassNWmover.png" />
+    <None Include="Resources\CompassOmover.png" />
+    <None Include="Resources\CompassSmover.png" />
+    <None Include="Resources\CompassSOmover.png" />
+    <None Include="Resources\CompassSWmover.png" />
+    <None Include="Resources\CompassWmover.png" />
+    <None Include="Resources\PfeilDnmover.png" />
+    <None Include="Resources\PfeilUpmover.png" />
+    <None Include="Resources\Info16qBlau.png" />
+    <None Include="Resources\Punkt.png" />
+    <None Include="Resources\PunktMover.png" />
+    <None Include="Resources\PunktSel.png" />
+    <None Include="Resources\SliderPunkt.png" />
     <Content Include="Textdateien\Mahjong Solitär Überlegungen.txt" />
     <Content Include="Textdateien\Über ChatGPT.txt" />
   </ItemGroup>

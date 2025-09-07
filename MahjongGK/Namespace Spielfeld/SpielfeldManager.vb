@@ -43,7 +43,7 @@ Namespace Spielfeld
             Dim changed As Boolean = False
             Dim createFrozenBitmap As Boolean = Not RectSpielfeld.IsEmpty 'es gibt ein gültiges Rect, d.h. es wurde bereits gerendert
             Select Case AktRendering
-                Case Rendering.Spielfeld
+                Case RenderingEnum.Spielfeld
                     If Not IsNothing(SpielfeldDaten.PlayerSpielfeldInfo) Then
                         If Not PlayerSpielfeldInfo.IsEqual(AktSpielfeldInfo) Then
 
@@ -51,7 +51,7 @@ Namespace Spielfeld
                             changed = True
                         End If
                     End If
-                Case Rendering.Werkbank
+                Case RenderingEnum.Werkbank
                     If Not IsNothing(SpielfeldDaten.WerkbankSpielfeldInfo) Then
                         If Not WerkbankSpielfeldInfo.IsEqual(AktSpielfeldInfo) Then
                             AktSpielfeldInfo = WerkbankSpielfeldInfo
@@ -59,7 +59,7 @@ Namespace Spielfeld
                         End If
                     End If
 
-                Case Rendering.Editor
+                Case RenderingEnum.Editor
                     If Not IsNothing(SpielfeldDaten.EditorSpielfeldInfo) Then
                         If Not EditorSpielfeldInfo.IsEqual(AktSpielfeldInfo) Then
                             AktSpielfeldInfo = EditorSpielfeldInfo
@@ -102,7 +102,7 @@ Namespace Spielfeld
                     Exit Sub
                 End If
             End If
-            If xMaxSteine > MJ_STEINE_SIDEBYSIDE_XMAX OrElse yMaxSteine > MJ_STEINE_OVERANOTHER_YMAX OrElse zMax > MJ_STEINE_LAYER_ZMAX Then
+            If xMaxSteine > MJ_STEINE_MAXX_SIDEBYSIDE OrElse yMaxSteine > MJ_STEINE_MAXY_OVERANOTHER OrElse zMax > MJ_STEINE_MAXZ_LAYER Then
                 If Debugger.IsAttached And Not IfRunningInIDE_ShowErrorMsgInsteadOfException Then
                     Throw New Exception($"Spielfeld Dimensionierung zu zu groß (xMax={xMax},yMax={yMax},zMax={zMax})) in SpielfeldManager.UpdateSpielfeld")
                 Else

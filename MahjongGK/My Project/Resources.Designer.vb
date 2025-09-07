@@ -63,6 +63,246 @@ Namespace My.Resources
         '''<summary>
         '''  Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
         '''</summary>
+        Friend ReadOnly Property CompassN() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("CompassN", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property CompassNmover() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("CompassNmover", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property CompassNO() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("CompassNO", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property CompassNOmover() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("CompassNOmover", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property CompassNOsel() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("CompassNOsel", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property CompassNsel() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("CompassNsel", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property CompassNW() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("CompassNW", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property CompassNWmover() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("CompassNWmover", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property CompassNWsel() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("CompassNWsel", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property CompassO() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("CompassO", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property CompassOmover() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("CompassOmover", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property CompassOsel() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("CompassOsel", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property CompassS() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("CompassS", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property CompassSmover() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("CompassSmover", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property CompassSO() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("CompassSO", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property CompassSOmover() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("CompassSOmover", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property CompassSOsel() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("CompassSOsel", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property CompassSsel() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("CompassSsel", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property CompassSW() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("CompassSW", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property CompassSWmover() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("CompassSWmover", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property CompassSWsel() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("CompassSWsel", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property CompassW() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("CompassW", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property CompassWmover() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("CompassWmover", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property CompassWsel() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("CompassWsel", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        '''</summary>
         Friend ReadOnly Property Editor() As System.Drawing.Bitmap
             Get
                 Dim obj As Object = ResourceManager.GetObject("Editor", resourceCulture)
@@ -83,9 +323,69 @@ Namespace My.Resources
         '''<summary>
         '''  Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
         '''</summary>
+        Friend ReadOnly Property EditorFileCmd_Laden_Eigene() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("EditorFileCmd_Laden_Eigene", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property EditorFileCmd_Speichern() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("EditorFileCmd_Speichern", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        '''</summary>
         Friend ReadOnly Property ErrorGrafik() As System.Drawing.Bitmap
             Get
                 Dim obj As Object = ResourceManager.GetObject("ErrorGrafik", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property FileOpen() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("FileOpen", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property FileSave() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("FileSave", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property FolderOpen() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("FolderOpen", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property Info16qBlau() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("Info16qBlau", resourceCulture)
                 Return CType(obj,System.Drawing.Bitmap)
             End Get
         End Property
@@ -113,9 +413,59 @@ Namespace My.Resources
         '''<summary>
         '''  Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
         '''</summary>
+        Friend ReadOnly Property PfeilDnmover() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("PfeilDnmover", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        '''</summary>
         Friend ReadOnly Property PfeilUp() As System.Drawing.Bitmap
             Get
                 Dim obj As Object = ResourceManager.GetObject("PfeilUp", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property PfeilUpmover() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("PfeilUpmover", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property Punkt() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("Punkt", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property PunktMover() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("PunktMover", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property PunktSel() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("PunktSel", resourceCulture)
                 Return CType(obj,System.Drawing.Bitmap)
             End Get
         End Property
@@ -166,6 +516,16 @@ Namespace My.Resources
         Friend ReadOnly Property ShowSelectableUnChecked() As System.Drawing.Bitmap
             Get
                 Dim obj As Object = ResourceManager.GetObject("ShowSelectableUnChecked", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property SliderPunkt() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("SliderPunkt", resourceCulture)
                 Return CType(obj,System.Drawing.Bitmap)
             End Get
         End Property
@@ -246,6 +606,36 @@ Namespace My.Resources
         Friend ReadOnly Property WerkbankAktiv() As System.Drawing.Bitmap
             Get
                 Dim obj As Object = ResourceManager.GetObject("WerkbankAktiv", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property WerkbkFileCmd_Speichern() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("WerkbkFileCmd_Speichern", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property WerkbkrFileCmd_Laden_Eigene() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("WerkbkrFileCmd_Laden_Eigene", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property WerkkbkFileCmd_Speichern() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("WerkkbkFileCmd_Speichern", resourceCulture)
                 Return CType(obj,System.Drawing.Bitmap)
             End Get
         End Property

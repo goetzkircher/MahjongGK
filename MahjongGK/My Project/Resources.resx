@@ -118,14 +118,104 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="CompassN" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\CompassN.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="CompassNmover" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\CompassNmover.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="CompassNO" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\CompassNO.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="CompassNOmover" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\CompassNOmover.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="CompassNOsel" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\CompassNOsel.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="CompassNsel" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\CompassNsel.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="CompassNW" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\CompassNW.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="CompassNWmover" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\CompassNWmover.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="CompassNWsel" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\CompassNWsel.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="CompassO" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\CompassE.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="CompassOmover" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\CompassOmover.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="CompassOsel" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\CompassEsel.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="CompassS" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\CompassS.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="CompassSmover" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\CompassSmover.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="CompassSO" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\CompassSE.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="CompassSOmover" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\CompassSOmover.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="CompassSOsel" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\CompassSEsel.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="CompassSsel" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\CompassSsel.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="CompassSW" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\CompassSW.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="CompassSWmover" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\CompassSWmover.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="CompassSWsel" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\CompassSWsel.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="CompassW" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\CompassW.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="CompassWmover" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\CompassWmover.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="CompassWsel" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\CompassWsel.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="Editor" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Editor.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="EditorAktiv" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\EditorAktiv.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="EditorFileCmd_Laden_Eigene" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\EditorFileCmd_Laden_Eigene.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="EditorFileCmd_Speichern" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\EditorFileCmd_Speichern.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="ErrorGrafik" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\ErrorGrafik.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="FileOpen" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\FileOpen.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="FileSave" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\FileSave.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="FolderOpen" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\FolderOpen.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Info16qBlau" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Info16qBlau.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="MahjongGK" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\MahjongGK.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -133,8 +223,23 @@
   <data name="PfeilDn" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\PfeilDn.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="PfeilDnmover" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\PfeilDnmover.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="PfeilUp" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\PfeilUp.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="PfeilUpmover" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\PfeilUpmover.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Punkt" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Punkt.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="PunktMover" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\PunktMover.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="PunktSel" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\PunktSel.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="Redo" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Redo.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -150,6 +255,9 @@
   </data>
   <data name="ShowSelectableUnChecked" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\ShowSelectableUnChecked.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="SliderPunkt" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\SliderPunkt.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="Spieler" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Spieler.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -174,6 +282,15 @@
   </data>
   <data name="WerkbankAktiv" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\WerkbankAktiv.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="WerkbkFileCmd_Speichern" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\WerkbkFileCmd_Speichern.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="WerkbkrFileCmd_Laden_Eigene" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\WerkbkrFileCmd_Laden_Eigene.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="WerkkbkFileCmd_Speichern" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\WerkkbkFileCmd_Speichern.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="Werkzeug" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Werkzeug.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>

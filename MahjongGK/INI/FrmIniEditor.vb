@@ -342,7 +342,10 @@ Public Class FrmIniEditor
         If String.IsNullOrWhiteSpace(_rtb.Text) Then
             Try
                 IO.File.Delete(_iniFullSavePath)
+                IO.File.Delete(_iniFullLoadPath)
+                Application.DoEvents()
                 _isDirty = False
+                _IniFileChanged = True
                 Me.DialogResult = DialogResult.OK
             Catch ex As Exception
 
