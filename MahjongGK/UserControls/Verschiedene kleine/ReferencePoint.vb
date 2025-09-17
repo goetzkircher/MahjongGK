@@ -13,12 +13,19 @@ Public Class ReferencePoint
     Inherits UserControl
 
     ' Ressourcen-Grafiken:
-    Private ReadOnly _bmpNormal As Bitmap = My.Resources.Punkt
-    Private ReadOnly _bmpSel As Bitmap = My.Resources.PunktSel
-    Private ReadOnly _bmpMover As Bitmap = My.Resources.PunktMover
+    Private ReadOnly _bmpNormal As Bitmap = KompassDotFactory.KompassDot  'My.Resources.Punkt
+    Private ReadOnly _bmpSel As Bitmap = KompassDotFactory.KompassDotSelected  'My.Resources.PunktSel
+    Private ReadOnly _bmpMover As Bitmap = KompassDotFactory.KompassDotMouseOver  'My.Resources.PunktMover
+
+    '' 'Alternative 
+    ''Private ReadOnly _bmpNormal As Bitmap = My.Resources.Punkt
+    ''Private ReadOnly _bmpSel As Bitmap = My.Resources.PunktSel
+    ''Private ReadOnly _bmpMover As Bitmap = My.Resources.PunktMover
 
     Private Const CELL As Integer = 16
     Private Const GRID As Integer = 3
+    Private Const LINE_THICK As Integer = 2
+
 
     Public Enum RefPoint
         None
@@ -127,6 +134,21 @@ Public Class ReferencePoint
         For Each kvp As KeyValuePair(Of PictureBox, RefPoint) In _map
             kvp.Key.Image = If(kvp.Value = _selected, _bmpSel, _bmpNormal)
         Next
+    End Sub
+
+    Private Sub ReferencePoint_Paint(sender As Object, e As PaintEventArgs) Handles Me.Paint
+        Dim x As Integer, y As Integer
+
+        Dim width As Integer = CELL * 2
+        Dim height As Integer = CELL * 2
+        Dim left As Integer = CELL \ 2
+        Dim top As Integer = CELL \ 2
+
+        Using penLine As New Pen(Color.FromArgb(120, Me.ForeColor), CSng(LINE_THICK))
+            Dim rect As New Rectangle(left, top, width, height)
+            e.Graphics.DrawRectangle(penLine, rect)
+        End Using
+
     End Sub
 End Class
 

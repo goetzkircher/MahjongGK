@@ -303,6 +303,38 @@ Namespace Spielfeld
         ''' <returns></returns>
         Public Property VisibleAreaAktIndex As Integer '-1 = nichts wird angezeigt.
         '
+        ''' <summary>
+        ''' Erstellt eine echte tiefe Kopie von SteinInfo.
+        ''' Alle Wertetypen/Enums sind ohnehin kopiert; Referenzen werden manuell geklont.
+        ''' </summary>
+        Public Function DeepCopy() As SpielfeldInfo
+
+            ' Flache Kopie aller Felder (inkl. privater Backing Fields wie _AnimMaxStep, _AnimLoops)
+            Dim c As SpielfeldInfo = DirectCast(Me.MemberwiseClone(), SpielfeldInfo)
+
+            ' Tiefer Kopieren aller Referenztypen/Felder:
+            ' Triple ist eine Klasse → explizit klonen
+
+            ' Falls später weitere Referenztypen hinzukommen, hier analog tief kopieren.
+
+            Return c
+
+            'Antwort von ChatGPT, ob man das über Serialisierung/Deserialisierung
+            'lösen könne:
+
+            'Warum das besser ist als (De-)Serialisierung:
+            '<XmlIgnore>-Felder würden bei XML-Serialisierung fehlen → unvollständige Kopie.
+            'Keine Attribute / Type - Resolver nötig, kein Overhead.
+            'Setter-Logiken(wie AnimMaxStep mit ×100) werden nicht versehentlich erneut ausgeführt
+            '— die privaten Backing-Felder werden 1:1 kopiert, genau wie gewünscht.
+            'Da Triple bereits eine saubere DeepCopy liefert, reicht das oben völlig aus.
+            '
+            'Die frühere Methode über den BinaryFormatter ist von Microsoft als depreceted eingestuft.
+            '
+            'Es ginge noch über den DataContractSerializer, das ist aber mit Vergabe vieler Attribute
+            'versehen.
+        End Function
+
 #End Region
 
 #Region "statisch"

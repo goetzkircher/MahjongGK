@@ -59,7 +59,7 @@ Public Class UCtlWerkbank
         ' Immer malen, Factor kommt vom Scheduler (Stopwatch-basiert):
         Dim factor As Double = RenderingTaktgeberModul.FrameScheduler.TimeDifferenzFaktor
 
-        Spielfeld.PaintSpielfeld_Paint(frmMain.VisibleUserControl.Werkbank,
+        Spielfeld.PaintSpielfeld_Paint(VisibleUserControl.Werkbank,
                                        e,
                                        New Rectangle(200, 100, Me.Width - 200 - 50, Me.Height - 100 - 50),
                                        factor)

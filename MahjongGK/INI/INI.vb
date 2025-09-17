@@ -19,10 +19,7 @@
 '#                                                                         #
 '###########################################################################
 '
-
-'
-
-
+Imports System.Globalization
 Imports System.Reflection
 
 Public Module INI
@@ -98,6 +95,9 @@ Public Module INI
 
         'Spieler1Ini = New IniManager("Spieler1.ini")
         'Spieler2Ini = New IniManager("Spieler2.ini")
+
+
+        IniCleanup.RemoveObsoleteIniKeys()
 
         AllIniManagersSetRaiseIniEvents(IniEvents.None)
         'Verhindert den Aufruf der Events hier in INI.
@@ -195,6 +195,9 @@ Public Module INI
     'Die erzeugten Dateien sind normale txt-Dateien.
     'Hat während der Programmentwicklung den Vorteil, dass Werte geändert werden können,
     'obwohl die "Einstellungen" noch nicht programmiert sind.
+    '
+    'Wenn die Namen der Properties geändert werden oder Properties gelöscht werden,
+    'entstehen verweiste Einträge. Diese werden automatisch entfernt, samt Kommentar und Wert.
 
     'Ich nutze das Modul INI auch, um wichtige globale Werte zu speichern, die
     'nicht über das Programmende hinaus gespeichert werden müssen, oder für
@@ -210,7 +213,7 @@ Public Module INI
     '----------------------------------
     '
     'Es werden folgende Werte unterstützt:
-    'Integer, Long, Single, Double, Decimal, Date, Enumerationen
+    'Byte, Integer, Long, Single, Double, Decimal, Date, Enumerationen
     'Color, Point, PointF, Size, SizeF, Rectangle, RechtangleF
     'und Font
 
@@ -329,6 +332,21 @@ Public Module INI
     '        _Kopier_Vorlage = Nothing
     '    End Set
     'End Property
+    '
+    '------------
+    '--- BYTE ---
+    '------------
+
+    '    Public Property Kopier_Vorlage As Byte
+    '        Get
+    '            Dim [Default] As Byte = 0
+    '            Dim comment As String = Nothing
+    '            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+    '        End Get
+    '        Set(value As Byte)
+    '            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+    '        End Set
+    '    End Property
 
     '---------------
     '--- INTEGER ---
@@ -636,7 +654,7 @@ Public Module INI
             Dim [Default] As String = "Ende des Hinweis."
             Dim comment As String = "Sie können hier Programmeinstellungen direkt ändern, bzw. Einstellungen ändern, die sich sonst nirgens ändern lassen." &
                                     "~Sorgfältig arbeiten! Bei Fehlern arbeitet das Programm unvorhersehbar. Nicht bei laufendem Programm ändern." &
-                                    "~Sie können diese Ini-Datei einfach löschen. Sie wird dann mit Default-Werten neu erzeugt." &
+                                    "~Sie können diese Ini-Datei einfach löschen. Sie wird dann mit Satz1-Werten neu erzeugt." &
                                     "~Hinweis an Programmierer: Läuft das Programm in der IDE, ist im Hauptformular ganz links unten ein Button ""INI""." &
                                     "~Mit diesem Editor können Sie während der Laufzeit die INI ändern. Ein Teil der Änderungen bedürfen dennoch einen Neustart."
 
@@ -649,80 +667,16 @@ Public Module INI
 
 #End Region
 
-#Region "IfRunningInIDE_... Properties"
+#Region "Global"
 
-    Private _IfRunningInIDE_ShowAllStones As Boolean?
-    ''' <summary>
-    ''' Gibt außerhalb der IDE immer False zurück
-    ''' </summary>
-    ''' <returns></returns>
-    Public Property IfRunningInIDE_ShowAllStones As Boolean
-        Get
-
-            If IsNothing(_IfRunningInIDE_ShowAllStones) Then
-                Dim [Default] As Boolean = False
-                Dim comment As String = Nothing
-                _IfRunningInIDE_ShowAllStones = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-            End If
-            'musss hier stehen, sonst wird der Wert nicht initialisiert und kann in der INI manuell nicht geändert werden.
-            If Not Debugger.IsAttached() Then
-                Return False
-            End If
-
-            Return CBool(_IfRunningInIDE_ShowAllStones)
-        End Get
-        Set(value As Boolean)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
-            _IfRunningInIDE_ShowAllStones = Nothing
-        End Set
-    End Property
-
-    Private _IfRunningInIDE_InsertStoneIndex As Boolean?
-    ''' <summary>
-    ''' Gibt außerhalb der IDE immer False zurück
-    ''' </summary>
-    ''' <returns></returns>
-    Public Property IfRunningInIDE_InsertStoneIndex As Boolean
-        Get
-            If IsNothing(_IfRunningInIDE_InsertStoneIndex) Then
-                Dim [Default] As Boolean = False
-                Dim comment As String = Nothing
-                _IfRunningInIDE_InsertStoneIndex = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-            End If
-
-            'muss hier stehen, sonst wird der Wert nicht initialisiert und kann in der INI manuell nicht geändert werden.
-            If Not Debugger.IsAttached() Then
-                Return False
-            End If
-
-            Return CBool(_IfRunningInIDE_InsertStoneIndex)
-        End Get
-        Set(value As Boolean)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
-            _IfRunningInIDE_InsertStoneIndex = Nothing
-        End Set
-    End Property
-
-    Public Property IfRunningInIDE_ShowErrorMsgInsteadOfException As Boolean
-        Get
-            Dim [Default] As Boolean = False
-            Dim comment As String = Nothing
-            Dim retval As Boolean = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-            'muss hier stehen, sonst wird der Wert nicht initialisiert und kann in der INI manuell nicht geändert werden.
-            If Not Debugger.IsAttached() Then
-                Return False
-            Else
-                Return retval
-            End If
-        End Get
-        Set(value As Boolean)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
-        End Set
-    End Property
-
-    Public Property IfRunningInIDE_IniEditorDarkmode As Boolean
+    Public Property Global_UseSystemDarkMode As Boolean
         Get
             Dim [Default] As Boolean = True
+
+            If Debugger.IsAttached Then
+                [Default] = False
+            End If
+
             Dim comment As String = Nothing
             Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
         End Get
@@ -731,57 +685,93 @@ Public Module INI
         End Set
     End Property
 
-    Public Property IfRunningInIDE_Grafik16x16Directory_Ressourcen As String
+    'Für zeitkritische häufige Abfragen
+    Private _Global_DarkMode As Boolean?
+    Public Property Global_DarkMode As Boolean
         Get
-            Dim [Default] As String = "C:\Users\goetz\Documents\Visual Studio\MahjongGK\Grafiken\Grafiken16x16_Ressourcen"
-            Dim comment As String = "Nur in der IDE sichtbar gibt es in FrmMain unten zwei Buttons ""DwnLd"" und ""Gfx"", die" &
-                                    "~den Windows Dateiexplorer mit dem Dowwnloadverzeichniss und dem Grafikverzeichniss öffnen." &
-                                    "~Hier ist der lokale Pfad auf Ihrem Rechner einzugeben. Default: der Pfad auf meinem Rechner."
-
-            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            If IsNothing(_Global_DarkMode) Then
+                If Global_UseSystemDarkMode Then
+                    _Global_DarkMode = Theme.WindowsTheme.IsAppDarkMode()
+                Else
+                    Dim [Default] As Boolean = False
+                    Dim comment As String = "Darkmode True/False. Nur wirksam, wenn Global_UseSystemDarkMode auf False steht."
+                    _Global_DarkMode = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+                End If
+            End If
+            Return CBool(_Global_DarkMode)
         End Get
-        Set(value As String)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
-        End Set
-    End Property
-    Public Property IfRunningInIDE_Grafik16x16Directory_Other As String
-        Get
-            Dim [Default] As String = "C:\Users\goetz\Documents\Visual Studio\MahjongGK\Grafiken\Grafiken16x16_Andere"
-            Dim comment As String = "Nur in der IDE sichtbar gibt es in FrmMain unten zwei Buttons ""DwnLd"" und ""Gfx"", die" &
-                                    "~den Windows Dateiexplorer mit dem Dowwnloadverzeichniss und dem Grafikverzeichniss öffnen." &
-                                    "~Hier ist der lokale Pfad auf Ihrem Rechner einzugeben. Default: der Pfad auf meinem Rechner."
-
-            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-        End Get
-        Set(value As String)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+        Set(value As Boolean)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+            _Global_DarkMode = Nothing
         End Set
     End Property
 
-    Public Property IfRunningInIDE_DownloadDirectory As String
+    ' Globaler Standard-Aufhellungswert (0.0 … 1.0). Praxis: 0.05 … 0.30.
+    'Public Property Global_BrightenAmountDefault As Single = 0.4F
+
+    Private _Global_BrightenAmount As Single?
+    Public Property Global_BrightenAmount As Single
         Get
-            Dim [Default] As String = "C:\Users\goetz\Downloads\Vivaldi"
-            Dim comment As String = "Gleiches Spiel mit dem Downloadverzeichnis." &
-                                      "~Hinweis: Backslashes müssen verdoppelt werden, da sie Escape-Zeichen sind."
-            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            If Not _Global_BrightenAmount.HasValue Then
+                Dim [Default] As Single = 0.4F
+                Dim comment As String = "Für den Darkmode gibt es nur zum Teil gesonderte Grafiken. Andere werden aufgehellt." &
+                                        "~Sinnvolle Werte: 0.2 bis 0.5, Satz1 0.4"
+                _Global_BrightenAmount = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+                _Global_BrightenAmount = Math.Max(0.2F, Math.Min(0.6F, CSng(_Global_BrightenAmount)))
+            End If
+            Return _Global_BrightenAmount.Value
         End Get
-        Set(value As String)
+        Set(value As Single)
             BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+            _Global_BrightenAmount = Nothing
         End Set
     End Property
+
+    Public Property Global_AktVisibleUserControl As VisibleUserControl
+        Get
+            Dim [Default] As String = VisibleUserControl.Spielfeld.ToString
+            Dim comment As String = "Werden beide vom Programm verwaltet."
+            Dim zRetVal As String = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            Dim result As VisibleUserControl
+            If Not [Enum].TryParse(Of VisibleUserControl)(zRetVal, True, result) Then
+                result = VisibleUserControl.Spielfeld
+            End If
+            Return result
+        End Get
+        Set(value As VisibleUserControl)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+        End Set
+    End Property
+    Public Property Global_LastVisibleUserControl As VisibleUserControl
+        Get
+            Dim [Default] As String = VisibleUserControl.Spielfeld.ToString
+            Dim comment As String = Nothing
+            Dim zRetVal As String = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            Dim result As VisibleUserControl
+            If Not [Enum].TryParse(Of VisibleUserControl)(zRetVal, True, result) Then
+                result = VisibleUserControl.Spielfeld
+            End If
+            Return result
+        End Get
+        Set(value As VisibleUserControl)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+        End Set
+    End Property
+
+
+
 
 #End Region
 
 #Region "Rendering"
     '  Public Enum TileSetInUse
 
-
     Public Property Rendering_TileSetInUse As TileSetInUse
         Get
             Dim [Default] As String = TileSetInUse.InternalSet.ToString
             Dim comment As String = "Das Programm ist vorgesehen für die Verwendung beliebiger und beliebig vieler Sätze an Mahjongsteinen" &
                                     "~in beliebigen Breiten/Höhenverhältnissen. Die Programmlogik ist noch nicht implementiert. Deshalb ist" &
-                                    "~derzeit nur der Default möglich: ""InternalSet"" (Wenn implementiert, ändert sich dieser Text hier!)" &
+                                    "~derzeit nur der Satz1 möglich: ""InternalSet"" (Wenn implementiert, ändert sich dieser Text hier!)" &
                                     "~Wenn jemand Lust hat die Grafiken beizusteuern: MahjongGK@t-online.de"
             Dim zRetVal As String = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
             Dim result As TileSetInUse
@@ -798,9 +788,9 @@ Public Module INI
     Public Property Rendering_RenderTimerInterval As Integer
         Get
             Dim [Default] As Integer = 15
-            Dim comment As String = "Normal 15 bis 20 (Einheit Millisekunden). Werte über 30 für schwache Rechner," &
+            Dim comment As String = "I01Normal 15 bis 20 (Einheit Millisekunden). Werte über 30 für schwache Rechner," &
                                     "~= 1 führt zu einem stabilerem Takt aller Timer auf dem Computer und zu etwas höherem Energieverbrauch." &
-                                    "~Zu hohe Werte verlangsamen und verlängern die Animation. Default: 15"
+                                    "~Zu hohe Werte verlangsamen und verlängern die Animation. Satz1: 15"
             Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
         End Get
         Set(value As Integer)
@@ -813,7 +803,7 @@ Public Module INI
         Get
             If IsNothing(_Rendering_BitmapHighQuality) Then
                 Dim [Default] As Boolean = True
-                Dim comment As String = "Wenn die Bildschirmausgabe auf langsamen Rechnern hakelt, versuchen Sie es mit False. Default = True."
+                Dim comment As String = "Wenn die Bildschirmausgabe auf langsamen Rechnern hakelt, versuchen Sie es mit False. Satz1 = True."
                 _Rendering_BitmapHighQuality = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
             End If
             Return CBool(_Rendering_BitmapHighQuality)
@@ -879,7 +869,7 @@ Public Module INI
             If Not _Rendering_OrgGrafikReferenceSizeWidth.HasValue Then
                 Dim [Default] As Integer = 198
                 Dim comment As String = "Die Originalgröße der Grafiken bezieht das Programm aus den Grafiken selber. Die Referenzgröße bestimmt" &
-                                        "~die maximale Größe der verwendeten Steine und das Seitenverhältniss. Default Breite: 198, Höhe: 252." &
+                                        "~die maximale Größe der verwendeten Steine und das Seitenverhältniss. Satz1 Breite: 198, Höhe: 252." &
                                         $"~Ist einer der Werte kleiner {MJ_GRAFIK_SRC_MIN_WIDTH_OR_HEIGHT}, werden die OrgGrafikSize-Werte genommen. Gültige Werte 0 bis {MJ_GRAFIK_SRC_MAX_WIDTH_OR_HEIGHT} Pixel." &
                                         "~Das Seitenverhältnis ist von 1:2 bis 2:1 begrenzt."
 
@@ -917,7 +907,7 @@ Public Module INI
             If IsNothing(_Rendering_UseGrafikOrgSize) Then
                 Dim [Default] As Boolean = False
                 Dim comment As String = "Wenn dieses Flag auf True steht, wird die maximale Größe und das Seitenverhältniss aus den Original-" &
-                                        "~Abmessungen der Grafiken bezogen. Default: False"
+                                        "~Abmessungen der Grafiken bezogen. Satz1: False"
                 _Rendering_UseGrafikOrgSize = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
             End If
             Return CBool(_Rendering_UseGrafikOrgSize)
@@ -956,7 +946,7 @@ Public Module INI
                 Dim [Default] As Integer = 30
                 Dim comment As String = "Die Gesamt-Verschiebung eines 10 Steine hohen Stapels in X und Y Richtung in Pixel um den" &
                                         "~3D-Effekt zu erreichen, bei maximaler Steingröße. Erlaubt: -100 bis +100. Bei = 0 gibt es keinen" &
-                                        "~3D-Effekt, wenn Offset3DMinPerLayerX/Y auch auf 0 steht. Default: 30"
+                                        "~3D-Effekt, wenn Offset3DMinPerLayerX/Y auch auf 0 steht. Satz1: 30"
                 _Rendering_Offset3DMaxX = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
                 _Rendering_Offset3DMaxX = Math.Max(-200, Math.Min(200, _Rendering_Offset3DMaxX.Value))
             End If
@@ -992,7 +982,7 @@ Public Module INI
             If Not _Rendering_Offset3DMinPerLayerX.HasValue Then
                 Dim [Default] As Integer = 1
                 Dim comment As String = "Die Mindest-Verschiebung je Stein in Pixel, unabhängig von der Steingröße." &
-                                        "~Erlaubt: 0 bis 5. Die 0 nur verwenden, wenn Rendering_Offset3DMaxX auch auf 0 steht. Default: 1"
+                                        "~Erlaubt: 0 bis 5. Die 0 nur verwenden, wenn Rendering_Offset3DMaxX auch auf 0 steht. Satz1: 1"
                 _Rendering_Offset3DMinPerLayerX = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
                 _Rendering_Offset3DMinPerLayerX = Math.Max(0, Math.Min(5, _Rendering_Offset3DMinPerLayerX.Value))
             End If
@@ -1067,7 +1057,7 @@ Public Module INI
         Get
             If Not _Rendering_RectOutputPaddingLeft.HasValue Then
                 Dim [Default] As Integer = 10
-                Dim comment As String = "Breite des Innenrahmens um das Spielfeld. Erlaubt 0 bis 20. Default für alle Werte: 10"
+                Dim comment As String = "Breite des Innenrahmens um das Spielfeld. Erlaubt 0 bis 20. Satz1 für alle Werte: 10"
                 _Rendering_RectOutputPaddingLeft = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
                 _Rendering_RectOutputPaddingLeft = Math.Max(0, Math.Min(20, _Rendering_RectOutputPaddingLeft.Value))
             End If
@@ -1170,6 +1160,16 @@ Public Module INI
         End Set
     End Property
 
+    Public Property Rendering_EmptyMessageFont As Font
+        Get
+            Dim [Default] As New Font("Arial", 10.0F, FontStyle.Bold)
+            Dim comment As String = "Schrift und Größe der Meldung links oben im Fenster, wenn nichts geladen ist. Satz1: Arial;10;Bold"
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As Font)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+        End Set
+    End Property
 
 #End Region
 
@@ -1184,7 +1184,7 @@ Public Module INI
     Public Property Editor_UsingEditorAllowed As Boolean
         Get
             Dim [Default] As Boolean = True
-            Dim comment As String = "Mit False läßt sich der Editor komplett abschalten. Default: True"
+            Dim comment As String = "Mit False läßt sich der Editor komplett abschalten. Satz1: True"
             Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
         End Get
         Set(value As Boolean)
@@ -1211,7 +1211,7 @@ Public Module INI
             Dim comment As String = "Sondersteine sind die 4 Blumen und die 4 Jahreszeiten." &
                                     "~Hiermit wird gesteuert, auf wieviel Normalsteinpaare ein Sondersteinpaar kommt." &
                                     "~Sollen alle Steine gleichhäufig vorkommen, ist der Wert 17, sollen die Sondersteine" &
-                                    "~nur halb so häufig vorkommen ist der Wert 34. Default: 17"
+                                    "~nur halb so häufig vorkommen ist der Wert 34. Satz1: 17"
             Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
         End Get
         Set(value As Double)
@@ -1225,7 +1225,7 @@ Public Module INI
         Get
             Dim [Default] As Integer = 9
             Dim comment As String = "Im Editor läßt sich die Vorratskiste jederzeit neu mischen. Davon ausgenommen sind die Steine bis zum" &
-                                    "~hier angegebenem Index. Default: 9 (=10 Steine), abschalten mit -1"
+                                    "~hier angegebenem Index. Satz1: 9 (=10 Steine), abschalten mit -1"
             'Rückgabe 
             Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
         End Get
@@ -1256,7 +1256,7 @@ Public Module INI
     Public Property Editor_VorratMaxUBoundDefault As Integer
         Get
             Dim [Default] As Integer = MJ_STEINE_VORRATMAXDEFAULT
-            Dim comment As String = "Die Anzahl der Steine in der Vorratskiste die ""pro Portion"" erzeugt werden. Default: " & MJ_STEINE_VORRATMAXDEFAULT.ToString
+            Dim comment As String = "Die Anzahl der Steine in der Vorratskiste die ""pro Portion"" erzeugt werden. Satz1: " & MJ_STEINE_VORRATMAXDEFAULT.ToString
 
             'Rückgabe 
             Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
@@ -1269,7 +1269,7 @@ Public Module INI
     Public Property Editor_VorratNachschubschwelleDefault As Integer
         Get
             Dim [Default] As Integer = MJ_STEINE_VORRATNACHSCHUBSCHWELLEDEFAULT
-            Dim comment As String = "Unterschreitet die Anzahl der Steine in der Vorratskiste diesen Wert, wird Nachschub erzeugt. Default: " & MJ_STEINE_VORRATNACHSCHUBSCHWELLEDEFAULT.ToString
+            Dim comment As String = "Unterschreitet die Anzahl der Steine in der Vorratskiste diesen Wert, wird Nachschub erzeugt. Satz1: " & MJ_STEINE_VORRATNACHSCHUBSCHWELLEDEFAULT.ToString
             'Rückgabe 
             Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
         End Get
@@ -1282,7 +1282,7 @@ Public Module INI
         Get
             Dim [Default] As Integer = 0
             Dim comment As String = "Mit einer bliebigen Zahl <> 0 erzeugt der SteinGenerator immer wieder die gleichen Steinfolgen." &
-                                    "~Zum Austesten gedacht. Default = 0 (normaler Spielbetrieb)"
+                                    "~Zum Austesten gedacht. Satz1 = 0 (normaler Spielbetrieb)"
             'Rückgabe 
             Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
         End Get
@@ -1295,70 +1295,69 @@ Public Module INI
 
 #Region "Spielfeld"
 
-    Private _Spielfeld_DrawBackgroundBitmap As Boolean?
-    Public Property Spielfeld_DrawBackgroundBitmap As Boolean
-        Get
-            If IsNothing(_Spielfeld_DrawBackgroundBitmap) Then
-                Dim [Default] As Boolean = False
-                Dim comment As String = Nothing
-                _Spielfeld_DrawBackgroundBitmap = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-            End If
-            Return CBool(_Spielfeld_DrawBackgroundBitmap)
-        End Get
-        Set(value As Boolean)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
-            _Spielfeld_DrawBackgroundBitmap = Nothing
-        End Set
-    End Property
 
-    Private _Spielfeld_BackgroundBitmapIndex As Integer?
-    Public Property Spielfeld_BackgroundBitmapIndex As Integer
-        Get
-            If Not _Spielfeld_BackgroundBitmapIndex.HasValue Then
-                Dim [Default] As Integer = 0
-                Dim comment As String = Nothing
-                _Spielfeld_BackgroundBitmapIndex = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-            End If
-            Return _Spielfeld_BackgroundBitmapIndex.Value
-        End Get
-        Set(value As Integer)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
-            _Spielfeld_BackgroundBitmapIndex = Nothing
-        End Set
-    End Property
 
-    Private _Spielfeld_DrawBackgroundColor As Boolean?
-    Public Property Spielfeld_DrawBackgroundColor As Boolean
+    Private _Spielfeld_BackgroundColorDarkMode As Color
+    Public Property Spielfeld_BackgroundColorDarkMode As Color
         Get
-            If IsNothing(_Spielfeld_DrawBackgroundColor) Then
-                Dim [Default] As Boolean = True
-                Dim comment As String = Nothing
-                _Spielfeld_DrawBackgroundColor = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-            End If
-            Return CBool(_Spielfeld_DrawBackgroundColor)
-        End Get
-        Set(value As Boolean)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
-            _Spielfeld_DrawBackgroundColor = Nothing
-        End Set
-    End Property
-
-    Private _Spielfeld_BackgroundColor As Color
-    Public Property Spielfeld_BackgroundColor As Color
-        Get
-            If _Spielfeld_BackgroundColor.IsEmpty Then
+            If _Spielfeld_BackgroundColorDarkMode.IsEmpty Then
                 Dim [Default] As Color = IniManager.CvtHexStringToColor("FFC0C0C0")
                 Dim comment As String = Nothing
-                _Spielfeld_BackgroundColor = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+                _Spielfeld_BackgroundColorDarkMode = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
             End If
-            Return _Spielfeld_BackgroundColor
+            Return _Spielfeld_BackgroundColorDarkMode
         End Get
         Set(value As Color)
             BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
-            _Spielfeld_BackgroundColor = Color.Empty
+            _Spielfeld_BackgroundColorDarkMode = Color.Empty
         End Set
     End Property
 
+    Private _Spielfeld_BackgroundColorLightMode As Color
+    Public Property Spielfeld_BackgroundColorLightMode As Color
+        Get
+            If _Spielfeld_BackgroundColorLightMode.IsEmpty Then
+                Dim [Default] As Color = IniManager.CvtHexStringToColor("FF606060")
+                Dim comment As String = Nothing
+                _Spielfeld_BackgroundColorLightMode = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            End If
+            Return _Spielfeld_BackgroundColorLightMode
+        End Get
+        Set(value As Color)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+            _Spielfeld_BackgroundColorLightMode = Color.Empty
+        End Set
+    End Property
+
+    ''' <summary>
+    ''' Bereits selektiert nach Light/Darkmode
+    ''' </summary>
+    ''' <returns></returns>
+    Public ReadOnly Property Spielfeld_BackgroundColor As Color
+        Get
+            If Global_DarkMode Then
+                Return Spielfeld_BackgroundColorDarkMode
+            Else
+                Return Spielfeld_BackgroundColorLightMode
+            End If
+        End Get
+    End Property
+
+    Private _Spielfeld_UseBackgroundColor As Boolean?
+    Public Property Spielfeld_UseBackgroundColor As Boolean
+        Get
+            If IsNothing(_Spielfeld_UseBackgroundColor) Then
+                Dim [Default] As Boolean = False
+                Dim comment As String = "Wenn nicht, wird ein Hintergrundbild eingebaut. Satz1: False"
+                _Spielfeld_UseBackgroundColor = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            End If
+            Return CBool(_Spielfeld_UseBackgroundColor)
+        End Get
+        Set(value As Boolean)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+            _Spielfeld_UseBackgroundColor = Nothing
+        End Set
+    End Property
 
     Private _Spielfeld_DrawFraming As Boolean?
     Public Property Spielfeld_DrawFraming As Boolean
@@ -1476,22 +1475,154 @@ Public Module INI
     Public Property Spielbetrieb_ShowSelectableStones As Boolean
         Get
             Dim [Default] As Boolean = False
-            Dim comment As String = "Wenn True werden alle selektierbaren Steine in anderer Farbe dargestellt. Default: False"
+            Dim comment As String = "Wenn True werden alle selektierbaren Steine in anderer Farbe dargestellt. Satz1: False"
             Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
         End Get
         Set(value As Boolean)
             BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
         End Set
     End Property
+#End Region
+
+#Region "BackGroundImage"
+
+    Private _BackGroundImage_MaxDistortionRatio As Double?
+    Public Property BackGroundImage_MaxDistortionRatio As Double
+        Get
+            If Not _BackGroundImage_MaxDistortionRatio.HasValue Then
+                Dim [Default] As Double = 0.1
+                Dim comment As String = "Ab dieser Abweichung des erforderlichen Breiten/Höhen-Verhältnisses wird das Bild nicht mehr gestaucht," &
+                                        "~sondern in einen Untergrund mit der dominanten Hauptfarbe des Bildes kopiert. Satz1: 0.1, gültig: 0 bis 3"
+                _BackGroundImage_MaxDistortionRatio = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            End If
+            Return Math.Max(0, Math.Min(_BackGroundImage_MaxDistortionRatio.Value, 3))
+        End Get
+        Set(value As Double)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+            _BackGroundImage_MaxDistortionRatio = Nothing
+        End Set
+    End Property
+
+
+    Private _BackGroundImage_ColorSampleStep As Integer?
+    Public Property BackGroundImage_ColorSampleStep As Integer
+        Get
+            If Not _BackGroundImage_ColorSampleStep.HasValue Then
+                Dim [Default] As Integer = 30
+                Dim comment As String = "Schrittweite in Pixeln bei der Berechnung der dominanten Hauptfarbe. Satz1: 10, erlaubt 1 bis 30"
+                _BackGroundImage_ColorSampleStep = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+                _BackGroundImage_ColorSampleStep = Math.Max(1, Math.Min(30, _BackGroundImage_ColorSampleStep.Value))
+            End If
+            Return _BackGroundImage_ColorSampleStep.Value
+        End Get
+        Set(value As Integer)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+            _BackGroundImage_ColorSampleStep = Nothing
+        End Set
+    End Property
+
+    'Tipps für die INI-Defaults
+    'BackgroundImage_minSaturation = 0.10 (unter 10 % gilt „grau/entsättigt“)
+    'BackgroundImage_minWeightForGray = 0.30 (graue/helle Bereiche zählen min. 30 %)
+    'BackgroundImage_luminanceBoost = 0.50 (helle Pixel moderat bevorzugen)
+    'Wenn die Rückgabefarbe immer noch etwas zu dunkel ist, erhöhe zuerst
+    'BackgroundImage_minWeightForGray (z. B. 0.45) oder den luminanceBoost (z. B. 0.8).
+    'Bei sehr „pastelligen“ Motiven kann auch minSaturation leicht runter (z. B. 0.07),
+    'damit Pastellfarben nicht vorschnell als „grau“ gelten.
+
+    Private _BackGroundImage_MinSaturation As Double?
+    Public Property BackGroundImage_MinSaturation As Double
+        Get
+            If Not _BackGroundImage_MinSaturation.HasValue Then
+                Dim [Default] As Double = 0.1
+                Dim comment As String = "Stellschrauben zur Berechnung der Hintegrundfarbe, wenn die Bilder nicht gedehnt werden und kein Auschnitt verwendet wird." &
+                                        "~Pixel unterhalb dieser Sättigung gelten als ""entsättigt"" und werden nicht auf 0 abgewertet, sondern auf einen Mindestanteil." &
+                                        "~Gültige Werte: 0 bis 1, Satz1 0.1"
+
+                _BackGroundImage_MinSaturation = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            End If
+            Return Math.Max(0, Math.Min(_BackGroundImage_MinSaturation.Value, 3))
+        End Get
+        Set(value As Double)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+            _BackGroundImage_MinSaturation = Nothing
+        End Set
+    End Property
+
+    Private _BackGroundImage_MinWeightForGray As Double?
+    Public Property BackGroundImage_MinWeightForGray As Double
+        Get
+            If Not _BackGroundImage_MinWeightForGray.HasValue Then
+                Dim [Default] As Double = 0.3
+                Dim comment As String = "Mindestgewicht für graue/entsättigte Pixel (z. B. 0.3 = 30 %), damit helle Graubereiche nicht ""verschwinden""." &
+                                        "~"
+                _BackGroundImage_MinWeightForGray = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            End If
+            Return Math.Max(0, Math.Min(_BackGroundImage_MinWeightForGray.Value, 3))
+        End Get
+        Set(value As Double)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+            _BackGroundImage_MinWeightForGray = Nothing
+        End Set
+    End Property
+
+    Private _BackGroundImage_LuminanceBoost As Double?
+    Public Property BackGroundImage_LuminanceBoost As Double
+        Get
+            If Not _BackGroundImage_LuminanceBoost.HasValue Then
+                Dim [Default] As Double = 0.5
+                Dim comment As String = "Verstärkt die Gewichtung hellerer Pixel. 0 = aus. Typisch 0.3–0.8. Satz1: 0.5"
+                _BackGroundImage_LuminanceBoost = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            End If
+            Return Math.Max(0, Math.Min(_BackGroundImage_LuminanceBoost.Value, 3))
+        End Get
+        Set(value As Double)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+            _BackGroundImage_LuminanceBoost = Nothing
+        End Set
+    End Property
+
+    Private _BackGroundImage_Brighten As Double?
+    Public Property BackGroundImage_Brighten As Double
+        Get
+            If Not _BackGroundImage_Brighten.HasValue Then
+                Dim [Default] As Double = 1
+                Dim comment As String = "Aufhellung des Endergebnisses. Erlaubt: 0.1 (Abdunklung) über 1 (keine Aufhellung) bis 2. Satz1: 1"
+                _BackGroundImage_Brighten = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            End If
+            Return Math.Max(0.1, Math.Min(_BackGroundImage_Brighten.Value, 2))
+        End Get
+        Set(value As Double)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+            _BackGroundImage_Brighten = Nothing
+        End Set
+    End Property
+
+    Private _BackGroundImage_HeightQuality As Boolean?
+    Public Property BackGroundImage_HeightQuality As Boolean
+        Get
+            If IsNothing(_BackGroundImage_HeightQuality) Then
+                Dim [Default] As Boolean = False
+                Dim comment As String = "Auf langsamen Rechnern False setzten. Satz1: True"
+                _BackGroundImage_HeightQuality = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            End If
+            Return CBool(_BackGroundImage_HeightQuality)
+        End Get
+        Set(value As Boolean)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+            _BackGroundImage_HeightQuality = Nothing
+        End Set
+    End Property
 
 #End Region
+
 
 #Region "InfoMessageBox"
 
     Public Property InfoMessageBox_FontHeader As Font
         Get
             Dim [Default] As New Font("Segoe UI", 12.0F, FontStyle.Bold)
-            Dim comment As String = "Andere serifenlose Standardschriften: Arial, Segoe UI, Calibri, Tahoma, Verdana, sans-serif. Default Segoe UI;12;Bold"
+            Dim comment As String = "Andere serifenlose Standardschriften: Arial, Segoe UI, Calibri, Tahoma, Verdana, sans-serif. Satz1 Segoe UI;12;Bold"
             Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
         End Get
         Set(value As Font)
@@ -1513,7 +1644,7 @@ Public Module INI
     Public Property InfoMessageBox_FontHeaderMonoSpaced As Font
         Get
             Dim [Default] As New Font("Cascadia Mono", 12.0F, FontStyle.Bold)
-            Dim comment As String = "Andere diktengleiche Fonts: Cascadia Mono, Consolas, Lucida Console, Courier New, monospace. Default: Cascadia Mono;12;Bold"
+            Dim comment As String = "Andere diktengleiche Fonts: Cascadia Mono, Consolas, Lucida Console, Courier New, monospace. Satz1: Cascadia Mono;12;Bold"
             Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
         End Get
         Set(value As Font)
@@ -1566,7 +1697,7 @@ Public Module INI
             Dim [Default] As Integer = 20
             Dim comment As String = "Screenshots werden, mit einem Zeitstempel versehen, gespeichert im Verzeichnis:~" &
                                     AppDataFullPath(AppDataSubDir.Diverses, AppDataSubSubDir.Diverses_ScreenShots) &
-                                    "~Sind dort mehr als hier angegeben, werden die Ältesten beim nächsten ScreenShot gelöscht. Default = 20"
+                                    "~Sind dort mehr als hier angegeben, werden die Ältesten beim nächsten ScreenShot gelöscht. Satz1 = 20"
 
 
             Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
@@ -1591,15 +1722,15 @@ Public Module INI
 
     Public Property Sonstiges_AppGrafikSatz As AppGrafikSatz
         Get
-            Dim [Default] As String = AppGrafikSatz.Default.ToString
+            Dim [Default] As String = AppGrafikSatz.Satz1.ToString
             Dim comment As String = "Das Programm ist vorgesehen für die Verwendung beliebiger und beliebig vieler Sätze an 16x16 Grafiken" &
                                     "~für die verschiedenen Buttons im Programm. Die Programmlogik ist noch nicht implementiert und es mangelt" &
-                                    "~an Grafiken. Derzeit ist nur der Default möglich: ""Default"" (Wenn implementiert, ändert sich dieser Text hier!)" &
+                                    "~an Grafiken. Derzeit ist nur der Satz1 möglich: ""Satz1"" (Wenn implementiert, ändert sich dieser Text hier!)" &
                                     "~Wenn jemand Lust hat die Grafiken beizusteuern: MahjongGK@t-online.de"
             Dim zRetVal As String = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
             Dim result As AppGrafikSatz
             If Not [Enum].TryParse(Of AppGrafikSatz)(zRetVal, True, result) Then
-                result = AppGrafikSatz.Default
+                result = AppGrafikSatz.Satz1
             End If
             Return result
         End Get
@@ -1650,7 +1781,7 @@ Public Module INI
     Public Property ToolBox_FeldSizeXmax() As Integer
         Get
             Dim [Default] As Integer = 30
-            Dim comment As String = $"Maximale Anzahl der Steine nebeneinander. Gültig: 1 bis {MJ_STEINE_MAXX_SIDEBYSIDE}, Default = 30"
+            Dim comment As String = $"Maximale Anzahl der Steine nebeneinander. Gültig: 1 bis {MJ_STEINE_MAXX_SIDEBYSIDE}, Satz1 = 30"
             Dim value As Integer = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
             Return Math.Max(1, Math.Min(MJ_STEINE_MAXX_SIDEBYSIDE, value))
         End Get
@@ -1661,7 +1792,7 @@ Public Module INI
     Public Property ToolBox_FeldSizeYmax() As Integer
         Get
             Dim [Default] As Integer = 15
-            Dim comment As String = $"Maximale Anzahl der Steine übereinander. Gültig: 1 bis {MJ_STEINE_MAXY_OVERANOTHER}, Default = 15"
+            Dim comment As String = $"Maximale Anzahl der Steine übereinander. Gültig: 1 bis {MJ_STEINE_MAXY_OVERANOTHER}, Satz1 = 15"
             Dim value As Integer = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
             Return Math.Max(1, Math.Min(MJ_STEINE_MAXY_OVERANOTHER, value))
         End Get
@@ -1672,7 +1803,7 @@ Public Module INI
     Public Property ToolBox_FeldSizeZmax() As Integer
         Get
             Dim [Default] As Integer = 10
-            Dim comment As String = $"Maximale Anzahl der Steine aufeinander. Gültig: 1 bis {MJ_STEINE_MAXZ_LAYER}, Default = 10"
+            Dim comment As String = $"Maximale Anzahl der Steine aufeinander. Gültig: 1 bis {MJ_STEINE_MAXZ_LAYER}, Satz1 = 10"
             Dim value As Integer = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
             Return Math.Max(1, Math.Min(MJ_STEINE_MAXZ_LAYER, value))
         End Get
@@ -1685,7 +1816,7 @@ Public Module INI
             Dim [Default] As Integer = 10
             Dim comment As String = Nothing
             If bform = 0 Then
-                comment = "Die jeweiligen aktuellen Werte der Basisformen in der Toolbox. Default für X = 10, Y = 10, Z = 5"
+                comment = "Die jeweiligen aktuellen Werte der Basisformen in der Toolbox. Satz1 für X = 10, Y = 10, Z = 5"
             End If
             Dim value As Integer = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), [Default], comment)
             Return Math.Max(1, Math.Min(MJ_STEINE_MAXX_SIDEBYSIDE, value))
@@ -1708,6 +1839,97 @@ Public Module INI
     Public Property ToolBox_FeldSizeZ(bform As BasisformEnum) As Integer
         Get
             Dim [Default] As Integer = 5
+            Dim comment As String = Nothing
+            Dim value As Integer = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), [Default], comment)
+            Return Math.Max(1, Math.Min(MJ_STEINE_MAXZ_LAYER, value))
+        End Get
+        Set(value As Integer)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), value.ToString)
+        End Set
+    End Property
+    Public Property ToolBox_FeldSizeDefaultX(bform As BasisformEnum) As Integer
+        Get
+            Dim [Default] As Integer = 10
+            Select Case bform
+                Case BasisformEnum.Kegel
+                    [Default] = 5
+                Case BasisformEnum.Kreis
+                    [Default] = 5
+                Case BasisformEnum.Linie
+                    [Default] = 8
+                Case BasisformEnum.Pyramide
+                    [Default] = 5
+                Case BasisformEnum.Rechteck
+                    [Default] = 4
+                Case BasisformEnum.UForm
+                    [Default] = 4
+                Case BasisformEnum.Winkel
+                    [Default] = 5
+                Case BasisformEnum.Zufall
+                    [Default] = 6
+            End Select
+            Dim comment As String = Nothing
+            If bform = 0 Then
+                comment = "Die jeweiligen aktuellen Werte der Basisformen in der Toolbox. Satz1 für X = 10, Y = 10, Z = 5"
+            End If
+            Dim value As Integer = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), [Default], comment)
+            Return Math.Max(1, Math.Min(MJ_STEINE_MAXX_SIDEBYSIDE, value))
+        End Get
+        Set(value As Integer)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), value.ToString)
+        End Set
+    End Property
+    Public Property ToolBox_FeldSizeDefauktY(bform As BasisformEnum) As Integer
+        Get
+            Dim [Default] As Integer = 10
+            Select Case bform
+                Case BasisformEnum.Kegel
+                    [Default] = 5
+                Case BasisformEnum.Kreis
+                    [Default] = 5
+                Case BasisformEnum.Linie
+                    [Default] = 8
+                Case BasisformEnum.Pyramide
+                    [Default] = 5
+                Case BasisformEnum.Rechteck
+                    [Default] = 6
+                Case BasisformEnum.UForm
+                    [Default] = 4
+                Case BasisformEnum.Winkel
+                    [Default] = 6
+                Case BasisformEnum.Zufall
+                    [Default] = 6
+            End Select
+            Dim comment As String = Nothing
+            Dim value As Integer = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), [Default], comment)
+            Return Math.Max(1, Math.Min(MJ_STEINE_MAXX_SIDEBYSIDE, value))
+        End Get
+        Set(value As Integer)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), value.ToString)
+        End Set
+    End Property
+    Public Property ToolBox_FeldSizeDefauktZ(bform As BasisformEnum) As Integer
+        Get
+            Dim [Default] As Integer = 5
+            Select Case bform
+                Case BasisformEnum.Kegel
+                    [Default] = 4
+                Case BasisformEnum.Kreis
+                    [Default] = 1
+                Case BasisformEnum.Linie
+                    [Default] = 3
+                Case BasisformEnum.Pyramide
+                    [Default] = 5
+                Case BasisformEnum.Rechteck
+                    [Default] = 1
+                Case BasisformEnum.UForm
+                    [Default] = 1
+                Case BasisformEnum.Winkel
+                    [Default] = 1
+                Case BasisformEnum.Zufall
+                    [Default] = 4
+            End Select
+
             Dim comment As String = Nothing
             Dim value As Integer = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), [Default], comment)
             Return Math.Max(1, Math.Min(MJ_STEINE_MAXZ_LAYER, value))
@@ -1744,6 +1966,162 @@ Public Module INI
             BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
         End Set
     End Property
+
+    Public Property Toolbox_HGrdSpfldColor As Color
+        Get
+            Dim [Default] As Color = Color.Empty
+            'alternativ
+            'Dim [Default] As Color = IniManager.CvtHexStringToColor("FF000000")
+            Dim comment As String = Nothing
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As Color)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+        End Set
+    End Property
+    '
+    Public Property Toolbox_HGrdEditorColor As Color
+        Get
+            Dim [Default] As Color = Color.Empty
+            'alternativ
+            'Dim [Default] As Color = IniManager.CvtHexStringToColor("FF000000")
+            Dim comment As String = Nothing
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As Color)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+        End Set
+    End Property
+
+    Public Property Toolbox_HGrdSpfldBitmap As String
+        Get
+            Dim [Default] As String = Nothing
+            Dim comment As String = Nothing
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As String)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+        End Set
+    End Property
+
+    Public Property Toolbox_HGrdEditorBitmap As String
+        Get
+            Dim [Default] As String = Nothing
+            Dim comment As String = Nothing
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As String)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+        End Set
+    End Property
+
+    Public Property Toolbox_HGrdSpfldBitmapIsUserGrafik As Boolean
+        Get
+            Dim [Default] As Boolean = False
+            Dim comment As String = Nothing
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As Boolean)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+        End Set
+    End Property
+
+    Public Property Toolbox_HGrdEditorBitmapIsUserGrafik As Boolean
+        Get
+            Dim [Default] As Boolean = False
+            Dim comment As String = Nothing
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As Boolean)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+        End Set
+    End Property
+
+    Public Property Toolbox_HGrdSpfldColorFallback As Color
+        Get
+            Dim [Default] As Color = Color.Empty
+            'alternativ
+            'Dim [Default] As Color = IniManager.CvtHexStringToColor("FF000000")
+            Dim comment As String = Nothing
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As Color)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+        End Set
+    End Property
+    '
+    Public Property Toolbox_HGrdEditorColorFallback As Color
+        Get
+            Dim [Default] As Color = Color.Empty
+            'alternativ
+            'Dim [Default] As Color = IniManager.CvtHexStringToColor("FF000000")
+            Dim comment As String = Nothing
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As Color)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+        End Set
+    End Property
+
+    Public Property Toolbox_HGrdSpfldBitmapFallback As String
+        Get
+            Dim [Default] As String = Nothing
+            Dim comment As String = Nothing
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As String)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+        End Set
+    End Property
+
+    Public Property Toolbox_HGrdEditorBitmapFallback As String
+        Get
+            Dim [Default] As String = Nothing
+            Dim comment As String = Nothing
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As String)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+        End Set
+    End Property
+
+    Public Property Toolbox_HGrdSpfldBitmapIsUserGrafikFallback As Boolean
+        Get
+            Dim [Default] As Boolean = False
+            Dim comment As String = Nothing
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As Boolean)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+        End Set
+    End Property
+
+    Public Property Toolbox_HGrdEditorBitmapIsUserGrafikFallback As Boolean
+        Get
+            Dim [Default] As Boolean = False
+            Dim comment As String = Nothing
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As Boolean)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+        End Set
+    End Property
+
+    Public Property Toolbox_HGrdEditorUseSpfldEinstlg As Boolean
+        Get
+            Dim [Default] As Boolean = False
+            Dim comment As String = Nothing
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As Boolean)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+        End Set
+    End Property
+
+
+
+
+
 
 #End Region
 
@@ -1785,6 +2163,280 @@ Public Module INI
     End Sub
 
 #End Region
+
+
+#Region "IfRunningInIDE_... Properties"
+
+    Private _IfRunningInIDE_ShowAllStones As Boolean?
+    ''' <summary>
+    ''' Gibt außerhalb der IDE immer False zurück
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property IfRunningInIDE_ShowAllStones As Boolean
+        Get
+
+            If IsNothing(_IfRunningInIDE_ShowAllStones) Then
+                Dim [Default] As Boolean = False
+                Dim comment As String = Nothing
+                _IfRunningInIDE_ShowAllStones = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            End If
+            'musss hier stehen, sonst wird der Wert nicht initialisiert und kann in der INI manuell nicht geändert werden.
+            If Not Debugger.IsAttached() Then
+                Return False
+            End If
+
+            Return CBool(_IfRunningInIDE_ShowAllStones)
+        End Get
+        Set(value As Boolean)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+            _IfRunningInIDE_ShowAllStones = Nothing
+        End Set
+    End Property
+
+    Private _IfRunningInIDE_InsertStoneIndex As Boolean?
+    ''' <summary>
+    ''' Gibt außerhalb der IDE immer False zurück
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property IfRunningInIDE_InsertStoneIndex As Boolean
+        Get
+            If IsNothing(_IfRunningInIDE_InsertStoneIndex) Then
+                Dim [Default] As Boolean = False
+                Dim comment As String = Nothing
+                _IfRunningInIDE_InsertStoneIndex = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            End If
+
+            'muss hier stehen, sonst wird der Wert nicht initialisiert und kann in der INI manuell nicht geändert werden.
+            If Not Debugger.IsAttached() Then
+                Return False
+            End If
+
+            Return CBool(_IfRunningInIDE_InsertStoneIndex)
+        End Get
+        Set(value As Boolean)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+            _IfRunningInIDE_InsertStoneIndex = Nothing
+        End Set
+    End Property
+
+    Public Property IfRunningInIDE_ShowErrorMsgInsteadOfException As Boolean
+        Get
+            Dim [Default] As Boolean = False
+            Dim comment As String = Nothing
+            Dim retval As Boolean = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            'muss hier stehen, sonst wird der Wert nicht initialisiert und kann in der INI manuell nicht geändert werden.
+            If Not Debugger.IsAttached() Then
+                Return False
+            Else
+                Return retval
+            End If
+        End Get
+        Set(value As Boolean)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+        End Set
+    End Property
+
+    Public Property IfRunningInIDE_IniEditorDarkmode As Boolean
+        Get
+            Dim [Default] As Boolean = True
+            Dim comment As String = Nothing
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As Boolean)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+        End Set
+    End Property
+
+    Public Property IfRunningInIDE_Grafik16x16Directory_Ressourcen As String
+        Get
+            Dim [Default] As String = "C:\Users\goetz\Documents\Visual Studio\MahjongGK\Grafiken\Grafiken16x16_Ressourcen"
+            Dim comment As String = "Nur in der IDE sichtbar gibt es in FrmMain unten zwei Buttons ""DwnLd"" und ""GfxCompiler"", die" &
+                                    "~den Windows Dateiexplorer mit dem Dowwnloadverzeichniss und dem Grafikverzeichniss öffnen." &
+                                    "~Hier ist der lokale Pfad auf Ihrem Rechner einzugeben. Satz1: der Pfad auf meinem Rechner."
+
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As String)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+        End Set
+    End Property
+    Public Property IfRunningInIDE_Grafik16x16Directory_Other As String
+        Get
+            Dim [Default] As String = "C:\Users\goetz\Documents\Visual Studio\MahjongGK\Grafiken\Grafiken16x16_Andere"
+            Dim comment As String = "Nur in der IDE sichtbar gibt es in FrmMain unten zwei Buttons ""DwnLd"" und ""GfxCompiler"", die" &
+                                    "~den Windows Dateiexplorer mit dem Dowwnloadverzeichniss und dem Grafikverzeichniss öffnen." &
+                                    "~Hier ist der lokale Pfad auf Ihrem Rechner einzugeben. Satz1: der Pfad auf meinem Rechner."
+
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As String)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+        End Set
+    End Property
+
+    Public Property IfRunningInIDE_DownloadDirectory As String
+        Get
+            Dim [Default] As String = "C:\Users\goetz\Downloads\Vivaldi"
+            Dim comment As String = "Gleiches Spiel mit dem Downloadverzeichnis." &
+                                      "~Hinweis: Backslashes müssen verdoppelt werden, da sie Escape-Zeichen sind."
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As String)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+        End Set
+    End Property
+
+#End Region
+
+#Region "GfxCompiler"
+
+    'für nicht zeitkritische Abfragen
+    Public Property GfxCompiler_GhostUGrdColor As Color
+        Get
+            Dim [Default] As Color = IniManager.CvtHexStringToColor("FFC0C0C0")
+            Dim comment As String = Nothing
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As Color)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+        End Set
+    End Property
+    Public Property GfxCompiler_GhostBasisColor(steinStatus As SteinStatus) As Color
+        Get
+            Dim [Default] As Color
+            Select Case steinStatus
+                Case SteinStatus.I00Unsichtbar
+                    [Default] = IniManager.CvtHexStringToColor("FFC0C0C0")
+                Case SteinStatus.I01Normal
+                    [Default] = IniManager.CvtHexStringToColor("FFFCFCDF")
+                Case SteinStatus.I02Selected
+                    [Default] = IniManager.CvtHexStringToColor("FFFFFF00")
+                Case SteinStatus.I03Selectable
+                    [Default] = IniManager.CvtHexStringToColor("FFCAD9FF")
+                Case SteinStatus.I04Removable
+                    [Default] = IniManager.CvtHexStringToColor("FFFFFFFF")
+                Case SteinStatus.I05Locked
+                    [Default] = IniManager.CvtHexStringToColor("FFD8D8D8")
+                Case SteinStatus.I06NotUnsed
+                    [Default] = IniManager.CvtHexStringToColor("FF000000")
+                Case SteinStatus.I07MissingSecond
+                    [Default] = IniManager.CvtHexStringToColor("FFFFBF00")
+                Case SteinStatus.I08WerkstückEinfügeFehler
+                    [Default] = IniManager.CvtHexStringToColor("FFFF0000")
+                Case SteinStatus.I09WerkstückZufallsgrafik
+                    [Default] = IniManager.CvtHexStringToColor("FF000000")
+                Case SteinStatus.I10Reserve1
+                    [Default] = IniManager.CvtHexStringToColor("FF00FF00")
+                Case SteinStatus.I11Reserve2
+                    [Default] = IniManager.CvtHexStringToColor("FFFF00FF")
+
+            End Select
+            Dim comment As String = Nothing
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, steinStatus.ToString), [Default], comment)
+        End Get
+        Set(value As Color)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, steinStatus.ToString), value)
+        End Set
+    End Property
+
+    Public Property GfxCompiler_GhostTransparenzUnsichtbar As Byte
+        Get
+            Dim [Default] As Byte = 200 '
+            Dim comment As String = Nothing
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As Byte)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+        End Set
+    End Property
+    Public Property GfxCompiler_GhostTransparenzAndere As Byte
+        Get
+            Dim [Default] As Byte = 200 '
+            Dim comment As String = Nothing
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As Byte)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+        End Set
+    End Property
+    Public Property GfxCompiler_GhostWitdth As Integer
+        Get
+            Dim [Default] As Integer = 200
+            Dim comment As String = Nothing
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As Integer)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+        End Set
+    End Property
+    Public Property GfxCompiler_GhostHeight As Integer
+        Get
+            Dim [Default] As Integer = 250
+            Dim comment As String = Nothing
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As Integer)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+        End Set
+    End Property
+
+    Public Property GfxCompiler_GhostCurvatureFaktor As Double
+        Get
+            Dim [Default] As Double = 0.06
+            Dim comment As String = Nothing
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As Double)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+        End Set
+    End Property
+
+
+    Public Property GfxCompiler_GhostShadowRightFaktor As Double
+        Get
+            Dim [Default] As Double = 0.05
+            Dim comment As String = Nothing
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As Double)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+        End Set
+    End Property
+    Public Property GfxCompiler_GhostShadowBottomFaktor As Double
+        Get
+            Dim [Default] As Double = 0.05
+            Dim comment As String = Nothing
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As Double)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+        End Set
+    End Property
+    Public Property GfxCompiler_GhostPaddingFaktor As Double
+        Get
+            Dim [Default] As Double = 0.05
+            Dim comment As String = Nothing
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As Double)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+        End Set
+    End Property
+
+    Public Property GfxCompiler_GhostFrameStrokeWidthFaktor As Double
+        Get
+            Dim [Default] As Double = 0.02
+            Dim comment As String = Nothing
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As Double)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+        End Set
+    End Property
+
+
+#End Region
+
 
 #Region "Ini Editieren"
 
@@ -1983,6 +2635,15 @@ Public Module INI
     '-------------------------------
     '
     '
+    Public Function AppDataFullPathWithOpenFileDialog(subdir As String,
+                                    pattern As String,
+                                    Optional header As String = Nothing) As String
+        '
+        Dim path As String = BasisIni.AppDataFullPath(subdir)
+
+        Return BasisIni.GetFullpathFromSelectedFile(path, pattern, header)
+
+    End Function
     Public Function AppDataFullPathWithOpenFileDialog(subdir As AppDataSubDir,
                                     pattern As AppDataFilePattern,
                                     Optional header As String = Nothing) As String
@@ -2138,6 +2799,31 @@ Public Module INI
         Return lo.ToArray
 
     End Function
+
+    Public Property AllIniManagersIniLines As List(Of String)()
+        Get
+            Dim idx As Integer = -1
+            For Each m As IniManager In AllIniManagers
+                idx += 1
+            Next
+            Dim arr(idx) As List(Of String)
+            idx = -1
+            For Each m As IniManager In AllIniManagers
+                idx += 1
+                arr(idx) = m.IniLines
+            Next
+
+            Return arr
+        End Get
+
+        Set(value As List(Of String)())
+            Dim idx As Integer = -1
+            For Each m As IniManager In AllIniManagers
+                idx += 1
+                m.IniLines = value(idx)
+            Next
+        End Set
+    End Property
 
 
 #Region "Initialisierung der Default-Werte"
@@ -2371,6 +3057,7 @@ Public Module INI
 
                 ' 2a) Einfache (nicht-indexierte) INI-Properties lesen/merken
                 For Each p As PropertyInfo In GetIniPropertiesWithUnderscore()
+
                     Dim cur As Object = p.GetValue(Nothing, Nothing)
                     newValuesSimple.Add((p, CloneIfNeeded(cur)))
                 Next
@@ -2396,12 +3083,12 @@ Public Module INI
 
                 ' 5a) Einfache Werte zurückschreiben
                 For Each entry As (Prop As PropertyInfo, Value As Object) In newValuesSimple
-                    entry.Prop.SetValue(Nothing, CoerceForProperty(entry.Prop, entry.Value), Nothing)
+                    entry.Prop.SetValue(Nothing, entry.Value, Nothing)
                 Next
 
                 ' 5b) Indexierte Werte zurückschreiben
                 For Each entry As (Prop As PropertyInfo, IndexArgs As Object(), Value As Object) In newValuesIndexed
-                    entry.Prop.SetValue(Nothing, CoerceForProperty(entry.Prop, entry.Value), entry.IndexArgs)
+                    entry.Prop.SetValue(Nothing, entry.Value, entry.IndexArgs)
                 Next
 
             Catch
@@ -2528,7 +3215,7 @@ Public Module INI
     ''' Liefert alle öffentlichen, statischen, parameterlosen INI-Properties aus diesem Modul,
     ''' die sowohl get als auch set besitzen und mindestens einen Unterstrich "_" im Namen haben.
     ''' </summary>
-    Private Function GetIniPropertiesWithUnderscore() As IEnumerable(Of PropertyInfo)
+    Public Function GetIniPropertiesWithUnderscore() As IEnumerable(Of PropertyInfo)
 
         Dim flags As BindingFlags = BindingFlags.Public Or BindingFlags.Static Or BindingFlags.DeclaredOnly
 
@@ -2588,58 +3275,57 @@ Public Module INI
         Return value
     End Function
 
-    ' --- NEU: Helfer, der Werte auf den Property-Typ formt (inkl. Enum & Nullable(Of Enum)) ---
-    Private Function CoerceForProperty(prop As PropertyInfo, value As Object) As Object
-        If value Is Nothing Then Return Nothing
+    ' ───────────────────────────
+    ' Hilfsfunktionen
+    ' ───────────────────────────
 
-        Dim targetType As Type = prop.PropertyType
-        Dim isNullable As Boolean =
-            targetType.IsGenericType AndAlso targetType.GetGenericTypeDefinition() Is GetType(Nullable(Of ))
-        Dim nonNullType As Type = If(isNullable, Nullable.GetUnderlyingType(targetType), targetType)
+    Private Function IsIntegralType(t As Type) As Boolean
+        Return t Is GetType(Byte) OrElse t Is GetType(SByte) _
+            OrElse t Is GetType(Short) OrElse t Is GetType(UShort) _
+            OrElse t Is GetType(Integer) OrElse t Is GetType(UInteger) _
+            OrElse t Is GetType(Long) OrElse t Is GetType(ULong)
+    End Function
 
-        ' Bereits passend?
-        If nonNullType.IsAssignableFrom(value.GetType()) Then
-            Return value
-        End If
+    ''' <summary>
+    ''' True, wenn value ein endlicher Float/Decimal/Integer ist, der EXAKT ganzzahlig ist.
+    ''' Gibt dann den Int64-Wert (ohne Runden) in result zurück.
+    ''' </summary>
+    Private Function TryAsExactWholeInt64(value As Object, ByRef result As Long) As Boolean
+        If value Is Nothing Then Return False
 
-        ' ENUMS (auch Flags, auch Nullable(Of Enum))
-        If nonNullType.IsEnum Then
-            ' String → Enum.Parse (IgnoreCase, erlaubt auch "A, B" bei <Flags>-Enums)
-            If TypeOf value Is String Then
-                Dim s As String = DirectCast(value, String)
-                If String.IsNullOrWhiteSpace(s) Then
-                    Return If(isNullable, Nothing, Activator.CreateInstance(nonNullType))
-                End If
-                Return [Enum].Parse(nonNullType, s, ignoreCase:=True)
-            End If
-
-            ' Numerisch → Enum.ToObject
-            If IsNumeric(value) Then
-                Dim raw As Long = Convert.ToInt64(value, Globalization.CultureInfo.InvariantCulture)
-                Return [Enum].ToObject(nonNullType, raw)
-            End If
-
-            ' Fallback: Wenn der Wert sich z. B. als anderes Enum mit gleicher Basiszahl darstellt
-            Try
-                Dim raw As Long = Convert.ToInt64(value, Globalization.CultureInfo.InvariantCulture)
-                Return [Enum].ToObject(nonNullType, raw)
-            Catch
-                ' Ignorieren → weiter unten allgemeiner Fallback
-            End Try
-        End If
-
-        ' Alle anderen (nur wenn sinnvoll konvertierbar; Color/Point/... lassen wir unangetastet)
         Try
-            If isNullable Then
-                Return Convert.ChangeType(value, nonNullType, Globalization.CultureInfo.InvariantCulture)
-            Else
-                Return Convert.ChangeType(value, targetType, Globalization.CultureInfo.InvariantCulture)
+            If TypeOf value Is Double Then
+                Dim d As Double = DirectCast(value, Double)
+                If Double.IsNaN(d) OrElse Double.IsInfinity(d) Then Return False
+                If d <> Math.Truncate(d) Then Return False
+                result = CLng(d)
+                Return True
+
+            ElseIf TypeOf value Is Single Then
+                Dim f As Single = DirectCast(value, Single)
+                If Single.IsNaN(f) OrElse Single.IsInfinity(f) Then Return False
+                If f <> Math.Truncate(f) Then Return False
+                result = CLng(f)
+                Return True
+
+            ElseIf TypeOf value Is Decimal Then
+                Dim m As Decimal = DirectCast(value, Decimal)
+                If m <> Decimal.Truncate(m) Then Return False
+                result = Decimal.ToInt64(m)
+                Return True
+
+            ElseIf IsIntegralType(value.GetType()) Then
+                result = System.Convert.ToInt64(value, CultureInfo.InvariantCulture)
+                Return True
             End If
         Catch
-            ' Wenn nicht wandelbar, Original zurückgeben (SetValue würde sonst selbst aussteigen)
-            Return value
+            Return False
         End Try
+
+        Return False
     End Function
+    ' --- NEU: Helfer, der Werte auf den Property-Typ formt (inkl. Enum & Nullable(Of Enum)) ---
+    ' Coerce nur, wenn die Umwandlung nachweislich verlustfrei ist.
 
     ' --- NEU: prüft, ob ALLE Typen Enums (oder Nullable(Of Enum)) sind
     Private Function AreAllEnumOrNullableEnum(types As Type()) As Boolean
@@ -2653,7 +3339,7 @@ Public Module INI
     End Function
 
     ' --- NEU: liefert alle INI-Properties mit Unterstrich, die INDEXER sind und deren Index-Parameter (alle) Enum/Nullable(Of Enum) sind
-    Private Function GetIniIndexedPropertiesWithEnumIndex() As IEnumerable(Of PropertyInfo)
+    Public Function GetIniIndexedPropertiesWithEnumIndex() As IEnumerable(Of PropertyInfo)
         Dim flags As BindingFlags = BindingFlags.Public Or BindingFlags.Static Or BindingFlags.DeclaredOnly
         Return GetType(INI).GetProperties(flags).
         Where(Function(p) p.CanRead AndAlso p.CanWrite).
@@ -2666,7 +3352,7 @@ Public Module INI
     End Function
 
     ' --- NEU: kartesisches Produkt der Enumwerte über mehrere Index-Parameter (meist 1 Param).
-    Private Iterator Function EnumerateIndexArgTuples(indexParamTypes As Type()) As IEnumerable(Of Object())
+    Public Iterator Function EnumerateIndexArgTuples(indexParamTypes As Type()) As IEnumerable(Of Object())
         Dim lists As New List(Of Object())()
         '
         For Each t As Type In indexParamTypes

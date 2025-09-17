@@ -1,0 +1,5 @@
+# SHA-256 checksums for release artifacts
+# Generated: 2025-09-13T13:27:28Z
+# Format: <sha256> *<filename>
+7b0662e4a214f509a2c105364875b70d078d971977996a819037044d470ed4f8 *README_SignatureBlock.md
+c161f4c25d8e8e810fb2e256ab12ad432297a0fa1360b6bb5fa110c71ead1647 *SHA256SUMS.txt

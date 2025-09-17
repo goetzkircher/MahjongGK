@@ -1,0 +1,117 @@
+﻿
+Inzwischen habe ich gelernt ChatGPT richtig zu nutzen.
+Meine Einschätzung "Die Antworten von ChatGPT sind genauso gut, wie die Fragen", gilt mehr denn je.
+
+Jemand der nicht programmieren kann, bekommt keinerlei brauchbaren Code von ChatGPT!
+Es kommt weniger auf den Syntax an, Struktur und Programmlogik müssen bekannt sein.
+
+Hier geht es um die Verwaltung der eigenen Grafik-Ressourchen, die von einem Hilfprogramm
+anhand bekannter Ordnerstruktur un darin enthaltenen Grafiken erstellt werden soll,
+einschließlich des benötigten Klassen-Codes.
+
+Ich habe ChatGPT sehr genau beschrieben, was ich für Vorstellungen habe und gebeten,
+zunächst das Konzept zu prüfen, was ich dann ergänzt habe und ChatGPT wie folgt zusammenfasst:
+
+Ich fasse die Architektur so zusammen, dass sie deine Gewohnheiten (##q-Suffix, Dark-Mode,
+einmaliges Warm-Load, getrennte Stein-Verwaltung mit Laufzeit-Reload) exakt abbildet. 
+Danach bekommst du kompakten, einkopierbaren VB.NET-Code (Framework 4.8/4.8.1, Option Strict usw.)
+für die Kernklassen und wichtigsten Funktionen.
+
+Zielbild (kurz)
+
+Dateivorrang: SVG > PNG/BMP.
+Namenskonvention: Am Dateinamen hängende Größen wie …16q/24q/32q werden beim Vergleich abgeschnitten (Regex (\d{2,3})q$).
+Dark-Mode: Wird nicht über Parameter gereicht. INI.Global_DarkMode As Boolean + INI.Global_BrightenAmount As Single 
+	werden intern angewandt (einmalig gecacht).
+Fallback-Größen: Wenn keine explizite Größe aus Name/Anfrage ermittelbar ist: 100×100. Wenn nur X oder Y = 0 → 1:1.
+DPI-Faktor: Nur bei ##q-Funktionen: Optional dpiFaktor As Single = 1.
+XML-Container: Kompakt und „neugierresistent“: GZip-komprimierte Payloads (Base64 in XML).
+Warmup: Nicht nötig; du rufst einmal ImageContainer.LoadBasis(basis) beim Programmstart.
+Stein-Verwaltung: Eigene XML, eigener Manager, laufzeit-reloadbar (nur nachladen & Cache leeren).
+
+Verzeichnisse:
+Basisgrafiken: Dokumente\Visual Studio\MahjongGK\Grafiken\Integrierte\...
+Mahjong-Steine: Dokumente\Visual Studio\MahjongGK\Grafiken\Mahjongsteine\<SteinSatz>\<SteinStatus>\*.png
+
+Validierung beim „Kompilieren“ (Hilfsprogramm):
+In jedem SteinStatus-Ordner genau 1 PNG pro SteinIndexEnum.
+Alle PNGs identische Größe, sonst Exception.
+Fehlende/überzählige → Exception.
+Geistergrafik-Größe = ermittelte Referenzgröße.
+Code – Kernbausteine
+
+Alle Snippets sind fertig einkopierbar (Optionen inkl.), aufgeteilt in:
+Utilities (Regex, GZip, Resize, Darkening)
+XML-Datenmodelle (kompakt + GZip-Base64)
+Basisgrafik-Manager (SVG > Bitmap, ##q-Suffix, DPI)
+Stein-Manager (GetStein / GetSteinSize / Reload)
+
+Und dann kam der Code, der, wie üblich, nicht alle Deklarationen enthält. 
+ChatGPT vergisst die immer wieder, liefert sie auf Anfrag nach, aber das verkürzt natürlich das Gedächtnis.
+Außerdem gibt es immer wieder Fehler in Feinheiten, weil ChatGPT in c# programmiert und im Detail doch
+kleine Unterschiede in den beiden Sprachen sind. Die werden auf Nachfrage dann korrigiert.
+
+Wie das Hilfsprogramm die XMLs baut (Kurzleitfaden)
+
+Basis-Pack (Integrierte):
+Verzeichnisse unter …\Grafiken\Integrierte\<SatzX>\.
+
+Jede Datei lesen:
+Name in baseKey + optional sizeQ via StripSizeQ.
+Wenn SVG: Kind="svg", DataGzBase64 = GZip(UTF8(svgText)).
+Wenn PNG/BMP: Kind="png", DataGzBase64 = GZip(raw bytes).
+SizeHint kannst du z.B. "16q" eintragen (rein informativ).
+Ein Key pro Motiv (ohne ##q). Doppelte Keys → erlaubt (SVG+PNG), Auswahl erfolgt zur Laufzeit (SVG-Vorrang).
+
+Stein-Pack (Mahjongsteine):
+Root …\Grafiken\Mahjongsteine\<SteinSatz>\.
+Darunter Ordner je SteinStatus (genauer Name = Enum-ToString).
+In jedem Status-Ordner genau eine PNG pro SteinIndexEnum.
+Prüfe Vollständigkeit/Überhang → Exception.
+Prüfe Gleichheit aller Größen → RefWidth/RefHeight setzen, sonst Exception.
+Schreibe SteinPack mit Entries = (Status, Index, GZip(Base64(PNG))).
+
+Verwendung im Programm
+' Beim Programmstart EINMAL:
+ImageContainer.Instance.LoadBasis(AktGfxBasis.Satz1)
+
+' Allgemeine Grafiken holen (z.B. Kompass):
+Dim bmp1 As Bitmap = ImageContainer.Instance.GetBitmap("CompassN16q", 16, 16, dpiFaktor:=1.25F)
+
+' Mahjong-Steine initialisieren:
+SteinManager.Instance.LoadSteinSatz(SteinSatz.Klassisch)
+
+' Steingröße:
+Dim sz As Size = SteinManager.Instance.GetSteinSize()
+
+' Konkreter Stein:
+Dim s As Bitmap = SteinManager.Instance.GetStein(SteinStatus.ClickableOne, SteinIndexEnum.DracheR)
+
+' Späterer Laufzeit-Wechsel des Satzes (nur Nachladen & Cache leeren):
+SteinManager.Instance.LoadSteinSatz(SteinSatz.Modern)
+
+Warum das zu deinen Punkten passt
+Hierarchie SVG > Bitmap: umgesetzt; SVG wird mit Svg.NET gerendert.
+##q-Suffix: beim Vergleich strikt entfernt, Größe separat verarbeitet; dpiFaktor nur dort wirksam.
+Dark-Mode/Brighter: intern, zentral, ohne Zusatzparameter; Werte sind gepuffert und konstant.
+Fallback-Größe: genau wie gefordert (100×100; 1:1-Logik).
+„XML ist groß“: Nutzlast GZip-komprimiert und Base64-codiert → kompakt & robust.
+Kein Warmup nötig: Nur LoadBasis beim Start, Stein-Sätze getrennt via SteinManager.
+Steine getrennt: Eigene XML-Struktur, Reload zur Laufzeit möglich, Cache-clear eingebaut.
+Ghost-/Reserve-Grafiken: werden bei fehlenden Einträgen gerendert, Größe = Referenzgröße.
+
+Wenn du magst, liefere ich dir im nächsten Schritt das Hilfsprogramm (Form) zum „Kompilieren“ der
+Verzeichnisse in die beiden XML-Formate inkl. Validator und schöner Fehlerliste.
+
+Alles klar — hier ist das Hilfsprogramm (Form) zum „Kompilieren“ deiner Verzeichnisse 
+in die beiden XML-Formate. Es ist komplett einkopierbar (VB.NET, .NET Framework 4.8/4.8.1, 
+Option Strict On, Option Infer Off) und für die Integration als Form in deine Lösung gedacht.
+
+Aufgabe „Basisgrafiken“ (…\Grafiken\Integrierte\<SatzX>\): SVG hat Vorrang, Dateinamen mit ##q 
+werden beim Key-Vergleich bereinigt. Inhalt wird GZipt und Base64 in GfxPack gespeichert.
+
+Aufgabe „Mahjongsteine“ (…\Grafiken\Mahjongsteine\<SteinSatz>\<SteinStatus>\*.png): 
+strikte Validierung (fehlend/überzählig = Exception), einheitliche Größe, Ergebnis in SteinPack.
+
+Ausgabeorte: wie von dir gewünscht unter Path.Combine(Application.StartupPath, "Eigene Ressourcen"),
+Dateinamen Basis_{Satz}.gfx.xml bzw. pro Steinsatz Steine_{SteinSatz}.xml im jeweiligen Steinsatz-Ordner.

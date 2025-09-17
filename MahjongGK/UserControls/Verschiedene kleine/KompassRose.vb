@@ -199,9 +199,18 @@ Public Class KompassRose
 
     Private Function GetDirectionBitmap(dir As KompassEnum, state As String) As Image
         If dir = KompassEnum.None Then Return Nothing
+
+        Select Case dir
+            Case KompassEnum.N : Return KompassDot()
+            Case KompassEnum.S : Return KompassDotDisabled()
+            Case KompassEnum.W : Return KompassDotMouseOver()
+            Case KompassEnum.O : Return KompassDotSelected()
+            Case Else : Return KompassDotNotVisible()
+
+        End Select
+
         Dim name As String = ResourcePrefix & DirToToken(dir) & state
-        Dim obj As Object = My.Resources.ResourceManager.GetObject(name)
-        Dim bmp As Bitmap = TryCast(obj, Bitmap)
+        Dim bmp As Bitmap = Theme.GetResBmp(name)
 
         If bmp IsNot Nothing Then Return bmp
 
@@ -232,8 +241,7 @@ Public Class KompassRose
         If _centerDotBmp IsNot Nothing Then Return
 
         ' 1) Versuche Ressource
-        Dim obj As Object = My.Resources.ResourceManager.GetObject("CompassCenter")
-        Dim bmp As Bitmap = TryCast(obj, Bitmap)
+        Dim bmp As Bitmap = Theme.GetResBmp("CompassCenter")
 
         ' 2) Fallback: kleinen schwarzen Punkt generieren
         If bmp Is Nothing Then

@@ -96,8 +96,8 @@ Public Class Werkbank
                 For idx As Integer = 0 To SteinInfos.Count - 1
                     With SteinInfos(idx)
                         .IsWerkbankStein = True
-                        .SteinStatusIst = SteinStatus.WerkstückZufallsgrafik
-                        .SteinStatusUsed = SteinStatus.WerkstückZufallsgrafik
+                        .SteinStatusIst = SteinStatus.I09WerkstückZufallsgrafik
+                        .SteinStatusUsed = SteinStatus.I09WerkstückZufallsgrafik
                     End With
                 Next
             End If
@@ -111,12 +111,12 @@ Public Class Werkbank
                     With SteinInfos(idx)
                         If demoMode Then
                             .IsWerkbankStein = False
-                            .SteinStatusIst = SteinStatus.Normal
-                            .SteinStatusUsed = SteinStatus.Normal
+                            .SteinStatusIst = SteinStatus.I01Normal
+                            .SteinStatusUsed = SteinStatus.I01Normal
                         Else
                             .IsWerkbankStein = True
-                            .SteinStatusIst = SteinStatus.WerkstückZufallsgrafik
-                            .SteinStatusUsed = SteinStatus.WerkstückZufallsgrafik
+                            .SteinStatusIst = SteinStatus.I09WerkstückZufallsgrafik
+                            .SteinStatusUsed = SteinStatus.I09WerkstückZufallsgrafik
                         End If
                     End With
                 Next

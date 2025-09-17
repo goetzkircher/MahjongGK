@@ -30,72 +30,72 @@ Option Strict On
 
 
 Imports System.Runtime.InteropServices
+Namespace MjDebug
+    Module DebugStep
 
-Module DebugStep
+        ' ##########################################################
+        ' Modul DebugStep – Steuerung von Debug-Ausgaben per Tastatur
+        '
+        ' Steuerung:
+        '   Strg LINKS  = Einzelschritt (ein WaitForStep() wird freigegeben)
+        '   Shift LINKS = Dauerlauf einschalten (alle WaitForStep() kehren sofort zurück)
+        '   Strg RECHTS = Dauerlauf ausschalten (zurück zum Einzelschritt)
+        '
+        ' Verwendung:
+        '   1. Im Hauptformular (frmMain) im Load-Ereignis einmalig aufrufen:
+        '
+        '          Private Sub frmMain_Load(...) Handles MyBase.Load
+        '              DebugStep.Attach(Me)
+        '          End Sub
+        '
+        '   2. An beliebigen Stellen im Test-/Debugcode:
+        '
+        '          DebugStep.WaitForStep()
+        '
+        '      → Das Programm wartet hier, bis die Strg- oder Shift-Steuerung
+        '        den Ablauf freigibt.
+        '
+        ' Hinweise:
+        '   - KeyPreview wird im Attach automatisch auf True gesetzt,
+        '     damit das Formular die Tastendrücke vor den Controls erhält.
+        '   - Der Dauerlauf (Shift LINKS) bleibt aktiv, bis er mit Strg RECHTS
+        '     wieder abgeschaltet wird.
+        '
+        ' ##########################################################
 
-    ' ##########################################################
-    ' Modul DebugStep – Steuerung von Debug-Ausgaben per Tastatur
-    '
-    ' Steuerung:
-    '   Strg LINKS  = Einzelschritt (ein WaitForStep() wird freigegeben)
-    '   Shift LINKS = Dauerlauf einschalten (alle WaitForStep() kehren sofort zurück)
-    '   Strg RECHTS = Dauerlauf ausschalten (zurück zum Einzelschritt)
-    '
-    ' Verwendung:
-    '   1. Im Hauptformular (frmMain) im Load-Ereignis einmalig aufrufen:
-    '
-    '          Private Sub frmMain_Load(...) Handles MyBase.Load
-    '              DebugStep.Attach(Me)
-    '          End Sub
-    '
-    '   2. An beliebigen Stellen im Test-/Debugcode:
-    '
-    '          DebugStep.WaitForStep()
-    '
-    '      → Das Programm wartet hier, bis die Strg- oder Shift-Steuerung
-    '        den Ablauf freigibt.
-    '
-    ' Hinweise:
-    '   - KeyPreview wird im Attach automatisch auf True gesetzt,
-    '     damit das Formular die Tastendrücke vor den Controls erhält.
-    '   - Der Dauerlauf (Shift LINKS) bleibt aktiv, bis er mit Strg RECHTS
-    '     wieder abgeschaltet wird.
-    '
-    ' ##########################################################
+        ' --- WinAPI für Links/Rechts-Erkennung ---
+        <DllImport("user32.dll")>
+        Private Function GetKeyState(vKey As Integer) As Short
+        End Function
+        Private Const VK_LCONTROL As Integer = &HA2
+        Private Const VK_RCONTROL As Integer = &HA3
+        Private Const VK_LSHIFT As Integer = &HA0
+        Private Const VK_RSHIFT As Integer = &HA1
+        Private Function IsKeyDown(vk As Integer) As Boolean
+            Return (GetKeyState(vk) And &H8000S) <> 0
+        End Function
 
-    ' --- WinAPI für Links/Rechts-Erkennung ---
-    <DllImport("user32.dll")>
-    Private Function GetKeyState(vKey As Integer) As Short
-    End Function
-    Private Const VK_LCONTROL As Integer = &HA2
-    Private Const VK_RCONTROL As Integer = &HA3
-    Private Const VK_LSHIFT As Integer = &HA0
-    Private Const VK_RSHIFT As Integer = &HA1
-    Private Function IsKeyDown(vk As Integer) As Boolean
-        Return (GetKeyState(vk) And &H8000S) <> 0
-    End Function
+        Private _goNext As Boolean
+        Private _attached As Boolean
+        Private _pureLctrlArmed As Boolean
+        Private _runToEnd As Boolean
+        Private _lastCtrlSideLeft As Boolean
 
-    Private _goNext As Boolean
-    Private _attached As Boolean
-    Private _pureLctrlArmed As Boolean
-    Private _runToEnd As Boolean
-    Private _lastCtrlSideLeft As Boolean
+        Public ReadOnly Property IsRunToEnd As Boolean
+            Get
+                Return _runToEnd
+            End Get
+        End Property
 
-    Public ReadOnly Property IsRunToEnd As Boolean
-        Get
-            Return _runToEnd
-        End Get
-    End Property
+        Public Sub Attach(host As Form)
 
-    Public Sub Attach(host As Form)
+            If _attached Then
+                Return
+            End If
 
-        If _attached Then
-            Return
-        End If
+            host.KeyPreview = True
 
-        host.KeyPreview = True
-
-        AddHandler host.KeyDown,
+            AddHandler host.KeyDown,
             Sub(s, e)
                 Select Case e.KeyCode
 
@@ -128,7 +128,7 @@ Module DebugStep
                 End Select
             End Sub
 
-        AddHandler host.KeyUp,
+            AddHandler host.KeyUp,
             Sub(s, e)
                 Select Case e.KeyCode
 
@@ -151,24 +151,25 @@ Module DebugStep
                 End Select
             End Sub
 
-        ' Bei Fokusverlust nur das Arming zurücksetzen, Dauerlauf bleibt bestehen
-        AddHandler host.Deactivate, Sub() _pureLctrlArmed = False
+            ' Bei Fokusverlust nur das Arming zurücksetzen, Dauerlauf bleibt bestehen
+            AddHandler host.Deactivate, Sub() _pureLctrlArmed = False
 
-        _attached = True
-    End Sub
+            _attached = True
+        End Sub
 
-    ' Im Debug-Code aufrufen, um auf Eingabe zu warten
-    Public Sub WaitForStep()
+        ' Im Debug-Code aufrufen, um auf Eingabe zu warten
+        Public Sub WaitForStep()
 
-        If _runToEnd Then
-            Return
-        End If
+            If _runToEnd Then
+                Return
+            End If
 
-        _goNext = False
-        Do
-            Application.DoEvents()
-            Threading.Thread.Sleep(10)
-        Loop Until _goNext
-    End Sub
+            _goNext = False
+            Do
+                Application.DoEvents()
+                Threading.Thread.Sleep(10)
+            Loop Until _goNext
+        End Sub
 
-End Module
+    End Module
+End Namespace

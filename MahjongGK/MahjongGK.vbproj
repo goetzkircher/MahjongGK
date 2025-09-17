@@ -15,7 +15,9 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
     <IsWebBootstrapper>false</IsWebBootstrapper>
-    <PublishUrl>publish\</PublishUrl>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+    <PublishUrl>C:\Users\goetz\Documents\Visual Studio Setups\MahjongGK\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
     <UpdateEnabled>false</UpdateEnabled>
@@ -25,9 +27,10 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationRevision>1</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
+    <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -71,11 +74,55 @@
   <PropertyGroup>
     <ApplicationIcon>MahjongGK.ico</ApplicationIcon>
   </PropertyGroup>
+  <PropertyGroup>
+    <GenerateManifests>true</GenerateManifests>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>keys\MahjongGK.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Magick.NET-Q8-AnyCPU, Version=14.8.0.0, Culture=neutral, PublicKeyToken=2004825badfa91ec, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Thirdparty\Magick\Magick.NET-Q8-AnyCPU.dll</HintPath>
+    </Reference>
+    <Reference Include="Magick.NET.Core, Version=14.8.0.0, Culture=neutral, PublicKeyToken=2004825badfa91ec, processorArchitecture=MSIL">
+      <HintPath>..\packages\Magick.NET.Core.14.8.2\lib\netstandard20\Magick.NET.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Svg, Version=3.3.0.0, Culture=neutral, PublicKeyToken=12a0bac221edeae2, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Thirdparty\SVG\Svg.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Thirdparty\System\System.Buffers.dll</HintPath>
+    </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Deployment" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression, Version=4.1.2.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.IO.Compression.4.3.0\lib\net46\System.IO.Compression.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.IO.Compression.FileSystem" />
+    <Reference Include="System.Memory, Version=4.0.1.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Thirdparty\System\System.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Thirdparty\System\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Thirdparty\System\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
@@ -97,37 +144,77 @@
     <Import Include="System.Threading.Tasks" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Bitmaps\MahjongSymbolFactory\MahjongSymbolEnumerationen.vb" />
-    <Compile Include="Bitmaps\MahjongSymbolFactory\MahjongSymbols.vb" />
-    <Compile Include="Bitmaps\MahjongSymbolFactory\MahjongTileRenderer.vb" />
-    <Compile Include="Bitmaps\MahjongSymbolFactory\IniFile.vb" />
-    <Compile Include="Bitmaps\MahjongSymbolFactory\CreateIniFileTileStylePresetsDefault.vb" />
-    <Compile Include="Bitmaps\MahjongSymbolFactory\MahjongSymbolFactory.vb" />
-    <Compile Include="Bitmaps\MahjongSymbolFactory\SeriesMapping.vb" />
-    <Compile Include="Bitmaps\MahjongSymbolFactory\SeriesPalettes.vb" />
-    <Compile Include="Bitmaps\MahjongSymbolFactory\TileExport.vb" />
-    <Compile Include="Bitmaps\MahjongSymbolFactory\TileRenderSettings.vb" />
-    <Compile Include="Bitmaps\MahjongSymbolFactory\TileRenderSettingsWatcher.vb" />
-    <Compile Include="Bitmaps\MahjongSymbolFactory\TileStyle.vb" />
-    <Compile Include="Bitmaps\MahjongSymbolFactory\TileStyleTuner.vb">
+    <Compile Include="Controls erweiterte\ButtonInfo.vb">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls erweiterte\ListBoxSelectOnWheel.vb">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Eigene Ressourcen\Verwaltung\MjGfx.vb" />
+    <Compile Include="frmToolBox mit UCtls\UctlToolboxHintergrund.Designer.vb">
+      <DependentUpon>UctlToolboxHintergrund.vb</DependentUpon>
+    </Compile>
+    <Compile Include="frmToolBox mit UCtls\UctlToolboxHintergrund.vb">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Images\PhotographyVerwaltung\BackgroundSingleImageCache.vb" />
+    <Compile Include="Images\PhotographyVerwaltung\FrmBackgroundSelector.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Bitmaps\SteinOverlays.vb" />
-    <Compile Include="Formulare\frmToolBox.Designer.vb">
+    <Compile Include="Images\MahjongSymbolFactory\ChinesicheUndAndereZeichen.vb" />
+    <Compile Include="Images\MahjongSymbolFactory\GlyphGradientRenderer.vb" />
+    <Compile Include="Images\MahjongSymbolFactory\MahjongSymbolEnumerationen.vb" />
+    <Compile Include="Images\MahjongSymbolFactory\MahjongSymbols.vb" />
+    <Compile Include="Images\MahjongSymbolFactory\MahjongTileRenderer.vb" />
+    <Compile Include="Images\MahjongSymbolFactory\IniFile.vb" />
+    <Compile Include="Images\MahjongSymbolFactory\CreateIniFileTileStylePresetsDefault.vb" />
+    <Compile Include="Images\MahjongSymbolFactory\MahjongSymbolFactory.vb" />
+    <Compile Include="Images\MahjongSymbolFactory\SeriesMapping.vb" />
+    <Compile Include="Images\MahjongSymbolFactory\SeriesPalettes.vb" />
+    <Compile Include="Images\MahjongSymbolFactory\TileExport.vb" />
+    <Compile Include="Images\MahjongSymbolFactory\TileRenderSettings.vb" />
+    <Compile Include="Images\MahjongSymbolFactory\TileRenderSettingsWatcher.vb" />
+    <Compile Include="Images\MahjongSymbolFactory\TileStyle.vb" />
+    <Compile Include="Images\MahjongSymbolFactory\TileStyleTuner.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Images\PhotographyVerwaltung\BackgroundZipManager.vb" />
+    <Compile Include="Images\SteinOverlays.vb" />
+    <Compile Include="DarkMode\ThemedRenderer.vb" />
+    <Compile Include="DarkMode\ThemeImageCache.vb" />
+    <Compile Include="DarkMode\ThemeManager.vb" />
+    <Compile Include="DarkMode\ThemePalette.vb" />
+    <Compile Include="DarkMode\ThemeResourcesRaw_zlv.vb" />
+    <Compile Include="DarkMode\WindowsTheme.vb" />
+    <Compile Include="Eigene Ressourcen\Verwaltung\frmGfxCompiler.Designer.vb">
+      <DependentUpon>frmGfxCompiler.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Eigene Ressourcen\Verwaltung\frmGfxCompiler.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Eigene Ressourcen\Verwaltung\GfxPack.vb" />
+    <Compile Include="Eigene Ressourcen\Verwaltung\GfxUtils.vb" />
+    <Compile Include="Eigene Ressourcen\Verwaltung\ImageContainer.vb" />
+    <Compile Include="Eigene Ressourcen\Verwaltung\SteinManager.vb" />
+    <Compile Include="frmToolBox mit UCtls\frmToolBox.Designer.vb">
       <DependentUpon>frmToolBox.vb</DependentUpon>
     </Compile>
-    <Compile Include="Formulare\frmToolBox.vb">
+    <Compile Include="frmToolBox mit UCtls\frmToolBox.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmToolBox\PlacementSameGrid.vb" />
+    <Compile Include="frmToolBox mit UCtls\PlacementSameGrid.vb" />
+    <Compile Include="Images\PhotographyVerwaltung\BackgroundImageCache.vb" />
+    <Compile Include="Hilfsmodule\DeepCopyExtensions.vb" />
+    <Compile Include="Hilfsmodule\FormHelfer.vb" />
+    <Compile Include="Hilfsmodule\KompassDotFactory.vb" />
     <Compile Include="INI\FrmIniEditor.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Hilfsmodule\GdiHelfer.vb" />
+    <Compile Include="INI\IniCleanup.vb" />
     <Compile Include="INI\IniCommentReader.vb" />
     <Compile Include="INI\IniChangedEventArgs.vb" />
     <Compile Include="Namesspace Debughelfer\DebugBitmaps.vb" />
-    <Compile Include="Shared\AppGrafiken.vb" />
     <Compile Include="Shared\DebugStep.vb" />
     <Compile Include="Formulare\MessageBoxFormatiert.vb">
       <SubType>Form</SubType>
@@ -137,6 +224,14 @@
     <Compile Include="INI\IniManager.vb" />
     <Compile Include="SpielfeldKlassen\SpielfeldSteineAustauscher.vb" />
     <Compile Include="SpielfeldKlassen\SpielsteinGeneratorValues.vb" />
+    <Compile Include="Temporär zlv\frmWebPTest.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Textdateien\StrictOnCheatSheet.vb" />
+    <Compile Include="runtimes\StartupMagicNative.vb" />
+    <Compile Include="UserControls\About\UICtlAboutMahjongGK.vb">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="UserControls\Editor\UCtlEditor.Designer.vb">
       <DependentUpon>UCtlEditor.vb</DependentUpon>
     </Compile>
@@ -150,6 +245,9 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="UserControls\Verschiedene kleine\KompassRose.vb">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UserControls\Verschiedene kleine\KompassRoseX.vb">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="UserControls\Verschiedene kleine\MenuStripEx.vb">
@@ -196,14 +294,14 @@
     <Compile Include="Namesspace Debughelfer\DebugRtfOutputForm.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmMain Sub Main\frmMain.Designer.vb">
+    <Compile Include="frmMain\frmMain.Designer.vb">
       <DependentUpon>frmMain.vb</DependentUpon>
     </Compile>
-    <Compile Include="frmMain Sub Main\frmMain.vb">
+    <Compile Include="frmMain\frmMain.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Bitmaps\BitmapContainer.vb" />
-    <Compile Include="Bitmaps\ImagesBase64XML.vb" />
+    <Compile Include="Images\BitmapContainer.vb" />
+    <Compile Include="Images\ImagesBase64XML.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="My Project\Application.Designer.vb">
       <AutoGen>True</AutoGen>
@@ -249,13 +347,19 @@
     <Compile Include="Werken %28Bausteine erzeugen%29\WerkstückLayout.vb" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Formulare\frmToolBox.resx">
+    <EmbeddedResource Include="Eigene Ressourcen\Verwaltung\frmGfxCompiler.resx">
+      <DependentUpon>frmGfxCompiler.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmToolBox mit UCtls\frmToolBox.resx">
       <DependentUpon>frmToolBox.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmToolBox mit UCtls\UctlToolboxHintergrund.resx">
+      <DependentUpon>UctlToolboxHintergrund.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="INI\FrmIniEditor.resx">
       <DependentUpon>FrmIniEditor.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmMain Sub Main\frmMain.resx">
+    <EmbeddedResource Include="frmMain\frmMain.resx">
       <DependentUpon>frmMain.vb</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
@@ -264,6 +368,9 @@
       <LastGenOutput>Resources.Designer.vb</LastGenOutput>
       <CustomToolNamespace>My.Resources</CustomToolNamespace>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Temporär zlv\frmWebPTest.resx">
+      <DependentUpon>frmWebPTest.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UserControls\Editor\UCtlEditor.resx">
       <DependentUpon>UCtlEditor.vb</DependentUpon>
@@ -281,6 +388,10 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Images\Photography\Hintergrundgrafiken.zip">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="keys\MahjongGK.snk" />
     <None Include="My Project\Application.myapp">
       <Generator>MyApplicationCodeGenerator</Generator>
       <LastGenOutput>Application.Designer.vb</LastGenOutput>
@@ -291,6 +402,11 @@
       <LastGenOutput>Settings.Designer.vb</LastGenOutput>
     </None>
     <None Include="App.config" />
+    <None Include="packages.config" />
+    <None Include="ReleaseNotes_github.md" />
+    <None Include="Thirdparty\Quelldaten\magick.net-q8-anycpu.14.8.2.nupkg.zip" />
+    <None Include="Thirdparty\Quelldaten\magick.net.core.14.8.2.nupkg.zip" />
+    <None Include="Thirdparty\Quelldaten\svg.3.4.0.nupkg.zip" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.8.1">
@@ -305,33 +421,105 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Bitmaps\MahjongSymbolFactory\liesmich.txt" />
-    <Content Include="Bitmaps\XML-Container\MahjongImagesSrcBase64_00_Normal.xml">
+    <Content Include="..\LICENCE.txt">
+      <Link>LICENCE.txt</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Bitmaps\XML-Container\MahjongImagesSrcBase64_01_Selected.xml">
+    <Content Include="Images\MahjongSymbolFactory\liesmich.txt" />
+    <Content Include="Images\PhotographyVerwaltung\BackgroundSingleImageCache.txt" />
+    <Content Include="Images\XML-Container\MahjongImagesSrcBase64_00_Normal.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Bitmaps\XML-Container\MahjongImagesSrcBase64_02_Selectable.xml">
+    <Content Include="Images\XML-Container\MahjongImagesSrcBase64_01_Selected.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Bitmaps\XML-Container\MahjongImagesSrcBase64_03_Removable.xml">
+    <Content Include="Images\XML-Container\MahjongImagesSrcBase64_02_Selectable.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Bitmaps\XML-Container\MahjongImagesSrcBase64_04_Locked.xml">
+    <Content Include="Images\XML-Container\MahjongImagesSrcBase64_03_Removable.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Bitmaps\XML-Container\MahjongImagesSrcBase64_05_NotUsed.xml">
+    <Content Include="Images\XML-Container\MahjongImagesSrcBase64_04_Locked.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Bitmaps\XML-Container\MahjongImagesSrcBase64_06_MissingSecond.xml">
+    <Content Include="Images\XML-Container\MahjongImagesSrcBase64_05_NotUsed.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Images\XML-Container\MahjongImagesSrcBase64_06_MissingSecond.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Eigene Ressourcen\Basis_Satz1.gfx.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Eigene Ressourcen\liesmich1.txt" />
+    <Content Include="Eigene Ressourcen\liesmich2.txt" />
+    <Content Include="Eigene Ressourcen\Steine_Default.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Eigene Ressourcen\Steine_Satz2.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Hilfsmodule\Bitmaps.txt" />
     <Content Include="MahjongGK.ico" />
     <Content Include="Namespace Spielfeld\liesmich.txt" />
     <Content Include="Namespace Spielfeld\Nicht verwenderter Code.txt" />
     <Content Include="Namespace Spielfeld\RenderingTaktgeber.txt" />
     <Content Include="Namespace Spielfeld\_Variablennamen %28Auszug%29.txt" />
+    <None Include="Resources\CompassN.png" />
+    <None Include="Resources\Dummy16q.png" />
+    <None Include="Resources\Dummy24q.png" />
+    <None Include="Resources\Dummy28q.png" />
+    <None Include="Resources\Dummy34q.png" />
+    <None Include="Resources\Dummy48q.png" />
+    <Content Include="runtimes\win-x64\native\Magick.Native-Q8-x64.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Thirdparty\liesmich.txt" />
+    <Content Include="Thirdparty\Magick\LICENSE.txt" />
+    <None Include="Thirdparty\Magick\Magick.Native-Q8-x64.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Thirdparty\Magick\Magick.NET-Q8-AnyCPU.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Thirdparty\Magick\Magick.NET-Q8-AnyCPU.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Thirdparty\Magick\Magick.NET.Core.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Thirdparty\Magick\Magick.NET.Core.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <Content Include="Thirdparty\SVG\LICENSE.txt" />
+    <None Include="Thirdparty\SVG\Svg.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Thirdparty\SVG\Svg.xml" />
+    <None Include="Thirdparty\System\System.Buffers.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Thirdparty\System\System.Buffers.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Thirdparty\System\System.Memory.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Thirdparty\System\System.Memory.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Thirdparty\System\System.Numerics.Vectors.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Thirdparty\System\System.Numerics.Vectors.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Thirdparty\System\System.Runtime.CompilerServices.Unsafe.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Thirdparty\System\System.Runtime.CompilerServices.Unsafe.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Resources\Werkzeugkiste.png" />
     <None Include="Resources\Editor.png" />
     <None Include="Resources\Error.png" />
@@ -339,7 +527,6 @@
     <None Include="Resources\handyman_16dp_404040_FILL0_wght400_GRAD0_opsz20.png" />
     <None Include="Resources\CompassE.png" />
     <None Include="Resources\CompassEsel.png" />
-    <None Include="Resources\CompassN.png" />
     <None Include="Resources\CompassNO.png" />
     <None Include="Resources\CompassNOsel.png" />
     <None Include="Resources\CompassNsel.png" />
@@ -397,6 +584,7 @@
     <None Include="Resources\PunktMover.png" />
     <None Include="Resources\PunktSel.png" />
     <None Include="Resources\SliderPunkt.png" />
+    <Content Include="Textdateien\Eselsbrücken.txt" />
     <Content Include="Textdateien\Mahjong Solitär Überlegungen.txt" />
     <Content Include="Textdateien\Über ChatGPT.txt" />
   </ItemGroup>

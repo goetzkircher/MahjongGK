@@ -42,14 +42,51 @@ Namespace Spielfeld
 
         Public Sub DoPaintSpielfeld_Paint(gfx As Graphics, rectOutput As Rectangle, timeDifferenzFaktor As Double, clear As Boolean)
 
-            If AktRendering = RenderingEnum.None OrElse clear OrElse IsNothing(AktSpielfeldInfo) OrElse IsNothing(AktSpielfeldInfo.SteinInfos) OrElse AktSpielfeldInfo.SteinInfos.Count = 0 Then
+            If AktRendering = RenderingEnum.None OrElse clear OrElse AktSpielfeldInfo.IsEmpty Then
+
+                gfx.Clear(INI.Spielfeld_BackgroundColor)
+
+                Dim text As String = Nothing
+
+                Select Case AktRendering
+                    Case RenderingEnum.None
+                        text = "Es ist Pause - Du kannst ein Spiel laden."
+                    Case RenderingEnum.Spielfeld
+                        text = "Es ist kein Spiel geladen."
+                    Case RenderingEnum.Editor
+                        text = "Es ist kein Spielentwurf geladen."
+                    Case RenderingEnum.Werkbank
+                        text = "Es ist kein Basiselement geladen."
+                End Select
+
+                Dim fnt As Font = INI.Rendering_EmptyMessageFont
+
+                gfx.DrawString(text, fnt, If(INI.Global_DarkMode, Brushes.White, Brushes.Black), New PointF(rectOutput.Left + 20, rectOutput.Top + 20))
+
+                fnt.Dispose()
+
+                Exit Sub
+            End If
+
+            If AktSpielfeldInfo.IsEmpty Then
                 gfx.Clear(INI.Spielfeld_BackgroundColor)
                 Exit Sub
             End If
 
-            If INI.Spielfeld_DrawBackgroundColor Then
+
+            If INI.Spielfeld_UseBackgroundColor Then
                 gfx.Clear(INI.Spielfeld_BackgroundColor)
+
+            ElseIf AktSpielfeldInfo.HasBitmapUGrd Then
+
+                Dim bmp As Bitmap = AktSpielfeldInfo.BitmapUGrdImgCache.GetBitmap(rectOutput.Size)
+                gfx.DrawImage(bmp, Point.Empty)
+            Else
+                gfx.Clear(INI.Spielfeld_BackgroundColor)
+
             End If
+
+
 
 
             Dim shrink As Single = INI.Spielfeld_FramingThickness / 2.0F

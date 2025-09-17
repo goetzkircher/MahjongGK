@@ -29,7 +29,7 @@ Option Strict On
 #Disable Warning IDE1006
 
 
-Namespace DebugHelfer
+Namespace MjDebug
 
     ''' <summary>
     ''' Hier werden 3 verschiedene Methoden genutzt um Ausgaben sichtbar zu machen.
@@ -63,7 +63,7 @@ Namespace DebugHelfer
         End Function
 
         '=== RTF-Ausgabe ===
-        Private dbgRtfForm As DebugRtfOutputForm = Nothing
+        Private dbgRtfForm As MjDebug.DebugRtfOutputForm = Nothing
 
         Public Sub Print3DArrayToRtfOutputForm(arr As Integer(,,), Optional highlightList As List(Of (Integer, Integer, Integer)) = Nothing)
 

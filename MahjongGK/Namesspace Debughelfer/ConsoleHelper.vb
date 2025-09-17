@@ -34,7 +34,7 @@ Imports System.Runtime.InteropServices
 Imports System.Text
 Imports Microsoft.Win32.SafeHandles
 
-Namespace DebugHelfer
+Namespace MjDebug
 
     ''' <summary>
     ''' Umleitung der Debug-Ausgabe in ein Konsolenfenster 

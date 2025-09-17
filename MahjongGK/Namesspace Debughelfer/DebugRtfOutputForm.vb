@@ -26,7 +26,7 @@ Option Strict On
 '
 
 
-Namespace DebugHelfer
+Namespace MjDebug
 
 #Disable Warning IDE0079
 #Disable Warning IDE1006

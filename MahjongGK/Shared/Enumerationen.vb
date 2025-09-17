@@ -40,10 +40,11 @@ Option Strict On
 Public Enum AppDataSubDir
     None
     INI
-    Steine198x252
     Steine198x252Layout
     Grafiken
     Diverses
+    Hintergrundgrafiken
+    Eigene_Hintergrundgrafiken
 End Enum
 ''' <summary>
 ''' Enumeration der verwendeten Unterverzeichnisse in "C:\Users\aktueller User\MahjongGK\SubDefault.value.ToString\SubSubDefault.value.ToString"
@@ -55,6 +56,7 @@ Public Enum AppDataSubSubDir
     Layout
     Diverses_ScreenShots
     Grafiken_AppGrafiken16x16
+    Werkbank_Basisformen
 End Enum
 
 ''' <summary>
@@ -103,10 +105,8 @@ End Enum
 ''' Der Default-Datensatz ist in Me.Ressources hinterlegt.
 ''' </summary>
 Public Enum AppGrafikSatz
-    [Default] ' Ressourcen
-    Satz1     ' Beispiel; echte Namen später
+    Satz1
     Satz2
-    ' ...
 End Enum
 '
 ''' <summary>
@@ -144,9 +144,47 @@ Public Enum IniEvents
     OnUpdate
 End Enum
 
+#Region "Stein-Enums"
 
 ''' <summary>
-''' Enumeration der Steine
+''' Die Unterverzeichnisse In "C:\Users\goetz\Documents\Visual Studio\MahjongGK\Eigene Ressourcen Quelle\Mahjongsteine"
+''' enthalten jeweils einen kompletten Satz Steine und sie heißen nach dieser Enum.
+''' </summary>
+Public Enum SteinSatz
+    Satz1
+    Satz2
+End Enum
+
+''' <summary>
+''' Im Verzeichnis des aktiven Steinsatzes gibt es für jeden Stein
+''' einen Unterordner, der den Status des Steins beschreibt.
+''' Diese Enum enthält die möglichen Stati.
+''' </summary>
+Public Enum SteinStatus
+    ''' <summary>
+    ''' Wenn das Programm innerhalb der IDE läuft, kann das Programmverhalten
+    ''' über den Schalter "unsichtbare Steine sichtbar machen" geändert werden.
+    ''' Es werden dann halbtransparente graue Steine mit Rotem Kreis und Indexnummer
+    ''' angezeigt.
+    ''' </summary>
+    I00Unsichtbar          ' nicht sichtbar (Geistergrafik möglich)
+    I01Normal
+    I02Selected
+    I03Selectable        ' einzeln klickbar
+    I04Removable ' klickbar und Teil eines gültigen Paars
+    I05Locked
+    I06NotUnsed            ' nur für Schwierigkeitslevel-Auswahl
+    I07MissingSecond       ' im Editor, wenn Partnerstein fehlt
+    I08WerkstückEinfügeFehler
+    I09WerkstückZufallsgrafik
+    I10Reserve1            ' Geistergrafik
+    I11Reserve2            ' Geistergrafik
+End Enum
+'
+''' <summary>
+''' Die in Mahjong verwendeten Steine.
+''' In jedem Verzeichnis des Steinstatus gibt es für jeden Stein
+''' eine PNG-Datei, die den Stein mit diesem  enthält.
 ''' </summary>
 Public Enum SteinIndexEnum
     ErrorSy
@@ -194,8 +232,7 @@ Public Enum SteinIndexEnum
     JahrWin
 End Enum
 
-
-
+#End Region
 '
 ' StoneStream
 ' |Base144              
@@ -267,27 +304,6 @@ Public Enum SteinRndGruppe
     Normal
     Flower
     Season
-End Enum
-
-Public Enum SteinStatus
-    ''' <summary>
-    ''' Wenn das Programm innerhalb der IDE läuft, kann das Programmverhalten
-    ''' über den Schalter "unsichtbare Steine sichtbar machen" geändert werden.
-    ''' Es werden dann halbtransparente graue Steine mit Rotem Kreis und Indexnummer
-    ''' angezeigt.
-    ''' </summary>
-    Unsichtbar          ' nicht sichtbar (Geistergrafik möglich)
-    Normal
-    Selected
-    ClickableOne        ' einzeln klickbar
-    ClickablePartOfPair ' klickbar und Teil eines gültigen Paars
-    Locked
-    NotUnsed            ' nur für Schwierigkeitslevel-Auswahl
-    MissingSecond       ' im Editor, wenn Partnerstein fehlt
-    WerkstückEinfügeFehler
-    WerkstückZufallsgrafik
-    Reserve1            ' Geistergrafik mit grünem Kreis
-    Reserve2            ' Geistergrafik mit blauem Kreis
 End Enum
 
 Public Enum VisiblePart
@@ -566,4 +582,24 @@ Public Enum KompassEnum
     SW
     W
     NW
+End Enum
+
+Public Enum KompassXEnum
+    None
+    N
+    NNO
+    NO
+    NOO
+    O
+    SOO
+    SO
+    SS0
+    S
+    SSW
+    SW
+    SWW
+    W
+    NWW
+    NW
+    NNW
 End Enum

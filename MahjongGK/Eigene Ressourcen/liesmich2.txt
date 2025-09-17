@@ -1,0 +1,117 @@
+﻿
+
+Es gibt eine eigene Verwaltung der Grafik Ressourcen.
+Die Originalbitmaps sind in einer eigenen Verzeichnisstruktur abgelegt.
+Der Pfad zu der Struktur ist hardcodiert in frmGfxCompiler.
+Auf meinem Computer ist das:    
+Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                     "Visual Studio", "MahjongGK", "Eigene Ressourcen Quelle")
+Passen Sie den Pfad auf Ihre Gegebenheiten an.
+
+
+Der GfxCompiler sammelt alle Bitmaps, überprüft ein paar Parameter und erzeugt
+eine XML-Datei mit den Daten und eine für die Verwaltung, die dann vom Programm
+genutzt werden.
+
+
+Auszug aus Shared/Enumerationen.vb:
+'
+''' <summary>
+''' Die Unterverzeichnisse In "C:\Users\goetz\Documents\Visual Studio\MahjongGK\Eigene Ressourcen Quelle\Mahjongsteine"
+''' enthalten jeweils einen kompletten Satz Steine und sie heißen nach dieser Enum.
+''' </summary>
+Public Enum SteinSatz
+    [Default]
+    Satz2
+    kommt ein weiterer Satz hinzu, muss er hier in der Enum werden und ein Verzeichnis gleichen Namens
+    in "Eigene Ressourcen Quelle\Mahjongsteine" angelegt werden, samt aller Unterverzeichnisse.
+    Die XML-Datei wird dann automatisch erzeugt, sie ist aber einmalig aufzunehmen in die Projektdatei.
+    Dazu im Projektmappenexplorer die Datei, die bereits (auf meinem Rechner) im Verzeichnis
+    "C:\Users\goetz\Documents\Visual Studio\MahjongGK\MahjongGK\Eigene Ressourcen liegt, hinzufügen.
+    Geht so: Rechtsklick auf MahjongGK im Projektmappenexplorer, dann "Hinzufügen ->Vorhandenes Element...",
+    die neue XML auswählen und dann im Eigenschaftenfenster "In Ausgabeverzeichnis kopieren" auf 
+    "Kopieren, wenn neuer" setzen.
+
+    Zwei Besonderheiten:
+    1. Ein Verzeichnis namens "Kopiervorlage" wird ignoriert."
+    2. Eine Verzeichnisstruktur ohne Inhalt baut einen vollständigen Satz mit allen Steinen auf,
+       deren Aussehen mit mehreren Werten in der INI Sektion [GfxCompiler] und den Schlüsseln "Ghost...""
+       beeinflusst werden kann.
+End Enum
+
+''' <summary>
+''' Im Verzeichnis des aktiven Steinsatzes gibt es für jeden Stein
+''' einen Unterordner, der den Status des Steins beschreibt.
+''' Diese Enum enthält die möglichen Stati.
+''' </summary>
+Public Enum SteinStatus
+    ''' <summary>
+    ''' Wenn das Programm innerhalb der IDE läuft, kann das Programmverhalten
+    ''' über den Schalter "unsichtbare Steine sichtbar machen" geändert werden.
+    ''' Es werden dann halbtransparente graue Steine mit Rotem Kreis und Indexnummer
+    ''' angezeigt.
+    ''' </summary>
+    I00Unsichtbar          ' nicht sichtbar (Geistergrafik möglich)
+    I01Normal
+    I02Selected
+    I03Selectable        ' einzeln klickbar
+    I04Removable ' klickbar und Teil eines gültigen Paars
+    I05Locked
+    I06NotUnsed            ' nur für Schwierigkeitslevel-Auswahl
+    I07MissingSecond       ' im Editor, wenn Partnerstein fehlt
+    I08WerkstückEinfügeFehler
+    I09WerkstückZufallsgrafik
+    I10Reserve1            ' Geistergrafik
+    I11Reserve2            ' Geistergrafik
+End Enum
+'
+''' <summary>
+''' Die in Mahjong verwendeten Steine.
+''' In jedem Verzeichnis des Steinstatus gibt es für jeden Stein
+''' eine PNG-Datei, die den Stein mit diesem Namen enthält.
+''' </summary>
+Public Enum SteinIndexEnum
+    ErrorSy
+    Punkt01
+    Punkt02
+    Punkt03
+    Punkt04
+    Punkt05
+    Punkt06
+    Punkt07
+    Punkt08
+    Punkt09
+    Bambus1
+    Bambus2
+    Bambus3
+    Bambus4
+    Bambus5
+    Bambus6
+    Bambus7
+    Bambus8
+    Bambus9
+    Symbol1
+    Symbol2
+    Symbol3
+    Symbol4
+    Symbol5
+    Symbol6
+    Symbol7
+    Symbol8
+    Symbol9
+    DracheR
+    DracheG
+    DracheW
+    WindOst
+    WindSüd
+    WindWst
+    WindNrd
+    BlütePf
+    BlüteOr
+    BlüteCt
+    BlüteBa
+    JahrFrl
+    JahrSom
+    JahrHer
+    JahrWin
+End Enum

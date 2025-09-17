@@ -3,6 +3,10 @@ Option Explicit On
 Option Infer Off
 Option Strict On
 
+#Disable Warning IDE0079
+#Disable Warning IDE1006
+
+
 Public Class MenuStripEx
     Inherits MenuStrip
 
@@ -13,7 +17,7 @@ Public Class MenuStripEx
 
     ' --- Click-Through-Logik ---
     Private Const WM_MOUSEACTIVATE As Integer = &H21
-    Private Shared ReadOnly MA_ACTIVATE As IntPtr = New IntPtr(1) ' Aktivieren + Klick durchlassen
+    Private Shared ReadOnly MA_ACTIVATE As New IntPtr(1) ' Aktivieren + Klick durchlassen
 
     Protected Overrides Sub WndProc(ByRef m As Message)
         If m.Msg = WM_MOUSEACTIVATE Then

@@ -17,6 +17,8 @@ Option Strict On
 Public Class Positionierer
     Inherits UserControl
 
+    Private Const LINE_THICK As Integer = 2
+
     ' ---------- Enums ----------
     Public Enum Kompass
         None
@@ -123,54 +125,32 @@ Public Class Positionierer
     End Property
 
     ' ---------- Ressourcen ----------
-    Private ReadOnly _pt As Bitmap = My.Resources.Punkt
-    Private ReadOnly _ptSel As Bitmap = My.Resources.PunktSel
-    Private ReadOnly _ptMover As Bitmap = My.Resources.PunktMover
+    Private ReadOnly _pt As Bitmap = KompassDotFactory.KompassDot  'My.Resources.Punkt
+    Private ReadOnly _ptSel As Bitmap = KompassDotFactory.KompassDotSelected  'My.Resources.PunktSel
+    Private ReadOnly _ptMover As Bitmap = KompassDotFactory.KompassDotMouseOver  'My.Resources.PunktMover
 
     Private Function ArrowNormal(d As Kompass) As Bitmap
-        Select Case d
-            Case Kompass.N : Return My.Resources.CompassN
-            Case Kompass.NO : Return My.Resources.CompassNO
-            Case Kompass.O : Return My.Resources.CompassO
-            Case Kompass.SO : Return My.Resources.CompassSO
-            Case Kompass.S : Return My.Resources.CompassS
-            Case Kompass.SW : Return My.Resources.CompassSW
-            Case Kompass.W : Return My.Resources.CompassW
-            Case Kompass.NW : Return My.Resources.CompassNW
-            Case Else : Return Nothing
-        End Select
+        If d = Kompass.None Then Return Nothing
+        Dim resName As String = "Compass" & d.ToString()
+        Return Theme.GetResBmp(resName)
     End Function
+
     Private Function ArrowHover(d As Kompass) As Bitmap
-        Select Case d
-            Case Kompass.N : Return My.Resources.CompassNmover
-            Case Kompass.NO : Return My.Resources.CompassNOmover
-            Case Kompass.O : Return My.Resources.CompassOmover
-            Case Kompass.SO : Return My.Resources.CompassSOmover
-            Case Kompass.S : Return My.Resources.CompassSmover
-            Case Kompass.SW : Return My.Resources.CompassSWmover
-            Case Kompass.W : Return My.Resources.CompassWmover
-            Case Kompass.NW : Return My.Resources.CompassNWmover
-            Case Else : Return Nothing
-        End Select
+        If d = Kompass.None Then Return Nothing
+        Dim resName As String = "Compass" & d.ToString() & "mover"
+        Return Theme.GetResBmp(resName)
     End Function
     Private Function ArrowSel(d As Kompass) As Bitmap
-        Select Case d
-            Case Kompass.N : Return My.Resources.CompassNsel
-            Case Kompass.NO : Return My.Resources.CompassNOsel
-            Case Kompass.O : Return My.Resources.CompassOsel
-            Case Kompass.SO : Return My.Resources.CompassSOsel
-            Case Kompass.S : Return My.Resources.CompassSsel
-            Case Kompass.SW : Return My.Resources.CompassSWsel
-            Case Kompass.W : Return My.Resources.CompassWsel
-            Case Kompass.NW : Return My.Resources.CompassNWsel
-            Case Else : Return Nothing
-        End Select
+        If d = Kompass.None Then Return Nothing
+        Dim resName As String = "Compass" & d.ToString() & "mover"
+        Return Theme.GetResBmp(resName)
     End Function
+
 
     ' ---------- Layout ----------
     Private Const CELL As Integer = 16
-    Private Const GRID As Integer = 9
-    Private Const C As Integer = 4 ' center index 0..8
+    Private Const GRID As Integer = 7
+    Private Const C As Integer = 3 ' center index 0..8
 
     Private ReadOnly _startMap As New Dictionary(Of PictureBox, PositionEnum)
     Private ReadOnly _arrowMap As New Dictionary(Of Kompass, PictureBox)
@@ -222,37 +202,66 @@ Public Class Positionierer
     Private Sub BuildGrid()
         SuspendLayout()
 
-        ' StartingPoint Punkte
+        Dim MAX As Integer = GRID - 1   ' = 6
+
+        ' StartingPoint Punkte (Ecken)
         AddPoint(0, 0, PositionEnum.EckeLO)
-        AddPoint(8, 0, PositionEnum.EckeRO)
-        AddPoint(8, 8, PositionEnum.EckeRU)
-        AddPoint(0, 8, PositionEnum.EckeLU)
+        AddPoint(MAX, 0, PositionEnum.EckeRO)      ' (6,0)
+        AddPoint(MAX, MAX, PositionEnum.EckeRU)    ' (6,6)
+        AddPoint(0, MAX, PositionEnum.EckeLU)      ' (0,6)
 
-        AddPoint(C, 0, PositionEnum.MitteO)
-        AddPoint(8, C, PositionEnum.MitteR)
-        AddPoint(C, 8, PositionEnum.MitteU)
-        AddPoint(0, C, PositionEnum.MitteL)
+        ' Kantenmitten
+        AddPoint(C, 0, PositionEnum.MitteO)        ' (3,0)
+        AddPoint(MAX, C, PositionEnum.MitteR)      ' (6,3)
+        AddPoint(C, MAX, PositionEnum.MitteU)      ' (3,6)
+        AddPoint(0, C, PositionEnum.MitteL)        ' (0,3)
 
-        AddPoint(C, C, PositionEnum.Center)
+        ' Center
+        AddPoint(C, C, PositionEnum.Center)        ' (3,3)
 
-        AddPoint(2, 2, PositionEnum.CenterLO)
-        AddPoint(6, 2, PositionEnum.CenterRO)
-        AddPoint(6, 6, PositionEnum.CenterRU)
-        AddPoint(2, 6, PositionEnum.CenterLU)
+        ' Vier „Center-Quadranten“-Punkte:
+        AddPoint(1, 1, PositionEnum.CenterLO)
+        AddPoint(5, 1, PositionEnum.CenterRO)
+        AddPoint(5, 5, PositionEnum.CenterRU)
+        AddPoint(1, 5, PositionEnum.CenterLU)
 
-        ' Kompass-Pfeile um das Center (keine Center-Grafik!)
-        AddArrow(C, C - 1, Kompass.N)
-        AddArrow(C + 1, C - 1, Kompass.NO)
-        AddArrow(C + 1, C, Kompass.O)
-        AddArrow(C + 1, C + 1, Kompass.SO)
-        AddArrow(C, C + 1, Kompass.S)
-        AddArrow(C - 1, C + 1, Kompass.SW)
-        AddArrow(C - 1, C, Kompass.W)
-        AddArrow(C - 1, C - 1, Kompass.NW)
+        ' Kompass-Pfeile direkt um das Center (keine Center-Grafik!)
+        AddArrow(C, C - 1, Kompass.N)          ' (3,2)
+        AddArrow(C + 1, C - 1, Kompass.NO)     ' (4,2)
+        AddArrow(C + 1, C, Kompass.O)          ' (4,3)
+        AddArrow(C + 1, C + 1, Kompass.SO)     ' (4,4)
+        AddArrow(C, C + 1, Kompass.S)          ' (3,4)
+        AddArrow(C - 1, C + 1, Kompass.SW)     ' (2,4)
+        AddArrow(C - 1, C, Kompass.W)          ' (2,3)
+        AddArrow(C - 1, C - 1, Kompass.NW)     ' (2,2)
 
         ResumeLayout(False)
         UpdateStartPointVisuals()
     End Sub
+
+    Private Sub Positionierer_Paint(sender As Object, e As PaintEventArgs) Handles Me.Paint
+
+        'Die Ecken liegen bei:
+        ' (0,0)
+        ' (6,0)
+        ' (6,6)
+        ' (0,6)
+
+        Dim x As Integer, y As Integer
+
+        Dim width As Integer = CELL * 6
+        Dim height As Integer = CELL * 6
+        Dim left As Integer = CELL \ 2
+        Dim top As Integer = CELL \ 2
+
+        Using penLine As New Pen(Color.FromArgb(120, Me.ForeColor), CSng(LINE_THICK))
+            Dim rect As New Rectangle(left, top, width, height)
+            e.Graphics.DrawRectangle(penLine, rect)
+        End Using
+
+
+    End Sub
+
 
     Private Sub AddPoint(x As Integer, y As Integer, pos As PositionEnum)
         Dim pb As New PictureBox() With {
@@ -260,7 +269,7 @@ Public Class Positionierer
             .Width = CELL, .Height = CELL,
             .Left = x * CELL, .Top = y * CELL,
             .BackColor = Color.Transparent,
-            .Cursor = Cursors.Hand,
+            .Cursor = Cursors.Default,
             .Image = _pt
         }
         Controls.Add(pb)
@@ -293,7 +302,7 @@ Public Class Positionierer
             .Width = CELL, .Height = CELL,
             .Left = x * CELL, .Top = y * CELL,
             .BackColor = Color.Transparent,
-            .Cursor = Cursors.Hand,
+            .Cursor = Cursors.Default,
             .Image = ArrowNormal(dir)
         }
         Controls.Add(pb)
@@ -426,6 +435,7 @@ Public Class Positionierer
         End If
     End Sub
 
+
     Protected Overrides Sub Dispose(disposing As Boolean)
         If disposing Then
             RemoveHandler _delayTimer.Tick, AddressOf DelayTimer_Tick
@@ -435,4 +445,6 @@ Public Class Positionierer
         End If
         MyBase.Dispose(disposing)
     End Sub
+
+
 End Class

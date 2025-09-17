@@ -13,9 +13,9 @@ Public Class StartingPoint
     Inherits UserControl
 
     ' Ressourcen-Grafiken:
-    Private ReadOnly _bmpNormal As Bitmap = My.Resources.Punkt
-    Private ReadOnly _bmpSel As Bitmap = My.Resources.PunktSel
-    Private ReadOnly _bmpMover As Bitmap = My.Resources.PunktMover
+    Private ReadOnly _bmpNormal As Bitmap = Theme.GetResBmp(My.Resources.Punkt.ToString)
+    Private ReadOnly _bmpSel As Bitmap = Theme.GetResBmp(My.Resources.PunktSel.ToString)
+    Private ReadOnly _bmpMover As Bitmap = Theme.GetResBmp(My.Resources.PunktMover.ToString)
 
     Private Const CELL As Integer = 16
     Private Const GRID As Integer = 9

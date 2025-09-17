@@ -25,11 +25,10 @@ Partial Class UctlEinstellungen
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(UctlEinstellungen))
         Me.TabControl1 = New System.Windows.Forms.TabControl()
         Me.TabPageIfRunningIDE = New System.Windows.Forms.TabPage()
+        Me.Label1 = New System.Windows.Forms.Label()
         Me.TabPageAllgemein = New System.Windows.Forms.TabPage()
         Me.TabPageInfo = New System.Windows.Forms.TabPage()
-        Me.Label1 = New System.Windows.Forms.Label()
-        Me.CheckBox1 = New System.Windows.Forms.CheckBox()
-        Me.CheckBox2 = New System.Windows.Forms.CheckBox()
+        Me.Label2 = New System.Windows.Forms.Label()
         Me.TabControl1.SuspendLayout()
         Me.TabPageIfRunningIDE.SuspendLayout()
         Me.SuspendLayout()
@@ -48,8 +47,7 @@ Partial Class UctlEinstellungen
         '
         'TabPageIfRunningIDE
         '
-        Me.TabPageIfRunningIDE.Controls.Add(Me.CheckBox2)
-        Me.TabPageIfRunningIDE.Controls.Add(Me.CheckBox1)
+        Me.TabPageIfRunningIDE.Controls.Add(Me.Label2)
         Me.TabPageIfRunningIDE.Controls.Add(Me.Label1)
         Me.TabPageIfRunningIDE.Location = New System.Drawing.Point(4, 22)
         Me.TabPageIfRunningIDE.Name = "TabPageIfRunningIDE"
@@ -58,6 +56,17 @@ Partial Class UctlEinstellungen
         Me.TabPageIfRunningIDE.TabIndex = 0
         Me.TabPageIfRunningIDE.Text = "IfRunningIDE"
         Me.TabPageIfRunningIDE.UseVisualStyleBackColor = True
+        '
+        'Label1
+        '
+        Me.Label1.AutoSize = True
+        Me.Label1.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label1.Location = New System.Drawing.Point(16, 15)
+        Me.Label1.Name = "Label1"
+        Me.Label1.Size = New System.Drawing.Size(722, 13)
+        Me.Label1.TabIndex = 0
+        Me.Label1.Text = "Diese TabPage ist nur innerhalb der Entwicklungumgebung sichtbar. Sie wird entfer" &
+    "nt, wenn das Programm eigenständig läuft."
         '
         'TabPageAllgemein
         '
@@ -78,35 +87,14 @@ Partial Class UctlEinstellungen
         Me.TabPageInfo.Text = "Info"
         Me.TabPageInfo.UseVisualStyleBackColor = True
         '
-        'Label1
+        'Label2
         '
-        Me.Label1.AutoSize = True
-        Me.Label1.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label1.Location = New System.Drawing.Point(16, 15)
-        Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(729, 39)
-        Me.Label1.TabIndex = 0
-        Me.Label1.Text = resources.GetString("Label1.Text")
-        '
-        'CheckBox1
-        '
-        Me.CheckBox1.AutoSize = True
-        Me.CheckBox1.Location = New System.Drawing.Point(19, 82)
-        Me.CheckBox1.Name = "CheckBox1"
-        Me.CheckBox1.Size = New System.Drawing.Size(81, 17)
-        Me.CheckBox1.TabIndex = 1
-        Me.CheckBox1.Text = "CheckBox1"
-        Me.CheckBox1.UseVisualStyleBackColor = True
-        '
-        'CheckBox2
-        '
-        Me.CheckBox2.AutoSize = True
-        Me.CheckBox2.Location = New System.Drawing.Point(19, 105)
-        Me.CheckBox2.Name = "CheckBox2"
-        Me.CheckBox2.Size = New System.Drawing.Size(81, 17)
-        Me.CheckBox2.TabIndex = 2
-        Me.CheckBox2.Text = "CheckBox2"
-        Me.CheckBox2.UseVisualStyleBackColor = True
+        Me.Label2.AutoSize = True
+        Me.Label2.Location = New System.Drawing.Point(16, 49)
+        Me.Label2.Name = "Label2"
+        Me.Label2.Size = New System.Drawing.Size(722, 130)
+        Me.Label2.TabIndex = 1
+        Me.Label2.Text = resources.GetString("Label2.Text")
         '
         'UctlEinstellungen
         '
@@ -127,6 +115,5 @@ Partial Class UctlEinstellungen
     Friend WithEvents TabPageAllgemein As TabPage
     Friend WithEvents TabPageInfo As TabPage
     Friend WithEvents Label1 As Label
-    Friend WithEvents CheckBox2 As CheckBox
-    Friend WithEvents CheckBox1 As CheckBox
+    Friend WithEvents Label2 As Label
 End Class

@@ -1,0 +1,84 @@
+﻿  
+  
+  Beispiel: direkter Zugriff auf eine Bitmap
+
+  Private Function BrightenImageIfNeeded(img As Image) As Image
+            If img Is Nothing Then Return img
+
+            ' Schon bearbeitet?
+            Dim hash As Integer = RuntimeHelpersGetHashCode(img)
+            If _processedImages.Contains(hash) Then Return img
+
+            Dim bmp As Bitmap = TryCast(img, Bitmap)
+            If bmp Is Nothing Then
+                ' in 32bpp konvertieren
+                Dim tmp As New Bitmap(img.Width, img.Height, PixelFormat.Format32bppArgb)
+                Using g As Graphics = Graphics.FromImage(tmp)
+                    g.DrawImage(img, 0, 0, img.Width, img.Height)
+                End Using
+                bmp = tmp
+            Else
+                ' sicherstellen, dass wir ein eigenes Exemplar haben (nicht shared Resource mutieren)
+                bmp = DirectCast(bmp.Clone(New Rectangle(0, 0, bmp.Width, bmp.Height), PixelFormat.Format32bppArgb), Bitmap)
+            End If
+
+            ' Kriterium 1: Größe ≤ 48×48
+            If bmp.Width > MAX_ICON_SIZE OrElse bmp.Height > MAX_ICON_SIZE Then
+                _processedImages.Add(hash)
+                Return img ' groß: unverändert
+            End If
+
+            ' Kriterium 2: Dark-Marker am Pixel (0,0) -> NICHT aufhellen
+            Dim marker As Color = bmp.GetPixel(0, 0)
+            If marker.A = DARK_MARKER.A AndAlso marker.R = DARK_MARKER.R AndAlso marker.G = DARK_MARKER.G AndAlso marker.B = DARK_MARKER.B Then
+                _processedImages.Add(hash)
+                bmp.Dispose() ' unser Clone wird nicht gebraucht
+                Return img
+            End If
+
+            ' Aufhellen (LockBits)
+            Dim rect As New Rectangle(0, 0, bmp.Width, bmp.Height)
+            Dim data As BitmapData = bmp.LockBits(rect, ImageLockMode.ReadWrite, PixelFormat.Format32bppArgb)
+            Try
+                Dim length As Integer = Math.Abs(data.Stride) * data.Height
+                Dim buffer(length - 1) As Byte
+                Marshal.Copy(data.Scan0, buffer, 0, length)
+
+                ' amount 0..255 → Faktor 0..1
+                Dim amt As Integer = _brightenAmount
+                For y As Integer = 0 To data.Height - 1
+                    Dim row As Integer = y * data.Stride
+                    For x As Integer = 0 To data.Width - 1
+                        Dim i As Integer = row + x * 4
+                        Dim b As Integer = buffer(i + 0)
+                        Dim g As Integer = buffer(i + 1)
+                        Dim r As Integer = buffer(i + 2)
+                        Dim a As Integer = buffer(i + 3)
+
+                        If a > 0 Then
+                            ' Linear Richtung Weiß
+                            r += ((255 - r) * amt) \ 255
+                            g += ((255 - g) * amt) \ 255
+                            b += ((255 - b) * amt) \ 255
+
+                            If r > 255 Then r = 255
+                            If g > 255 Then g = 255
+                            If b > 255 Then b = 255
+
+                            buffer(i + 0) = CByte(b)
+                            buffer(i + 1) = CByte(g)
+                            buffer(i + 2) = CByte(r)
+                            ' Alpha bleibt unverändert
+                        End If
+                    Next
+                Next
+
+                Marshal.Copy(buffer, 0, data.Scan0, length)
+            Finally
+                bmp.UnlockBits(data)
+            End Try
+
+            ' neues Bild zurückgeben; Original bleibt unberührt
+            _processedImages.Add(hash)
+            Return bmp
+        End Function

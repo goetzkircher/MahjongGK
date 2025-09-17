@@ -111,7 +111,7 @@ Public Class SpielfeldSteineAustauscher
         For idx As Integer = 0 To _steininfos.Count - 1
             With _steininfos(idx)
                 .SteinIndex = vorrat(idx)
-                .SteinStatusIst = SteinStatus.Normal
+                .SteinStatusIst = SteinStatus.I01Normal
                 .IsWerkbankStein = False
             End With
         Next
@@ -157,7 +157,7 @@ Public Class SpielfeldSteineAustauscher
                     If _steininfos(idx).IsWerkbankStein Then
                         .SteinIndex = vorrat(idxSchlepp)
                         idxSchlepp += 1
-                        .SteinStatusIst = SteinStatus.Normal
+                        .SteinStatusIst = SteinStatus.I01Normal
                         .IsWerkbankStein = False
                     End If
                 End With

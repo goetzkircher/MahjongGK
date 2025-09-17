@@ -117,9 +117,16 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Label1.Text" xml:space="preserve">
-    <value>Diese TabPage ist nur innerhalb der Entwicklungumgebung sichtbar. Sie wird entfernt, wenn das Programm eigenständig läuft.
-Die hier vorgenommenen Einstellungen gelten nicht im eigenständig laufendem Programm. Sie brauchen nicht geändert werden.
-Auch manuelle Änderungen in der INI-Datei haben außerhalb der IDE keine Auswirkung.</value>
+  <data name="Label2.Text" xml:space="preserve">
+    <value>Die Einstellungen sind das, was ich zu einem sehr spätem Zeitpunkt programmiere, weil sich diese erfahrungsgemäß erst dann übersichtlich schreiben
+lassen, wenn die genauen Anforderungen bekannt sind, und das dauert.
+
+Um dennoch vernünftig arbeiten zu können, habe ich eine ziemlich komplexes INI-Verwaltung geschrieben, die es erlaubt während der Laufzeit des
+Programmes in der IDE die INI zu ändern. (Nur in der IDE, nicht im eigenständig laufendem Programm.)
+Die Einträge selber (Mit Kommentaren) werden über kleine Property erzeugt, sodaß man sich die Namen von Sektionen und Keys nicht merken muss.
+Ändert man diese Namen, wird die INI automatisch bereinigt. 
+
+In der Ecke links unten im Hauptformlar steht "INI", das ist der Button zum INI-Editor.
+Daneben sind noch ein paar Buttons, die Mehoden aufrufen, wo man Testcode hinterlegen kann und Aufrufe von Google Icons und des Dateiexplorers.</value>
   </data>
 </root>

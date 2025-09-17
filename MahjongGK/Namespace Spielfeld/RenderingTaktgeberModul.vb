@@ -41,8 +41,8 @@ Namespace Spielfeld
         Private _currentControl As Control = Nothing
         Private _currentControlSic As Control = Nothing
         '        das "originale" visibleUserControl ist das hier: SpielfeldDaten.VisibleUserControl
-        Private _visibleUserControlSic As frmMain.VisibleUserControl
-        Private _visibleUserControlOnBeginnPause As frmMain.VisibleUserControl
+        Private _visibleUserControlSic As VisibleUserControl
+        Private _visibleUserControlOnBeginnPause As VisibleUserControl
         Private _bmpFrozen As Bitmap = Nothing
 
         Private _lastRendering As RenderingEnum
@@ -78,7 +78,7 @@ Namespace Spielfeld
         ''' </summary>
         ''' <param name="ctrl"></param>
         ''' <param name="visibleUCtl"></param>
-        Public Sub PaintSpielfeld_Initialisierung(ctrl As Control, visibleUCtl As frmMain.VisibleUserControl)
+        Public Sub PaintSpielfeld_Initialisierung(ctrl As Control, visibleUCtl As VisibleUserControl)
             _currentControl = ctrl
             _currentControlSic = ctrl
             SpielfeldDaten.VisibleUserControl = visibleUCtl
@@ -91,7 +91,7 @@ Namespace Spielfeld
         End Sub
         Public Sub PaintSpielfeld_DeInitialisierung()
             _currentControl = Nothing
-            SpielfeldDaten.VisibleUserControl = frmMain.VisibleUserControl.None
+            SpielfeldDaten.VisibleUserControl = VisibleUserControl.None
             RenderTimer.Stop()
             SpielfeldDaten.AktRendering = RenderingEnum.None
             _lastRendering = RenderingEnum.None
@@ -115,6 +115,7 @@ Namespace Spielfeld
 
         ''' <summary>
         ''' Hält die Renderung an um z.B. die INI-Datei im laufendem Betrieb zu editieren.
+        ''' Überbrückt mit _bmpFrozen ggf _PaintSpielfeld_ShortPause nutzen
         ''' </summary>
         Public Sub PaintSpielfeld_BeginPause()
             _ContinuePause = True
@@ -129,13 +130,34 @@ Namespace Spielfeld
             _ContinuePause = False
             _EndePause = True
             _readNewIni = raiseIniEvents = IniEvents.OnUpdate
-            _visibleUserControlOnBeginnPause = frmMain.VisibleUserControl.None
+            _visibleUserControlOnBeginnPause = VisibleUserControl.None
             _startIniUpdate = startIniUpdate
             _raiseIniEvents = raiseIniEvents
             If Not IsNothing(_bmpFrozen) Then
                 _bmpFrozen.Dispose()
             End If
         End Sub
+
+        Private _PaintSpielfeld_ShortPause As Boolean
+        ''' <summary>
+        ''' Setzt das Rendern einfach aus.
+        ''' </summary>
+        Public WriteOnly Property PaintSpielfeld_ShortPause As Boolean
+            Set(value As Boolean)
+                _PaintSpielfeld_ShortPause = value
+            End Set
+        End Property
+
+
+
+
+
+
+
+
+
+
+
 
         ' „Wecker“ (10–15ms ist gut),  = 1 ergibt einen etwas stabileren Takt von 15 ms,
         ' hat aber Auswirkung auf alle Timer und kostet mehr Energie.
@@ -168,7 +190,7 @@ Namespace Spielfeld
             End If
         End Sub
 
-
+        Private _tmp As Integer
         ''' <summary>
         ''' Dieses Sub wird vom PaintEvent der Zeichenfläche (UCtlSpielfeld und UCtlEdtor) getaktet
         ''' aufgerufen. Es ist ein Verteiler, der entweder das Update des Spielfeldes oder das Zeichnen selber aufruft.
@@ -177,7 +199,7 @@ Namespace Spielfeld
         ''' <param name="e"></param>
         ''' <param name="rectOutput"></param>
         ''' <param name="timeDifferenzFaktor"></param>
-        Public Sub PaintSpielfeld_Paint(visibleUserControl As frmMain.VisibleUserControl, e As PaintEventArgs, rectOutput As Rectangle, timeDifferenzFaktor As Double)
+        Public Sub PaintSpielfeld_Paint(visibleUserControl As VisibleUserControl, e As PaintEventArgs, rectOutput As Rectangle, timeDifferenzFaktor As Double)
 
             If _takteAussetzen > 0 Then
                 _takteAussetzen -= 1
@@ -191,6 +213,20 @@ Namespace Spielfeld
                 'darüber nachzudenken, ob es notwendig wird, die Taktzahl später nochmal zu erhöhen. 
             End If
 
+            If _PaintSpielfeld_ShortPause Then
+                Exit Sub
+            End If
+
+            If Not IsNothing(AktSpielfeldInfo) Then
+                _tmp += 1
+                If _tmp = 100 Then
+                    AktSpielfeldInfo.BitmapUGrdFullpath = Nothing
+                    AktSpielfeldInfo.BitmapUGrdImgCache = Nothing
+                    INI.Global_DarkMode = Not INI.Global_DarkMode
+                    _tmp = 0
+                    rectOutput.Width += 1
+                End If
+            End If
 
             If _ContinuePause OrElse _createScreenShot Then
                 If _BeginnPause OrElse _createScreenShot Then
@@ -239,9 +275,9 @@ Namespace Spielfeld
             End If
 
             'Sicherheitsgurt
-            If Not (visibleUserControl = frmMain.VisibleUserControl.Spielfeld Or
-                    visibleUserControl = frmMain.VisibleUserControl.Editor Or
-                visibleUserControl = frmMain.VisibleUserControl.Werkbank) Then
+            If Not (visibleUserControl = VisibleUserControl.Spielfeld Or
+                    visibleUserControl = VisibleUserControl.Editor Or
+                visibleUserControl = VisibleUserControl.Werkbank) Then
                 Exit Sub
             End If
 

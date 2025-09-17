@@ -28,7 +28,7 @@ Option Strict On
 #Disable Warning IDE0079
 #Disable Warning IDE1006
 
-Namespace DebugHelfer
+Namespace MjDebug
     ''' <summary>
     ''' Ein Formular mit einer Textbox, die als Debug-Ausgabe verwendet werden kann.
     ''' </summary>  

@@ -60,6 +60,7 @@ Public Class FrmIniEditor
     Private ReadOnly _miUndo As New ToolStripMenuItem("DoUndo")
     Private ReadOnly _miRedo As New ToolStripMenuItem("Redo")
     Private ReadOnly _miCancel As New ToolStripMenuItem("Abbrechen")
+    Private ReadOnly _miReset As New ToolStripMenuItem("Reset")
     Private ReadOnly _miSave As New ToolStripMenuItem("Speichern")
     Private ReadOnly _miWordWrap As New ToolStripMenuItem("Wordwrap") With {.CheckOnClick = True}
 
@@ -88,8 +89,8 @@ Public Class FrmIniEditor
     Private _darkMode As Boolean = INI.IfRunningInIDE_IniEditorDarkmode
     Private _scheme As ColorScheme = ColorScheme.DarkDefault
 
-    Private _iniFullLoadPath As String = String.Empty
-    Private _iniFullSavePath As String = String.Empty
+    Private ReadOnly _iniFullLoadPath As String = String.Empty
+    Private ReadOnly _iniFullSavePath As String = String.Empty
     Private _isDirty As Boolean
 
     <DllImport("user32.dll", CharSet:=CharSet.Auto, EntryPoint:="SendMessageW")>
@@ -176,13 +177,14 @@ Public Class FrmIniEditor
                                         Me.DialogResult = DialogResult.Cancel
                                         Me.Close()
                                     End Sub
+        AddHandler _miReset.Click, AddressOf Reset_Click
         AddHandler _miSave.Click, AddressOf Save_Click
         AddHandler _miWordWrap.CheckedChanged, Sub() _rtb.WordWrap = _miWordWrap.Checked
 
         _menu.Items.AddRange(New ToolStripItem() {
             _miDark, New ToolStripSeparator(),
             _miUndo, _miRedo, New ToolStripSeparator(),
-            _miCancel, _miSave, New ToolStripSeparator(),
+            _miCancel, _miSave, _miReset, New ToolStripSeparator(),
             _miWordWrap
         })
 
@@ -236,10 +238,12 @@ Public Class FrmIniEditor
         _cboSektion.Width = 300
 
         ' In ToolStripControlHost packen
-        Dim host1 As New ToolStripControlHost(_cboKeys)
-        host1.Alignment = ToolStripItemAlignment.Right  ' Ganz rechts platzieren
-        Dim host2 As New ToolStripControlHost(_cboSektion)
-        host2.Alignment = ToolStripItemAlignment.Right  ' Ganz rechts platzieren
+        Dim host1 As New ToolStripControlHost(_cboKeys) With {
+            .Alignment = ToolStripItemAlignment.Right  ' Ganz rechts platzieren
+            }
+        Dim host2 As New ToolStripControlHost(_cboSektion) With {
+            .Alignment = ToolStripItemAlignment.Right  ' Ganz rechts platzieren
+            }
 
         _menu.Items.Add(New ToolStripSeparator())
         ' Ins MenuStrip einfügen
@@ -337,6 +341,12 @@ Public Class FrmIniEditor
         SaveIniFile()
     End Sub
 
+    Private Sub Reset_Click(sender As Object, e As EventArgs)
+        If MsgBox("INI mit Defaultwerten neu aufbauen?", MsgBoxStyle.Question Or MsgBoxStyle.YesNo, "INI Editor") = MsgBoxResult.Yes Then
+            _rtb.Text = Nothing
+            SaveIniFile()
+        End If
+    End Sub
     Private Sub SaveIniFile()
 
         If String.IsNullOrWhiteSpace(_rtb.Text) Then
@@ -424,6 +434,7 @@ Public Class FrmIniEditor
         Public EqualsColor As Color  ' (aktuell ungenutzt)
         Public ValueColor As Color
 
+#Disable Warning IDE0140 ' Objekterstellung kann vereinfacht werden
         Public Shared ReadOnly DarkDefault As ColorScheme = New ColorScheme With {
             .BackColor = Color.Black,
             .MenuBack = Color.FromArgb(&HFF222222),
@@ -434,7 +445,9 @@ Public Class FrmIniEditor
             .EqualsColor = Color.FromArgb(&HFF00FF00),
             .ValueColor = Color.FromArgb(&HFFFFFFFF)
         }
+#Enable Warning IDE0140 ' Objekterstellung kann vereinfacht werden
 
+#Disable Warning IDE0140 ' Objekterstellung kann vereinfacht werden
         Public Shared ReadOnly LightDefault As ColorScheme = New ColorScheme With {
             .BackColor = Color.White,
             .MenuBack = SystemColors.Control,
@@ -445,6 +458,7 @@ Public Class FrmIniEditor
             .EqualsColor = Color.FromArgb(0, 128, 0),
             .ValueColor = Color.Black
         }
+#Enable Warning IDE0140 ' Objekterstellung kann vereinfacht werden
     End Structure
 
     Public Shared Function ShowIniEditor(owner As IWin32Window) As DialogResult

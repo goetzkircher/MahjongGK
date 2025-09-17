@@ -10,9 +10,9 @@ Public Class BuddySliderPopup
     Inherits Form
 
     Private ReadOnly _slider As BuddySlider
-    Private ReadOnly _margin As Padding = New Padding(8)
+    Private ReadOnly _margin As New Padding(8)
 
-    Private _closeX As CloseGlyphControl
+    Private ReadOnly _closeX As CloseGlyphControl
     Private Const CLOSE_MARGIN As Integer = 6
     Private Const CLOSE_SIZE As Integer = 16
 

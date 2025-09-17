@@ -196,6 +196,9 @@ Public Module Konstanten
     'Public Const CHAR_ As Char = ""c
 
 
+
+
+
     '--- Debug-Ausgabe
     Public Function DebugKonstantenString() As String
 

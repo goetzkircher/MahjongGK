@@ -1,8 +1,4 @@
-﻿Option Compare Text
-Option Explicit On
-Option Infer Off
-Option Strict On
-'
+﻿'
 ' SPDX-License-Identifier: GPL-3.0-or-later
 '###########################################################################
 '#                                                                         #
@@ -24,6 +20,12 @@ Option Strict On
 '###########################################################################
 '
 '
+Option Compare Text
+Option Explicit On
+Option Infer Off
+Option Strict On
+
+Imports System.IO
 Imports System.Xml.Serialization
 Imports MahjongGK.Spielfeld
 
@@ -32,9 +34,67 @@ Imports MahjongGK.Spielfeld
 #Disable Warning IDE0079
 #Disable Warning IDE1006
 
+'
 ''' <summary>
-''' Xml-Container für die Klasse Steininfo, die die Eigenschaften der einzelnen Steine kapselt.  
+''' Kapselt den vollständigen, serialisierbaren Zustand eines MahjongGK-Spielfelds.
+''' Beinhaltet die Dimensionen/Bounds (xMin..xMax, yMin..yMax, zMin..zMax), die 3D-Belegungsmatrix
+''' <c>arrFB</c> (Integer(,,) mit Index-/Flag-Kodierung je Quadrant) sowie die Liste <c>SteinInfos</c>.
+''' Unterstützt XML-Persistenz (Load/Save), Konsistenzprüfungen (z. B. <see cref="IsPlayable"/>),
+''' Feld-Operationen (Einfügen/Entfernen/Suche) und eine typsichere DeepCopy für Moduswechsel.
 ''' </summary>
+''' <remarks>
+''' <para>
+''' <b>Arraylayout:</b> Jeder Spielstein belegt 4 Quadranten im 3D-Array <c>arrFB</c>.
+''' Der linke-obere Quadrant trägt den (um +1 verschobenen) Steinindex in den Tausenderstellen
+''' (Dezimal), die niederen Stellen enthalten Flags (z. B. Offsets, Toggle). Die drei übrigen
+''' Quadranten enthalten nur die Offsets, die auf den Index-Quadranten verweisen.
+''' </para>
+''' <para>
+''' <b>Bounds &amp; Ränder:</b> Das Spielfeld hat umlaufende Schutzränder (x=0/xMax+1, y=0/yMax+1),
+''' die stets 0 sein müssen (siehe <see cref="CheckRand"/>). <c>IsInsideSpielfeldBounds</c> und
+''' <c>IsFreePlace</c> berücksichtigen diese Randlogik.
+''' </para>
+''' <para>
+''' <b>Spielbarkeit:</b> <see cref="IsPlayable"/> prüft u. a. Paarvollständigkeit der Klickgruppen,
+''' das Nichtvorhandensein von Werkbank-Steinen sowie die Mindestvoraussetzungen (nicht leer).
+''' </para>
+''' <para>
+''' <c>SteinInfos</c>, <c>arrFB</c>) müssen explizit tief kopiert werden. Bei späteren Erweiterungen
+''' mit neuen Referenzfeldern entsprechend ergänzen.
+''' </para>
+''' <para>
+''' <b>Copy-&amp;-Paste-Regionen:</b> Einige Regionen sind identisch in SpielfeldInfo und Werkbank zu
+''' halten (siehe Hinweise im Code). Änderungen stets zuerst hier pflegen und dann vollständig
+''' in die Werkbank übertragen.
+''' </para>
+''' </remarks>
+''' <example>
+''' <code language="vbnet">
+''' ' Spielfeld anlegen und initialisieren
+''' Dim size As New Triple(x:=18, y:=10, z:=4)
+''' Dim f As New SpielfeldInfo(size)
+''' 
+''' ' Validen Platz suchen und Stein einsetzen
+''' Dim start As Triple = f.GetSpielfeldCenter(ebene:=0)
+''' If start.Valide = ValidePlaceEnum.Yes Then
+'''     f.AddSteinToSpielfeld(SteinIndexEnum.Bambus1, start)
+''' End If
+''' 
+''' ' Spielbarkeit prüfen
+''' If f.IsPlayable Then
+'''     ' Spielfeld speichern
+'''     f.Save("C:\Temp\myfield.xml")
+''' 
+'''     ' Tiefe Kopie für den Testmodus erzeugen
+'''     Dim runtimeCopy As SpielfeldInfo = f.DeepCopy()
+'''     ' ... Renderer/Caches für runtimeCopy aufbauen ...
+''' End If
+''' 
+''' ' Laden
+''' Dim loaded As SpielfeldInfo = SpielfeldInfo.Load("C:\Temp\myfield.xml")
+''' </code>
+''' </example>
+
 Public Class SpielfeldInfo
 
 #Region "Konstruktor / Initialisierung"
@@ -48,12 +108,10 @@ Public Class SpielfeldInfo
     ''' </summary>
     ''' <param name="spielSize"></param>
     Sub New(spielSize As Triple)
+        Initialisierung(spielSize)
+    End Sub
 
-        If spielSize.x < 3 OrElse spielSize.y < 3 OrElse spielSize.z < 1 Then
-            Throw New Exception("Spielgröße ist die Größe des Spielfeld in Steinen, " &
-                                "mindestens drei Steine breit, drei Steine tief und eine Schicht hoch." &
-                                spielSize.ToString)
-        End If
+    Public Sub Initialisierung(spielSize As Triple)
 
         With spielSize
             xMin = 1
@@ -71,22 +129,22 @@ Public Class SpielfeldInfo
         ReDim arrFB(xUBnd, yUBnd, zUBnd)
         SteinInfos = New List(Of SteinInfo)
 
-        WindsInOneClickGroup = INI.Spielbetrieb_WindsAreInOneClickGroup
-
     End Sub
 
 #End Region
 
 #Region "Daten, die gespeichert werden"
 
-#Region "Spielfeld"
-
-
     Public XmlInfo_SteinInfo_Count As Integer
 
     Public Name As String
 
-    Public SteinInfos As List(Of SteinInfo) = Nothing
+    Public BitmapUGrdFullpath As String
+    Public Property StretchBitmap As Boolean
+    Public Property CuttingOut As Boolean
+
+    Public Property SpielSize As Triple
+    Public Property SteinInfos As List(Of SteinInfo) = Nothing
 
     Public Property arrFB() As Integer(,,)
 
@@ -105,44 +163,21 @@ Public Class SpielfeldInfo
 
     Public Generator As SpielsteinGenerator
 
+
+
 #End Region
 
 #Region "Editor und Spielfeld"
 
-    Private _WindsAreInOneClickGroup As Boolean
-    ''' <summary>
-    ''' Gehört zu den Spielregeln und bestimmt, ob die 4 Winde in eine KlickGruppe gehören.
-    ''' Wird beim Instanzieren von SpielfeldInfo auf den Defaultwert gesetzt, der durch
-    ''' INI.Regeln_WindsInOneClickGroup festgelegt ist. Kann jederzeit geändert werden
-    ''' </summary>
-    ''' <returns></returns>
-    <XmlIgnore>
-    Public Property WindsInOneClickGroup As Boolean
+    Public ReadOnly Property HasBitmapUGrd As Boolean
         Get
-            Return _WindsAreInOneClickGroup
+            Return Not String.IsNullOrEmpty(BitmapUGrdFullpath)
         End Get
-        Set(value As Boolean)
-            If value <> _WindsAreInOneClickGroup AndAlso Not IsNothing(SteinInfos) AndAlso SteinInfos.Count > 0 Then
-                UpdateWindsAreInOneClickGroup(value)
-            End If
-            _WindsAreInOneClickGroup = value
-        End Set
     End Property
 
-    ''' <summary>
-    ''' Beim Xml-Zugriff darf die Zusatzfunktionalität im Setter
-    ''' nicht ausgeführt werden, deshalb doppelte Property.
-    ''' </summary>
-    ''' <returns></returns>
-    <XmlElement("WindsInOneClickGroup")>
-    Public Property WindsInOneClickGroup_ForXmlOnly As Boolean
-        Get
-            Return _WindsAreInOneClickGroup
-        End Get
-        Set(value As Boolean)
-            _WindsAreInOneClickGroup = value
-        End Set
-    End Property
+    <XmlIgnore>
+    Public Property BitmapUGrdImgCache As BackgroundSingleImageCache = Nothing
+
 
     ''' <summary>
     ''' Spielbar ist ein Spiel dann, wenn Daten vorhanden sind und wenn
@@ -187,10 +222,27 @@ Public Class SpielfeldInfo
 
     End Property
 
-#End Region
+    Public ReadOnly Property IsEmpty As Boolean
+        Get
+            If IsNothing(SteinInfos) Then Return True
+            If SteinInfos.Count = 0 Then Return True
+            If xMax = 0 Then Return True
+            If yMax = 0 Then Return True
+            Return False
+        End Get
+    End Property
+
+    Public Property HGrdSpfldColorFallback As Color
+    Public Property HGrdEditorColorFallback As Color
+    Public Property HGrdSpfldBitmapFallback As String
+    Public Property HGrdEditorBitmapFallback As String
+    Public Property HGrdSpfldBitmapIsUserGrafikFallback As Boolean
+    Public Property HGrdEditorBitmapIsUserGrafikFallback As Boolean
 
 
 #End Region
+
+
     ''' <summary>
     ''' Vergleicht diese Instanz mit einer anderen SpielfeldInfo.
     ''' Es wird nur geprüft, ob beide SpielfeldInfo dieselbe Instanz sind.
@@ -249,22 +301,22 @@ Public Class SpielfeldInfo
 
         'Vom childFB rechts unter dem infoFB geht es zum infoFB, indem von beiden Koordinaten
         '1 subtrahiert wird. Daher:
-        SetOffsetX(arrFB(infoFBx + 1, infoFBY + 1, infoFBz), True)
-        SetOffsetY(arrFB(infoFBx + 1, infoFBY + 1, infoFBz), True)
+        SetOffsetX(arrFB(infoFBx + 1, infoFBy + 1, infoFBz), True)
+        SetOffsetY(arrFB(infoFBx + 1, infoFBy + 1, infoFBz), True)
         '
         'Der childFB genau unter dem infoFB zum infoFB geht mit OffsetX = 0 und OffsetY = -1
-        SetOffsetX(arrFB(infoFBx, infoFBY + 1, infoFBz), False)
-        SetOffsetY(arrFB(infoFBx, infoFBY + 1, infoFBz), True)
+        SetOffsetX(arrFB(infoFBx, infoFBy + 1, infoFBz), False)
+        SetOffsetY(arrFB(infoFBx, infoFBy + 1, infoFBz), True)
         '
         'Vom FB rechts vom infoFB zum infoFB: OffsetX = -1, OffsetY = 0
-        SetOffsetX(arrFB(infoFBx + 1, infoFBY, infoFBz), True)
-        SetOffsetY(arrFB(infoFBx + 1, infoFBY, infoFBz), False)
+        SetOffsetX(arrFB(infoFBx + 1, infoFBy, infoFBz), True)
+        SetOffsetY(arrFB(infoFBx + 1, infoFBy, infoFBz), False)
 
         'Der infoFB hat keinen Offset, daher beide 0 (Verweis auf sich selber)
-        SetOffsetX(arrFB(infoFBx, infoFBY, infoFBz), False)
-        SetOffsetY(arrFB(infoFBx, infoFBY, infoFBz), False)
+        SetOffsetX(arrFB(infoFBx, infoFBy, infoFBz), False)
+        SetOffsetY(arrFB(infoFBx, infoFBy, infoFBz), False)
         '
-        SetIndexStein(arrFB(infoFBx, infoFBY, infoFBz), SteinInfoIndex)
+        SetIndexStein(arrFB(infoFBx, infoFBy, infoFBz), SteinInfoIndex)
 
     End Sub
 
@@ -510,8 +562,8 @@ Public Class SpielfeldInfo
             If vp <> ValidePlaceEnum.Yes Then
                 For idx As Integer = 0 To .steinInfos.Count - 1
                     .steinInfos(idx).IsWerkbankStein = True 'wieder einschalten (ob man's noch gebrauchen kann, weis ich derzeit nicht)
-                    .steinInfos(idx).SteinStatusUsed = SteinStatus.WerkstückEinfügeFehler
-                    .steinInfos(idx).SteinStatusIst = SteinStatus.WerkstückEinfügeFehler
+                    .steinInfos(idx).SteinStatusUsed = SteinStatus.I08WerkstückEinfügeFehler
+                    .steinInfos(idx).SteinStatusIst = SteinStatus.I08WerkstückEinfügeFehler
                 Next
             End If
 
@@ -568,12 +620,11 @@ Public Class SpielfeldInfo
         ''
     End Sub
 
-    Public Sub RemoveLastSteinFromSpielfeld(arrFB(,,) As Long, steininfos As SpielfeldInfo)
+    Public Sub RemoveLastSteinFromSpielfeld(arrFB(,,) As Integer, steininfos As SpielfeldInfo)
 
     End Sub
 
 #End Region
-
 
 #Region "Fragen an das Spielfeld (ACHTUNG COPY-PASTE-REGION #2)"
     '
@@ -1054,7 +1105,7 @@ Public Class SpielfeldInfo
             Dim fb As Integer = arrFB(.x, .y, .z)
             Dim offsetX As Integer = If((fb And FLAG_XOffset) <> 0, 1, 0)
             Dim offsetY As Integer = If((fb And FLAG_YOffset) <> 0, 1, 0)
-            Return (arrFB(.x - offsetX, .y - offsetY, .z) \ -1)
+            Return (arrFB(.x - offsetX, .y - offsetY, .z) \ 1000) - 1
         End With
     End Function
 
@@ -1072,7 +1123,7 @@ Public Class SpielfeldInfo
     End Function
 
     ''' <summary>
-    ''' Prüft, ob an der Stelle ein Felbeschreiber FB ist, der einen SteinIndex enthält.
+    ''' Prüft, ob an der Stelle ein Felbbeschreiber FB ist, der einen SteinIndex enthält.
     ''' Kann zum Iterieren durch das Feld benutzt werden.
     ''' </summary>
     ''' <param name="fb"></param>
@@ -1307,7 +1358,6 @@ Public Class SpielfeldInfo
 
 #End Region
 
-
 #Region "Debug-Funktionen"
     '
     ''' <summary>
@@ -1355,20 +1405,41 @@ Public Class SpielfeldInfo
 
 #End Region
 
-
 #Region "Load, Save"
 
     '################################################################################################
+
+    Public Shared Function OpenWithDialog(sub1Dir As AppDataSubDir, sub2Dir As AppDataSubSubDir, sub3Dir As String, filename As String) As SpielfeldInfo
+        Dim fullpath As String = Path.Combine(INI.AppDataDirectory(sub1Dir, sub2Dir, sub3Dir), filename)
+        Return Load(fullpath)
+    End Function
+    Public Shared Function OpenWithDialog(sub1Dir As AppDataSubDir, sub2Dir As AppDataSubSubDir, sub3Dir As BasisformEnum, filename As String, Optional header As String = "Spiel laden") As SpielfeldInfo
+        Dim path As String = IO.Path.Combine(INI.AppDataDirectory(sub1Dir, sub2Dir, sub3Dir.ToString), filename)
+        Dim fullpath As String = INI.AppDataFullPathWithOpenFileDialog(path, "*.*", header)
+        If Not String.IsNullOrEmpty(fullpath) Then
+            Return Load(path)
+        Else
+            Return New SpielfeldInfo
+        End If
+    End Function
+    Public Shared Function Load(sub1Dir As AppDataSubDir, sub2Dir As AppDataSubSubDir, sub3Dir As String, filename As String) As SpielfeldInfo
+        Dim fullpath As String = Path.Combine(INI.AppDataDirectory(sub1Dir, sub2Dir, sub3Dir), filename)
+        Return Load(fullpath)
+    End Function
+    Public Shared Function Load(sub1Dir As AppDataSubDir, sub2Dir As AppDataSubSubDir, sub3Dir As BasisformEnum, filename As String) As SpielfeldInfo
+        Dim fullpath As String = Path.Combine(INI.AppDataDirectory(sub1Dir, sub2Dir, sub3Dir.ToString), filename)
+        Return Load(fullpath)
+    End Function
 
     ''' <summary>
     ''' zLwpD = myIO.GetPathInAnwendungsdatenII("Suche", GetType(IndexData).Name + ".xml")
     ''' </summary>
     ''' <returns></returns>
-    Public Shared Function Load(zLwpD As String) As SpielfeldInfo
+    Public Shared Function Load(fullpath As String) As SpielfeldInfo
 
-        If IO.File.Exists(zLwpD) Then
+        If IO.File.Exists(fullpath) Then
             Try
-                Using reader As New IO.StreamReader(zLwpD)
+                Using reader As New IO.StreamReader(fullpath)
                     Dim serializer As New Xml.Serialization.XmlSerializer(GetType(SpielfeldInfo))
                     Dim daten As SpielfeldInfo = CType(serializer.Deserialize(reader), SpielfeldInfo)
                     Return daten
@@ -1384,11 +1455,29 @@ Public Class SpielfeldInfo
 
     End Function
 
-    Public Sub Save(zLwpD As String)
+    Public Function SpielfeldInfoFileExists(sub1Dir As AppDataSubDir, sub2Dir As AppDataSubSubDir, sub3Dir As String, filename As String) As Boolean
+        Dim fullpath As String = Path.Combine(INI.AppDataDirectory(sub1Dir, sub2Dir, sub3Dir), filename)
+        Return File.Exists(fullpath)
+    End Function
+    Public Function SpielfeldInfoFileExists(sub1Dir As AppDataSubDir, sub2Dir As AppDataSubSubDir, sub3Dir As BasisformEnum, filename As String) As Boolean
+        Dim fullpath As String = Path.Combine(INI.AppDataDirectory(sub1Dir, sub2Dir, sub3Dir.ToString), filename)
+        Return File.Exists(fullpath)
+    End Function
+
+    Public Sub save(sub1Dir As AppDataSubDir, sub2Dir As AppDataSubSubDir, sub3Dir As String, filename As String)
+        Dim fullpath As String = Path.Combine(INI.AppDataDirectory(sub1Dir, sub2Dir, sub3Dir), filename)
+        Save(fullpath)
+    End Sub
+    Public Sub save(sub1Dir As AppDataSubDir, sub2Dir As AppDataSubSubDir, sub3Dir As BasisformEnum, filename As String)
+        Dim fullpath As String = Path.Combine(INI.AppDataDirectory(sub1Dir, sub2Dir, sub3Dir.ToString), filename)
+        Save(fullpath)
+    End Sub
+
+    Public Sub Save(fullpath As String)
 
         XmlInfo_SteinInfo_Count = SteinInfos.Count
         Try
-            Using writer As New IO.StreamWriter(zLwpD)
+            Using writer As New IO.StreamWriter(fullpath)
                 Dim serializer As New Xml.Serialization.XmlSerializer(Me.GetType())
                 serializer.Serialize(writer, Me)
             End Using

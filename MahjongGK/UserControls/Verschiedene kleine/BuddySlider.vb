@@ -25,13 +25,13 @@ Public Class BuddySlider
     Private _value As Integer = 50
 
     Private _dragging As Boolean = False
-    Private _thumbSize As Size = New Size(16, 16) ' Ressource ist 16x16
-    Private _trackHeight As Integer = 6
-    Private _trackPadding As Integer = 10 ' Platz links/rechts vom Track (Daumen-Hälfte + etwas Luft)
+    Private _thumbSize As New Size(16, 16) ' Ressource ist 16x16
+    Private ReadOnly _trackHeight As Integer = 6
+    Private ReadOnly _trackPadding As Integer = 10 ' Platz links/rechts vom Track (Daumen-Hälfte + etwas Luft)
 
     Private ReadOnly _shadowColor As Color = Color.FromArgb(90, 0, 0, 0) ' schmaler Schatten
     Private ReadOnly _trackShadowOffset As Integer = 1
-    Private ReadOnly _thumbShadowOffset As Point = New Point(1, 1)
+    Private ReadOnly _thumbShadowOffset As New Point(1, 1)
 
 
 
@@ -148,7 +148,7 @@ Public Class BuddySlider
         Dim thumbRect As Rectangle = GetThumbRect(trackRect)
 
         ' --- Track-Schatten ---
-        Dim trackShadow As Rectangle = New Rectangle(trackRect.X, trackRect.Y + _trackShadowOffset, trackRect.Width, trackRect.Height)
+        Dim trackShadow As New Rectangle(trackRect.X, trackRect.Y + _trackShadowOffset, trackRect.Width, trackRect.Height)
         Using brShad As New SolidBrush(_shadowColor)
             g.FillRoundedRect(brShad, trackShadow, CInt(trackRect.Height / 2))
         End Using

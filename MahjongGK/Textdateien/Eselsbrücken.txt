@@ -1,0 +1,13 @@
+﻿
+
+Math.Floor → „Bleib auf dem Boden!“
+„Floor“ = Fußboden → immer nach unten abrunden.
+
+Math.Ceiling → „Segel davon!“
+„Ceiling“ = Decke → klingt wie „Segel(n)“ 
+→ immer nach oben aufrunden, zur Decke fliegen wie ein Segelflugzeug.
+
+Math.Round → „Mach’s einfach rund.“
+Rund wie eine runde Zahl → normale mathematische Rundung (ab 0,5 hoch).
+
+----------------------------------------------------------

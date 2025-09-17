@@ -1,23 +1,27 @@
 ﻿'
 ' SPDX-License-Identifier: GPL-3.0-or-later
-'###########################################################################
-'#                                                                         #
-'#   Copyright © 2025–2026 Götz Kircher <mahjonggk@t-online.de>            #
-'#                                                                         #
-'#                     MahjongGK  -  Mahjong Solitär                       #
-'#                                                                         #
-'#   This program is free software: you can redistribute it and/or modify  #
-'#   it under the terms of the GNU General Public License as published by  #
-'#   the Free Software Foundation, either version 3 of the License, or     #
-'#   at your option any later version.                                     #
-'#                                                                         #
-'#   This program is distributed in the hope that it will be useful,       #
-'#   but WITHOUT ANY WARRANTY; without even the implied warranty of        #
-'#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the          #
-'#   GNU General Public License for more details.                          #
-'#   https://www.gnu.org/licenses/gpl-3.0.html                             #
-'#                                                                         #
-'###########################################################################
+'############################################################################
+'#                                                                          #
+'#   Copyright © 2025–2026 Götz Kircher <mahjonggk@t-online.de>             #
+'#                                                                          #
+'#                     MahjongGK  -  Mahjong Solitär                        #
+'#                                                                          #
+'#   This program is free software: you can redistribute it and/or modify   #
+'#   it under the terms of the GNU General Public License as published by   #
+'#   the Free Software Foundation, either version 3 of the License, or      #
+'#   at your option any later version.                                      #
+'#                                                                          #
+'#   This program is distributed in the hope that it will be useful,        #
+'#   but WITHOUT ANY WARRANTY; without even the implied warranty of         #
+'#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the           #
+'#   GNU General Public License for more details.                           #
+'#   https://www.gnu.org/licenses/gpl-3.0.html                              #
+'#                                                                          #   
+'#   This project uses:                                                     #
+'#   Magick.NET (Apache License 2.0 https://github.com/dlemstra/Magick.NET) #
+'#   SVG.NET (MS-PL-Lizenz https://github.com/svg-net/SVG)                  #
+'#                                                                          #
+'############################################################################
 '
 '
 Option Compare Text
@@ -39,7 +43,7 @@ Public Class IniManager
 
 
     Private ReadOnly _fileFullPath As String
-    Private ReadOnly lines As New List(Of String)
+    Private _iniLines As New List(Of String)
     Private _raiseIniEvents As IniEvents
     Private _raiseIniEventsSic As IniEvents
     Public Property InitialisierungAktiv As Boolean
@@ -59,6 +63,15 @@ Public Class IniManager
         Get
             Return _fileFullPath & ".tmp"
         End Get
+    End Property
+
+    Public Property IniLines As List(Of String)
+        Get
+            Return _iniLines
+        End Get
+        Set(value As List(Of String))
+            _iniLines = value
+        End Set
     End Property
 
     Public Sub New(fileName_ext As String)
@@ -275,6 +288,27 @@ Public Class IniManager
 
         End Get
     End Property
+
+    ' byte
+    Public Function WriteValue(folderAndKey As (folder As String, key As String), ByVal value As Byte) As Boolean
+        Return WriteValueToINI(folderAndKey, CvtIntegerToString(value))
+    End Function
+
+    Public ReadOnly Property ReadValue(folderAndKey As (folder As String, key As String), [default] As Byte, comment As String) As Byte
+        Get
+            Try
+                Dim value As Integer = CvtStringToInteger(ReadValueFromINI(folderAndKey, CvtIntegerToString([default]), comment), [default])
+                If value < Byte.MinValue OrElse value > Byte.MaxValue Then
+                    Return [default]
+                Else
+                    Return CByte(value)
+                End If
+            Catch ex As Exception
+                Return [default]
+            End Try
+
+        End Get
+    End Property
     '
     '--- Boolean
     Public Function WriteValue(folderAndKey As (folder As String, key As String), ByVal value As Boolean) As Boolean
@@ -434,8 +468,8 @@ Public Class IniManager
     ''' </summary>
     Private Function FindFolderLine(folder As String) As Integer
         Dim search As String = "[" & folder & "]"
-        For i As Integer = 0 To lines.Count - 1
-            If lines(i).Equals(search, StringComparison.OrdinalIgnoreCase) Then
+        For i As Integer = 0 To _iniLines.Count - 1
+            If _iniLines(i).Equals(search, StringComparison.OrdinalIgnoreCase) Then
                 Return i
             End If
         Next
@@ -450,8 +484,8 @@ Public Class IniManager
         Dim folderLine As Integer = FindFolderLine(folderAndKey.folder)
         If folderLine < 0 Then Return -1
 
-        For i As Integer = folderLine + 1 To lines.Count - 1
-            Dim l As String = lines(i)
+        For i As Integer = folderLine + 1 To _iniLines.Count - 1
+            Dim l As String = _iniLines(i)
             If l.StartsWith("[") Then Return -1 ' nächster Abschnitt erreicht
             If l.StartsWith(folderAndKey.key & "=", StringComparison.OrdinalIgnoreCase) Then
                 Return i
@@ -496,7 +530,7 @@ Public Class IniManager
         Dim first As Integer = keyLine - 1
         ' rückwärts alle Kommentarzeilen aufsammeln
         While first > folderLine
-            Dim s As String = lines(first)
+            Dim s As String = _iniLines(first)
             If s.TrimStart().StartsWith(";", StringComparison.Ordinal) Then
                 first -= 1
             Else
@@ -512,7 +546,7 @@ Public Class IniManager
         End If
 
         ' Sicherheit: prüfen, ob es wirklich Kommentar ist
-        If Not lines(first).TrimStart().StartsWith(";", StringComparison.Ordinal) Then
+        If Not _iniLines(first).TrimStart().StartsWith(";", StringComparison.Ordinal) Then
             Return (-1, -1)
         End If
 
@@ -536,7 +570,7 @@ Public Class IniManager
         If desired.Count = 0 Then
             ' Kommentar soll nicht existieren -> vorhandenen entfernen
             If region.start <> -1 Then
-                lines.RemoveRange(region.start, region.[end] - region.start + 1)
+                _iniLines.RemoveRange(region.start, region.[end] - region.start + 1)
                 MarkChanged()
             End If
             Return
@@ -544,7 +578,7 @@ Public Class IniManager
 
         If region.start = -1 Then
             ' Kein Kommentar vorhanden -> einfügen vor dem Key
-            lines.InsertRange(keyLine, desired)
+            _iniLines.InsertRange(keyLine, desired)
             MarkChanged()
             Return
         End If
@@ -555,7 +589,7 @@ Public Class IniManager
         If equal Then
             equal = True 'Default
             For i As Integer = 0 To count - 1
-                If Not String.Equals(lines(region.start + i), desired(i), StringComparison.Ordinal) Then
+                If Not String.Equals(_iniLines(region.start + i), desired(i), StringComparison.Ordinal) Then
                     equal = False
                     Exit For
                 End If
@@ -564,8 +598,8 @@ Public Class IniManager
 
         If Not equal Then
             ' Ersetzen
-            lines.RemoveRange(region.start, count)
-            lines.InsertRange(region.start, desired)
+            _iniLines.RemoveRange(region.start, count)
+            _iniLines.InsertRange(region.start, desired)
             MarkChanged()
         End If
     End Sub
@@ -599,7 +633,7 @@ Public Class IniManager
             End If
         End If
 
-        Dim line As String = lines(idx)
+        Dim line As String = _iniLines(idx)
         Dim pos As Integer = line.IndexOf("="c)
         If pos < 0 OrElse pos = line.Length - 1 Then
             Return ""
@@ -625,21 +659,21 @@ Public Class IniManager
 
         ' Folder nicht vorhanden -> neu anlegen
         If folderLine < 0 Then
-            lines.Add("[" & folderAndKey.folder & "]")
+            _iniLines.Add("[" & folderAndKey.folder & "]")
             If InitialisierungAktiv Then
                 Dim block As List(Of String) = BuildCommentBlockLines(comment)
                 If block.Count > 0 Then
-                    lines.AddRange(block)
+                    _iniLines.AddRange(block)
                 End If
             End If
-            lines.Add($"{folderAndKey.key}={value}")
+            _iniLines.Add($"{folderAndKey.key}={value}")
             MarkChanged()
             Return Announce(True)
         End If
 
         ' Schlüssel im Folder suchen
-        For i As Integer = folderLine + 1 To lines.Count - 1
-            Dim l As String = lines(i)
+        For i As Integer = folderLine + 1 To _iniLines.Count - 1
+            Dim l As String = _iniLines(i)
 
             ' Leere oder Kommentarzeilen überspringen (gehören zu vorherigen Keys)
             If String.IsNullOrWhiteSpace(l) OrElse l.TrimStart().StartsWith(";") Then
@@ -652,11 +686,11 @@ Public Class IniManager
                 If InitialisierungAktiv Then
                     Dim block As List(Of String) = BuildCommentBlockLines(comment)
                     If block.Count > 0 Then
-                        lines.InsertRange(insertAt, block)
+                        _iniLines.InsertRange(insertAt, block)
                         insertAt += block.Count
                     End If
                 End If
-                lines.Insert(insertAt, $"{folderAndKey.key}={value}")
+                _iniLines.Insert(insertAt, $"{folderAndKey.key}={value}")
                 MarkChanged()
                 Return Announce(True)
             End If
@@ -666,8 +700,8 @@ Public Class IniManager
                 Dim newValue As String = $"{folderAndKey.key}={value}"
                 Dim changed As Boolean
                 'abr nur, wenn er sich geändert hat.
-                If String.Compare(lines(i), newValue, ignoreCase:=False) <> 0 Then
-                    lines(i) = newValue
+                If String.Compare(_iniLines(i), newValue, ignoreCase:=False) <> 0 Then
+                    _iniLines(i) = newValue
                     MarkChanged()
                     changed = True
                 Else
@@ -685,14 +719,14 @@ Public Class IniManager
         Next
 
         ' Ende des Folders erreicht -> am Schluss anhängen
-        Dim appendAt As Integer = lines.Count
+        Dim appendAt As Integer = _iniLines.Count
         If InitialisierungAktiv Then
             Dim block As List(Of String) = BuildCommentBlockLines(comment)
             If block.Count > 0 Then
-                lines.AddRange(block)
+                _iniLines.AddRange(block)
             End If
         End If
-        lines.Add($"{folderAndKey.key}={value}")
+        _iniLines.Add($"{folderAndKey.key}={value}")
         MarkChanged()
 
         Return Announce(True)
@@ -770,45 +804,80 @@ Public Class IniManager
         Return [default]
     End Function
 
+
+    Private Const COLOR_EMPTY_STRING As String = "EMPTY"
+
     ''' <summary>
-    ''' Wandelt eine Color in einen Hex-String nach dem Muster AARRGGBB um.
+    ''' Wandelt eine <see cref="Color"/> in einen String um.
+    ''' Color.Empty wird als "EMPTY" kodiert; ansonsten AARRGGBB (Großbuchstaben).
     ''' </summary>
     Public Shared Function CvtColorToHexString(color As Color) As String
-        Return color.A.ToString("X2") &
-               color.R.ToString("X2") &
-               color.G.ToString("X2") &
-               color.B.ToString("X2")
+        If color.IsEmpty Then
+            Return COLOR_EMPTY_STRING
+        End If
+
+        ' AARRGGBB
+        Return color.A.ToString("X2", CultureInfo.InvariantCulture) &
+               color.R.ToString("X2", CultureInfo.InvariantCulture) &
+               color.G.ToString("X2", CultureInfo.InvariantCulture) &
+               color.B.ToString("X2", CultureInfo.InvariantCulture)
     End Function
 
     ''' <summary>
-    ''' Wandelt einen Hex-String (AARRGGBB) zurück in eine Color.
-    ''' </summary>
-    Public Function CvtHexStringToColor(hex As String, [default] As Color) As Color
-        Try
-            Dim val As Integer = Convert.ToInt32(hex, 16)
-            Return Color.FromArgb((val >> 24) And &HFF,
-                          (val >> 16) And &HFF,
-                          (val >> 8) And &HFF,
-                          val And &HFF)
-        Catch ex As Exception
-            Return [default]
-        End Try
-    End Function
-    '
-    ''' <summary>
     ''' Überladung ohne Default. (nötig, um den Default festzulegen)
+    ''' Der Default des Default ist Color.Empty
     ''' </summary>
     ''' <param name="hex"></param>
     ''' <returns></returns>
     Public Shared Function CvtHexStringToColor(hex As String) As Color
+        Return CvtHexStringToColor(hex, Color.Empty)
+    End Function
+    ''' <summary>
+    ''' Wandelt einen String nach AARRGGBB / RRGGBB / "EMPTY" in eine <see cref="Color"/>.
+    ''' Bei Fehlern wird <paramref name="[default]"/> zurückgegeben.
+    ''' </summary>
+    Public Shared Function CvtHexStringToColor(hex As String, [default] As Color) As Color
         Try
-            Dim val As Integer = Convert.ToInt32(hex, 16)
-            Return Color.FromArgb((val >> 24) And &HFF,
-                          (val >> 16) And &HFF,
-                          (val >> 8) And &HFF,
-                          val And &HFF)
-        Catch ex As Exception
-            Throw New Exception($"Vermutlicher Programmierfehler: ""{hex}"" kann nicht in Color konvertiert werden in INI.CvtHexStringToColor")
+            If String.IsNullOrWhiteSpace(hex) Then
+                Return [default]
+            End If
+
+            Dim s As String = hex.Trim()
+
+            ' Sonderfall "EMPTY"
+            If s.Equals(COLOR_EMPTY_STRING, StringComparison.OrdinalIgnoreCase) Then
+                Return Color.Empty
+            End If
+
+            ' optionale Präfixe entfernen
+            If s.StartsWith("#") Then s = s.Substring(1)
+            If s.StartsWith("0x", StringComparison.OrdinalIgnoreCase) Then s = s.Substring(2)
+
+            Select Case s.Length
+                Case 8
+                    ' AARRGGBB
+                    Dim val As Integer = Integer.Parse(s, NumberStyles.AllowHexSpecifier, CultureInfo.InvariantCulture)
+                    Dim a As Integer = (val >> 24) And &HFF
+                    Dim r As Integer = (val >> 16) And &HFF
+                    Dim g As Integer = (val >> 8) And &HFF
+                    Dim b As Integer = val And &HFF
+                    Return Color.FromArgb(a, r, g, b)
+
+                Case 6
+                    ' RRGGBB => Alpha=FF
+                    Dim val As Integer = Integer.Parse(s, NumberStyles.AllowHexSpecifier, CultureInfo.InvariantCulture)
+                    Dim r As Integer = (val >> 16) And &HFF
+                    Dim g As Integer = (val >> 8) And &HFF
+                    Dim b As Integer = val And &HFF
+                    Return Color.FromArgb(&HFF, r, g, b)
+
+                Case Else
+                    ' ungültige Länge
+                    Return [default]
+            End Select
+
+        Catch
+            Return [default]
         End Try
     End Function
 
@@ -821,8 +890,7 @@ Public Class IniManager
 
     Public Function CvtStringToSingle(s As String, [default] As Single) As Single
         Dim result As Single
-        If Single.TryParse(s, NumberStyles.Float Or NumberStyles.AllowThousands,
-                       CultureInfo.InvariantCulture, result) Then
+        If Single.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, result) Then
             Return result
         End If
         Return [default]
@@ -834,8 +902,7 @@ Public Class IniManager
 
     Public Function CvtStringToDouble(s As String, [default] As Double) As Double
         Dim result As Double
-        If Double.TryParse(s, NumberStyles.Float Or NumberStyles.AllowThousands,
-                       CultureInfo.InvariantCulture, result) Then
+        If Double.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, result) Then
             Return result
         End If
         Return [default]
@@ -847,8 +914,7 @@ Public Class IniManager
 
     Public Function CvtStringToDecimal(s As String, [default] As Decimal) As Decimal
         Dim result As Decimal
-        If Decimal.TryParse(s, NumberStyles.Float Or NumberStyles.AllowThousands,
-                        CultureInfo.InvariantCulture, result) Then
+        If Decimal.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, result) Then
             Return result
         End If
         Return [default]
@@ -1834,7 +1900,7 @@ Public Class IniManager
 
         Try
             Using sw As New StreamWriter(_fileFullPath, False, Encoding.UTF8)
-                For Each l As String In lines
+                For Each l As String In _iniLines
                     sw.WriteLine(l)
                 Next
             End Using
@@ -1849,7 +1915,7 @@ Public Class IniManager
     ''' </summary>
     Private Sub Load(loadTmpFile As Boolean)
 
-        lines.Clear()
+        _iniLines.Clear()
 
         ' Je nach Flag richtigen Pfad zusammensetzen
         Dim path As String = _fileFullPath & If(loadTmpFile, ".tmp", String.Empty)
@@ -1858,7 +1924,7 @@ Public Class IniManager
             For Each l As String In File.ReadAllLines(path)
                 Dim trimmed As String = l.Trim()
                 If trimmed <> "" Then
-                    lines.Add(trimmed)
+                    _iniLines.Add(trimmed)
                 End If
             Next
         End If

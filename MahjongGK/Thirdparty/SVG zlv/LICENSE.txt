@@ -1,0 +1,3 @@
+Microsoft Public License (MS-PL)
+https://opensource.org/license/ms-pl/
+Projekt: SVG.NET — https://github.com/svg-net/SVG

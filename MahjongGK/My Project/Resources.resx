@@ -190,6 +190,21 @@
   <data name="CompassWsel" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\CompassWsel.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="Dummy16q" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Dummy16q.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Dummy24q" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Dummy24q.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Dummy28q" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Dummy28q.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Dummy32q" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Dummy34q.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Dummy48q" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Dummy48q.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="Editor" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Editor.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
@@ -255,9 +270,6 @@
   </data>
   <data name="ShowSelectableUnChecked" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\ShowSelectableUnChecked.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="SliderPunkt" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\SliderPunkt.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="Spieler" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Spieler.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>

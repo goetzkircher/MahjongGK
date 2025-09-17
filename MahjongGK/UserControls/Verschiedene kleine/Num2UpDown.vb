@@ -31,6 +31,7 @@ Public Class Num2UpDown
     Public Event ValueChanged()
 
     Public Sub New()
+
         MyBase.New()
         Me.MinimumSize = New Size(65, 24)
         Me.Size = New Size(65, 28)
@@ -85,6 +86,7 @@ Public Class Num2UpDown
         Controls.Add(_picRight)
 
         PerformLayout()
+
     End Sub
 
 
@@ -241,16 +243,10 @@ Public Class Num2UpDown
         End If
     End Sub
 
-    Private Shared Function GetResBitmap(baseName As String, hover As Boolean) As Image
+    Private Shared Function GetResBitmap(baseName As String, hover As Boolean) As Bitmap
         Dim name As String = baseName & If(hover, "mover", String.Empty)
-        Dim img As Object = My.Resources.ResourceManager.GetObject(name)
-#Disable Warning IDE0270 ' COALESCE-Ausdruck verwenden
-        If img Is Nothing Then
-#Enable Warning IDE0270 ' COALESCE-Ausdruck verwenden
-            ' Fallback: wenn *_mover fehlt, nimm Basisgrafik
-            img = My.Resources.ResourceManager.GetObject(baseName)
-        End If
-        Return TryCast(img, Image)
+        Dim bmp As Bitmap = If(Theme.GetResBmp(name), Theme.GetResBmp(baseName))
+        Return bmp
     End Function
     ' -----------------------------
 

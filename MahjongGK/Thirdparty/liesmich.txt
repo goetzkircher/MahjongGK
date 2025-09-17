@@ -1,0 +1,77 @@
+﻿
+Thirdparty – externe Bibliotheken und Abhängigkeiten
+====================================================
+
+Dieses Verzeichnis enthält alle externen Komponenten, die MahjongGK benötigt.
+Das Projekt ist damit vollständig offline lauffähig, ohne zusätzliche NuGet-Installationen.
+
+----------------------------------------------------
+1) Svg (SVG.NET)
+----------------------------------------------------
+Dateien:
+- Thirdparty\Svg\Svg.dll
+- Thirdparty\Svg\LICENSE.txt  (Microsoft Public License – MS-PL)
+- Thirdparty\Svg\Svg.xml      (optional, IntelliSense)
+
+Verwendung:
+- Laden, Parsen und Rendern von SVG-Dateien (Scalable Vector Graphics),
+  Umwandeln von Vektorgrafiken in Bitmaps.
+
+----------------------------------------------------
+2) Magick.NET (ImageMagick für .NET) – Q8, x64
+----------------------------------------------------
+Managed Assemblies:
+- Thirdparty\Magick\Magick.NET.Core.dll
+- Thirdparty\Magick\Magick.NET-Q8-AnyCPU.dll
+- Thirdparty\Magick\LICENSE.txt              (Apache License 2.0)
+- Thirdparty\Magick\*.xml                    (optional, IntelliSense)
+
+Native Runtime (zwingend benötigt):
+- runtimes\win-x64\native\Magick.Native-Q8-x64.dll
+
+WICHTIG (Ablage & Begründung):
+- Die native DLL **Magick.Native-Q8-x64.dll** liegt **nicht** unter Thirdparty,
+  sondern in **runtimes\win-x64\native\** direkt im Ausgabeverzeichnis (bin\…).
+- Grund: Magick.NET (und der Windows-DLL-Loader) erwarten native Abhängigkeiten
+  in einem standardisierten „runtimes“-Pfad. Dort werden sie zuverlässig gefunden.
+- Zusätzlich lädt MahjongGK die native DLL beim Programmstart **explizit vor**
+  (Preload), um Suchpfad-/Timing-Probleme zu vermeiden (siehe unten).
+
+----------------------------------------------------
+3) System-Abhängigkeiten für .NET Standard 2.0
+----------------------------------------------------
+Dateien:
+- Thirdparty\System\System.Buffers.dll
+- Thirdparty\System\System.Memory.dll
+- Thirdparty\System\System.Numerics.Vectors.dll
+- Thirdparty\System\System.Runtime.CompilerServices.Unsafe.dll
+- (optional: passende .xml für IntelliSense)
+
+Verwendung:
+- Hilfs-Assemblies, damit Magick.NET (netstandard2.0) unter .NET Framework 4.8.1 läuft.
+
+----------------------------------------------------
+Initialisierung der nativen Magick-DLL (Preload)
+----------------------------------------------------
+Damit die native Bibliothek sicher verfügbar ist, lädt MahjongGK sie beim Start vor.
+Der Aufruf erfolgt **vor** dem ersten Zugriff auf Magick.NET:
+
+VB.NET (Beispiel):
+    PreloadMagickNative()   ' muss sehr früh passieren (z. B. in Sub Main)
+
+Die Methode lädt:
+    <Ausgabeverzeichnis>\runtimes\win-x64\native\Magick.Native-Q8-x64.dll
+
+Hinweis: Die Preload-Routine ergänzt außerdem den DLL-Suchpfad um diesen Ordner.
+Sie ist zu finden in runtimes\StartupMagicNative
+
+----------------------------------------------------
+Hinweise
+----------------------------------------------------
+- Alle *.xml-Dateien sind optional (nur IntelliSense/Editorhilfe).
+- Die Verzeichnisstruktur darf **nicht** verändert werden, insbesondere:
+    - runtimes\win-x64\native\Magick.Native-Q8-x64.dll
+    - Thirdparty\Magick\*.dll  (Managed Assemblies)
+    - Thirdparty\System\*.dll  (Managed Support-Assemblies)
+- Zielplattform ist **x64**; eine x86-Variante wird nicht ausgeliefert.
+

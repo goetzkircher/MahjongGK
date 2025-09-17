@@ -30,7 +30,7 @@ Option Strict On
 
 
 
-Namespace DebugHelfer
+Namespace MjDebug
     ''' <summary>
     ''' Debug-Hilfsmodul zum Anzeigen von Bitmap-Arrays in einem Fenster.
     ''' </summary>

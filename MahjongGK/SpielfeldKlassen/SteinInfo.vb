@@ -29,6 +29,62 @@ Option Strict On
 #Disable Warning IDE1006
 
 Imports System.Xml.Serialization
+'
+'
+''' <summary>
+''' Beschreibt einen einzelnen Spielstein im MahjongGK-Spielfeld.
+''' Enthält Identität/Zuordnung (<c>SteinInfoIndex</c>, <c>SteinIndex</c>, <c>KlickGruppe</c>),
+''' Lage (<c>Postion3D</c>, abgeleitete <c>X/Y/Z</c>), Sichtbarkeitsmaske (<c>Verdeckung</c>/<c>Sichtbar</c>)
+''' sowie optionale Animationsparameter (nur Laufzeit, <c>XmlIgnore</c>).
+''' Bietet eine typsichere <see cref="DeepCopy"/> zur Erstellung echter, referenzgetrennter Kopien.
+''' </summary>
+''' <remarks>
+''' <para>
+''' <b>Identität &amp; Paarlogik:</b> <c>SteinInfoIndex</c> entspricht dem Index in <c>SteinInfos</c>.
+''' Die Zuordnung zu Paaren erfolgt über <c>KlickGruppe</c> (Mapping aus <c>SteinIndexEnum</c>),
+''' sodass auch visuell unterschiedliche Steine paarweise entfernt werden können.
+''' </para>
+''' <para>
+''' <b>Position:</b> <c>Postion3D</c> enthält die Koordinaten im Spielfeldraster.
+''' Die ReadOnly-Properties <c>X</c>, <c>Y</c>, <c>Z</c> leiten direkt daraus ab.
+''' </para>
+''' <para>
+''' <b>Sichtbarkeit:</b> Die Oberfläche ist in 4 Quadranten unterteilt.
+''' <c>Verdeckung</c> (Bitmaske) und <c>Sichtbar</c> sind logisch komplementär (4-Bit-Raum).
+''' Über <c>VerdecktQuadrant</c>/<c>SichtbarQuadrant</c> lassen sich einzelne Quadranten bequem lesen/setzen.
+''' </para>
+''' <para>
+''' <b>Animation (nur Laufzeit):</b> <c>AnimTyp</c>, <c>AnimShowAnimated</c>, <c>AnimStartDelay</c>,
+''' <c>AnimMaxStep</c> (intern ×100 skaliert), <c>AnimCurStep</c>, <c>AnimLoops</c>, <c>AnimLoopCount</c>
+''' sind mit <c>XmlIgnore</c> markiert und werden nicht serialisiert.
+''' </para>
+''' <para>
+''' <b>DeepCopy:</b> <see cref="DeepCopy"/> nutzt <c>MemberwiseClone</c> für die flache Kopie und
+''' klont Referenzen explizit (z. B. <c>Postion3D.DeepCopy()</c>). So bleiben Original und Kopie
+''' vollständig unabhängig (Editor ⇄ Testspiel).
+''' </para>
+''' </remarks>
+''' <example>
+''' <code language="vbnet">
+''' ' Stein erzeugen und ins Spielfeld übernehmen
+''' Dim s As New SteinInfo(steinInfoIndex:=0,
+'''                        steinIndex:=SteinIndexEnum.Bambus1,
+'''                        pos3D:=New Triple(5, 7, 0))
+'''
+''' ' Sichtbarkeitsbits anpassen (Quadrant-bezogen)
+''' s.SichtbarQuadrant(Quadrant.LinksOben) = True
+''' s.VerdecktQuadrant(Quadrant.RechtsUnten) = True
+'''
+''' ' Laufzeit-Animation konfigurieren (wird nicht serialisiert)
+''' s.AnimTyp = Animation.Puls
+''' s.AnimMaxStep = 12   ' wird intern als 1200 gespeichert
+''' s.AnimLoops = 1.5F
+'''
+''' ' Echte tiefe Kopie anlegen (z. B. für Testmodus)
+''' Dim copy As SteinInfo = s.DeepCopy()
+''' copy.Postion3D.x += 2  ' verändert nur die Kopie
+''' </code>
+''' </example>
 
 <Serializable>
 Public Class SteinInfo
@@ -41,8 +97,8 @@ Public Class SteinInfo
         Me.SteinInfoIndex = steinInfoIndex
         Me.SteinIndex = steinIndex
         KlickGruppe = Spielfeld.GetSteinClickGruppe(steinIndex, INI.Spielbetrieb_WindsAreInOneClickGroup)
-        SteinStatusIst = SteinStatus.Normal
-        SteinStatusUsed = SteinStatus.Normal
+        SteinStatusIst = SteinStatus.I01Normal
+        SteinStatusUsed = SteinStatus.I01Normal
         Postion3D = pos3D
         Me.tmpDebug = tmpDebug
     End Sub
@@ -349,6 +405,10 @@ Public Class SteinInfo
         '
         'Es ginge noch über den DataContractSerializer, das ist aber mit Vergabe vieler Attribute
         'versehen.
+    End Function
+
+    Public Function IsEmpty() As Boolean
+        Return Postion3D.x = 0
     End Function
 
 End Class

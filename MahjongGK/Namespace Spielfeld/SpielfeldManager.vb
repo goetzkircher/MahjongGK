@@ -1,4 +1,8 @@
-﻿'
+﻿Option Compare Text
+Option Explicit On
+Option Infer Off
+Option Strict On
+'
 ' SPDX-License-Identifier: GPL-3.0-or-later
 '###########################################################################
 '#                                                                         #
@@ -20,10 +24,8 @@
 '###########################################################################
 '
 '
-Option Compare Text
-Option Explicit On
-Option Infer Off
-Option Strict On
+
+
 
 #Disable Warning IDE0079
 #Disable Warning IDE1006
@@ -81,8 +83,17 @@ Namespace Spielfeld
                     RectSpielfeld = rectOutput
                 End If
             End If
+
+
+            If AktSpielfeldInfo.IsEmpty Then
+                Exit Sub
+            End If
+
+
             '
             With AktSpielfeldInfo
+
+
                 xMax = .xMax 'das sind die Felder
                 yMax = .yMax
                 zMax = .zMax
@@ -201,6 +212,22 @@ Namespace Spielfeld
                 offset3DTopSumme = 0
             End If
 
+            With AktSpielfeldInfo
+                If IsNothing(.BitmapUGrdImgCache) Then
+                    If .HasBitmapUGrd Then
+                        .BitmapUGrdImgCache = New BackgroundSingleImageCache(BackgroundBitmapCache)
+                        .BitmapUGrdImgCache.LoadBitmap(.BitmapUGrdFullpath, BackgroundSingleImageCache.RenderMode.CoverCrop)
+                    Else
+                        With AktSpielfeldInfo
+                            Dim bitmapUGrdFullpath As String = IO.Path.Combine(AppDataDirectory(AppDataSubDir.Hintergrundgrafiken),
+                            If(INI.Global_DarkMode, "water_3007467.jpg", "watercolor_2323195.jpg"))
+                            .BitmapUGrdFullpath = bitmapUGrdFullpath
+                            .BitmapUGrdImgCache = New BackgroundSingleImageCache(BackgroundBitmapCache)
+                            .BitmapUGrdImgCache.LoadBitmap(bitmapUGrdFullpath, BackgroundSingleImageCache.RenderMode.PreserveOrgSize)
+                        End With
+                    End If
+                End If
+            End With
 
         End Sub
 

@@ -43,7 +43,7 @@ Namespace Spielfeld
         ''' indentifiniert werden kann.
         ''' </summary>
         ''' <returns></returns>
-        Public Property VisibleUserControl As frmMain.VisibleUserControl
+        Public Property VisibleUserControl As VisibleUserControl
         '
         ''' <summary>
         ''' Das aktuelle Spielfeld As SpielfeldInfo.
@@ -58,6 +58,8 @@ Namespace Spielfeld
         Public Property PlayerSpielfeldInfo As SpielfeldInfo = Nothing
         Public Property EditorSpielfeldInfo As SpielfeldInfo = Nothing
         Public Property WerkbankSpielfeldInfo As SpielfeldInfo = Nothing
+
+        Public Property BackgroundBitmapCache As New BackgroundImageCache
 
         Public Property AktRendering As RenderingEnum
             Get
@@ -195,8 +197,6 @@ Namespace Spielfeld
         '
         Public steinWidthLastCreated As Integer
         Public steinHeightLastCreated As Integer
-
-
 
     End Module
 
