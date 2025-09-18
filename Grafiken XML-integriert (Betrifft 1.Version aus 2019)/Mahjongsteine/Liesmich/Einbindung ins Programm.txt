@@ -1,0 +1,12 @@
+Zuerst hatte ich alle Grafiken in ImagesList gepackt, die in frmMain angesiedelt waren.
+Diese belegten je Variation über 20 MB in den Ressourcen. Ab der fünften Variation gab es Out of Memory- Meldungen, die (teilweise mehrfachen) Neustart der IDE erforderten.
+
+Dann habe ich versucht die Grafiken als Base64-Strings in gesonderte Klassen (mit um die 1,5 MB Größe) zu verlagern, was zur Fehlermeldung BC37255 führte:
+
+"Die kombinierte Länge der vom Programm verwendeten Benutzerzeichenfolgen überschreitet den zulässigen Grenzwert. Versuchen Sie, die Verwendung von String-Literalen zu reduzieren."
+
+Der stichhaltigste Kommentar, den ich gefunden habe: "Die Fehlermeldung scheint ziemlich klar zu sein, dass das, was Sie wollen, nicht möglich ist. Sie sollten die Verwendung von "Ressourcen" in Betracht ziehen, die Sie in die Assembly einbetten können (im Wesentlichen handelt es sich um Dateien, die zum Erstellungszeitpunkt in derselben DLL wie der Code gepackt sind)."
+
+Als Folge entstand die XML-Version, deren Speicherbedarf noch etwas kleiner ist und die, im Vergleich zur ersten Version, in der Erzeugung der benötigten Grafikgröße um den (geschätzen) Faktor drei bis vier schneller ist.
+
+Die Klassen-Variante hebe ich auf, denn sie lassen sich verwenden, nur nicht alle sieben auf einen Streich.

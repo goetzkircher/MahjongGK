@@ -1,0 +1,1460 @@
+/**
+ * @fileOverview Styles for the transaction detail fullpage
+ * @name Transaction
+ * @author tsullivan
+ */
+/**
+ * @fileOverview Variables contains variables
+ * @name Variables
+ * @author hdoan, mdaveshah, ziliu
+ * @tested browsers FF 12, Chrome 18, Safari 5 on Mac
+ */
+/* Font sizes */
+/* Inputs */
+/** old styles **/
+/****************/
+/* Colors */
+/* button colors */
+/* New color variables from Adam Dustan's Patterns sheet: https://ebay.box.com/s/apis0xukrp25jzdvjyky */
+/* engagement module colors, named via http://chir.ag/projects/name-that-color */
+/* info / warning icon colors */
+/* generic colors for colors except text like box-border, shadow, background */
+/* card colors */
+/* textColor for all the colors of text */
+/* font weights */
+/* Z-index list */
+/* user for a bird's eye view of components based on z-axis */
+/* for example, if you want to put a button in header, just assign z-index of that button to @zindexHeader */
+/* these will overwrite the bootstrap pre defined variables */
+/* TODO: check the clean the non-needed modal styles in bootstrap */
+/* the same as bootstrap one, just overwrite */
+/* Setting for Sidepanel */
+/* This is not used by all side panels, only for the default one */
+/* what about larger phones like gs3? what about phablets like the note?
+/* responsive breakpoints */
+/* borders */
+/* Image Paths */
+/* Image URIs */
+/* Navigation */
+/* Activity */
+/* send money */
+/* data uri for notification */
+/* wallet */
+/* shop static landing page */
+/* feedback icon */
+.clearfix {
+  *zoom: 1;
+}
+.clearfix:before,
+.clearfix:after {
+  display: table;
+  content: "";
+  line-height: 0;
+}
+.clearfix:after {
+  clear: both;
+}
+/**
+ * @fileOverview Mixins contains mixins
+ * @name Mixins
+ * @author hdoan, mdaveshah
+ * @tested browsers FF 12, Chrome 18, Safari 5 on Mac
+ * Please do not modify Mixins to add IE related styles.
+ */
+.ltrInput {
+  text-align: left;
+  /*! @noflip */
+  direction: ltr;
+}
+.ltrInputGroup {
+  /*! @noflip */
+  text-align: left;
+  /*! @noflip */
+  direction: ltr;
+}
+.enforceLtr {
+  /*! @noflip */
+  direction: ltr;
+  unicode-bidi: embed;
+}
+.overflow-auto {
+  overflow: auto;
+}
+.ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/**
+ *  Multi-line truncation utilizing overflow:hidden and specified height of content
+ *  http://www.mobify.com/blog/multiline-ellipsis-in-pure-css/
+ *
+ *  @height - height of content to cut off
+ *  @lineheight - spacing between lines
+ *  @ellipsiswidth - width of ellipsis area
+ */
+/**
+ *	Vertical separator with radial box shadow right
+ *	@width - width of vertical separator
+ *	@height1 - height of first darker box shadow
+ *	@height2 - height of second lighter box shadow (taller than first height)
+ *	@top1 - top position of first box shadow
+ *	@top2 - top position of second box shadow
+ *	@right - right position of separator
+ *	@z - z-index of separator
+ *	@borderRadius - how radial the box shadow is
+ */
+/**
+ *	Horizontal separator with radial box shadow down
+ *	@height - height of horizontal separator
+ *	@width1 - width of first darker box shadow
+ *	@width2 - width of second lighter box shadow (longer than first width)
+ *	@left1 - left position of first box shadow
+ *	@left2 - left position of second box shadow
+ *	@bottom - bottom position of separator
+ *	@z - z-index of separator
+ *	@borderRadius - how radial the box shadow is
+ */
+/* This mixin is to add a pointer to a dropdown */
+/* mixin for creating a triangle */
+/* Mixin for bubbles */
+/* mixin for creating carets bubbles with a border */
+/* mixins for creating caret for customSelectBtn */
+/*  START SPINNER  */
+/* DEFAULT USAGE: add .hasSpinner classes (in app.less) to the elements that we want to have an overlay and spinner graphic on top of */
+/* Applies to Modals and other DIV elements: Apply this mixin selectively to other CSS properties to avoid duplication of CSS code */
+/* Just use .spinner() to apply spinner, or along with .overlay() to add overlay behind spinner and block the user interaction on the DIV */
+@-webkit-keyframes rotation {
+  from {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  to {
+    -webkit-transform: rotate(359deg);
+    transform: rotate(359deg);
+  }
+}
+@-moz-keyframes rotation {
+  from {
+    -moz-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  to {
+    -moz-transform: rotate(359deg);
+    transform: rotate(359deg);
+  }
+}
+@-o-keyframes rotation {
+  from {
+    -o-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  to {
+    -o-transform: rotate(359deg);
+    transform: rotate(359deg);
+  }
+}
+@keyframes rotation {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(359deg);
+  }
+}
+@-webkit-keyframes revrotation {
+  from {
+    -webkit-transform: rotate(0deg) scaleX(-1);
+    transform: rotate(0deg) scaleX(-1);
+  }
+  to {
+    -webkit-transform: rotate(359deg) scaleX(-1);
+    transform: rotate(359deg) scaleX(-1);
+  }
+}
+@-moz-keyframes revrotation {
+  from {
+    -moz-transform: rotate(0deg) scaleX(-1);
+    transform: rotate(0deg) scaleX(-1);
+  }
+  to {
+    -moz-transform: rotate(359deg) scaleX(-1);
+    transform: rotate(359deg) scaleX(-1);
+  }
+}
+@-o-keyframes revrotation {
+  from {
+    -o-transform: rotate(0deg) scaleX(-1);
+    transform: rotate(0deg) scaleX(-1);
+  }
+  to {
+    -o-transform: rotate(359deg) scaleX(-1);
+    transform: rotate(359deg) scaleX(-1);
+  }
+}
+@keyframes revrotation {
+  from {
+    transform: rotate(0deg) scaleX(-1);
+  }
+  to {
+    transform: rotate(359deg) scaleX(-1);
+  }
+}
+/*  END SPINNER  */
+/* mixin to create flat white button (iOS7 style) */
+.flatBtn {
+  border-left: 0;
+  border-right: 0;
+  border-bottom: 0;
+  background: #ffffff;
+  -moz-box-shadow: 0 1px 3px #cccccc;
+  -webkit-box-shadow: 0 1px 3px #cccccc;
+  box-shadow: 0 1px 3px #cccccc;
+  background-color: #faf9f9;
+  background-image: -moz-linear-gradient(top, #fffefe, #f3f2f2);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#fffefe), to(#f3f2f2));
+  background-image: -webkit-linear-gradient(top, #fffefe, #f3f2f2);
+  background-image: -o-linear-gradient(top, #fffefe, #f3f2f2);
+  background-image: linear-gradient(to bottom, #fffefe, #f3f2f2);
+  background-image: -webkit-linear-gradient(top, #fffefe 0%, #f3f2f2 100%);
+  background-image: -o-linear-gradient(top, #fffefe 0%, #f3f2f2 100%);
+  background-image: linear-gradient(to bottom, #fffefe 0%, #f3f2f2 100%);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fffffefe', endColorstr='#fff3f2f2', GradientType=0);
+}
+/**
+ * The following are just the overrides for TWBS
+ */
+/**
+ * DO NOT EDIT THIS FILE AS IT'S GENERATED CODE.
+ * UED: cgrigson, adustin, nvandewater
+ * UIE: jlowery
+ * Note: If modifications are needed, don't modify this file! Either override or make a PR to:
+ * https://github.paypal.com/jlowery/paypal-vxpattern-lib
+*/
+/* Icons */
+/* Z-index list */
+/* user for a bird's eye view of components based on z-axis */
+/* for example, if you want to put a button in header, just assign z-index of that button to @zindexHeader */
+/* these will overwrite the bootstrap pre defined variables */
+/* TODO: check the clean the non-needed modal styles in bootstrap */
+/* the same as bootstrap one, just overwrite */
+/* Setting for Sidepanel */
+/* This is not used by all side panels, only for the default one */
+/* what about larger phones like gs3? what about phablets like the note?
+/* responsive breakpoints */
+/* Navigation */
+/* Spinner */
+/**
+ * @fileOverview Styles for the transaction detail inline
+ * @name Transaction
+ * @author tsullivan
+ */
+/*
+* @name buttons
+* @description All defined button styles and states belong here, including any helper class button style options, like `vx_btn-secondary` or `vx_btn-medium` etc.
+*
+* @group elements
+*/
+@font-face {
+  font-family: 'consumer-icons';
+  src: url('https://www.paypalobjects.com/ui-web/iconfont-consumer/3-3-0/fonts/ConsumerIcons-Regular.eot');
+  src: url('https://www.paypalobjects.com/ui-web/iconfont-consumer/3-3-0/fonts/ConsumerIcons-Regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */ url('https://www.paypalobjects.com/ui-web/iconfont-consumer/3-3-0/fonts/ConsumerIcons-Regular.woff') format('woff'), /* Modern Browsers */ url('https://www.paypalobjects.com/ui-web/iconfont-consumer/3-3-0/fonts/ConsumerIcons-Regular.ttf') format('truetype'), /* Safari, Android, iOS */ url('https://www.paypalobjects.com/ui-web/iconfont-consumer/3-3-0/fonts/ConsumerIcons-Regular.svg#69ac2c9fc1e0803e59e06e93859bed03') format('svg');
+  font-style: normal;
+  font-weight: 400;
+  
+  /* IE9 Compat Modes */
+  /* Legacy iOS */
+}
+.vx_btn,
+.vx_btn-small,
+.vx_btn-medium {
+  display: inline-block;
+  min-width: 6rem;
+  padding: 0.75rem 1.5rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid #0070ba;
+  border-radius: 1.5rem;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  font-family: 'PayPal-Sans', sans-serif;
+  font-weight: 500;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  color: #ffffff;
+  background-color: #0070ba;
+  transition: all 250ms ease;
+  -webkit-font-smoothing: antialiased;
+}
+.vx_btn:visited,
+.vx_btn-small:visited,
+.vx_btn-medium:visited,
+.vx_btn:active,
+.vx_btn-small:active,
+.vx_btn-medium:active,
+.vx_btn:hover,
+.vx_btn-small:hover,
+.vx_btn-medium:hover,
+.vx_btn:focus,
+.vx_btn-small:focus,
+.vx_btn-medium:focus {
+  color: #ffffff;
+}
+.vx_btn:visited,
+.vx_btn-small:visited,
+.vx_btn-medium:visited {
+  text-decoration: none;
+}
+.vx_btn:hover,
+.vx_btn-small:hover,
+.vx_btn-medium:hover,
+.vx_btn:focus,
+.vx_btn-small:focus,
+.vx_btn-medium:focus {
+  background-color: #003087;
+  border: 1px solid #003087;
+  box-shadow: none;
+  text-decoration: none;
+}
+.vx_btn:focus,
+.vx_btn-small:focus,
+.vx_btn-medium:focus {
+  outline: none;
+  text-decoration: underline;
+}
+.vx_btn[disabled],
+.vx_btn-small[disabled],
+.vx_btn-medium[disabled],
+.vx_btn[disabled]:hover,
+.vx_btn-small[disabled]:hover,
+.vx_btn-medium[disabled]:hover,
+.vx_btn[disabled]:active,
+.vx_btn-small[disabled]:active,
+.vx_btn-medium[disabled]:active,
+.vx_btn.vx_is-disabled,
+.vx_btn-small.vx_is-disabled,
+.vx_btn-medium.vx_is-disabled,
+.vx_btn.vx_is-disabled:hover,
+.vx_btn-small.vx_is-disabled:hover,
+.vx_btn-medium.vx_is-disabled:hover,
+.vx_btn.vx_is-disabled:active,
+.vx_btn-small.vx_is-disabled:active,
+.vx_btn-medium.vx_is-disabled:active {
+  color: #cbd2d6;
+  background: #f5f6f8;
+  box-shadow: none;
+  border: 1px solid #cbd2d6;
+  text-decoration: none;
+  cursor: not-allowed;
+  outline: none;
+  -ms-transform: none;
+  -webkit-transform: none;
+  transform: none;
+}
+.vx_btn + .vx_btn,
+.vx_btn + .vx_btn-small,
+.vx_btn + .vx_btn-medium,
+.vx_btn-small + .vx_btn,
+.vx_btn-small + .vx_btn-small,
+.vx_btn-small + .vx_btn-medium,
+.vx_btn-medium + .vx_btn,
+.vx_btn-medium + .vx_btn-small,
+.vx_btn-medium + .vx_btn-medium {
+  margin-left: 0.75rem;
+}
+.vx_btn.vx_btn-block,
+.vx_btn-small.vx_btn-block,
+.vx_btn-medium.vx_btn-block {
+  margin-right: 0;
+  margin-left: 0;
+  width: 100%;
+}
+.vx_btn-secondary {
+  background-color: transparent;
+  border-color: #0070ba;
+  color: #0070ba;
+}
+.vx_btn-secondary:hover,
+.vx_btn-secondary:focus {
+  color: #003087;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-color: #003087;
+  box-shadow: 0 0 0 1px #003087 inset;
+}
+.vx_btn-secondary:visited {
+  text-decoration: none;
+  color: #0070ba;
+}
+.vx_btn_reversed {
+  border-color: #ffffff;
+  background-color: #ffffff;
+  color: #0070ba;
+}
+.vx_btn_reversed:hover,
+.vx_btn_reversed:focus {
+  background-color: #f0f0f0;
+  border-color: #f0f0f0;
+  color: #003087;
+}
+.vx_btn_reversed:visited {
+  color: #0070ba;
+}
+.vx_btn_reversed:visited:hover {
+  color: #003087;
+}
+.vx_btn-secondary_reversed {
+  background-color: transparent;
+  color: #ffffff;
+  border-color: #ffffff;
+}
+.vx_btn-secondary_reversed:hover,
+.vx_btn-secondary_reversed:focus {
+  background-color: rgba(0, 0, 0, 0.1);
+  color: #ffffff;
+  border-color: #ffffff;
+  box-shadow: 0 0 0 1px #ffffff inset;
+}
+.vx_btn-medium {
+  font-size: 0.8125rem;
+  line-height: 1.38461538;
+  min-width: 4.5rem;
+  padding: 0.5625rem 1.125rem;
+}
+.vx_btn-small {
+  font-size: 0.8125rem;
+  line-height: 1.36363636;
+  min-width: 3.75rem;
+  padding: 0.46875rem 0.9375rem;
+}
+.vx_btn-icon {
+  display: inline-block;
+  width: 1.5rem;
+  position: relative;
+  margin-right: 0.625rem;
+}
+.vx_btn-icon svg {
+  width: 1.5rem;
+  height: 1.5rem;
+  position: absolute;
+  top: -1.125rem;
+  left: 0;
+}
+.vx_btn-icon .svg-stroke {
+  stroke: #ffffff;
+}
+.vx_btn-icon .svg-fill {
+  fill: #ffffff;
+}
+.vx_btn-secondary .vx_btn-icon .svg-stroke {
+  stroke: #0070ba;
+}
+.vx_btn-secondary .vx_btn-icon .svg-fill {
+  fill: #0070ba;
+}
+.vx_btn-secondary:hover .vx_btn-icon .svg-stroke,
+.vx_btn-secondary:focus .vx_btn-icon .svg-stroke {
+  stroke: #003087;
+}
+.vx_btn-secondary:hover .vx_btn-icon .svg-fill,
+.vx_btn-secondary:focus .vx_btn-icon .svg-fill {
+  fill: #003087;
+}
+[disabled] .vx_btn-icon .svg-stroke,
+[disabled]:hover .vx_btn-icon .svg-stroke,
+[disabled]:active .vx_btn-icon .svg-stroke,
+.vx_is-disabled .vx_btn-icon .svg-stroke,
+.vx_is-disabled:hover .vx_btn-icon .svg-stroke,
+.vx_is-disabled:active .vx_btn-icon .svg-stroke {
+  stroke: #cbd2d6;
+}
+[disabled] .vx_btn-icon .svg-fill,
+[disabled]:hover .vx_btn-icon .svg-fill,
+[disabled]:active .vx_btn-icon .svg-fill,
+.vx_is-disabled .vx_btn-icon .svg-fill,
+.vx_is-disabled:hover .vx_btn-icon .svg-fill,
+.vx_is-disabled:active .vx_btn-icon .svg-fill {
+  fill: #cbd2d6;
+}
+.vx_btn-medium .vx_btn-icon {
+  width: 1.125rem;
+  margin-right: 0.5rem;
+}
+.vx_btn-medium .vx_btn-icon svg {
+  width: 1.125rem;
+  height: 1.125rem;
+  top: -0.8125rem;
+}
+.vx_btn-small .vx_btn-icon {
+  width: 1.10795454rem;
+  margin-right: 0.375rem;
+}
+.vx_btn-small .vx_btn-icon svg {
+  width: 1.10795454rem;
+  height: 1.10795454rem;
+  top: -0.75rem;
+}
+.vx_btn-group,
+.vx_btn-group_stacked {
+  text-align: center;
+}
+.vx_btn-group_stacked .vx_btn,
+.vx_btn-group_stacked .vx_btn-small,
+.vx_btn-group_stacked .vx_btn-medium {
+  display: table;
+  margin-left: auto;
+  margin-right: auto;
+}
+.vx_addBtn-primary,
+.vx_addBtn-secondary {
+  font-weight: 500;
+  font-size: 0.9375rem;
+  line-height: 1.5rem;
+  background: none;
+  border: none;
+  color: #0070ba;
+  padding-left: 0.125rem;
+}
+.vx_addBtn-primary:before,
+.vx_addBtn-secondary:before {
+  content: "\e004";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-family: 'consumer-icons';
+  line-height: 0;
+  font-size: 1.25rem;
+}
+.vx_addBtn-primary:hover,
+.vx_addBtn-secondary:hover {
+  color: #005ea6;
+  text-decoration: none;
+}
+.vx_addBtn-primary:before {
+  color: #ffffff;
+  background: #0070ba;
+  border-radius: 100%;
+  padding: 0 5px 3px;
+  box-shadow: 0 1px 2px #2c2e2f;
+  margin-right: 12px;
+}
+.vx_addBtn-secondary:before {
+  margin-right: 5px;
+}
+.vx_backBtn {
+  background: none;
+  border: none;
+  color: #0070ba;
+  font-weight: normal;
+  padding: 0;
+}
+.vx_backBtn:focus,
+.vx_backBtn:active,
+.vx_backBtn:hover {
+  color: #005ea6;
+  text-decoration: none;
+}
+.vx_backBtn:focus span,
+.vx_backBtn:active span,
+.vx_backBtn:hover span {
+  text-decoration: underline;
+}
+.vx_backBtn:before {
+  font-family: 'consumer-icons';
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  content: '\2190';
+  display: inline;
+  font-size: 1.5em;
+  vertical-align: -0.1em;
+  padding-right: 0.1em;
+}
+.vx_btn-twoUp .vx_btn {
+  display: inline-block;
+  width: 48%;
+  margin-left: 0;
+  margin-right: 0;
+}
+.vx_btn-twoUp .vx_btn:first-of-type {
+  margin-right: 1.5%;
+}
+.vx_btn-twoUp .vx_btn:last-of-type {
+  margin-left: 1.5%;
+}
+@media (max-width: 768px) {
+  .vx_blocks-for-mobile .vx_btn {
+    display: block;
+    width: 100%;
+  }
+  .vx_blocks-for-mobile .vx_btn + .vx_btn {
+    margin: 5px 0 0;
+  }
+}
+.vx_btn-link {
+  background: none;
+  border: none;
+  color: #0070ba;
+  font-weight: 500;
+  padding: 0;
+}
+.vx_btn-link:hover {
+  color: #005ea6;
+  text-decoration: underline;
+}
+.vx_tag,
+.vx_tag-pending,
+.vx_tag-warning,
+.vx_tag-critical,
+.vx_tag-success {
+  display: inline-block;
+  height: 0.8125rem;
+  line-height: 0.625rem;
+  padding: 0 0.1875rem 0.0625rem 0.1875rem;
+  border-radius: 3px;
+  font-size: 0.625rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  border: 1px solid #2c2e2f;
+  color: #2c2e2f;
+}
+.vx_tag-pending {
+  border: 1px solid #640487;
+  color: #640487;
+}
+.vx_tag-warning {
+  border: 1px solid #d64003;
+  color: #d64003;
+}
+.vx_tag-critical {
+  border: 1px solid #d20000;
+  color: #d20000;
+}
+.vx_tag-success {
+  border: 1px solid #018065;
+  color: #018065;
+}
+/**
+ * @fileOverview Shared styles for the transaction detail and summary installment detail
+ * @name sharedPanel
+ * @author tsullivan hkori
+ */
+.highlightTransactionRow,
+.highlightTransactionPanel,
+.highlightInstallmentRow,
+.highlightInstallmentPanel {
+  border-left: 4px solid #009cde;
+  margin-left: -4px;
+}
+.highlightTransactionPanel,
+.highlightInstallmentPanel {
+  background-color: #ffffff;
+  border-left-color: #50c7f9;
+  border-top: 1px solid #cbd2d6;
+  border-right: 1px solid #cbd2d6;
+  border-bottom: 1px solid #cbd2d6;
+  /* animation helper for cool slide-down of the transaction details panel */
+}
+.highlightTransactionPanel.panel-transition,
+.highlightInstallmentPanel.panel-transition {
+  -moz-transition: height 0.5s ease;
+  -ms-transition: height 0.5s ease;
+  -webkit-transition: height 0.5s ease;
+  -o-transition: height 0.5s ease;
+  transition: height 0.5s ease;
+  overflow: hidden;
+}
+.inlineTransactionDetails .icon-close-small.colorDefault,
+.installmentPanel-container .icon-close-small.colorDefault {
+  color: #2c2e2f;
+}
+.inlineTransactionDetails .closeIcon-container,
+.installmentPanel-container .closeIcon-container {
+  float: right;
+  margin-right: 1.4em;
+  width: 1.5em;
+}
+.inlineTransactionDetails .closeIcon-container a:hover,
+.installmentPanel-container .closeIcon-container a:hover {
+  text-decoration: none;
+}
+@media (max-width: 768px) {
+  .inlineTransactionDetails .closeIcon-container,
+  .installmentPanel-container .closeIcon-container {
+    margin-top: 0.5em;
+    margin-right: 0.5em;
+  }
+}
+@media (max-width: 768px) {
+  .inlineTransactionDetails,
+  .installmentPanel-container {
+    padding: 1em;
+  }
+}
+.fullpageTransactionDetails,
+.inlineTransactionDetails {
+  max-width: 1024px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.fullpageTransactionDetails .col-sm-offset-1,
+.inlineTransactionDetails .col-sm-offset-1 {
+  margin-left: 9%;
+}
+.fullpageTransactionDetails .col-sm-5,
+.inlineTransactionDetails .col-sm-5 {
+  width: 41%;
+}
+@media (max-width: 768px) {
+  .fullpageTransactionDetails .col-sm-5.mobileTransactionDetails,
+  .inlineTransactionDetails .col-sm-5.mobileTransactionDetails {
+    width: 91%;
+    margin-left: 9%;
+  }
+}
+@media (max-width: 768px) {
+  .fullpageTransactionDetails .resCenterResponsive,
+  .inlineTransactionDetails .resCenterResponsive {
+    width: 100%;
+  }
+}
+.fullpageTransactionDetails .reportProblemResponsive,
+.inlineTransactionDetails .reportProblemResponsive {
+  margin-left: 9%;
+}
+@media (max-width: 768px) {
+  .fullpageTransactionDetails .reportProblemResponsive,
+  .inlineTransactionDetails .reportProblemResponsive {
+    width: 91%;
+    margin-left: 0%;
+  }
+}
+.fullpageTransactionDetails.fullpageError,
+.inlineTransactionDetails.fullpageError {
+  max-width: none;
+}
+.fullpageTransactionDetails dl,
+.inlineTransactionDetails dl {
+  margin-top: 0;
+  margin-bottom: 15px;
+}
+.fullpageTransactionDetails dl:empty,
+.inlineTransactionDetails dl:empty {
+  margin-bottom: auto;
+}
+.fullpageTransactionDetails dt,
+.inlineTransactionDetails dt {
+  font-weight: 500;
+}
+.fullpageTransactionDetails dd,
+.inlineTransactionDetails dd {
+  word-wrap: break-word;
+  margin-left: 0;
+}
+.fullpageTransactionDetails footer,
+.inlineTransactionDetails footer {
+  padding-top: 1.5em;
+  padding-bottom: 4.5em;
+  border-top: 1px solid #eeeeee;
+}
+.fullpageTransactionDetails footer dl,
+.inlineTransactionDetails footer dl {
+  margin-bottom: 0;
+}
+.fullpageTransactionDetails footer ul,
+.inlineTransactionDetails footer ul {
+  margin-top: 1.4em;
+  list-style: none;
+}
+@media (max-width: 768px) {
+  .fullpageTransactionDetails footer,
+  .inlineTransactionDetails footer {
+    padding-top: 1em;
+  }
+}
+.fullpageTransactionDetails p,
+.inlineTransactionDetails p,
+.fullpageTransactionDetails .tdStatusInfo,
+.inlineTransactionDetails .tdStatusInfo {
+  margin-bottom: 25px;
+}
+.fullpageTransactionDetails .lineBreak,
+.inlineTransactionDetails .lineBreak {
+  padding-bottom: 1em;
+}
+.fullpageTransactionDetails .numeral,
+.inlineTransactionDetails .numeral {
+  /*! @noflip */
+  direction: ltr;
+  white-space: nowrap;
+}
+.fullpageTransactionDetails .smallGray,
+.inlineTransactionDetails .smallGray {
+  color: #2c2e2f;
+}
+.fullpageTransactionDetails .icon-small,
+.inlineTransactionDetails .icon-small {
+  color: #cbd2d6;
+  background: #ffffff;
+}
+.fullpageTransactionDetails .small-red,
+.inlineTransactionDetails .small-red {
+  color: #c72b2d;
+  background: #ffffff;
+}
+.fullpageTransactionDetails .vx_small-text .icon-small:before,
+.inlineTransactionDetails .vx_small-text .icon-small:before {
+  font-size: 1.4rem;
+}
+.fullpageTransactionDetails .marginTopContent,
+.inlineTransactionDetails .marginTopContent {
+  margin-top: 30px;
+}
+.fullpageTransactionDetails .italic,
+.inlineTransactionDetails .italic {
+  font-style: italic;
+}
+.fullpageTransactionDetails {
+  padding: 1em;
+  background-color: #ffffff;
+}
+.fullpageTransactionDetails .transactionDate {
+  margin-bottom: 0.25em;
+  font-weight: bold;
+}
+.fullpageTransactionDetails .breadcrumb,
+.fullpageTransactionDetails .transactionTopLevel {
+  padding-top: 1em;
+  padding-bottom: 1em;
+}
+.fullpageTransactionDetails .breadcrumb .icon {
+  color: #009cde;
+  vertical-align: sub;
+}
+.fullpageTransactionDetails .transactionTopLevel {
+  margin-bottom: 1.5em;
+  border-bottom: 1px solid #f5f7fa;
+}
+.fullpageTransactionDetails a.icon:hover {
+  text-decoration: none;
+}
+.fullpageTransactionDetails .transactionNetAmount {
+  float: right;
+  position: relative;
+  top: -1.25em;
+}
+@media (max-width: 479px) {
+  .fullpageTransactionDetails .transactionNetAmount {
+    width: 40%;
+    text-align: right;
+  }
+}
+@media (max-width: 479px) {
+  .fullpageTransactionDetails .transactionCounterparty {
+    width: 60%;
+  }
+}
+.fullpageTransactionDetails .isCurrencyConversion {
+  display: inline-block;
+  text-indent: 200%;
+  white-space: nowrap;
+  overflow: hidden;
+  height: 11px;
+  width: 13px;
+  padding-bottom: 1px;
+  background-repeat: no-repeat;
+  background-clip: content-box;
+  background-image: url(https://www.paypalobjects.com/webstatic/i/sprite/sprite_summary.png);
+  background-position: -316px 0;
+}
+.fullpageTransactionDetails .isCanceled {
+  text-decoration: line-through;
+}
+@media (max-width: 768px) {
+  .fullpageTransactionDetails .breadcrumb {
+    border-bottom: 1px solid #eeeeee;
+  }
+}
+@media print {
+  .fullpageTransactionDetails .transactionTopLevel {
+    padding-top: 6mm;
+    padding-bottom: 7mm;
+    border-color: #2c2e2f;
+  }
+  .fullpageTransactionDetails footer {
+    padding-top: 6mm;
+    border-color: #2c2e2f;
+  }
+  .fullpageTransactionDetails .row .halfColForPrint {
+    float: left;
+    margin-left: 0;
+    width: 48.5%;
+  }
+  .fullpageTransactionDetails .row .thirdOfColForPrint {
+    float: left;
+    margin-left: 0;
+    width: 32.3%;
+  }
+  .fullpageTransactionDetails .row .fullColForPrint {
+    float: none;
+    margin-left: 0;
+    width: 97%;
+  }
+}
+.inlineTransactionDetails {
+  margin-top: 25px;
+}
+.inlineTransactionDetails .closeIcon-container {
+  margin-top: -2px;
+}
+.inlineTransactionDetails .closeIcon-container:active {
+  text-decoration: none;
+}
+.inlineTransactionDetails-closeIcon {
+  display: inline-block;
+  padding-top: 4px;
+  margin-top: -4px;
+  text-decoration: none !important;
+}
+.tdActionButton {
+  display: block;
+  margin-right: 50%;
+}
+@media (max-width: 768px) {
+  .tdActionButton {
+    margin-right: 0;
+  }
+}
+.tdPurchaseDetails .item {
+  margin-bottom: 20px;
+}
+.tdPurchaseDetails .numeral {
+  /*! @noflip */
+  text-align: right;
+}
+.tdPurchaseDetails .primary {
+  margin-top: 5px;
+  font-weight: 500;
+}
+.tdPurchaseDetails .purchaseDetailFields {
+  padding-top: 1em;
+}
+.phoneNumberSpace {
+  margin-left: 19px;
+}
+.exchangeRate {
+  unicode-bidi: embed;
+  direction: rtl;
+}
+.tdDetailFieldsMain {
+  margin-top: 3px;
+  padding-top: 0.6em;
+  border-top: 1px solid #6c7378;
+}
+.tdRefundDetails .numeral {
+  /*! @noflip */
+  text-align: right;
+}
+.tdRefundDetails .primary {
+  margin-top: 5px;
+  font-weight: bold;
+}
+.tdFreeReturnShippingStackedLink {
+  margin-top: 4px;
+}
+.tdResCenterLinks li,
+.tdFreeReturnShippingLink li {
+  margin-bottom: 10px;
+  min-height: 1.4em;
+}
+.resCenterLinksPad {
+  margin-left: 0px;
+}
+.tdRefundLink .icon,
+.tdPrintLink .icon,
+.tdResCenterLinks .icon,
+.tdFreeReturnShippingLink .icon,
+.tdRefundLink .iconifiedText,
+.tdPrintLink .iconifiedText,
+.tdResCenterLinks .iconifiedText,
+.tdFreeReturnShippingLink .iconifiedText,
+.tdRefundLink a,
+.tdPrintLink a,
+.tdResCenterLinks a,
+.tdFreeReturnShippingLink a {
+  display: inline;
+}
+.tdRefundLink .icon,
+.tdPrintLink .icon,
+.tdResCenterLinks .icon,
+.tdFreeReturnShippingLink .icon {
+  line-height: 0.6em;
+}
+.tdRefundLink a,
+.tdPrintLink a,
+.tdResCenterLinks a,
+.tdFreeReturnShippingLink a,
+.tdRefundLink .iconifiedText,
+.tdPrintLink .iconifiedText,
+.tdResCenterLinks .iconifiedText,
+.tdFreeReturnShippingLink .iconifiedText {
+  margin-left: 10px;
+}
+.tdStatusInfo-icon,
+.action_status-info-icon,
+.tdStatusInfo-message,
+.action_status-info-msg {
+  display: table-cell;
+}
+.tdStatusInfo-icon,
+.action_status-info-icon {
+  width: 2.8em;
+}
+.frs_claim-info {
+  padding: 0;
+}
+.frs_claim-info:before {
+  padding-right: 5px;
+  margin-left: -3px;
+}
+.tdInlineList {
+  margin: 0 0 15px 0;
+  padding: 0;
+}
+.tdInlineList li {
+  list-style: none;
+  font-size: inherit;
+  padding-right: 0.5em;
+}
+.tdInlineList li:first-child {
+  padding-left: 0;
+}
+.tdInlineList li:after {
+  content: '';
+  display: inline-block;
+  padding-left: 0.5em;
+  vertical-align: middle;
+  height: 0.9em;
+}
+.tdInlineList li:last-child:after {
+  border: none;
+}
+.tdInlineList:after {
+  content: '';
+  display: block;
+  clear: left;
+}
+.tdRequestFRS {
+  margin-bottom: 5px;
+}
+.tdFRSModule {
+  margin-bottom: 21px;
+}
+.tdNoteText {
+  word-wrap: break-word;
+}
+.tdPosReturnPolicy {
+  margin-top: 1.5em;
+  padding-top: 1.5em;
+  border-top: 1px solid #eeeeee;
+}
+/* Error messages, when transaction could not be loaded */
+.tdInlineError .icon-critical-small {
+  color: #c72b2d;
+}
+/* fullScreenDialog customizations, for error scenario */
+/* in the smartphone experience, this is a server-side rendered overpanel */
+.tdErrorDialog .icon {
+  margin-top: 8px;
+  font-size: 90px;
+}
+.tdErrorDialog.notoverpanel {
+  margin-top: 80px;
+  /* top padding for non-smartphone fullpage */
+}
+.tdErrorDialog h2 {
+  margin-top: 0.7em;
+  margin-bottom: 10px;
+}
+.tdActions .vx_small-text .icon-small:before {
+  font-size: 1.4rem;
+}
+.tdActions .action-content {
+  margin-left: -8px;
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+.tdActions .action-message_display {
+  display: inline;
+}
+.tdActions .action-notification {
+  padding: 10px 15px 5px 44px;
+  text-align: left;
+  background: url(https://www.paypalobjects.com/images/shared/icon_alert_sprite-2x.png) no-repeat;
+  background-size: 20px;
+}
+.tdActions .action-notification_critical {
+  background-position: left 12px top -391px;
+}
+.tdActions .action-notification_success {
+  background-position: left 12px top 11px;
+}
+.tdActions .add_bank-message {
+  padding-left: 45px;
+  margin-top: -15px;
+}
+.tdActions .action-currencyIcon {
+  cursor: default;
+  display: table-cell;
+  width: 42px;
+  text-align: center;
+  font-weight: bold;
+  color: #9da3a6;
+  border-radius: 5px 0 0 5px;
+  font-family: inherit;
+  vertical-align: middle;
+}
+.tdActions .action-button {
+  white-space: nowrap;
+  margin-bottom: 5px;
+  margin-top: 5px;
+  height: 42px;
+  min-width: 200px;
+}
+@media (max-width: 768px) {
+  .tdActions .action-button {
+    width: 100%;
+  }
+}
+.tdActions .accept-txn_currency {
+  color: #0070ba;
+  border-color: #0070ba;
+}
+.tdActions .action-input {
+  margin-bottom: 15px;
+}
+.tdActions .action-separator {
+  border: 0;
+  height: 1px;
+  background: #6c7378;
+  margin: 15px 0 20px 0;
+}
+@media (max-width: 768px) {
+  .tdActions .cross-currency-actions .vx_btn + .vx_btn {
+    margin-left: 0;
+  }
+}
+.giftIcon {
+  color: #0070ba;
+  margin-right: 5px;
+  position: relative;
+  top: -1px;
+}
+.gift:hover {
+  text-decoration: none;
+}
+.gift .giftTheme-image {
+  margin: 15px 0 15px 0;
+  display: block;
+  width: 80%;
+  text-align: center;
+  height: 65px;
+  cursor: pointer;
+  background-size: cover;
+  background-position: center;
+  border: none;
+  border-radius: 5px;
+  color: #ffffff;
+  padding: 22px;
+  transition: transfrom 200ms ease;
+  -webkit-transition: transfrom 200ms ease;
+}
+.confirmReceiptBtn {
+  margin-top: 15px;
+}
+/* don't show spinner for input type number */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+/* CSS for ETA Progress Bar */
+.eta {
+  width: 90%;
+  padding: 10px 10px 30px;
+}
+.progress__container {
+  width: 100%;
+  background-color: #ccd2d6;
+  border-radius: 5px;
+  overflow-x: hidden;
+}
+.progress__bar {
+  height: 6px;
+  background-color: #299976;
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+  display: inline-block;
+}
+.progress__bar--failure {
+  background-color: #595959;
+}
+.progress {
+  position: relative;
+}
+.step {
+  position: relative;
+  display: inline-block;
+  top: 10px;
+  text-align: center;
+}
+.step--first {
+  left: 0%;
+  transform: none;
+  text-align: left;
+  padding-left: 0;
+}
+.step--last {
+  right: 0%;
+  transform: none;
+  text-align: right;
+  padding-right: 0;
+}
+.step__indicator {
+  position: relative;
+  left: -2px;
+  height: 30px;
+  width: 2px;
+  background-color: #cbd2d6;
+  display: inline-block;
+  margin-right: 3px;
+  vertical-align: top;
+}
+.step__indicator--first,
+.step__indicator--last {
+  margin-right: 0;
+}
+.step__indicator--first,
+.step__indicator--last {
+  visibility: collapse;
+}
+.step__content {
+  display: inline-block;
+  margin-top: 10px;
+}
+.step__title {
+  font-size: 14px;
+  word-break: break-word;
+}
+.step__dates {
+  font-size: 12px;
+}
+.step__date {
+  text-decoration: line-through;
+  color: rgba(0, 0, 0, 0.56);
+}
+.step__date:first-child {
+  text-decoration: none;
+}
+.step__title--status-icon {
+  font-size: 13px;
+  font-weight: bold;
+  border-radius: 14px;
+  padding: 8px 3.75px;
+  position: absolute;
+  height: 20px;
+  width: 20px;
+  top: -22.5px;
+  left: 50%;
+  color: #cbd2d6;
+  background-color: #cbd2d6;
+  transform: translate(-50%, 0);
+}
+.step__title--status-icon-completed {
+  color: white;
+  background-color: #299976;
+}
+.step__title--status-icon-completed-failure {
+  color: white;
+  background-color: #595959;
+}
+.step__title--status-icon--first {
+  left: -2px;
+  transform: none;
+}
+.step__title--status-icon--last {
+  left: auto;
+  right: -2px;
+  transform: none;
+}
+.refund-header-desktop {
+  width: 256px;
+  height: 24px;
+  font-size: 13px;
+  font-weight: 500;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: 1.85;
+  letter-spacing: 0.2px;
+  color: #000000;
+  margin-bottom: 15px;
+}
+.eta-non-desktop {
+  padding: 0 1%;
+}
+.progressbar-vertical {
+  position: relative;
+  list-style: none;
+  margin-left: 40px;
+}
+.progressbar-vertical__item {
+  position: relative;
+  counter-increment: list;
+  padding-bottom: 20px;
+}
+.progressbar-vertical__item-circle {
+  font-size: 13px;
+  font-weight: bold;
+  border-radius: 14px;
+  padding: 8px 4px;
+  position: absolute;
+  height: 20px;
+  width: 20px;
+  border: 1px solid #cbd2d6;
+  background-color: #FFF;
+  color: #fff;
+  transform: translate(-50%, 0);
+  top: 2px;
+  left: -31px;
+  z-index: 1;
+}
+.progressbar-vertical__item-circle--completed {
+  color: white;
+  background-color: #299976;
+  border: none;
+}
+.progressbar-vertical__item-circle--failure {
+  color: white;
+  background-color: #595959;
+  border: none;
+}
+.progressbar-vertical__item-bar {
+  position: absolute;
+  height: 100%;
+  width: 1px;
+  background-color: #cbd2d6;
+  top: 0;
+  left: -31.5px;
+  transform: translate(0, 10px);
+}
+.progressbar-vertical__item-bar-progress--completed {
+  background-color: #299976;
+  border: none;
+  padding: 8px 0px;
+}
+.progressbar-vertical__item-bar-progress--failure {
+  background-color: #595959;
+}
+.progressbar-vertical__item-bar--last {
+  transform: translate(0, 20px);
+}
+.progressbar-vertical strong {
+  display: block;
+}
+.refund-header-non-desktop {
+  margin-bottom: 10px;
+}
+/* Progress bar CSS ends */
+.tdGetYourMoneyLink {
+  margin-left: 0 !important;
+}
+.detailedTable-transactionItem_actions a {
+  display: inline-block;
+  margin: 0;
+  padding: 0 0.82em 0 0.4em;
+  border-right: 1px solid #2c2e2f;
+  white-space: nowrap;
+}
+.detailedTable-transactionItem_actions a:first-of-type {
+  padding-left: 0.2em;
+}
+.detailedTable-transactionItem_actions a:last-of-type {
+  border-right: none;
+}
+/* Inline actions */
+.transactionDetailsContainer .action,
+.detailedTable-transactionItem_actions .action,
+.transactionDetailsContainer .action-highlight,
+.detailedTable-transactionItem_actions .action-highlight {
+  margin-bottom: 0.5em;
+  margin-left: -0.25em;
+}
+.transactionDetailsContainer .action .icon,
+.detailedTable-transactionItem_actions .action .icon,
+.transactionDetailsContainer .action-highlight .icon,
+.detailedTable-transactionItem_actions .action-highlight .icon {
+  color: #9da3a6;
+}
+.transactionDetailsContainer .action a,
+.detailedTable-transactionItem_actions .action a,
+.transactionDetailsContainer .action-highlight a,
+.detailedTable-transactionItem_actions .action-highlight a {
+  display: inline-block;
+  margin: 0;
+  padding: 0 0.82em 0 0.4em;
+  border-right: 1px solid #2c2e2f;
+  white-space: nowrap;
+}
+.transactionDetailsContainer .action a:first-of-type,
+.detailedTable-transactionItem_actions .action a:first-of-type,
+.transactionDetailsContainer .action-highlight a:first-of-type,
+.detailedTable-transactionItem_actions .action-highlight a:first-of-type {
+  padding-left: 0.2em;
+}
+.transactionDetailsContainer .action a:last-of-type,
+.detailedTable-transactionItem_actions .action a:last-of-type,
+.transactionDetailsContainer .action-highlight a:last-of-type,
+.detailedTable-transactionItem_actions .action-highlight a:last-of-type {
+  border-right: none;
+}
+.transactionDetailsContainer .action-highlight .icon,
+.detailedTable-transactionItem_actions .action-highlight .icon {
+  color: #ff9600;
+}
+.report-problem-no-left-margin {
+  margin-left: 0;
+}
+.report-problem-link {
+  margin-left: 10px;
+}
+.action,
+.action-highlight {
+  margin-top: 5px;
+}
+.action a.button-experiment,
+.action-highlight a.button-experiment {
+  border: 1px solid #0070ba !important;
+  border-radius: 50px !important;
+  padding: 2px 10px !important;
+  margin-right: 5px !important;
+  margin-top: 16px !important;
+  height: 30px;
+  display: inline-block;
+}
+.action svg,
+.action-highlight svg {
+  vertical-align: middle;
+  margin-bottom: 2px;
+  margin-right: 2px;
+  height: 20px;
+  width: 20px;
+}
+.action a.button-experiment:hover,
+.action-highlight a.button-experiment:hover {
+  color: #003087 !important;
+  box-shadow: 0 0 0 1px #003087 !important;
+  border-color: #003087 !important;
+  text-decoration: none !important;
+}

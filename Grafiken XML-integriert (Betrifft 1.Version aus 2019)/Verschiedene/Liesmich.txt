@@ -1,0 +1,14 @@
+Alle Bilder und Grafiken im Ordner "Verschiedene" werden vom MahjongHilfsprogramm/Start_Verschiedene ausgelesen.
+Der Inhalt von Output.XML wird gelöscht. 
+
+Für die Bilder wird eine "ImagesVerschiedene.xml" erzeugt, die alle Bilder als Base64-String enthält.
+
+
+Die Klasse ImagesVerschiedene.vb erzeugt, über die auf alle Bilder zugegriffen werden kann. Die Readonly Property's heißen "Bildname_Endung". (Weshalb die Dateinamen, abgesehen von dem Punkt, nach den Regeln der Property-Namen in VB erstellt benannt werden müssen.)
+
+Die Dateien werden in das Projektverzeichnis\Images hineinkopiert. Erstmals durch die (Rechtsklick auf das Verzeichnis "Images" im Projektmappen-Explorer) Funktion "Hinzfügen/vorhandenes Element"
+Bei Updates ist es am einfachsten, wenn man sie einfach in das Verzeichnis hineinkopiert, aber nur, wenn das Projekt nicht geladen ist.
+
+Die XML-Dateien müssen das Attibut: "In Ausgabeverzeichnis kopieren wenn neuer" bekommen. 
+
+ 

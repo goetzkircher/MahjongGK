@@ -1,0 +1,15 @@
+Der mit dem Programm:
+
+C:\Users\Götz\Documents\Computer\07 - weitere Programme setupfrei (z.T. direkt verlinkt)\RealWorld Cursor Editor 2013.1\RWCursorEditor\RWCursorEditor.exe
+
+erzeugte Cursor ergibt einen komplett shwarzen Cursor in den Umrissen des Erzeugten.
+
+Eine Umwandlung in eine Png über die Webseite:
+
+https://convertio.co/de/image-converter/
+
+und eine anschließende Rückwandlung, auch über die Seite, ergab einen funktionierenden Cursor.
+
+MahjongGK_cur.cur und
+Cursor01a-CurToPngToCur.cur
+sind identisch.

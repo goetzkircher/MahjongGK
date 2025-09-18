@@ -1,0 +1,88 @@
+'Die X- und Y-Koordinaten sowie die Dateinamen zum Zerschneiden
+'der Datei Mahjongsymbole-V1-6000x6000.png
+'
+'
+'Aufbau:
+'Y | X | Dateiname (Beginnend mit Indexnummer,
+'der Rest ist für das Programm ohne Bedeutung.)
+'Es sind ingesamt 42 Symbole mit den Indexnummern 1 bis 42
+'(Index 0 bedeutet: unbelegt/kein Symbol)
+'
+'
+'Private ReadOnly m_iHeight As Integer = 683
+'Private ReadOnly m_iWidth As Integer = 544
+'Private ReadOnly m_iLeftKorrektur As Integer = 1
+'Private ReadOnly m_iTopKorrektur As Integer = 1
+'Private ReadOnly m_iHeightKorrektur As Integer = -2
+'Private ReadOnly m_iWidthKorrektur As Integer = -2
+
+''Hintergrundfarbe pur: 184, 224, 182
+'Private ReadOnly m_bRotVon As Byte = 180
+'Private ReadOnly m_bRotBis As Byte = 220
+'Private ReadOnly m_bGrünVon As Byte = 210
+'Private ReadOnly m_bGrünBis As Byte = 235
+'Private ReadOnly m_bBlauVon As Byte = 180
+'Private ReadOnly m_bBlauBis As Byte = 205
+'Private ReadOnly m_bAlphaNeu As Byte = 0
+'Private ReadOnly m_bRotNeu As Byte = 1
+'Private ReadOnly m_bGrünNeu As Byte = 1
+'Private ReadOnly m_bBlauNeu As Byte = 1
+'
+'Dummy (um Index 0 in den ImageList-Container zu belegen)
+3808,5136,00-Dummy.png
+'
+'Punkte
+637,224,01-Punkt1.png
+637,838,02-Punkt2.png
+637,1452,03-Punkt3.png
+637,2066,04-Punkt4.png
+637,2680,05-Punkt5.png
+637,3294,06-Punkt6.png
+637,3908,07-Punkt7.png
+637,4522,08-Punkt8.png
+637,5136,09-Punkt9.png
+'
+'Bambus
+1618,225,10-Bambus1.png
+1618,839,11-Bambus2.png
+1618,1453,12-Bambus3.png
+1618,2067,13-Bambus4.png
+1618,2681,14-Bambus5.png
+1618,3295,15-Bambus6.png
+1618,3908,16-Bambus7.png
+1618,4522,17-Bambus8.png
+1618,5136,18-Bambus9.png
+'
+'Symbole
+2618,225,19-Symbol1.png
+2618,839,20-Symbol2.png
+2618,1453,21-Symbol3.png
+2618,2067,22-Symbol4.png
+2618,2681,23-Symbol5.png
+2618,3295,24-Symbol6.png
+2618,3909,25-Symbol7.png
+2618,4523,26-Symbol8.png
+2618,5137,27-Symbol9.png
+'
+'Winde
+3791,226,28-Ostwind.png
+3791,840,29-Südwind.png
+3791,1454,30-Westwind.png
+3791,2068,31-Nordwind.png
+'
+'Drachen
+3809,3288,32-RoterDrachen.png
+3809,3887,33-GrünerDrachen.png
+3809,4508,34-WeißerDrachen.png
+'
+'Blumen
+5010,230,35-Pflaume.png
+5010,844,36-Orchidee.png
+5010,1458,37-Chrysantheme.png
+5010,2072,38-Bambus.png
+'
+'Jahreszeiten
+5014,3295,39-Frühling.png
+5014,3910,40-Sommer.png
+5014,4523,41-Herbst.png
+5014,5137,42-Winter.png
