@@ -80,9 +80,13 @@ Public Class frmMain
 
     Private Sub Test1(value As Boolean)
 
-        Using frm As New FrmBackgroundSelector("C:\Users\goetz\Downloads\Vivaldi")
-            frm.ShowDialog()
-        End Using
+        Dim c As New ColorPickerHSB
+        c.ShowDialog()
+
+
+        'Using frm As New FrmBackgroundSelector("C:\Users\goetz\Downloads\Vivaldi")
+        '    frm.ShowDialog()
+        'End Using
     End Sub
 
     Private Sub Test2()

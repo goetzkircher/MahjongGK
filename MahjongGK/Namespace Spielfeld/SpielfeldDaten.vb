@@ -55,7 +55,7 @@ Namespace Spielfeld
         ''' aber mit einer Fehlermeldung direkt auf dem Bildschirm
         ''' </summary>
         Public Property AktSpielfeldInfo As SpielfeldInfo = Nothing
-        Public Property PlayerSpielfeldInfo As SpielfeldInfo = Nothing
+        Public Property SpielerSpielfeldInfo As SpielfeldInfo = Nothing
         Public Property EditorSpielfeldInfo As SpielfeldInfo = Nothing
         Public Property WerkbankSpielfeldInfo As SpielfeldInfo = Nothing
 

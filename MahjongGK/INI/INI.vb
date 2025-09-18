@@ -1967,76 +1967,6 @@ Public Module INI
         End Set
     End Property
 
-    Public Property Toolbox_HGrdSpfldColor As Color
-        Get
-            Dim [Default] As Color = Color.Empty
-            'alternativ
-            'Dim [Default] As Color = IniManager.CvtHexStringToColor("FF000000")
-            Dim comment As String = Nothing
-            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-        End Get
-        Set(value As Color)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
-        End Set
-    End Property
-    '
-    Public Property Toolbox_HGrdEditorColor As Color
-        Get
-            Dim [Default] As Color = Color.Empty
-            'alternativ
-            'Dim [Default] As Color = IniManager.CvtHexStringToColor("FF000000")
-            Dim comment As String = Nothing
-            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-        End Get
-        Set(value As Color)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
-        End Set
-    End Property
-
-    Public Property Toolbox_HGrdSpfldBitmap As String
-        Get
-            Dim [Default] As String = Nothing
-            Dim comment As String = Nothing
-            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-        End Get
-        Set(value As String)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
-        End Set
-    End Property
-
-    Public Property Toolbox_HGrdEditorBitmap As String
-        Get
-            Dim [Default] As String = Nothing
-            Dim comment As String = Nothing
-            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-        End Get
-        Set(value As String)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
-        End Set
-    End Property
-
-    Public Property Toolbox_HGrdSpfldBitmapIsUserGrafik As Boolean
-        Get
-            Dim [Default] As Boolean = False
-            Dim comment As String = Nothing
-            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-        End Get
-        Set(value As Boolean)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
-        End Set
-    End Property
-
-    Public Property Toolbox_HGrdEditorBitmapIsUserGrafik As Boolean
-        Get
-            Dim [Default] As Boolean = False
-            Dim comment As String = Nothing
-            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-        End Get
-        Set(value As Boolean)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
-        End Set
-    End Property
-
     Public Property Toolbox_HGrdSpfldColorFallback As Color
         Get
             Dim [Default] As Color = Color.Empty
@@ -2063,7 +1993,7 @@ Public Module INI
         End Set
     End Property
 
-    Public Property Toolbox_HGrdSpfldBitmapFallback As String
+    Public Property Toolbox_HGrdSpfldBitmapNameFallback As String
         Get
             Dim [Default] As String = Nothing
             Dim comment As String = Nothing
@@ -2074,7 +2004,7 @@ Public Module INI
         End Set
     End Property
 
-    Public Property Toolbox_HGrdEditorBitmapFallback As String
+    Public Property Toolbox_HGrdEditorBitmapNameFallback As String
         Get
             Dim [Default] As String = Nothing
             Dim comment As String = Nothing
@@ -2107,7 +2037,7 @@ Public Module INI
         End Set
     End Property
 
-    Public Property Toolbox_HGrdEditorUseSpfldEinstlg As Boolean
+    Public Property Toolbox_HGrdEditorUseSpfldValues As Boolean
         Get
             Dim [Default] As Boolean = False
             Dim comment As String = Nothing
@@ -2118,8 +2048,47 @@ Public Module INI
         End Set
     End Property
 
+    Public Property Toolbox_HGrdSpfldRenderModeFallback As BackgroundImageRenderMode
+        Get
+            Dim [Default] As String = BackgroundImageRenderMode.None.ToString
+            Dim comment As String = Nothing
+            Dim zRetVal As String = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            Dim result As BackgroundImageRenderMode
+            If Not [Enum].TryParse(Of BackgroundImageRenderMode)(zRetVal, True, result) Then
+                result = BackgroundImageRenderMode.Stretch
+            End If
+            Return result
+        End Get
+        Set(value As BackgroundImageRenderMode)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+        End Set
+    End Property
+    Public Property Toolbox_HGrdEditorRenderModeFallBack As BackgroundImageRenderMode
+        Get
+            Dim [Default] As String = BackgroundImageRenderMode.None.ToString
+            Dim comment As String = Nothing
+            Dim zRetVal As String = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            Dim result As BackgroundImageRenderMode
+            If Not [Enum].TryParse(Of BackgroundImageRenderMode)(zRetVal, True, result) Then
+                result = BackgroundImageRenderMode.Stretch
+            End If
+            Return result
+        End Get
+        Set(value As BackgroundImageRenderMode)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+        End Set
+    End Property
 
-
+    Public Property Toolbox_HGrdEditorUseSplfldEinstlgFallback As Boolean
+        Get
+            Dim [Default] As Boolean = False
+            Dim comment As String = Nothing
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As Boolean)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+        End Set
+    End Property
 
 
 

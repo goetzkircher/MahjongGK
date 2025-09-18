@@ -29,11 +29,8 @@ Imports System.IO
 Imports System.Xml.Serialization
 Imports MahjongGK.Spielfeld
 
-
-
 #Disable Warning IDE0079
 #Disable Warning IDE1006
-
 '
 ''' <summary>
 ''' Kapselt den vollständigen, serialisierbaren Zustand eines MahjongGK-Spielfelds.
@@ -139,9 +136,8 @@ Public Class SpielfeldInfo
 
     Public Name As String
 
-    Public BitmapUGrdFullpath As String
-    Public Property StretchBitmap As Boolean
-    Public Property CuttingOut As Boolean
+
+
 
     Public Property SpielSize As Triple
     Public Property SteinInfos As List(Of SteinInfo) = Nothing
@@ -161,6 +157,458 @@ Public Class SpielfeldInfo
     Public zUBnd As Integer
 
 
+    '
+
+    '
+    '<XmlElement(ElementName:="HGrdSpfldBitmapName")>
+    'Public Property Toolbox_HGrdSpfldBitmapName As String
+    ''
+    '<XmlElement(ElementName:="HGrdEditorBitmapName")>
+    'Public Property Toolbox_HGrdEditorBitmapName As String
+    ''
+    '<XmlElement(ElementName:="HGrdSpfldBitmapIsUserGrafik")>
+    'Public Property Toolbox_HGrdSpfldBitmapIsUserGrafik As Boolean
+    ''
+    '<XmlElement(ElementName:="HGrdEditorBitmapIsUserGrafik")>
+    'Public Property Toolbox_HGrdEditorBitmapIsUserGrafik As Boolean
+    ''
+    '<XmlElement(ElementName:="HGrdSpfldRenderMode")>
+    'Public Property Toolbox_HGrdSpfldRenderMode As BackgroundImageRenderMode
+    ''
+    '<XmlElement(ElementName:="HGrdEditorRenderMode")>
+    'Public Property Toolbox_HGrdEditorRenderMode As BackgroundImageRenderMode
+
+
+    '
+    Public Property Toolbox_HGrdEditorUseSpfldValues As Boolean
+
+
+    '#Region "Hintergrund Grafik und Farbe"
+
+    '    Private _hgrdSpfldColorIsInit As Boolean
+    '    Private _toolbox_HGrdSpfldColor As Color
+    '    Private _hgrdSpfldColor As Color
+    '    Private _hgrdEditorColorIsInit As Boolean
+    '    Private _toolbox_HGrdEditorColor As Color
+    '    Private _hgrdEditorColor As Color
+    '    '
+    '    ''' <summary>
+    '    ''' Nur für den Zugriff der Toolbox.
+    '    ''' Für normale Zugriffe die Variante ohne das Präfix Toolbox_ verwenden.
+    '    ''' </summary>
+    '    ''' <returns></returns>
+    '    <XmlElement(ElementName:="HGrdSpfldColor")>
+    '    Public Property Toolbox_HGrdSpfldColor As Color
+    '        Get
+    '            Return _toolbox_HGrdSpfldColor
+    '        End Get
+    '        Set(value As Color)
+    '            _toolbox_HGrdSpfldColor = value
+    '            _hgrdSpfldColorIsInit = False
+    '        End Set
+    '    End Property
+
+    '    <XmlElement(ElementName:="HGrdEditorColor")>
+    '    Public Property Toolbox_HGrdEditorColor As Color
+    '        Get
+    '            Return _toolbox_HGrdEditorColor
+    '        End Get
+    '        Set(value As Color)
+    '            _toolbox_HGrdEditorColor = value
+    '            _hgrdEditorColorIsInit = False
+    '        End Set
+    '    End Property
+
+    '    Public ReadOnly Property HGrdSpfldColor As Color
+    '        Get
+    '            If _hgrdSpfldColorIsInit Then
+    '                Return _hgrdSpfldColor
+    '            Else
+    '                If Toolbox_HGrdSpfldColor.IsEmpty Then
+    '                    _hgrdSpfldColor = INI.Toolbox_HGrdSpfldColorFallback
+    '                Else
+    '                    _hgrdSpfldColor = Toolbox_HGrdSpfldColor
+    '                End If
+    '                _hgrdSpfldColorIsInit = True
+    '                Return _hgrdSpfldColor
+    '            End If
+    '        End Get
+    '    End Property
+
+    '    Public ReadOnly Property HGrdEditorColor As Color
+    '        Get
+    '            If _hgrdEditorColorIsInit Then
+    '                Return _hgrdEditorColor
+    '            Else
+    '                If Toolbox_HGrdEditorUseSplfldValues Then
+    '                    If Toolbox_HGrdSpfldColor.IsEmpty Then
+    '                        _hgrdEditorColor = INI.Toolbox_HGrdSpfldColorFallback
+    '                    Else
+    '                        _hgrdEditorColor = Toolbox_HGrdSpfldColor
+    '                    End If
+    '                Else
+    '                    If Toolbox_HGrdEditorColor.IsEmpty Then
+    '                        If INI.Toolbox_HGrdEditorUseSpfldValues Then
+    '                            _hgrdEditorColor = INI.Toolbox_HGrdSpfldColorFallback
+    '                        Else
+    '                            _hgrdEditorColor = Toolbox_HGrdEditorColor
+    '                        End If
+    '                    Else
+    '                        _hgrdEditorColor = Toolbox_HGrdEditorColor
+    '                    End If
+    '                End If
+    '                _hgrdEditorColorIsInit = True
+    '                Return _hgrdEditorColor
+    '            End If
+    '        End Get
+    '    End Property
+
+    '#End Region
+
+
+#Region "Hintergrund Grafik und Farbe"
+
+    ' ── HGrdColor ─────────────────────────────────────────────────────────
+    Private _hgrdSpfldColorIsInit As Boolean
+    Private _toolbox_HGrdSpfldColor As Color
+    Private _hgrdSpfldColor As Color
+    Private _hgrdEditorColorIsInit As Boolean
+    Private _toolbox_HGrdEditorColor As Color
+    Private _hgrdEditorColor As Color
+
+    ' ── BitmapName ─────────────────────────────────────────────────────────
+    Private _hgrdSpfldBitmapNameIsInit As Boolean
+    Private _toolbox_HGrdSpfldBitmapName As String
+    Private _hgrdSpfldBitmapName As String
+
+    Private _hgrdEditorBitmapNameIsInit As Boolean
+    Private _toolbox_HGrdEditorBitmapName As String
+    Private _hgrdEditorBitmapName As String
+
+    ' ── IsUserGrafik ──────────────────────────────────────────────────────
+    Private _hgrdSpfldBitmapIsUserGrafikIsInit As Boolean
+    Private _toolbox_HGrdSpfldBitmapIsUserGrafik As Boolean
+    Private _hgrdSpfldBitmapIsUserGrafik As Boolean
+
+    Private _hgrdEditorBitmapIsUserGrafikIsInit As Boolean
+    Private _toolbox_HGrdEditorBitmapIsUserGrafik As Boolean
+    Private _hgrdEditorBitmapIsUserGrafik As Boolean
+
+    ' ── RenderMode ────────────────────────────────────────────────────────
+    Private _hgrdSpfldRenderModeIsInit As Boolean
+    Private _toolbox_HGrdSpfldRenderMode As BackgroundImageRenderMode
+    Private _hgrdSpfldRenderMode As BackgroundImageRenderMode
+
+    Private _hgrdEditorRenderModeIsInit As Boolean
+    Private _toolbox_HGrdEditorRenderMode As BackgroundImageRenderMode
+    Private _hgrdEditorRenderMode As BackgroundImageRenderMode
+
+    ' ───────────────────────────────────────────────────────────────────────────
+    ' Farbe 
+    ' ───────────────────────────────────────────────────────────────────────────
+    '
+    ''' <summary>
+    ''' Nur für den Zugriff der Toolbox.
+    ''' Für normale Zugriffe die Variante ohne das Präfix Toolbox_ verwenden.
+    ''' </summary>
+    <XmlElement(ElementName:="HGrdSpfldColor")>
+    Public Property Toolbox_HGrdSpfldColor As Color
+        Get
+            Return _toolbox_HGrdSpfldColor
+        End Get
+        Set(value As Color)
+            _toolbox_HGrdSpfldColor = value
+            _hgrdSpfldColorIsInit = False
+        End Set
+    End Property
+
+    <XmlElement(ElementName:="HGrdEditorColor")>
+    Public Property Toolbox_HGrdEditorColor As Color
+        Get
+            Return _toolbox_HGrdEditorColor
+        End Get
+        Set(value As Color)
+            _toolbox_HGrdEditorColor = value
+            _hgrdEditorColorIsInit = False
+        End Set
+    End Property
+
+    Public ReadOnly Property HGrdSpfldColor As Color
+        Get
+            If _hgrdSpfldColorIsInit Then
+                Return _hgrdSpfldColor
+            Else
+                If Toolbox_HGrdSpfldColor.IsEmpty Then
+                    _hgrdSpfldColor = INI.Toolbox_HGrdSpfldColorFallback
+                Else
+                    _hgrdSpfldColor = Toolbox_HGrdSpfldColor
+                End If
+                _hgrdSpfldColorIsInit = True
+                Return _hgrdSpfldColor
+            End If
+        End Get
+    End Property
+
+    Public ReadOnly Property HGrdEditorColor As Color
+        Get
+            If _hgrdEditorColorIsInit Then
+                Return _hgrdEditorColor
+            Else
+                If Toolbox_HGrdEditorUseSpfldValues Then
+                    If Toolbox_HGrdSpfldColor.IsEmpty Then
+                        _hgrdEditorColor = INI.Toolbox_HGrdSpfldColorFallback
+                    Else
+                        _hgrdEditorColor = Toolbox_HGrdSpfldColor
+                    End If
+                Else
+                    If Toolbox_HGrdEditorColor.IsEmpty Then
+                        If INI.Toolbox_HGrdEditorUseSpfldValues Then
+                            _hgrdEditorColor = INI.Toolbox_HGrdSpfldColorFallback
+                        Else
+                            _hgrdEditorColor = Toolbox_HGrdEditorColor
+                        End If
+                    Else
+                        _hgrdEditorColor = Toolbox_HGrdEditorColor
+                    End If
+                End If
+                _hgrdEditorColorIsInit = True
+                Return _hgrdEditorColor
+            End If
+        End Get
+    End Property
+
+    ' ───────────────────────────────────────────────────────────────────────────
+    ' BitmapName (String.Empty => Fallback analog Farbe)
+    ' ───────────────────────────────────────────────────────────────────────────
+
+    <XmlElement(ElementName:="HGrdSpfldBitmapName")>
+    Public Property Toolbox_HGrdSpfldBitmapName As String
+        Get
+            Return _toolbox_HGrdSpfldBitmapName
+        End Get
+        Set(value As String)
+            _toolbox_HGrdSpfldBitmapName = value
+            _hgrdSpfldBitmapNameIsInit = False
+        End Set
+    End Property
+
+    <XmlElement(ElementName:="HGrdEditorBitmapName")>
+    Public Property Toolbox_HGrdEditorBitmapName As String
+        Get
+            Return _toolbox_HGrdEditorBitmapName
+        End Get
+        Set(value As String)
+            _toolbox_HGrdEditorBitmapName = value
+            _hgrdEditorBitmapNameIsInit = False
+        End Set
+    End Property
+
+    Public ReadOnly Property HGrdSpfldBitmapName As String
+        Get
+            If _hgrdSpfldBitmapNameIsInit Then
+                Return _hgrdSpfldBitmapName
+            Else
+                If String.IsNullOrEmpty(Toolbox_HGrdSpfldBitmapName) Then
+                    _hgrdSpfldBitmapName = INI.Toolbox_HGrdSpfldBitmapNameFallback
+                Else
+                    _hgrdSpfldBitmapName = Toolbox_HGrdSpfldBitmapName
+                End If
+                _hgrdSpfldBitmapNameIsInit = True
+                Return _hgrdSpfldBitmapName
+            End If
+        End Get
+    End Property
+
+    Public ReadOnly Property HGrdEditorBitmapName As String
+        Get
+            If _hgrdEditorBitmapNameIsInit Then
+                Return _hgrdEditorBitmapName
+            Else
+                If Toolbox_HGrdEditorUseSpfldValues Then
+                    If String.IsNullOrEmpty(Toolbox_HGrdSpfldBitmapName) Then
+                        _hgrdEditorBitmapName = INI.Toolbox_HGrdSpfldBitmapNameFallback
+                    Else
+                        _hgrdEditorBitmapName = Toolbox_HGrdSpfldBitmapName
+                    End If
+                Else
+                    If String.IsNullOrEmpty(Toolbox_HGrdEditorBitmapName) Then
+                        If INI.Toolbox_HGrdEditorUseSpfldValues Then
+                            _hgrdEditorBitmapName = INI.Toolbox_HGrdSpfldBitmapNameFallback
+                        Else
+                            _hgrdEditorBitmapName = Toolbox_HGrdEditorBitmapName
+                        End If
+                    Else
+                        _hgrdEditorBitmapName = Toolbox_HGrdEditorBitmapName
+                    End If
+                End If
+                _hgrdEditorBitmapNameIsInit = True
+                Return _hgrdEditorBitmapName
+            End If
+        End Get
+    End Property
+
+    ' ───────────────────────────────────────────────────────────────────────────
+    ' IsUserGrafik (Boolean; Fallbackwerte aus INI)
+    ' ───────────────────────────────────────────────────────────────────────────
+
+    <XmlElement(ElementName:="HGrdSpfldBitmapIsUserGrafik")>
+    Public Property Toolbox_HGrdSpfldBitmapIsUserGrafik As Boolean
+        Get
+            Return _toolbox_HGrdSpfldBitmapIsUserGrafik
+        End Get
+        Set(value As Boolean)
+            _toolbox_HGrdSpfldBitmapIsUserGrafik = value
+            _hgrdSpfldBitmapIsUserGrafikIsInit = False
+        End Set
+    End Property
+
+    <XmlElement(ElementName:="HGrdEditorBitmapIsUserGrafik")>
+    Public Property Toolbox_HGrdEditorBitmapIsUserGrafik As Boolean
+        Get
+            Return _toolbox_HGrdEditorBitmapIsUserGrafik
+        End Get
+        Set(value As Boolean)
+            _toolbox_HGrdEditorBitmapIsUserGrafik = value
+            _hgrdEditorBitmapIsUserGrafikIsInit = False
+        End Set
+    End Property
+
+    Public ReadOnly Property HGrdSpfldBitmapIsUserGrafik As Boolean
+        Get
+            If _hgrdSpfldBitmapIsUserGrafikIsInit Then
+                Return _hgrdSpfldBitmapIsUserGrafik
+            Else
+                _hgrdSpfldBitmapIsUserGrafik = Toolbox_HGrdSpfldBitmapIsUserGrafik
+                _hgrdSpfldBitmapIsUserGrafikIsInit = True
+                Return _hgrdSpfldBitmapIsUserGrafik
+            End If
+        End Get
+    End Property
+
+    Public ReadOnly Property HGrdEditorBitmapIsUserGrafik As Boolean
+        Get
+            If _hgrdEditorBitmapIsUserGrafikIsInit Then
+                Return _hgrdEditorBitmapIsUserGrafik
+            Else
+                If Toolbox_HGrdEditorUseSpfldValues Then
+                    _hgrdEditorBitmapIsUserGrafik = HGrdSpfldBitmapIsUserGrafik
+                Else
+                    If INI.Toolbox_HGrdEditorUseSpfldValues Then
+                        _hgrdEditorBitmapIsUserGrafik = INI.Toolbox_HGrdSpfldBitmapIsUserGrafikFallback
+                    Else
+                        _hgrdEditorBitmapIsUserGrafik = Toolbox_HGrdEditorBitmapIsUserGrafik
+                    End If
+                End If
+                _hgrdEditorBitmapIsUserGrafikIsInit = True
+                Return _hgrdEditorBitmapIsUserGrafik
+            End If
+        End Get
+    End Property
+
+    ' ───────────────────────────────────────────────────────────────────────────
+    ' NEU: RenderMode (Enum; Fallbackwerte aus INI)
+    ' ───────────────────────────────────────────────────────────────────────────
+
+    <XmlElement(ElementName:="HGrdSpfldRenderMode")>
+    Public Property Toolbox_HGrdSpfldRenderMode As BackgroundImageRenderMode
+        Get
+            Return _toolbox_HGrdSpfldRenderMode
+        End Get
+        Set(value As BackgroundImageRenderMode)
+            _toolbox_HGrdSpfldRenderMode = value
+            _hgrdSpfldRenderModeIsInit = False
+        End Set
+    End Property
+
+    <XmlElement(ElementName:="HGrdEditorRenderMode")>
+    Public Property Toolbox_HGrdEditorRenderMode As BackgroundImageRenderMode
+        Get
+            Return _toolbox_HGrdEditorRenderMode
+        End Get
+        Set(value As BackgroundImageRenderMode)
+            _toolbox_HGrdEditorRenderMode = value
+            _hgrdEditorRenderModeIsInit = False
+        End Set
+    End Property
+
+    Public ReadOnly Property HGrdSpfldRenderMode As BackgroundImageRenderMode
+        Get
+            If _hgrdSpfldRenderModeIsInit Then
+                Return _hgrdSpfldRenderMode
+            Else
+                If _toolbox_HGrdSpfldRenderMode = BackgroundImageRenderMode.None Then
+                    _hgrdSpfldRenderMode = INI.Toolbox_HGrdSpfldRenderModeFallback
+                Else
+                    _hgrdSpfldRenderMode = _toolbox_HGrdSpfldRenderMode
+                End If
+                _hgrdSpfldRenderModeIsInit = True
+                Return _hgrdSpfldRenderMode
+            End If
+        End Get
+    End Property
+
+    Public ReadOnly Property HGrdEditorRenderMode As BackgroundImageRenderMode
+        Get
+            If _hgrdEditorRenderModeIsInit Then
+                Return _hgrdEditorRenderMode
+            Else
+                If Toolbox_HGrdEditorUseSpfldValues Then
+                    _hgrdEditorRenderMode = HGrdSpfldRenderMode
+                Else
+                    If INI.Toolbox_HGrdEditorUseSpfldValues Then
+                        _hgrdEditorRenderMode = INI.Toolbox_HGrdSpfldRenderModeFallback
+                    Else
+                        _hgrdEditorRenderMode = Toolbox_HGrdEditorRenderMode
+                    End If
+                End If
+                _hgrdEditorRenderModeIsInit = True
+                Return _hgrdEditorRenderMode
+            End If
+        End Get
+    End Property
+
+#End Region
+
+
+
+    'Public ReadOnly Property HGrdSpfldBitmapName As String
+    '    Get
+
+    '    End Get
+    'End Property
+    'Public ReadOnly Property HGrdEditorBitmapName As String
+    '    Get
+
+    '    End Get
+    'End Property
+    'Public ReadOnly Property HGrdSpfldBitmapIsUserGrafik As Boolean
+    '    Get
+
+    '    End Get
+    'End Property
+    'Public ReadOnly Property HGrdEditorBitmapIsUserGrafik As Boolean
+    '    Get
+
+    '    End Get
+    'End Property
+    'Public ReadOnly Property HGrdSpfldRenderMode As BackgroundImageRenderMode
+    '    Get
+
+    '    End Get
+    'End Property
+    'Public ReadOnly Property HGrdEditorRenderMode As BackgroundImageRenderMode
+    '    Get
+
+    '    End Get
+    'End Property
+    'Public ReadOnly Property HGrdEditorUseSplfldEinstlgValues As Boolean
+    '    Get
+
+    '    End Get
+    'End Property
+
+
+
     Public Generator As SpielsteinGenerator
 
 
@@ -171,7 +619,7 @@ Public Class SpielfeldInfo
 
     Public ReadOnly Property HasBitmapUGrd As Boolean
         Get
-            Return Not String.IsNullOrEmpty(BitmapUGrdFullpath)
+            Return False ' Not String.IsNullOrEmpty(BitmapUGrdFullpath)
         End Get
     End Property
 

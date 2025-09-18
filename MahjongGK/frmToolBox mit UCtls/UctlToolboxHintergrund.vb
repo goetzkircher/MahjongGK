@@ -23,6 +23,10 @@ Option Compare Text
 Option Explicit On
 Option Infer Off
 Option Strict On
+
+#Disable Warning IDE0079
+#Disable Warning IDE1006
+
 Imports System.Drawing.Drawing2D
 Imports System.Drawing.Imaging
 '
@@ -30,89 +34,51 @@ Imports System.IO
 
 Public Class UctlToolboxHintergrund
 
-    Private Sub UctlToolboxHintergrund_Load(sender As Object, e As EventArgs) Handles Me.Load
 
-    End Sub
-
-    Private Sub btnToolboxHGrdSpfldBitmapFallback_Click(sender As Object, e As EventArgs)
-
-    End Sub
-
-    Private Sub btnToolboxHGrdSpfldBitmapClearFallback_Click(sender As Object, e As EventArgs)
-
-    End Sub
-
-    Private Sub btnToolboxHGrdEditorBitmapFallback_Click(sender As Object, e As EventArgs)
-
-    End Sub
-
-    Private Sub btnToolboxHGrdEditorBitmapClearFallback_Click(sender As Object, e As EventArgs)
-
-    End Sub
-
-    Private Sub btnToolboxHGrdSpfldColorFallback_Click(sender As Object, e As EventArgs)
-
-    End Sub
-
-    Private Sub btnToolboxHGrdSpfldColorClearFallback_Click(sender As Object, e As EventArgs)
-
-    End Sub
-
-    Private Sub btnToolboxHGrdEditorColorFallback_Click(sender As Object, e As EventArgs)
-
-    End Sub
-
-    Private Sub btnToolboxHGrdEditorColorClearFallback_Click(sender As Object, e As EventArgs)
-
-    End Sub
-
-    Private Sub btnToolboxHGrdSpfldBitmap_Click(sender As Object, e As EventArgs) Handles btnToolboxHGrdSpfldBitmap.Click
-
-    End Sub
-
-    Private Sub btnToolboxHGrdSpfldBitmapClear_Click(sender As Object, e As EventArgs) Handles btnToolboxHGrdSpfldBitmapClear.Click
-
-    End Sub
-
-    Private Sub btnToolboxHGrdEditorBitmap_Click(sender As Object, e As EventArgs) Handles btnToolboxHGrdEditorBitmap.Click
-
-    End Sub
-
-    Private Sub btnToolboxHGrdEditorBitmapClear_Click(sender As Object, e As EventArgs) Handles btnToolboxHGrdEditorBitmapClear.Click
-
-    End Sub
-
-    Private Sub btnToolboxHGrdSpfldColor_Click(sender As Object, e As EventArgs) Handles btnToolboxHGrdSpfldColor.Click
-
-    End Sub
-
-    Private Sub btnToolboxHGrdSpfldColorClear_Click(sender As Object, e As EventArgs) Handles btnToolboxHGrdSpfldColorClear.Click
-
-    End Sub
-
-    Private Sub btnToolboxHGrdEditorColor_Click(sender As Object, e As EventArgs) Handles btnToolboxHGrdEditorColor.Click
-
-    End Sub
-
-    Private Sub btnToolboxHGrdEditorColorClear_Click(sender As Object, e As EventArgs) Handles btnToolboxHGrdEditorColorClear.Click
-
-    End Sub
 
     Public Sub InitialisierungAndUpdate()
         CopyIniToControl()
     End Sub
 
 
+    Private _aktSFI As New SpielfeldInfo
+    Private _AktDstIsSpielfeld As Boolean
+
+    Private Sub SetAktSpielfeldInfo()
+        If INI.Global_AktVisibleUserControl = VisibleUserControl.Editor Then
+            _aktSFI = Spielfeld.EditorSpielfeldInfo
+            _AktDstIsSpielfeld = False
+
+        ElseIf INI.Global_AktVisibleUserControl = VisibleUserControl.Werkbank Then
+            _aktSFI = Spielfeld.EditorSpielfeldInfo
+            _AktDstIsSpielfeld = False
+
+        Else
+            _aktSFI = Spielfeld.SpielerSpielfeldInfo
+            _AktDstIsSpielfeld = True
+        End If
+    End Sub
+
     Private Sub CopyIniToControl()
+
+        SetAktSpielfeldInfo()
+
+        If _AktDstIsSpielfeld Then
+            gbxAktSpiel.Text = "Daten aus aktuell geladenem Spielfeld"
+        Else
+            gbxAktSpiel.Text = "Daten aus aktuell geladenem Editor"
+        End If
+
+        Const nocol As String = "Keine Farbe gewählt"
         '
         With lblToolboxHGrdSpfldColor
-            If INI.Toolbox_HGrdSpfldColor = Color.Empty Then
+            If _aktSFI.Toolbox_HGrdSpfldColor = Color.Empty Then
                 .ForeColor = SystemColors.GrayText
                 .BackColor = Color.Transparent
-                .Text = "(keine Farbe gewählt)"
+                .Text = nocol
             Else
                 .Text = String.Empty
-                .BackColor = INI.Toolbox_HGrdSpfldColor
+                .BackColor = _aktSFI.Toolbox_HGrdSpfldColor
             End If
         End With
         '
@@ -120,7 +86,7 @@ Public Class UctlToolboxHintergrund
             If INI.Toolbox_HGrdSpfldColorFallback = Color.Empty Then
                 .ForeColor = SystemColors.GrayText
                 .BackColor = Color.Transparent
-                .Text = "(keine Farbe gewählt)"
+                .Text = nocol
             Else
                 .Text = String.Empty
                 .BackColor = INI.Toolbox_HGrdSpfldColorFallback
@@ -128,13 +94,13 @@ Public Class UctlToolboxHintergrund
         End With
         '
         With lblToolboxHGrdEditorColor
-            If INI.Toolbox_HGrdEditorColor = Color.Empty Then
+            If _aktSFI.Toolbox_HGrdEditorColor = Color.Empty Then
                 .ForeColor = SystemColors.GrayText
                 .BackColor = Color.Transparent
-                .Text = "(keine Farbe gewählt)"
+                .Text = nocol
             Else
                 .Text = String.Empty
-                .BackColor = INI.Toolbox_HGrdEditorColor
+                .BackColor = _aktSFI.Toolbox_HGrdEditorColor
             End If
         End With
         '
@@ -142,7 +108,7 @@ Public Class UctlToolboxHintergrund
             If INI.Toolbox_HGrdEditorColorFallback = Color.Empty Then
                 .ForeColor = SystemColors.GrayText
                 .BackColor = Color.Transparent
-                .Text = "(keine Farbe gewählt)"
+                .Text = nocol
             Else
                 .Text = String.Empty
                 .BackColor = INI.Toolbox_HGrdEditorColorFallback
@@ -150,9 +116,20 @@ Public Class UctlToolboxHintergrund
         End With
         '
 
+        picToolboxHGrdSpfld.Image = GetMiniThumb(_aktSFI.Toolbox_HGrdSpfldBitmapName, _aktSFI.Toolbox_HGrdSpfldBitmapIsUserGrafik)
+        picToolboxHGrdSpfldFallback.Image = GetMiniThumb(INI.Toolbox_HGrdSpfldBitmapNameFallback, INI.Toolbox_HGrdSpfldBitmapIsUserGrafikFallback)
 
+        picToolboxHGrdEditor.Image = GetMiniThumb(_aktSFI.Toolbox_HGrdEditorBitmapName, _aktSFI.Toolbox_HGrdEditorBitmapIsUserGrafik)
+        picToolboxHGrdEditorFallback.Image = GetMiniThumb(INI.Toolbox_HGrdEditorBitmapNameFallback, INI.Toolbox_HGrdEditorBitmapIsUserGrafikFallback)
 
+        lblToolboxHGrdSpfldRenderMode.Text = GetTextFromBirm(_aktSFI.Toolbox_HGrdSpfldRenderMode)
+        lblToolboxHGrdEditorRenderMode.Text = GetTextFromBirm(_aktSFI.Toolbox_HGrdEditorRenderMode)
 
+        lblToolboxHGrdSplfldRenderModeFallback.Text = GetTextFromBirm(INI.Toolbox_HGrdSpfldRenderModeFallback)
+        lblToolboxHGrdEditorRenderModeFallback.Text = GetTextFromBirm(INI.Toolbox_HGrdEditorRenderModeFallBack)
+
+        chkToolboxHGrdEditorUseSpfldEinstlg.Checked = _aktSFI.Toolbox_HGrdEditorUseSpfldValues
+        chkToolboxHGrdEditorUseSpfldEinstlgFallback.Checked = INI.Toolbox_HGrdEditorUseSplfldEinstlgFallback
 
         'INI.Toolbox_HGrdEditorColorFallback  
         'INI.Toolbox_HGrdSpfldBitmapFallback  
@@ -185,68 +162,64 @@ Public Class UctlToolboxHintergrund
     ''' Es wird – falls nötig – das Postfix ".thb.png" an <paramref name="name"/> angehängt.
     ''' Existiert die Datei nicht oder tritt ein Fehler auf, wird eine neutrale Fehlerminiatur erzeugt.
     ''' </summary>
-    Public Function GetMiniThumb(name As String, isUserGrafik As Boolean) As Bitmap
-        ' Zielgröße für die PictureBox
-        Const MaxW As Integer = 150
-        Const MaxH As Integer = 100
+    Private Function GetMiniThumb(name As String, isUserGrafik As Boolean) As Bitmap
+        ' Zielgröße für die PictureBox (Editor-Thumb; symmetrisch genug für beide)
+        Dim maxW As Integer = picToolboxHGrdEditor.Width
+        Dim maxH As Integer = picToolboxHGrdEditor.Height
 
         Try
             ' 1) Eingabe prüfen
             If String.IsNullOrWhiteSpace(name) Then
-                Return BuildErrorMiniThumb(New Size(MaxW, MaxH))
+                ' NEU: neutrales, graues Platzhalterbild mit Hinweistext
+                Return BuildNoSelectionMiniThumb(New Size(maxW, maxH), Me.Font, Me.BackColor)
             End If
 
             ' 2) Quellverzeichnis wählen
             Dim baseDir As String = If(isUserGrafik,
-            INI.AppDataDirectory(AppDataSubDir.Eigene_Hintergrundgrafiken),
-            INI.AppDataDirectory(AppDataSubDir.Hintergrundgrafiken))
+                                   INI.AppDataDirectory(AppDataSubDir.Eigene_Hintergrundgrafiken),
+                                   INI.AppDataDirectory(AppDataSubDir.Hintergrundgrafiken))
 
             ' 3) Dateiname mit ".thb.png" erweitern
             Dim fileName As String = name & ".thb.png"
 
-            ' 4) Vollständigen Pfad bilden.
+            ' 4) Vollständigen Pfad bilden
             Dim fullPath As String = Path.Combine(baseDir, fileName)
 
             ' 5) Existenz prüfen
             If Not File.Exists(fullPath) Then
-                Return BuildErrorMiniThumb(New Size(MaxW, MaxH))
+                Return BuildErrorMiniThumb(New Size(maxW, maxH))
             End If
 
-            ' 6) Laden
+            ' 6) Laden (Handle-frei machen)
             Dim bmp As Bitmap = Nothing
             Try
-                ' Wichtig: Image.FromFile hält Datei-Handle; daher in Memory kopieren
                 Using tmp As Image = Image.FromFile(fullPath)
-                    bmp = New Bitmap(tmp) ' nun losgelöst von der Datei
+                    bmp = New Bitmap(tmp)
                 End Using
             Catch
-                ' Laden fehlgeschlagen -> Fehlerminiatur
-                Return BuildErrorMiniThumb(New Size(MaxW, MaxH))
+                Return BuildErrorMiniThumb(New Size(maxW, maxH))
             End Try
 
-            ' 7) Auf 150x100 einpassen (Seitenverhältnis beibehalten, nur Schrumpfen)
+            ' 7) Auf Ziel einpassen (nur schrumpfen)
             Dim tw As Integer = bmp.Width
             Dim th As Integer = bmp.Height
 
-            Dim scaleW As Double = CDbl(MaxW) / Math.Max(1, tw)
-            Dim scaleH As Double = CDbl(MaxH) / Math.Max(1, th)
-            Dim scale As Double = Math.Min(1.0R, Math.Min(scaleW, scaleH)) ' Nur verkleinern, nie vergrößern
+            Dim scaleW As Double = CDbl(maxW) / Math.Max(1, tw)
+            Dim scaleH As Double = CDbl(maxH) / Math.Max(1, th)
+            Dim scale As Double = Math.Min(1.0R, Math.Min(scaleW, scaleH)) ' Nur verkleinern
 
             Dim newW As Integer = CInt(Math.Floor(tw * scale))
             Dim newH As Integer = CInt(Math.Floor(th * scale))
 
             If newW <= 0 OrElse newH <= 0 Then
                 bmp.Dispose()
-                Return BuildErrorMiniThumb(New Size(MaxW, MaxH))
+                Return BuildErrorMiniThumb(New Size(maxW, maxH))
             End If
 
-            ' Nur schrumpfen, wenn nötig
             If newW < tw OrElse newH < th Then
-                ' Verwendet die vom Nutzer bereitgestellte Schrumpf-Funktion (in-place über ByRef)
                 Dim ok As Boolean = MjGDI.ShrinkBitmap(bmp, newW, newH, disposeSrc:=True, highQuality:=True, cvtToARGBBitmap:=True)
                 If Not ok OrElse bmp Is Nothing Then
-                    ' Falls etwas schiefging, sichere Fehlerminiatur zurückgeben
-                    Return BuildErrorMiniThumb(New Size(MaxW, MaxH))
+                    Return BuildErrorMiniThumb(New Size(maxW, maxH))
                 End If
             End If
 
@@ -254,11 +227,9 @@ Public Class UctlToolboxHintergrund
             Return bmp
 
         Catch
-            ' Unerwarteter Fehler → sichere Fehlerminiatur
-            Return BuildErrorMiniThumb(New Size(MaxW, MaxH))
+            Return BuildErrorMiniThumb(New Size(maxW, maxH))
         End Try
     End Function
-
 
     ''' <summary>
     ''' Erzeugt eine neutrale 150x100 (oder angegebene Größe) Fehlerminiatur:
@@ -298,11 +269,112 @@ Public Class UctlToolboxHintergrund
         Return bmp
     End Function
 
-    Private Sub lblToolboxHGrdSpfldColor_Click(sender As Object, e As EventArgs) Handles lblToolboxHGrdSpfldColor.Click
+    ' Helper: neutrales Platzhalter-Thumbnail "(kein Bild ausgewählt)"
+    Private Function BuildNoSelectionMiniThumb(sz As Size, baseFont As Font, parentBack As Color) As Bitmap
+        Dim w As Integer = Math.Max(1, sz.Width)
+        Dim h As Integer = Math.Max(1, sz.Height)
+
+        Dim bmp As New Bitmap(w, h, Imaging.PixelFormat.Format32bppPArgb)
+        bmp.MakeTransparent()
+
+        Using g As Graphics = Graphics.FromImage(bmp)
+            g.SmoothingMode = Drawing2D.SmoothingMode.AntiAlias
+            g.InterpolationMode = Drawing2D.InterpolationMode.HighQualityBicubic
+            g.TextRenderingHint = Drawing.Text.TextRenderingHint.AntiAliasGridFit
+
+            ' Rahmen wie bei Label mit BorderStyle.FixedSingle
+            Using p As New Pen(SystemColors.ControlDark)
+                g.DrawRectangle(p, 0, 0, w - 1, h - 1)
+            End Using
+
+            ' Text in Grautextfarbe
+            Dim text As String = "Kein Bild gewählt"
+            Using f As New Font(baseFont, baseFont.Style),
+              br As New SolidBrush(SystemColors.GrayText)
+
+                Dim r As New RectangleF(2.0F, 2.0F, w - 4.0F, h - 4.0F)
+                Dim sf As New StringFormat() With {
+                .Alignment = StringAlignment.Center,
+                .LineAlignment = StringAlignment.Center,
+                .Trimming = StringTrimming.EllipsisCharacter,
+                .FormatFlags = StringFormatFlags.LineLimit
+            }
+
+                g.DrawString(text, f, br, r, sf)
+            End Using
+        End Using
+
+        Return bmp
+
+    End Function
+
+    Private Function GetTextFromBirm(birm As BackgroundImageRenderMode) As String
+
+        Select Case birm
+            Case BackgroundImageRenderMode.CoverCrop
+                Return "Modus: Ausschneiden (Cover)"
+            Case BackgroundImageRenderMode.FitInside
+                Return "Modus: Proportionen beibehalten"
+            Case BackgroundImageRenderMode.None
+                Return "Modus: Nicht ausgewählt"
+            Case BackgroundImageRenderMode.PreserveOrgSize
+                Return "Modus: Originalgröße behalten"
+            Case BackgroundImageRenderMode.Stretch
+                Return "Modus: Dehnen/Strecken"
+            Case Else
+                If Debugger.IsAttached Then
+                    Stop 'programmierfehler
+                    Return "Fehler"
+                Else
+                    Return "Modus: Fehler"
+                End If
+        End Select
+
+    End Function
+
+    Private Sub btnToolboxHGrdSpfldBitmapNameFallback_Click(sender As Object, e As EventArgs) Handles btnToolboxHGrdSpfldBitmapNameFallback.Click
 
     End Sub
 
-    Private Sub lblToolboxHGrdEditorColor_Click(sender As Object, e As EventArgs)
+    Private Sub btnToolboxHGrdSpfldBitmapClearFallback_Click(sender As Object, e As EventArgs) Handles btnToolboxHGrdSpfldBitmapClearFallback.Click
+        CopyIniToControl()
+    End Sub
+
+    Private Sub btnToolboxHGrdEditorBitmapNameFallback_Click(sender As Object, e As EventArgs) Handles btnToolboxHGrdEditorBitmapNameFallback.Click
 
     End Sub
+
+    Private Sub btnToolboxHGrdEditorBitmapClearFallback_Click(sender As Object, e As EventArgs) Handles btnToolboxHGrdEditorBitmapClearFallback.Click
+        CopyIniToControl()
+    End Sub
+
+    Private Sub btnToolboxHGrdSpfldColorFallback_Click(sender As Object, e As EventArgs) Handles btnToolboxHGrdSpfldColorFallback.Click
+
+    End Sub
+
+    Private Sub btnToolboxHGrdSpfldColorClearFallback_Click(sender As Object, e As EventArgs) Handles btnToolboxHGrdSpfldColorClearFallback.Click
+        CopyIniToControl()
+    End Sub
+
+    Private Sub btnToolboxHGrdEditorColorFallback_Click(sender As Object, e As EventArgs) Handles btnToolboxHGrdEditorColorFallback.Click
+
+    End Sub
+
+    Private Sub btnToolboxHGrdEditorColorClearFallback_Click(sender As Object, e As EventArgs) Handles btnToolboxHGrdEditorColorClearFallback.Click
+        CopyIniToControl()
+    End Sub
+
+    ''' <summary>
+    ''' Hin: die bisherige Farbe, zurück: die neue Farbe und True,
+    ''' sofern eine neue Farbe gewählt. Wenn Abbrechen gewählt, False
+    ''' </summary>
+    ''' <param name="col"></param>
+    ''' <returns></returns>
+    Private Function GetColor(ByRef col As Color) As Boolean
+
+    End Function
+
+
+
+
 End Class

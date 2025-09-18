@@ -89,12 +89,12 @@ Public Class FrmBackgroundSelector
     End Property
 
     ' NEU: Ausgewählter Render-Modus (statt CheckBox-Logik)
-    Public ReadOnly Property SelectedMode As BackgroundSingleImageCache.RenderMode
+    Public ReadOnly Property SelectedMode As BackgroundImageRenderMode
         Get
-            If radPreserve.Checked Then Return BackgroundSingleImageCache.RenderMode.PreserveOrgSize
-            If radCoverCrop.Checked Then Return BackgroundSingleImageCache.RenderMode.CoverCrop
-            If radStretch.Checked Then Return BackgroundSingleImageCache.RenderMode.Stretch
-            Return BackgroundSingleImageCache.RenderMode.FitInside
+            If radPreserve.Checked Then Return BackgroundImageRenderMode.PreserveOrgSize
+            If radCoverCrop.Checked Then Return BackgroundImageRenderMode.CoverCrop
+            If radStretch.Checked Then Return BackgroundImageRenderMode.Stretch
+            Return BackgroundImageRenderMode.FitInside
         End Get
     End Property
 

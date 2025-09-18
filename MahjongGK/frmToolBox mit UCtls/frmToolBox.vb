@@ -35,7 +35,7 @@ Public Class frmToolBox
 
 
     Public Const MJ_FRMTOOLBOX_WIDTH As Integer = 400
-    Public Const MJ_FRMTOOLBOX_HEIGHT As Integer = 500
+    Public Const MJ_FRMTOOLBOX_HEIGHT As Integer = 540
     Public Const MJ_FRMTOOLBOX_PADDING_LEFT As Integer = 15
     Public Const MJ_FRMTOOLBOX_PADDING_BOTTOM As Integer = 20
     Public Const MJ_FRMTOOLBOX_PANEL_ As Integer = 15
@@ -399,7 +399,8 @@ Public Class frmToolBox
             End If
 
         ElseIf TabControlToolBox.SelectedTab Is TabPageHintergrund Then
-            'nichts ändern
+            UctlToolboxHintergrund1.InitialisierungAndUpdate()
+
         Else
             If Debugger.IsAttached Then
                 Stop 'Programmierfehler: hinzugefügte TabPag auch hier hinzufügen.

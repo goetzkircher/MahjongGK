@@ -46,10 +46,10 @@ Namespace Spielfeld
             Dim createFrozenBitmap As Boolean = Not RectSpielfeld.IsEmpty 'es gibt ein gültiges Rect, d.h. es wurde bereits gerendert
             Select Case AktRendering
                 Case RenderingEnum.Spielfeld
-                    If Not IsNothing(SpielfeldDaten.PlayerSpielfeldInfo) Then
-                        If Not PlayerSpielfeldInfo.IsEqual(AktSpielfeldInfo) Then
+                    If Not IsNothing(SpielfeldDaten.SpielerSpielfeldInfo) Then
+                        If Not SpielerSpielfeldInfo.IsEqual(AktSpielfeldInfo) Then
 
-                            AktSpielfeldInfo = PlayerSpielfeldInfo
+                            AktSpielfeldInfo = SpielerSpielfeldInfo
                             changed = True
                         End If
                     End If
@@ -212,22 +212,22 @@ Namespace Spielfeld
                 offset3DTopSumme = 0
             End If
 
-            With AktSpielfeldInfo
-                If IsNothing(.BitmapUGrdImgCache) Then
-                    If .HasBitmapUGrd Then
-                        .BitmapUGrdImgCache = New BackgroundSingleImageCache(BackgroundBitmapCache)
-                        .BitmapUGrdImgCache.LoadBitmap(.BitmapUGrdFullpath, BackgroundSingleImageCache.RenderMode.CoverCrop)
-                    Else
-                        With AktSpielfeldInfo
-                            Dim bitmapUGrdFullpath As String = IO.Path.Combine(AppDataDirectory(AppDataSubDir.Hintergrundgrafiken),
-                            If(INI.Global_DarkMode, "water_3007467.jpg", "watercolor_2323195.jpg"))
-                            .BitmapUGrdFullpath = bitmapUGrdFullpath
-                            .BitmapUGrdImgCache = New BackgroundSingleImageCache(BackgroundBitmapCache)
-                            .BitmapUGrdImgCache.LoadBitmap(bitmapUGrdFullpath, BackgroundSingleImageCache.RenderMode.PreserveOrgSize)
-                        End With
-                    End If
-                End If
-            End With
+            'With AktSpielfeldInfo
+            '    If IsNothing(.BitmapUGrdImgCache) Then
+            '        If .HasBitmapUGrd Then
+            '            .BitmapUGrdImgCache = New BackgroundSingleImageCache(BackgroundBitmapCache)
+            '            .BitmapUGrdImgCache.LoadBitmap(.BitmapUGrdFullpath, BackgroundSingleImageCache.BackgroundRenderMode.CoverCrop)
+            '        Else
+            '            With AktSpielfeldInfo
+            '                Dim bitmapUGrdFullpath As String = IO.Path.Combine(AppDataDirectory(AppDataSubDir.Hintergrundgrafiken),
+            '                If(INI.Global_DarkMode, "water_3007467.jpg", "watercolor_2323195.jpg"))
+            '                .BitmapUGrdFullpath = bitmapUGrdFullpath
+            '                .BitmapUGrdImgCache = New BackgroundSingleImageCache(BackgroundBitmapCache)
+            '                .BitmapUGrdImgCache.LoadBitmap(bitmapUGrdFullpath, BackgroundSingleImageCache.BackgroundRenderMode.PreserveOrgSize)
+            '            End With
+            '        End If
+            '    End If
+            'End With
 
         End Sub
 

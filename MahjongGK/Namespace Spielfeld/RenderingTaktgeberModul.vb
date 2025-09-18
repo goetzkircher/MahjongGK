@@ -190,7 +190,6 @@ Namespace Spielfeld
             End If
         End Sub
 
-        Private _tmp As Integer
         ''' <summary>
         ''' Dieses Sub wird vom PaintEvent der Zeichenfläche (UCtlSpielfeld und UCtlEdtor) getaktet
         ''' aufgerufen. Es ist ein Verteiler, der entweder das Update des Spielfeldes oder das Zeichnen selber aufruft.
@@ -217,16 +216,6 @@ Namespace Spielfeld
                 Exit Sub
             End If
 
-            If Not IsNothing(AktSpielfeldInfo) Then
-                _tmp += 1
-                If _tmp = 100 Then
-                    AktSpielfeldInfo.BitmapUGrdFullpath = Nothing
-                    AktSpielfeldInfo.BitmapUGrdImgCache = Nothing
-                    INI.Global_DarkMode = Not INI.Global_DarkMode
-                    _tmp = 0
-                    rectOutput.Width += 1
-                End If
-            End If
 
             If _ContinuePause OrElse _createScreenShot Then
                 If _BeginnPause OrElse _createScreenShot Then
@@ -287,8 +276,8 @@ Namespace Spielfeld
                 'auch durchgeführt wird, aber ohne Möglichkeit im Fehlerfall das Flag stehen zu lassen.
                 Select Case AktRendering
                     Case RenderingEnum.Spielfeld
-                        If Not IsNothing(SpielfeldDaten.PlayerSpielfeldInfo) Then
-                            If Not IsNothing(SpielfeldDaten.PlayerSpielfeldInfo.SteinInfos) Then
+                        If Not IsNothing(SpielfeldDaten.SpielerSpielfeldInfo) Then
+                            If Not IsNothing(SpielfeldDaten.SpielerSpielfeldInfo.SteinInfos) Then
                                 _initialisierungLäuft = False
                                 _updateSpielfeldIsDone = True
                                 UpdateSpielfeld(rectOutput)

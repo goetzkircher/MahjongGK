@@ -12,10 +12,23 @@ Option Explicit On
 Option Infer Off
 Option Strict On
 
+#Disable Warning IDE0079
+#Disable Warning IDE1006
+
 Imports System.Drawing.Drawing2D
 Imports System.Drawing.Imaging
 Imports System.IO
 
+Public Enum BackgroundImageRenderMode
+    ''' <summary>
+    ''' None wird als Stretch verarbeitet, wenn damit LoadBitmap aufgerufen wird.
+    ''' </summary>
+    None                ' nichts ausgewählt 
+    FitInside           ' Proportionen erhalten, Letterbox
+    Stretch             ' Verzerren erlaubt
+    CoverCrop           ' Cover + zentrierter Zuschnitt
+    PreserveOrgSize     ' Nur verkleinern, zentriert platzieren
+End Enum
 
 
 ''' <summary>
@@ -59,14 +72,8 @@ Public NotInheritable Class BackgroundSingleImageCache
     Private _lastBitmap As Bitmap = Nothing
     Private _ownsLast As Boolean = False
 
-    Public Enum RenderMode
-        FitInside = 0     ' Proportionen erhalten, Letterbox
-        Stretch = 1       ' Verzerren erlaubt
-        CoverCrop = 2     ' Cover + zentrierter Zuschnitt
-        PreserveOrgSize = 3 ' Nur verkleinern, zentriert platzieren
-    End Enum
 
-    Private _mode As RenderMode = RenderMode.FitInside
+    Private _mode As BackgroundImageRenderMode = BackgroundImageRenderMode.FitInside
 
 #End Region
 
@@ -110,7 +117,7 @@ Public NotInheritable Class BackgroundSingleImageCache
     ''' <summary>
     ''' Lädt (registriert) ein Bild und setzt den exklusiven Render-Modus.
     ''' </summary>
-    Public Sub LoadBitmap(fullpath As String, mode As RenderMode)
+    Public Sub LoadBitmap(fullpath As String, mode As BackgroundImageRenderMode)
         ' Pfad prüfen / zurücksetzen
         If String.IsNullOrWhiteSpace(fullpath) OrElse Not File.Exists(fullpath) Then
             If Not String.IsNullOrEmpty(_fullPath) Then _cache.Invalidate(_fullPath)
@@ -120,7 +127,7 @@ Public NotInheritable Class BackgroundSingleImageCache
         End If
 
         _fullPath = fullpath
-        _mode = mode
+        _mode = If(mode = BackgroundImageRenderMode.None, BackgroundImageRenderMode.Stretch, mode)
 
         ' Originalgröße einmalig ermitteln
         Using probe As Bitmap = _cache.LoadImageClone(_fullPath)
@@ -156,21 +163,21 @@ Public NotInheritable Class BackgroundSingleImageCache
 
         Select Case _mode
 
-            Case RenderMode.FitInside
+            Case BackgroundImageRenderMode.FitInside
                 ' Proportionen erhalten, Letterbox vom Cache
                 _lastBitmap = GetFromCache(effectiveSize, preserve:=True)
                 _lastSize = effectiveSize
                 _ownsLast = False
                 Return _lastBitmap
 
-            Case RenderMode.Stretch
+            Case BackgroundImageRenderMode.Stretch
                 ' Verzerren erlaubt, exakt Zielverhältnis
                 _lastBitmap = GetFromCache(effectiveSize, preserve:=False)
                 _lastSize = effectiveSize
                 _ownsLast = False
                 Return _lastBitmap
 
-            Case RenderMode.CoverCrop
+            Case BackgroundImageRenderMode.CoverCrop
                 ' Cover + zentrierter Crop auf Zielgröße
                 Dim scaleW As Double = CDbl(effectiveSize.Width) / Math.Max(1, _orgSize.Width)
                 Dim scaleH As Double = CDbl(effectiveSize.Height) / Math.Max(1, _orgSize.Height)
@@ -206,7 +213,7 @@ Public NotInheritable Class BackgroundSingleImageCache
                 _ownsLast = True
                 Return _lastBitmap
 
-            Case RenderMode.PreserveOrgSize
+            Case BackgroundImageRenderMode.PreserveOrgSize
                 ' Nur verkleinern, zentriert auf transparente Zielbitmap
                 Dim fitW As Double = CDbl(effectiveSize.Width) / Math.Max(1, _orgSize.Width)
                 Dim fitH As Double = CDbl(effectiveSize.Height) / Math.Max(1, _orgSize.Height)

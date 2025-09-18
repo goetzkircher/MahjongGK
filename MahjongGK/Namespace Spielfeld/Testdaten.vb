@@ -88,7 +88,7 @@ Namespace Spielfeld
             Dim newWerkbank As New SpielfeldInfo(New Triple(5, 5, 10))
             Dim newEditor As New SpielfeldInfo(New Triple(20, 5, 6))
 
-            Spielfeld.PlayerSpielfeldInfo = newSpielfeld
+            Spielfeld.SpielerSpielfeldInfo = newSpielfeld
             Spielfeld.WerkbankSpielfeldInfo = newWerkbank
             Spielfeld.EditorSpielfeldInfo = newEditor
 

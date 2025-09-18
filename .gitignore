@@ -3,6 +3,15 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+
+# ───────────────────────────────
+# MahjongGK projektspezifisch
+# ───────────────────────────────
+/Grafiken/
+/Grafiken XML-integriert (Betrifft 1.Version aus 2019)/
+/Magick.net/
+/packages/
+
 # User-specific files
 *.rsuser
 *.suo
