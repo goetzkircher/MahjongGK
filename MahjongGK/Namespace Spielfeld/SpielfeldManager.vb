@@ -41,70 +41,103 @@ Namespace Spielfeld
         '
         Public Sub UpdateSpielfeld(rectOutput As Rectangle, Optional forceUpdate As Boolean = False)
 
+            Dim saveToTmpVerz As Boolean = False
+
             'Auf eine Änderung von AktRendering reagieren
             Dim changed As Boolean = False
             Dim createFrozenBitmap As Boolean = Not RectSpielfeld.IsEmpty 'es gibt ein gültiges Rect, d.h. es wurde bereits gerendert
-            Select Case AktRendering
-                Case RenderingEnum.Spielfeld
-                    If Not IsNothing(SpielfeldDaten.SpielerSpielfeldInfo) Then
-                        If Not SpielerSpielfeldInfo.IsEqual(AktSpielfeldInfo) Then
 
-                            AktSpielfeldInfo = SpielerSpielfeldInfo
+            Select Case SFD.AktRendering
+                Case RenderingEnum.Spielfeld
+                    If Not IsNothing(SFD.SpielerSpielfeldInfo) Then
+                        If Not SpielerSpielfeldInfo.IsEqual(SFD.AktSpielfeldInfo) Then
+
+                            SFD.AktSpielfeldInfo = SFD.SpielerSpielfeldInfo
                             changed = True
                         End If
                     End If
                 Case RenderingEnum.Werkbank
-                    If Not IsNothing(SpielfeldDaten.WerkbankSpielfeldInfo) Then
-                        If Not WerkbankSpielfeldInfo.IsEqual(AktSpielfeldInfo) Then
-                            AktSpielfeldInfo = WerkbankSpielfeldInfo
+                    If Not IsNothing(SFD.WerkbankSpielfeldInfo) Then
+                        If Not SFD.WerkbankSpielfeldInfo.IsEqual(SFD.AktSpielfeldInfo) Then
+                            SFD.AktSpielfeldInfo = SFD.WerkbankSpielfeldInfo
                             changed = True
                         End If
                     End If
 
                 Case RenderingEnum.Editor
-                    If Not IsNothing(SpielfeldDaten.EditorSpielfeldInfo) Then
-                        If Not EditorSpielfeldInfo.IsEqual(AktSpielfeldInfo) Then
-                            AktSpielfeldInfo = EditorSpielfeldInfo
+                    If Not IsNothing(SFD.EditorSpielfeldInfo) Then
+                        If Not SFD.EditorSpielfeldInfo.IsEqual(SFD.AktSpielfeldInfo) Then
+                            SFD.AktSpielfeldInfo = EditorSpielfeldInfo
                             changed = True
                         End If
                     End If
             End Select
             '
-            If IsNothing(AktSpielfeldInfo) Then
+            If IsNothing(SFD.AktSpielfeldInfo) Then
                 Exit Sub
             End If
             '
             If changed Or forceUpdate Then
-                RectSpielfeld = rectOutput
+                SFD.RectSpielfeld = rectOutput
             Else
-                If RectSpielfeld = rectOutput Then
+                If SFD.RectSpielfeld = rectOutput Then
                     Exit Sub
                 Else
-                    RectSpielfeld = rectOutput
+                    SFD.RectSpielfeld = rectOutput
                 End If
             End If
 
 
-            If AktSpielfeldInfo.IsEmpty Then
+            If SFD.AktSpielfeldInfo.IsEmpty Then
                 Exit Sub
             End If
 
+            If changed AndAlso SFD.AktRendering <> RenderingEnum.None Then
+                ' Prüfen, ob gespeichert werden soll ins Temporär-Verzeichnis.
+                ' Annahme: SFD.AktSpielfeldInfo.Ident ist die "neu beobachtete" ID.
+                Dim identNew As String = SFD.AktSpielfeldInfo.Ident
 
+                If String.IsNullOrEmpty(SFD.AktSpielfeldInfo_Ident) Then
+                    ' Erstes Mal: Akt noch leer -> einmalig speichern
+                    SFD.AktSpielfeldInfo_Ident = identNew
+                    ' Last bleibt Nothing/leer
+                    saveToTmpVerz = True
+
+                ElseIf identNew = SFD.AktSpielfeldInfo_Ident Then
+                    ' Keine Änderung
+                    saveToTmpVerz = False
+
+                ElseIf identNew = SFD.LastSpielfeldInfo_Ident Then
+                    ' Sonderfall: Hin- und Her zwischen zwei bekannten IDs
+                    ' (Aktuelle Daten von Spielfeld und Editor)
+                    ' -> NICHT speichern, nur die Historie spiegeln/aktualisieren
+                    Dim tmp As String = SFD.AktSpielfeldInfo_Ident
+                    SFD.AktSpielfeldInfo_Ident = SFD.LastSpielfeldInfo_Ident
+                    SFD.LastSpielfeldInfo_Ident = tmp
+                    saveToTmpVerz = False
+
+                Else
+                    ' ECHTER Wechsel auf eine neue, bisher unbekannte ID
+                    SFD.LastSpielfeldInfo_Ident = SFD.AktSpielfeldInfo_Ident
+                    SFD.AktSpielfeldInfo_Ident = identNew
+                    saveToTmpVerz = True
+                End If
+            End If
             '
-            With AktSpielfeldInfo
+            With SFD.AktSpielfeldInfo
 
 
-                xMax = .xMax 'das sind die Felder
-                yMax = .yMax
-                zMax = .zMax
-                xMaxSteine = xMax \ 2 'jeder Stein belegt 2 Felder --> \ 2
-                yMaxSteine = yMax \ 2
-                zMaxSteine = .zMax + 1
+                SFD.xMax = .xMax 'das sind die Felder
+                SFD.yMax = .yMax
+                SFD.zMax = .zMax
+                SFD.xMaxSteine = xMax \ 2 'jeder Stein belegt 2 Felder --> \ 2
+                SFD.yMaxSteine = yMax \ 2
+                SFD.zMaxSteine = .zMax + 1
             End With
 
             INI.RaiseAllIniEvents()
 
-            If xMaxSteine < MJ_STEINE_SIDEBYSIDE_MIN OrElse yMaxSteine < MJ_STEINE_OVERANOTHER_MIN Then
+            If SFD.xMaxSteine < MJ_STEINE_SIDEBYSIDE_MIN OrElse yMaxSteine < MJ_STEINE_OVERANOTHER_MIN Then
                 If Debugger.IsAttached And Not IfRunningInIDE_ShowErrorMsgInsteadOfException Then
                     Throw New Exception($"Spielfeld Dimensionierung zu klein (xMax={xMax},yMax={yMax}) in SpielfeldManager.UpdateSpielfeld")
                 Else
@@ -113,7 +146,7 @@ Namespace Spielfeld
                     Exit Sub
                 End If
             End If
-            If xMaxSteine > MJ_STEINE_MAXX_SIDEBYSIDE OrElse yMaxSteine > MJ_STEINE_MAXY_OVERANOTHER OrElse zMax > MJ_STEINE_MAXZ_LAYER Then
+            If SFD.xMaxSteine > MJ_STEINE_MAXX_SIDEBYSIDE OrElse yMaxSteine > MJ_STEINE_MAXY_OVERANOTHER OrElse zMax > MJ_STEINE_MAXZ_LAYER Then
                 If Debugger.IsAttached And Not IfRunningInIDE_ShowErrorMsgInsteadOfException Then
                     Throw New Exception($"Spielfeld Dimensionierung zu zu groß (xMax={xMax},yMax={yMax},zMax={zMax})) in SpielfeldManager.UpdateSpielfeld")
                 Else
@@ -123,12 +156,12 @@ Namespace Spielfeld
                 End If
             End If
 
-            Dim insideWidth As Integer = RectSpielfeld.Width - MJ_MARGIN_ABSOLUT_LEFT - MJ_MARGIN_ABSOLUT_RIGHT
-            Dim insideHeight As Integer = RectSpielfeld.Height - MJ_MARGIN_ABSOLUT_TOP - MJ_MARGIN_ABSOLUT_BOTTOM
+            Dim insideWidth As Integer = SFD.RectSpielfeld.Width - MJ_MARGIN_ABSOLUT_LEFT - MJ_MARGIN_ABSOLUT_RIGHT
+            Dim insideHeight As Integer = SFD.RectSpielfeld.Height - MJ_MARGIN_ABSOLUT_TOP - MJ_MARGIN_ABSOLUT_BOTTOM
 
             'Das sind Startwerte
-            steinWidth = insideWidth \ xMaxSteine + 2 'mindestens aufrunden + 1
-            steinHeight = insideHeight \ yMaxSteine + 2
+            SFD.steinWidth = insideWidth \ SFD.xMaxSteine + 2 'mindestens aufrunden + 1
+            SFD.steinHeight = insideHeight \ SFD.yMaxSteine + 2
 
             'Die Steinabmessungen werden interativ berechnet.
             'Sie sind abhängig von der Feldgröße in Steinen, der Feldgröße in Pixeln
@@ -151,14 +184,14 @@ Namespace Spielfeld
                 steinSize = GetNewSteinSize(shrink)
 
 
-                offset3DLeftJeEbene = CInt(Math.Max(INI.Rendering_Offset3DFaktorAbsolutX * steinSize.Width, CDbl(INI.Rendering_Offset3DMinPerLayerX)))
-                offset3DTopJeEbene = CInt(Math.Max(INI.Rendering_Offset3DFaktorAbsolutY * steinSize.Height, CDbl(INI.Rendering_Offset3DMinPerLayerY)))
+                SFD.offset3DLeftJeEbene = CInt(Math.Max(INI.Rendering_Offset3DFaktorAbsolutX * steinSize.Width, CDbl(INI.Rendering_Offset3DMinPerLayerX)))
+                SFD.offset3DTopJeEbene = CInt(Math.Max(INI.Rendering_Offset3DFaktorAbsolutY * steinSize.Height, CDbl(INI.Rendering_Offset3DMinPerLayerY)))
 
-                offset3DLeftSumme = offset3DLeftJeEbene * zMax ' + INI.Rendering_RectOutputPaddingLeft + INI.Rendering_RectOutputPaddingRight
-                offset3DTopSumme = offset3DTopJeEbene * zMax '+ INI.Rendering_RectOutputPaddingTop + INI.Rendering_RectOutputPaddingBottom
+                SFD.offset3DLeftSumme = SFD.offset3DLeftJeEbene * SFD.zMax ' + INI.Rendering_RectOutputPaddingLeft + INI.Rendering_RectOutputPaddingRight
+                SFD.offset3DTopSumme = SFD.offset3DTopJeEbene * SFD.zMax '+ INI.Rendering_RectOutputPaddingTop + INI.Rendering_RectOutputPaddingBottom
 
-                summeWidth = steinSize.Width * xMaxSteine + offset3DLeftSumme
-                summeHeight = steinSize.Height * yMaxSteine + offset3DTopSumme
+                summeWidth = steinSize.Width * SFD.xMaxSteine + SFD.offset3DLeftSumme
+                summeHeight = steinSize.Height * SFD.yMaxSteine + SFD.offset3DTopSumme
 
                 If summeWidth <= insideWidth AndAlso summeHeight <= insideHeight Then
                     Exit Do
@@ -166,11 +199,11 @@ Namespace Spielfeld
             Loop
 
 
-            steinWidth = steinSize.Width
-            steinHeight = steinSize.Height
+            SFD.steinWidth = steinSize.Width
+            SFD.steinHeight = steinSize.Height
 
-            steinWidthHalf = steinWidth \ 2
-            steinHeightHalf = steinHeight \ 2
+            SFD.steinWidthHalf = steinWidth \ 2
+            SFD.steinHeightHalf = steinHeight \ 2
 
             'getestet mit einem Spielfeld mit 75 X 25 X 25 Steinen
             'und einem RenderRect mit 344 x 194 Pixeln
@@ -182,43 +215,43 @@ Namespace Spielfeld
 
             '
             'neu berechnen
-            summeWidth = steinWidth * xMaxSteine + offset3DLeftSumme '+ 2
-            summeHeight = steinHeight * yMaxSteine + offset3DTopSumme '+ 2
+            summeWidth = SFD.steinWidth * SFD.xMaxSteine + SFD.offset3DLeftSumme '+ 2
+            summeHeight = SFD.steinHeight * SFD.yMaxSteine + SFD.offset3DTopSumme '+ 2
 
             Dim deltaWidth As Integer = insideWidth - summeWidth
             Dim deltaHeigh As Integer = insideHeight - summeHeight
 
             'Ausgabefeld zentrieren
-            renderRectLeft = deltaWidth \ 2 + MJ_MARGIN_ABSOLUT_LEFT
-            renderRectTop = deltaHeigh \ 2 + MJ_MARGIN_ABSOLUT_TOP
-            renderRectWidth = summeWidth
-            renderRectHeight = summeHeight
+            SFD.renderRectLeft = deltaWidth \ 2 + MJ_MARGIN_ABSOLUT_LEFT
+            SFD.renderRectTop = deltaHeigh \ 2 + MJ_MARGIN_ABSOLUT_TOP
+            SFD.renderRectWidth = summeWidth
+            SFD.renderRectHeight = summeHeight
 
-            renderRect = New Rectangle(renderRectLeft, renderRectTop, renderRectWidth, renderRectHeight)
+            SFD.renderRect = New Rectangle(SFD.renderRectLeft, SFD.renderRectTop, SFD.renderRectWidth, SFD.renderRectHeight)
 
-            If steinWidthLastCreated <> steinWidth OrElse steinHeightLastCreated <> steinHeight Then
-                BitmapContainer.ChangeImagesSize(steinWidth, steinHeight)
-                steinWidthLastCreated = steinWidth
-                steinHeightLastCreated = steinHeight
+            If SFD.steinWidthLastCreated <> SFD.steinWidth OrElse SFD.steinHeightLastCreated <> SFD.steinHeight Then
+                BitmapContainer.ChangeImagesSize(SFD.steinWidth, SFD.steinHeight)
+                SFD.steinWidthLastCreated = SFD.steinWidth
+                SFD.steinHeightLastCreated = SFD.steinHeight
             End If
 
-            offset3DLeftJeEbene *= INI.Rendering_Offset3DFaktorSignX
-            offset3DTopJeEbene *= INI.Rendering_Offset3DFaktorSignY
+            SFD.offset3DLeftJeEbene *= INI.Rendering_Offset3DFaktorSignX
+            SFD.offset3DTopJeEbene *= INI.Rendering_Offset3DFaktorSignY
 
-            If offset3DLeftJeEbene < 0 Then
-                offset3DLeftSumme = 0
+            If SFD.offset3DLeftJeEbene < 0 Then
+                SFD.offset3DLeftSumme = 0
             End If
-            If offset3DTopJeEbene < 0 Then
-                offset3DTopSumme = 0
+            If SFD.offset3DTopJeEbene < 0 Then
+                SFD.offset3DTopSumme = 0
             End If
 
-            'With AktSpielfeldInfo
+            'With SFD.AktSpielfeldInfo
             '    If IsNothing(.BitmapUGrdImgCache) Then
             '        If .HasBitmapUGrd Then
             '            .BitmapUGrdImgCache = New BackgroundSingleImageCache(BackgroundBitmapCache)
             '            .BitmapUGrdImgCache.LoadBitmap(.BitmapUGrdFullpath, BackgroundSingleImageCache.BackgroundRenderMode.CoverCrop)
             '        Else
-            '            With AktSpielfeldInfo
+            '            With SFD.AktSpielfeldInfo
             '                Dim bitmapUGrdFullpath As String = IO.Path.Combine(AppDataDirectory(AppDataSubDir.Hintergrundgrafiken),
             '                If(INI.Global_DarkMode, "water_3007467.jpg", "watercolor_2323195.jpg"))
             '                .BitmapUGrdFullpath = bitmapUGrdFullpath
@@ -229,6 +262,10 @@ Namespace Spielfeld
             '    End If
             'End With
 
+
+            If saveToTmpVerz Then
+                SFD.AktSpielfeldInfo.Save()
+            End If
         End Sub
 
         ' Hinweis:

@@ -81,19 +81,19 @@ Namespace Spielfeld
         Public Sub PaintSpielfeld_Initialisierung(ctrl As Control, visibleUCtl As VisibleUserControl)
             _currentControl = ctrl
             _currentControlSic = ctrl
-            SpielfeldDaten.VisibleUserControl = visibleUCtl
+            SFD.VisibleUserControl = visibleUCtl
             _visibleUserControlSic = visibleUCtl
             FrameScheduler.Reset()
             RenderTimer.Start()
-            SpielfeldDaten.AktRendering = RenderingEnum.None
+            SFD.AktRendering = RenderingEnum.None
             _lastRendering = RenderingEnum.None
             _initialisierungLäuft = True
         End Sub
         Public Sub PaintSpielfeld_DeInitialisierung()
             _currentControl = Nothing
-            SpielfeldDaten.VisibleUserControl = VisibleUserControl.None
+            SFD.VisibleUserControl = VisibleUserControl.None
             RenderTimer.Stop()
-            SpielfeldDaten.AktRendering = RenderingEnum.None
+            SFD.AktRendering = RenderingEnum.None
             _lastRendering = RenderingEnum.None
             _initialisierungLäuft = False
         End Sub
@@ -105,10 +105,10 @@ Namespace Spielfeld
         ''' </summary>
         Public Sub PaintSpielfeld_ReInitialisierung()
             _currentControl = _currentControlSic
-            SpielfeldDaten.VisibleUserControl = _visibleUserControlSic
+            SFD.VisibleUserControl = _visibleUserControlSic
             FrameScheduler.Reset()
             RenderTimer.Start()
-            SpielfeldDaten.AktRendering = RenderingEnum.None
+            SFD.AktRendering = RenderingEnum.None
             _lastRendering = RenderingEnum.None
             _initialisierungLäuft = True
         End Sub
@@ -121,7 +121,7 @@ Namespace Spielfeld
             _ContinuePause = True
             _BeginnPause = True
             _EndePause = False
-            _visibleUserControlOnBeginnPause = VisibleUserControl
+            _visibleUserControlOnBeginnPause = SFD.VisibleUserControl
             If Not IsNothing(_bmpFrozen) Then
                 _bmpFrozen.Dispose()
             End If
@@ -270,14 +270,14 @@ Namespace Spielfeld
                 Exit Sub
             End If
 
-            If _initialisierungLäuft And AktRendering <> RenderingEnum.None Then
+            If _initialisierungLäuft And SFD.AktRendering <> RenderingEnum.None Then
                 'Es muss sichergestellt sein, daß _initialisierungLäuft korrekt rückgestellt wird
                 'deshalb wird hier die Prüfung vorab durchgeführt, die in UpdateSpielfeld
                 'auch durchgeführt wird, aber ohne Möglichkeit im Fehlerfall das Flag stehen zu lassen.
-                Select Case AktRendering
+                Select Case SFD.AktRendering
                     Case RenderingEnum.Spielfeld
-                        If Not IsNothing(SpielfeldDaten.SpielerSpielfeldInfo) Then
-                            If Not IsNothing(SpielfeldDaten.SpielerSpielfeldInfo.SteinInfos) Then
+                        If Not IsNothing(SFD.SpielerSpielfeldInfo) Then
+                            If Not IsNothing(SFD.SpielerSpielfeldInfo.SteinInfos) Then
                                 _initialisierungLäuft = False
                                 _updateSpielfeldIsDone = True
                                 UpdateSpielfeld(rectOutput)
@@ -288,8 +288,8 @@ Namespace Spielfeld
                         End If
 
                     Case RenderingEnum.Werkbank
-                        If Not IsNothing(SpielfeldDaten.WerkbankSpielfeldInfo) Then
-                            If Not IsNothing(SpielfeldDaten.WerkbankSpielfeldInfo.SteinInfos) Then
+                        If Not IsNothing(SFD.WerkbankSpielfeldInfo) Then
+                            If Not IsNothing(SFD.WerkbankSpielfeldInfo.SteinInfos) Then
                                 _initialisierungLäuft = False
                                 _updateSpielfeldIsDone = True
                                 UpdateSpielfeld(rectOutput)
@@ -300,8 +300,8 @@ Namespace Spielfeld
                         End If
 
                     Case RenderingEnum.Editor
-                        If Not IsNothing(SpielfeldDaten.EditorSpielfeldInfo) Then
-                            If Not IsNothing(SpielfeldDaten.EditorSpielfeldInfo.SteinInfos) Then
+                        If Not IsNothing(SFD.EditorSpielfeldInfo) Then
+                            If Not IsNothing(SFD.EditorSpielfeldInfo.SteinInfos) Then
                                 _initialisierungLäuft = False
                                 _updateSpielfeldIsDone = True
                                 UpdateSpielfeld(rectOutput)

@@ -42,13 +42,13 @@ Namespace Spielfeld
 
         Public Sub DoPaintSpielfeld_Paint(gfx As Graphics, rectOutput As Rectangle, timeDifferenzFaktor As Double, clear As Boolean)
 
-            If AktRendering = RenderingEnum.None OrElse clear OrElse AktSpielfeldInfo.IsEmpty Then
+            If SFD.AktRendering = RenderingEnum.None OrElse clear OrElse SFD.AktSpielfeldInfo.IsEmpty Then
 
                 gfx.Clear(INI.Spielfeld_BackgroundColor)
 
                 Dim text As String = Nothing
 
-                Select Case AktRendering
+                Select Case SFD.AktRendering
                     Case RenderingEnum.None
                         text = "Es ist Pause - Du kannst ein Spiel laden."
                     Case RenderingEnum.Spielfeld
@@ -68,23 +68,18 @@ Namespace Spielfeld
                 Exit Sub
             End If
 
-            If AktSpielfeldInfo.IsEmpty Then
+            If SFD.AktSpielfeldInfo.IsEmpty Then
                 gfx.Clear(INI.Spielfeld_BackgroundColor)
                 Exit Sub
             End If
 
 
-            If INI.Spielfeld_UseBackgroundColor Then
-                gfx.Clear(INI.Spielfeld_BackgroundColor)
-
-            ElseIf AktSpielfeldInfo.HasBitmapUGrd Then
-
-                Dim bmp As Bitmap = AktSpielfeldInfo.BitmapUGrdImgCache.GetBitmap(rectOutput.Size)
-                gfx.DrawImage(bmp, Point.Empty)
+            If SFD.AktSpielfeldInfo.HasBitmapUGrd Then
+                gfx.DrawImage(SFD.AktSpielfeldInfo.GetBitmapUGrd(rectOutput.Size), Point.Empty)
             Else
-                gfx.Clear(INI.Spielfeld_BackgroundColor)
-
+                gfx.Clear(SFD.AktSpielfeldInfo.HGrdColor)
             End If
+
 
 
 
@@ -111,17 +106,17 @@ Namespace Spielfeld
 
             Dim aktSteinInfo As SteinInfo
 
-            Dim toggleVergleichsflag As Boolean = AktSpielfeldInfo.GetFirstToggleFlagValue
+            Dim toggleVergleichsflag As Boolean = SFD.AktSpielfeldInfo.GetFirstToggleFlagValue
 
             'Die Vaiable, auf die hier zugegriffen wird, und die nicht hier
             'deklariert sind, stehen alle im Modul SpielfeldDaten.
-            With AktSpielfeldInfo
+            With SFD.AktSpielfeldInfo
 
                 'Dim debugInfo As String = String.Empty
 
-                For z As Integer = zMin To zMax
-                    For x As Integer = xMin To xMax
-                        For y As Integer = yMin To yMax
+                For z As Integer = SFD.zMin To SFD.zMax
+                    For x As Integer = SFD.xMin To SFD.xMax
+                        For y As Integer = SFD.yMin To SFD.yMax
 
                             If .arrFB(x, y, z) = 0 Then
                                 'unbelegtes Feld
@@ -145,10 +140,10 @@ Namespace Spielfeld
                                 If .AnimShowAnimated Then
                                     PaintAnimatedStein(gfx, rectOutput, timeDifferenzFaktor, aktSteinInfo, New Triple(x, y, z))
                                 Else
-                                    Dim left As Integer = renderRectLeft + (steinWidthHalf * (x - 1) + offset3DLeftSumme - (offset3DLeftJeEbene * z)) + CInt(shrinkRectF.Left)
-                                    Dim top As Integer = renderRectTop + (steinHeightHalf * (y - 1) + offset3DTopSumme - (offset3DTopJeEbene * z)) + CInt(shrinkRectF.Top)
+                                    Dim left As Integer = SFD.renderRectLeft + (SFD.steinWidthHalf * (x - 1) + SFD.offset3DLeftSumme - (SFD.offset3DLeftJeEbene * z)) + CInt(shrinkRectF.Left)
+                                    Dim top As Integer = SFD.renderRectTop + (SFD.steinHeightHalf * (y - 1) + SFD.offset3DTopSumme - (SFD.offset3DTopJeEbene * z)) + CInt(shrinkRectF.Top)
                                     ''Debug
-                                    'debugInfo &= $"x={x},y={y},z={z},arrFB-SteinIdx={ aktSpielfeldInfo.GetIndexStein(x, y, z)},SII={aktSteinInfo.SteinInfoIndex},SI={aktSteinInfo.SteinIndex}|"
+                                    'debugInfo &= $"x={x},y={y},z={z},arrFB-SteinIdx={ SFD.AktSpielfeldInfo.GetIndexStein(x, y, z)},SII={aktSteinInfo.SteinInfoIndex},SI={aktSteinInfo.SteinIndex}|"
                                     ''/Debug
                                     gfx.DrawImage(BitmapContainer.GetBitmap(.SteinStatusUsed, .SteinIndex), left, top)
 
@@ -226,10 +221,10 @@ Namespace Spielfeld
 
         Private Sub PaintAnimatedStein(gfx As Graphics, rectOutput As Rectangle, timeDifferenzFaktor As Double, aktSteinInfo As SteinInfo, pos3D As Triple)
 
-            Dim left As Integer = renderRectLeft + (steinWidthHalf * pos3D.x) - (offset3DLeftJeEbene * pos3D.z)
-            Dim top As Integer = renderRectTop + (steinHeightHalf * pos3D.y) - (offset3DTopJeEbene * pos3D.z)
+            Dim left As Integer = SFD.renderRectLeft + (SFD.steinWidthHalf * pos3D.x) - (SFD.offset3DLeftJeEbene * pos3D.z)
+            Dim top As Integer = SFD.renderRectTop + (SFD.steinHeightHalf * pos3D.y) - (SFD.offset3DTopJeEbene * pos3D.z)
 
-            Dim rectStein As New Rectangle(left, top, steinWidth, steinHeight)
+            Dim rectStein As New Rectangle(left, top, SFD.steinWidth, SFD.steinHeight)
 
         End Sub
 

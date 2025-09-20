@@ -178,5 +178,19 @@ Namespace MjMix
         End Sub
 
 
+        ''' <summary>
+        ''' Erzeugt eine neue Ident. Kollision praktisch ausgeschlossen.
+        ''' Format: [{prefix}-]{yyyyMMdd}-{HHmmss}-{guidSuffix}
+        ''' </summary>
+        Public Function NewIdent(Optional prefix As String = Nothing) As String
+            Dim ts As String = DateTime.UtcNow.ToString("yyyyMMdd-HHmmss")
+            Dim guidSuffix As String = Guid.NewGuid().ToString("N").Substring(0, 10)
+            If String.IsNullOrEmpty(prefix) Then
+                Return $"{ts}-{guidSuffix}"
+            Else
+                Return $"{prefix}-{ts}-{guidSuffix}"
+            End If
+        End Function
+
     End Module
 End Namespace

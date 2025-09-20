@@ -1318,7 +1318,7 @@ Public Module INI
         Get
             If _Spielfeld_BackgroundColorLightMode.IsEmpty Then
                 Dim [Default] As Color = IniManager.CvtHexStringToColor("FF606060")
-                Dim comment As String = Nothing
+                Dim comment As String = "Fallbackwerte. Werden benutzt, solage mit der Toolbox nichts anderes festgelegt wurde."
                 _Spielfeld_BackgroundColorLightMode = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
             End If
             Return _Spielfeld_BackgroundColorLightMode
@@ -1343,27 +1343,12 @@ Public Module INI
         End Get
     End Property
 
-    Private _Spielfeld_UseBackgroundColor As Boolean?
-    Public Property Spielfeld_UseBackgroundColor As Boolean
-        Get
-            If IsNothing(_Spielfeld_UseBackgroundColor) Then
-                Dim [Default] As Boolean = False
-                Dim comment As String = "Wenn nicht, wird ein Hintergrundbild eingebaut. Satz1: False"
-                _Spielfeld_UseBackgroundColor = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-            End If
-            Return CBool(_Spielfeld_UseBackgroundColor)
-        End Get
-        Set(value As Boolean)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
-            _Spielfeld_UseBackgroundColor = Nothing
-        End Set
-    End Property
 
     Private _Spielfeld_DrawFraming As Boolean?
     Public Property Spielfeld_DrawFraming As Boolean
         Get
             If IsNothing(_Spielfeld_DrawFraming) Then
-                Dim [Default] As Boolean = True
+                Dim [Default] As Boolean = Debugger.IsAttached
                 Dim comment As String = Nothing
                 _Spielfeld_DrawFraming = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
             End If
@@ -1395,7 +1380,7 @@ Public Module INI
     Public Property Spielfeld_FramingThickness As Single
         Get
             If Not _Spielfeld_FramingThickness.HasValue Then
-                Dim [Default] As Single = 2
+                Dim [Default] As Single = 1
                 Dim comment As String = Nothing
                 _Spielfeld_FramingThickness = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
             End If
@@ -1428,7 +1413,7 @@ Public Module INI
         Get
             If _Spielfeld_RenderRectColor.IsEmpty Then
                 Dim [Default] As Color = Color.Black
-                Dim comment As String = Nothing
+                Dim comment As String = "Sinnvoll während der Programmentwicklung, daher stehen die Defaultwerte auf Debugger.IsAttached"
                 _Spielfeld_RenderRectColor = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
             End If
             Return _Spielfeld_RenderRectColor
@@ -1967,13 +1952,16 @@ Public Module INI
         End Set
     End Property
 
-    Public Property Toolbox_HGrdSpfldColorFallback As Color
+    Public Property Toolbox_HGrdSplFldColorFallback As Color
         Get
             Dim [Default] As Color = Color.Empty
-            'alternativ
-            'Dim [Default] As Color = IniManager.CvtHexStringToColor("FF000000")
             Dim comment As String = Nothing
-            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            Dim col As Color = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            If col = Color.Empty Then
+                Return Spielfeld_BackgroundColor
+            Else
+                Return col
+            End If
         End Get
         Set(value As Color)
             BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
@@ -1986,14 +1974,19 @@ Public Module INI
             'alternativ
             'Dim [Default] As Color = IniManager.CvtHexStringToColor("FF000000")
             Dim comment As String = Nothing
-            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            Dim col As Color = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            If col = Color.Empty Then
+                Return Spielfeld_BackgroundColor
+            Else
+                Return col
+            End If
         End Get
         Set(value As Color)
             BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
         End Set
     End Property
 
-    Public Property Toolbox_HGrdSpfldBitmapNameFallback As String
+    Public Property Toolbox_HGrdSplFldBitmapNameFallback As String
         Get
             Dim [Default] As String = Nothing
             Dim comment As String = Nothing
@@ -2015,7 +2008,7 @@ Public Module INI
         End Set
     End Property
 
-    Public Property Toolbox_HGrdSpfldBitmapIsUserGrafikFallback As Boolean
+    Public Property Toolbox_HGrdSplFldBitmapIsUserGrafikFallback As Boolean
         Get
             Dim [Default] As Boolean = False
             Dim comment As String = Nothing
@@ -2037,7 +2030,7 @@ Public Module INI
         End Set
     End Property
 
-    Public Property Toolbox_HGrdEditorUseSpfldValues As Boolean
+    Public Property Toolbox_HGrdEditorUseSplFldValues As Boolean
         Get
             Dim [Default] As Boolean = False
             Dim comment As String = Nothing
@@ -2048,7 +2041,7 @@ Public Module INI
         End Set
     End Property
 
-    Public Property Toolbox_HGrdSpfldRenderModeFallback As BackgroundImageRenderMode
+    Public Property Toolbox_HGrdSplFldRenderModeFallback As BackgroundImageRenderMode
         Get
             Dim [Default] As String = BackgroundImageRenderMode.None.ToString
             Dim comment As String = Nothing
@@ -2406,6 +2399,33 @@ Public Module INI
 
 #End Region
 
+#Region "ColorPickerHSB"
+
+    Public Property ColorPickerHSB_Toolbox_PickerBackColor As Color
+        Get
+            Dim [Default] As Color = Color.Empty
+            'alternativ
+            'Dim [Default] As Color = IniManager.CvtHexStringToColor("FF000000")
+            Dim comment As String = Nothing
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As Color)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+        End Set
+    End Property
+
+    Public Property ColorPickerHSB_Toolbox_SavedColorsString As String
+        Get
+            Dim [Default] As String = Nothing
+            Dim comment As String = Nothing
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As String)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+        End Set
+    End Property
+
+#End Region
 
 #Region "Ini Editieren"
 

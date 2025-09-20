@@ -62,14 +62,14 @@ Public Class frmMain
         Select Case startRenderingWithOrToggleTo
             Case RenderingEnum.Spielfeld
                 AktVisibleUserControl = VisibleUserControl.Spielfeld
-                Spielfeld.AktRendering = RenderingEnum.Spielfeld
+                SFD.AktRendering = RenderingEnum.Spielfeld
 
             Case RenderingEnum.Editor
                 AktVisibleUserControl = VisibleUserControl.Editor
-                Spielfeld.AktRendering = RenderingEnum.Editor
+                SFD.AktRendering = RenderingEnum.Editor
             Case RenderingEnum.Werkbank
                 AktVisibleUserControl = VisibleUserControl.Werkbank
-                Spielfeld.AktRendering = RenderingEnum.Werkbank
+                SFD.AktRendering = RenderingEnum.Werkbank
             Case Else
         End Select
     End Sub

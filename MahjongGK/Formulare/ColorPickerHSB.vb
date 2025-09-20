@@ -30,10 +30,14 @@ Option Strict On
 Imports System.ComponentModel
 Imports System.Drawing.Drawing2D
 
+
 '
 ''' <summary>
 ''' HSB-Farbwahl mit breitem Hue-Ring, Reglern für Sättigung/Helligkeit,
-''' Info-Button, Grauskala-Hintergrundwahl und 6 Merkfarben (Drag & Drop).
+''' Info-Button, Grauskala-Hintergrundwahl und 6 Merkfarben (Drag and Drop).
+''' ShowDialog gibt zurück DialogResult.Cancel oder DialogResult.None,
+''' wenn Abbrechen gewählt oder nichts gewählt wurde, ansonsten DialogResult.OK
+''' Für Stand-Alone Anwendung am Ende der Klasse ButtonInfo aktivieren.
 ''' </summary>
 Public NotInheritable Class ColorPickerHSB
     Inherits Form
@@ -41,22 +45,25 @@ Public NotInheritable Class ColorPickerHSB
     ' ── Konstanten ─────────────────────────────────────────────────────────────
     Private Const RING_WIDTH As Integer = 80
     Private Const MEM_COLS As Integer = 2
-    Private Const MEM_ROWS As Integer = 3
+    Private Const MEM_ROWS As Integer = 4
     Private Const MEM_COUNT As Integer = MEM_COLS * MEM_ROWS
 
     ' ── Öffentliche API ────────────────────────────────────────────────────────
     '
     ''' <summary>Ausgangsfarbe (wird angezeigt und initial markiert).</summary>
     <Browsable(True)>
-    Public Property InitialColor As Color = Color.SteelBlue
+    Private _initialColor As Color = Color.SteelBlue
 
     '
     ''' <summary>Vom Benutzer übernommene Farbe (nur bei DialogResult.OK gesetzt).</summary>
     <Browsable(False)>
-    Public ReadOnly Property SelectedColor As Color
+    Public Property SelectedColor As Color
         Get
             Return _selectedColor
         End Get
+        Set(value As Color)
+            _initialColor = value
+        End Set
     End Property
     '
     ''' <summary>
@@ -69,6 +76,9 @@ Public NotInheritable Class ColorPickerHSB
             Return _pickerBackColor
         End Get
         Set(value As Color)
+            If value.IsEmpty Then
+                value = Color.FromArgb(182, 182, 182)
+            End If
             _pickerBackColor = value
             Me.BackColor = value
             pbWheel.BackColor = value
@@ -80,7 +90,7 @@ Public NotInheritable Class ColorPickerHSB
     '
     ''' <summary>
     ''' CSV-String der 6 Merkfarben (RGB-Triplets, Semikolon-getrennt).
-    ''' Format: "R,G,B;R,G,B;... (6x)". Leerer String ⇒ alle Merklabels löschen.
+    ''' Format: "R,G,B;R,G,B;... (8x)". Leerer String ⇒ alle Merklabels löschen.
     ''' </summary>
     <Browsable(True)>
     Public Property SavedColorsString As String
@@ -134,12 +144,18 @@ Public NotInheritable Class ColorPickerHSB
     ' Merkfarben (2×3)
     Private ReadOnly memLabels As New List(Of Label)(MEM_COUNT)
 
+    ' Hue-Center-Steuerung im Farbkreis
+    Private ReadOnly lblHueCenter As New Label()
+    Private ReadOnly btnHueMinus As New Button()
+    Private ReadOnly btnHuePlus As New Button()
+
+
     ' ── Konstruktor ────────────────────────────────────────────────────────────
     '
     ''' <summary>Initialisiert die Form inkl. Merkfarben-Raster.</summary>
     Public Sub New()
         MyBase.New()
-        Me.Text = "Farbwahl (HSB)"
+        Me.Text = "Farbwahl (HSB-Farbraum)"
         Me.StartPosition = FormStartPosition.CenterParent
         Me.FormBorderStyle = FormBorderStyle.FixedDialog
         Me.MaximizeBox = False
@@ -147,7 +163,6 @@ Public NotInheritable Class ColorPickerHSB
         Me.ShowInTaskbar = False
         Me.KeyPreview = True
 
-        ' Etwas größer wegen Merkfarben
         Me.ClientSize = New Size(600, 560)
 
         BuildUi()
@@ -169,6 +184,33 @@ Public NotInheritable Class ColorPickerHSB
         pbWheel.SizeMode = PictureBoxSizeMode.Normal
         pbWheel.AllowDrop = False
         Me.Controls.Add(pbWheel)
+
+        ' ── Hue-Center (im Farbkreis) ─────────────────────────────────────────────
+        ' Parent in die PictureBox, damit es „mitwandert“
+        lblHueCenter.Parent = pbWheel
+        btnHueMinus.Parent = pbWheel
+        btnHuePlus.Parent = pbWheel
+
+        ' Label: aktuelle Hue-Anzeige (0–360°)
+        lblHueCenter.AutoSize = False
+        lblHueCenter.Size = New Size(70, 24)
+        lblHueCenter.TextAlign = ContentAlignment.MiddleCenter
+        lblHueCenter.BorderStyle = BorderStyle.FixedSingle
+        lblHueCenter.BackColor = Color.FromArgb(220, 240, 240, 240) ' leicht transparent wirkend
+        lblHueCenter.ForeColor = Color.Black
+        lblHueCenter.Text = "0°"
+
+        ' Buttons: Feinsteuerung
+        btnHueMinus.Text = "−"
+        btnHueMinus.Size = New Size(26, 26)
+        btnHueMinus.TabStop = False
+
+        btnHuePlus.Text = "+"
+        btnHuePlus.Size = New Size(26, 26)
+        btnHuePlus.TabStop = False
+
+        AddHandler btnHueMinus.Click, AddressOf OnHueMinusClick
+        AddHandler btnHuePlus.Click, AddressOf OnHuePlusClick
 
         ' Rechts oben: drei Farbfelder (Ausgang, Aktuell, Gewählt)
         Dim rightX As Integer = 390
@@ -215,7 +257,7 @@ Public NotInheritable Class ColorPickerHSB
         ' Info-Button
         btnInfo.Location = New Point(rightX + swWidth - 26, 190)
         btnInfo.Size = New Size(26, 26)
-        btnInfo.InfoHeader = "Hilfe – Farbwahl (HSB)"
+        btnInfo.InfoHeader = "Hilfe – Farbwahl (HSB Farbraum)"
         btnInfo.InfoText =
             "• Kreis = Farbton (Hue); Sättigung/Helligkeit per Regler unten." & Environment.NewLine &
             "• Maus über dem Ring zeigt 'Aktuelle Farbe'." & Environment.NewLine &
@@ -255,7 +297,7 @@ Public NotInheritable Class ColorPickerHSB
         tbSat.TickFrequency = 10
         tbSat.Value = 100
         tbSat.SmallChange = 1
-        tbSat.LargeChange = 1
+        tbSat.LargeChange = 5
         Me.Controls.Add(tbSat)
 
         lblSatVal.AutoSize = True
@@ -277,7 +319,7 @@ Public NotInheritable Class ColorPickerHSB
         tbBri.TickFrequency = 10
         tbBri.Value = 100
         tbBri.SmallChange = 1
-        tbBri.LargeChange = 1
+        tbBri.LargeChange = 5
         Me.Controls.Add(tbBri)
 
         lblBriVal.AutoSize = True
@@ -304,6 +346,11 @@ Public NotInheritable Class ColorPickerHSB
         btnReset.Location = New Point(12, Me.ClientSize.Height - 44)
         btnReset.Anchor = AnchorStyles.Bottom Or AnchorStyles.Left
         Me.Controls.Add(btnReset)
+
+        ' Anfangsposition (wird im Resize exakt mittig gesetzt)
+        PositionHueCenterControls()
+
+
     End Sub
     '
     ''' <summary>Erzeugt das 2×3-Merkfeld-Raster unter der Grauskala.</summary>
@@ -318,7 +365,7 @@ Public NotInheritable Class ColorPickerHSB
         For r As Integer = 0 To MEM_ROWS - 1
             For c As Integer = 0 To MEM_COLS - 1
                 Dim idx As Integer = r * MEM_COLS + c
-                Dim lbl As New Label() With {
+                Dim lbl As New Label With {
                     .BorderStyle = BorderStyle.FixedSingle,
                     .Size = New Size(cellW, cellH),
                     .Location = New Point(startX + c * (cellW + gap), startY + r * (cellH + gap)),
@@ -327,9 +374,9 @@ Public NotInheritable Class ColorPickerHSB
                     .ForeColor = SystemColors.ControlText,
                     .Tag = idx,
                     .AllowDrop = True,
-                    .Cursor = Cursors.Hand
+                    .Cursor = Cursors.Hand,
+                    .Text = "—"
                 }
-                lbl.Text = "—"
                 AddHandler lbl.MouseDown, AddressOf MemLabel_ClickOrDragStart
                 AddHandler lbl.DragEnter, AddressOf MemLabel_DragEnter
                 AddHandler lbl.DragDrop, AddressOf MemLabel_DragDrop
@@ -366,8 +413,32 @@ Public NotInheritable Class ColorPickerHSB
         Me.BackColor = _pickerBackColor
         pbWheel.BackColor = _pickerBackColor
 
+        If IsEmptyOrTransparent(_initialColor) Then
+            ' Vorgabe für „keine Startfarbe“
+            _hoverHue = 0.0
+            _frozenHue = 0.0
+            _saturation = 1.0
+            _brightness = 1.0
+            _frozen = False
+            _showInitialMarker = False
+            btnUebernehmen.Enabled = False
+
+            tbSat.Value = 100 : lblSatVal.Text = "100 %"
+            tbBri.Value = 100 : lblBriVal.Text = "100 %"
+
+            SetSwatchEmpty(swatchStart)
+            SetSwatchEmpty(swatchCurr)
+            UpdateFrozenSwatch(clearWhenNone:=True)
+
+            RebuildWheelBitmap()
+            pbGrayStrip.Invalidate()
+            UpdateHueLabel()
+            Return
+        End If
+
+        ' Normalfall mit definierter Startfarbe
         Dim h As Double, s As Double, b As Double
-        RgbToHsv(InitialColor, h, s, b)
+        RgbToHsv(_initialColor, h, s, b)
         _hoverHue = h
         _frozenHue = h
         _saturation = s
@@ -378,16 +449,18 @@ Public NotInheritable Class ColorPickerHSB
         lblSatVal.Text = tbSat.Value.ToString() & " %"
         lblBriVal.Text = tbBri.Value.ToString() & " %"
 
-        swatchStart.BackColor = InitialColor
-        swatchStart.Text = ColorToRgbString(InitialColor) ' RGB-Anzeige
-        swatchStart.ForeColor = IdealTextColor(InitialColor)
+        swatchStart.BackColor = _initialColor
+        swatchStart.Text = ColorToRgbString(_initialColor)
+        swatchStart.ForeColor = IdealTextColor(_initialColor)
 
         UpdateCurrentSwatch(ColorFromHsb(_hoverHue, _saturation, _brightness))
         UpdateFrozenSwatch(clearWhenNone:=True)
 
         RebuildWheelBitmap()
         pbGrayStrip.Invalidate()
+        UpdateHueLabel()
     End Sub
+
     '
     ''' <summary>Fokus auf den Farbkreis setzen.</summary>
     Private Sub OnFormShown(sender As Object, e As EventArgs)
@@ -403,6 +476,7 @@ Public NotInheritable Class ColorPickerHSB
         _showInitialMarker = False
         RebuildWheelBitmap()
         UpdateHoverFromMouse()
+        UpdateHueLabel()
     End Sub
     '
     ''' <summary>Helligkeit geändert → Ring neu, Ausgangsmarker ausblenden, Hover updaten.</summary>
@@ -412,6 +486,7 @@ Public NotInheritable Class ColorPickerHSB
         _showInitialMarker = False
         RebuildWheelBitmap()
         UpdateHoverFromMouse()
+        UpdateHueLabel()
     End Sub
 
     ' ── Wheel-Events ───────────────────────────────────────────────────────────
@@ -430,7 +505,7 @@ Public NotInheritable Class ColorPickerHSB
 
         If _showInitialMarker AndAlso Not _frozen Then
             Dim h0 As Double, s0 As Double, b0 As Double
-            RgbToHsv(InitialColor, h0, s0, b0)
+            RgbToHsv(_initialColor, h0, s0, b0)
             DrawAngleMarker(e.Graphics, h0, Pens.Gray, Brushes.LightGray)
         End If
     End Sub
@@ -442,6 +517,7 @@ Public NotInheritable Class ColorPickerHSB
         If ok Then
             _hoverHue = hue
             UpdateCurrentSwatch(ColorFromHsb(_hoverHue, _saturation, _brightness))
+            UpdateHueLabel()
             pbWheel.Invalidate()
         End If
     End Sub
@@ -456,6 +532,7 @@ Public NotInheritable Class ColorPickerHSB
             btnUebernehmen.Enabled = True
             _showInitialMarker = False
             UpdateFrozenSwatch(clearWhenNone:=False)
+            UpdateHueLabel()
             pbWheel.Invalidate()
         End If
     End Sub
@@ -463,6 +540,7 @@ Public NotInheritable Class ColorPickerHSB
     ''' <summary>Größenänderung → Bitmap neu rendern.</summary>
     Private Sub OnWheelResize(sender As Object, e As EventArgs)
         RebuildWheelBitmap()
+        PositionHueCenterControls()
         pbWheel.Invalidate()
     End Sub
     '
@@ -488,8 +566,31 @@ Public NotInheritable Class ColorPickerHSB
     '
     ''' <summary>„Reset“ setzt Ausgangsfarbe/Slider/Marker und leert Auswahl.</summary>
     Private Sub OnReset(sender As Object, e As EventArgs)
+        If IsEmptyOrTransparent(_initialColor) Then
+            _hoverHue = 0.0
+            _frozenHue = 0.0
+            _frozen = False
+            btnUebernehmen.Enabled = False
+            _showInitialMarker = False
+
+            _saturation = 1.0
+            _brightness = 1.0
+            tbSat.Value = 100 : lblSatVal.Text = "100 %"
+            tbBri.Value = 100 : lblBriVal.Text = "100 %"
+
+            SetSwatchEmpty(swatchStart)
+            SetSwatchEmpty(swatchCurr)
+            UpdateFrozenSwatch(clearWhenNone:=True)
+
+            RebuildWheelBitmap()
+            pbWheel.Invalidate()
+            UpdateHueLabel()
+            Return
+        End If
+
+        ' Normalfall mit definierter Startfarbe
         Dim h As Double, s As Double, b As Double
-        RgbToHsv(InitialColor, h, s, b)
+        RgbToHsv(_initialColor, h, s, b)
 
         _hoverHue = h
         _frozenHue = h
@@ -509,7 +610,9 @@ Public NotInheritable Class ColorPickerHSB
 
         RebuildWheelBitmap()
         pbWheel.Invalidate()
+        UpdateHueLabel()
     End Sub
+
 
     ' ── Grauskala-Strip ────────────────────────────────────────────────────────
     '
@@ -540,7 +643,7 @@ Public NotInheritable Class ColorPickerHSB
 
     ' ── Merkfarben: Drag & Drop / Klick ────────────────────────────────────────
     '
-    ''' <summary>Startet Drag & Drop von einer Swatch (Aktuell/Gewählt).</summary>
+    ''' <summary>Startet Drag and Drop von einer Swatch (Aktuell/Gewählt).</summary>
     Private Sub Swatch_MouseDown_StartDrag(sender As Object, e As MouseEventArgs)
         If e.Button <> MouseButtons.Left Then Return
         Dim src As Label = DirectCast(sender, Label)
@@ -633,7 +736,7 @@ Public NotInheritable Class ColorPickerHSB
                 Dim r As Double = Math.Sqrt(dx * dx + dy * dy)
                 If r >= inner AndAlso r <= radius Then
                     Dim angle As Double = Math.Atan2(dy, dx)
-                    Dim hue As Double = (angle * 180.0 / Math.PI)
+                    Dim hue As Double = (angle * 180.0 / Math.PI) + 90
                     If hue < 0 Then hue += 360.0
                     Dim c As Color = ColorFromHsb(hue, _saturation, _brightness)
                     bmp.SetPixel(x, y, c)
@@ -665,7 +768,7 @@ Public NotInheritable Class ColorPickerHSB
         If r < inner OrElse r > radius Then Return 0.0
 
         Dim angle As Double = Math.Atan2(dy, dx)
-        Dim hue As Double = (angle * 180.0 / Math.PI)
+        Dim hue As Double = (angle * 180.0 / Math.PI) + 90
         If hue < 0 Then hue += 360.0
         ok = True
         Return hue
@@ -678,7 +781,7 @@ Public NotInheritable Class ColorPickerHSB
         Dim cy As Single = size / 2.0F
         Dim radius As Single = (size / 2.0F) - (RING_WIDTH / 2.0F) - 2.0F
 
-        Dim rad As Double = hue * Math.PI / 180.0
+        Dim rad As Double = (hue * Math.PI / 180.0) - (Math.PI / 2)
         Dim px As Single = cx + CSng(Math.Cos(rad) * radius)
         Dim py As Single = cy + CSng(Math.Sin(rad) * radius)
 
@@ -694,7 +797,7 @@ Public NotInheritable Class ColorPickerHSB
     ''' <summary>Aktuelle (Hover-)Farbe aktualisieren.</summary>
     Private Sub UpdateCurrentSwatch(c As Color)
         swatchCurr.BackColor = c
-        swatchCurr.Text = ColorToRgbString(c)
+        swatchCurr.Text = ColorToRgbStringX(c)
         swatchCurr.ForeColor = IdealTextColor(c)
     End Sub
     '
@@ -703,7 +806,7 @@ Public NotInheritable Class ColorPickerHSB
         If _frozen Then
             Dim c As Color = ColorFromHsb(_frozenHue, _saturation, _brightness)
             swatchFrozen.BackColor = c
-            swatchFrozen.Text = ColorToRgbString(c)
+            swatchFrozen.Text = ColorToRgbStringX(c)
             swatchFrozen.ForeColor = IdealTextColor(c)
         ElseIf clearWhenNone Then
             swatchFrozen.BackColor = SystemColors.Control
@@ -825,6 +928,9 @@ Public NotInheritable Class ColorPickerHSB
     End Sub
     '
     ''' <summary>RGB → "R,G,B".</summary>
+    Private Function ColorToRgbStringX(c As Color) As String
+        Return $"{c.R},{c.G},{c.B} - #{c.R:X2}{c.G:X2}{c.B:X2}"
+    End Function
     Private Function ColorToRgbString(c As Color) As String
         Return $"{c.R},{c.G},{c.B}"
     End Function
@@ -897,6 +1003,98 @@ Public NotInheritable Class ColorPickerHSB
         Next
     End Sub
 
+    '
+    ''' <summary>
+    ''' Positioniert Minus-Button, Hue-Label und Plus-Button zentriert in der PictureBox.
+    ''' </summary>
+    Private Sub PositionHueCenterControls()
+        If pbWheel.Width <= 0 OrElse pbWheel.Height <= 0 Then Return
+
+        ' Gesamtlayout: [ − ] [   HueLabel   ] [ ＋ ]
+        Dim gap As Integer = 6
+        Dim minusSize As Size = btnHueMinus.Size
+        Dim plusSize As Size = btnHuePlus.Size
+        Dim labelSize As Size = lblHueCenter.Size
+
+        Dim totalW As Integer = minusSize.Width + gap + labelSize.Width + gap + plusSize.Width
+        Dim y As Integer = (pbWheel.Height - Math.Max(Math.Max(minusSize.Height, plusSize.Height), labelSize.Height)) \ 2
+        Dim x As Integer = (pbWheel.Width - totalW) \ 2
+
+        btnHueMinus.Location = New Point(x, y)
+        lblHueCenter.Location = New Point(x + minusSize.Width + gap, y + (minusSize.Height - labelSize.Height) \ 2)
+        btnHuePlus.Location = New Point(lblHueCenter.Right + gap, y)
+    End Sub
+
+    '
+    ''' <summary>
+    ''' Aktualisiert die Hue-Anzeige (°) – zeigt die relevante Hue an:
+    ''' eingefroren ⇒ _frozenHue, sonst _hoverHue.
+    ''' </summary>
+    Private Sub UpdateHueLabel()
+        Dim h As Integer = CInt(Math.Round(If(_frozen, _frozenHue, _hoverHue))) Mod 360
+        If h < 0 Then h += 360
+        lblHueCenter.Text = h.ToString() & "°"
+    End Sub
+
+    '
+    ''' <summary>
+    ''' Normalisiert eine Hue in den Bereich 0..360.
+    ''' </summary>
+    Private Function NormalizeHue(h As Double) As Double
+        h = h Mod 360.0
+        If h < 0 Then h += 360.0
+        Return h
+    End Function
+
+    '
+    ''' <summary>
+    ''' Erhöht/vermindert den Hue um delta (in Grad). Bei eingefrorener Auswahl
+    ''' wird _frozenHue angepasst, sonst _hoverHue. Swatches + Ring werden aktualisiert.
+    ''' </summary>
+    Private Sub NudgeHue(delta As Integer)
+        If _frozen Then
+            _frozenHue = NormalizeHue(_frozenHue + delta)
+        Else
+            _hoverHue = NormalizeHue(_hoverHue + delta)
+        End If
+
+        ' Aktuelle Farbe aus der „aktiven“ Hue ableiten
+        Dim activeHue As Double = If(_frozen, _frozenHue, _hoverHue)
+        Dim c As Color = ColorFromHsb(activeHue, _saturation, _brightness)
+
+        UpdateCurrentSwatch(c)
+        If _frozen Then UpdateFrozenSwatch(clearWhenNone:=False)
+
+        UpdateHueLabel()
+        pbWheel.Invalidate()
+    End Sub
+
+    '
+    ''' <summary>Minus-Button: −1°.</summary>
+    Private Sub OnHueMinusClick(sender As Object, e As EventArgs)
+        NudgeHue(-1)
+    End Sub
+
+    '
+    ''' <summary>Plus-Button: +1°.</summary>
+    Private Sub OnHuePlusClick(sender As Object, e As EventArgs)
+        NudgeHue(+1)
+    End Sub
+
+    '
+    ''' <summary>True, wenn keine definierte Startfarbe vorliegt.</summary>
+    Private Function IsEmptyOrTransparent(c As Color) As Boolean
+        Return c.IsEmpty OrElse c.A = 0
+    End Function
+
+    '
+    ''' <summary>Setzt ein Swatch-Label in den „leer“-Zustand.</summary>
+    Private Sub SetSwatchEmpty(lbl As Label)
+        lbl.BackColor = SystemColors.Control
+        lbl.Text = "—"
+        lbl.ForeColor = SystemColors.ControlText
+    End Sub
+
     ' ── Aufräumen ──────────────────────────────────────────────────────────────
     '
     ''' <summary>Bitmap freigeben.</summary>
@@ -907,65 +1105,68 @@ Public NotInheritable Class ColorPickerHSB
         MyBase.Dispose(disposing)
     End Sub
 
-    ' ── Inneres Hilfs-Control: ButtonInfo ──────────────────────────────────────
+
+    'Für Stand-Alone Anwendung aktivieren
     '
-    ''' <summary>
-    ''' Kleiner Info-Button (26×26) mit zwei Properties:
-    ''' - InfoHeader (Titel der MessageBox)
-    ''' - InfoText (Inhalt der MessageBox)
-    ''' Klick zeigt eine MessageBox an.
-    ''' </summary>
-    Friend NotInheritable Class ButtonInfo
-        Inherits Button
+    '' ── Inneres Hilfs-Control: ButtonInfo ──────────────────────────────────────
+    ''
+    '''' <summary>
+    '''' Kleiner Info-Button (26×26) mit zwei Properties:
+    '''' - InfoHeader (Titel der MessageBox)
+    '''' - InfoText (Inhalt der MessageBox)
+    '''' Klick zeigt eine MessageBox an.
+    '''' </summary>
+    'Friend NotInheritable Class ButtonInfo
+    '    Inherits Button
 
-        Private _infoHeader As String = "Info"
-        Private _infoText As String = "(Keine Hilfe hinterlegt.)"
+    '    Private _infoHeader As String = "Info"
+    '    Private _infoText As String = "(Keine Hilfe hinterlegt.)"
 
-        '''
-        '
-        ''' <summary>Überschrift der Hilfe.</summary>
-        <Browsable(True)>
-        Public Property InfoHeader As String
-            Get
-                Return _infoHeader
-            End Get
-            Set(value As String)
-                _infoHeader = If(value, String.Empty)
-            End Set
-        End Property
-        '
-        ''' <summary>Hilfetext.</summary>
-        <Browsable(True)>
-        Public Property InfoText As String
-            Get
-                Return _infoText
-            End Get
-            Set(value As String)
-                _infoText = If(value, String.Empty)
-            End Set
-        End Property
-        '
-        ''' <summary>Konstruktor: fixiert Größe 26×26, schlichtes „i“.</summary>
-        Public Sub New()
-            MyBase.New()
-            Me.Text = "i"
-            Me.Font = New Font(SystemFonts.DefaultFont.FontFamily, 10.0F, FontStyle.Bold, GraphicsUnit.Point)
-            Me.Size = New Size(26, 26)
-            Me.MinimumSize = New Size(26, 26)
-            Me.MaximumSize = New Size(26, 26)
-            Me.FlatStyle = FlatStyle.System
-            AddHandler Me.Click, AddressOf OnInfoClick
-        End Sub
-        '
-        ''' <summary>Erzwingt immer 26×26.</summary>
-        Protected Overrides Sub SetBoundsCore(x As Integer, y As Integer, width As Integer, height As Integer, specified As BoundsSpecified)
-            MyBase.SetBoundsCore(x, y, 26, 26, specified)
-        End Sub
-        '
-        ''' <summary>Zeigt die Hilfe an.</summary>
-        Private Sub OnInfoClick(sender As Object, e As EventArgs)
-            MessageBox.Show(Me, _infoText, _infoHeader, MessageBoxButtons.OK, MessageBoxIcon.Information)
-        End Sub
-    End Class
+    '    '''
+    '    '
+    '    ''' <summary>Überschrift der Hilfe.</summary>
+    '    <Browsable(True)>
+    '    Public Property InfoHeader As String
+    '        Get
+    '            Return _infoHeader
+    '        End Get
+    '        Set(value As String)
+    '            _infoHeader = If(value, String.Empty)
+    '        End Set
+    '    End Property
+    '    '
+    '    ''' <summary>Hilfetext.</summary>
+    '    <Browsable(True)>
+    '    Public Property InfoText As String
+    '        Get
+    '            Return _infoText
+    '        End Get
+    '        Set(value As String)
+    '            _infoText = If(value, String.Empty)
+    '        End Set
+    '    End Property
+    '    '
+    '    ''' <summary>Konstruktor: fixiert Größe 26×26, schlichtes „i“.</summary>
+    '    Public Sub New()
+    '        MyBase.New()
+    '        Me.Text = "i"
+    '        Me.Font = New Font(SystemFonts.DefaultFont.FontFamily, 10.0F, FontStyle.Bold, GraphicsUnit.Point)
+    '        Me.Size = New Size(26, 26)
+    '        Me.MinimumSize = New Size(26, 26)
+    '        Me.MaximumSize = New Size(26, 26)
+    '        Me.FlatStyle = FlatStyle.System
+    '        AddHandler Me.Click, AddressOf OnInfoClick
+    '    End Sub
+    '    '
+    '    ''' <summary>Erzwingt immer 26×26.</summary>
+    '    Protected Overrides Sub SetBoundsCore(x As Integer, y As Integer, width As Integer, height As Integer, specified As BoundsSpecified)
+    '        MyBase.SetBoundsCore(x, y, 26, 26, specified)
+    '    End Sub
+    '    '
+    '    ''' <summary>Zeigt die Hilfe an.</summary>
+    '    Private Sub OnInfoClick(sender As Object, e As EventArgs)
+    '        MessageBox.Show(Me, _infoText, _infoHeader, MessageBoxButtons.OK, MessageBoxIcon.Information)
+    '    End Sub
+    'End Class
 
 End Class

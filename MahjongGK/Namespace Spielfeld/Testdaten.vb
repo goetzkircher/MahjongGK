@@ -41,7 +41,7 @@ Namespace Spielfeld
 
         Public Sub TestDaten_Spielfeld_3_x_3_x_1()
 
-            Dim newSpielfeldInfo As New SpielfeldInfo(New Triple(3, 3, 1))
+            Dim newSpielfeldInfo As New SpielfeldInfo(New Triple(3, 3, 1), SpielfeldOrEditorMode.Spielfeld)
 
             With newSpielfeldInfo
                 Dim centerXyz As Triple = .GetSpielfeldCenter(0)
@@ -78,19 +78,19 @@ Namespace Spielfeld
 
 
 
-            'DebugHilfen.Print3DArrayToTxtOutputForm(aktSpielfeldInfo)
+            'DebugHilfen.Print3DArrayToTxtOutputForm(SFD.AktSpielfeldInfo)
             '   DebugShowArrFBMain(arrFBMain, 0)
 
         End Sub
         Public Sub TestDaten_Spielfeld_Methodenaufruf_zum_Debuggen()
 
-            Dim newSpielfeld As New SpielfeldInfo(New Triple(30, 6, 10))
-            Dim newWerkbank As New SpielfeldInfo(New Triple(5, 5, 10))
-            Dim newEditor As New SpielfeldInfo(New Triple(20, 5, 6))
+            Dim newSpielfeld As New SpielfeldInfo(New Triple(30, 6, 10), SpielfeldOrEditorMode.Spielfeld)
+            Dim newWerkbank As New SpielfeldInfo(New Triple(5, 5, 10), SpielfeldOrEditorMode.Editor)
+            Dim newEditor As New SpielfeldInfo(New Triple(20, 5, 6), SpielfeldOrEditorMode.Editor)
 
-            Spielfeld.SpielerSpielfeldInfo = newSpielfeld
-            Spielfeld.WerkbankSpielfeldInfo = newWerkbank
-            Spielfeld.EditorSpielfeldInfo = newEditor
+            SFD.SpielerSpielfeldInfo = newSpielfeld
+            SFD.WerkbankSpielfeldInfo = newWerkbank
+            SFD.EditorSpielfeldInfo = newEditor
 
             ' Das Polling läuft bereits Spielfeld.TaktgeberModul.PaintSpielfeld_ReInitialisierung()
 

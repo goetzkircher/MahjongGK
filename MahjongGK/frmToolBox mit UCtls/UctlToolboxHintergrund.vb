@@ -41,20 +41,21 @@ Public Class UctlToolboxHintergrund
     End Sub
 
 
-    Private _aktSFI As New SpielfeldInfo
+    Private _aktSFI As SpielfeldInfo
     Private _AktDstIsSpielfeld As Boolean
+    Private Const NOCOLSEL As String = "Keine Farbe gewählt"
 
     Private Sub SetAktSpielfeldInfo()
         If INI.Global_AktVisibleUserControl = VisibleUserControl.Editor Then
-            _aktSFI = Spielfeld.EditorSpielfeldInfo
+            _aktSFI = SFD.EditorSpielfeldInfo
             _AktDstIsSpielfeld = False
 
         ElseIf INI.Global_AktVisibleUserControl = VisibleUserControl.Werkbank Then
-            _aktSFI = Spielfeld.EditorSpielfeldInfo
+            _aktSFI = SFD.EditorSpielfeldInfo
             _AktDstIsSpielfeld = False
 
         Else
-            _aktSFI = Spielfeld.SpielerSpielfeldInfo
+            _aktSFI = SFD.SpielerSpielfeldInfo
             _AktDstIsSpielfeld = True
         End If
     End Sub
@@ -69,27 +70,27 @@ Public Class UctlToolboxHintergrund
             gbxAktSpiel.Text = "Daten aus aktuell geladenem Editor"
         End If
 
-        Const nocol As String = "Keine Farbe gewählt"
+
         '
-        With lblToolboxHGrdSpfldColor
-            If _aktSFI.Toolbox_HGrdSpfldColor = Color.Empty Then
+        With lblToolboxHGrdSplFldColor
+            If _aktSFI.Toolbox_HGrdSplFldColor = Color.Empty Then
                 .ForeColor = SystemColors.GrayText
                 .BackColor = Color.Transparent
-                .Text = nocol
+                .Text = NOCOLSEL
             Else
                 .Text = String.Empty
-                .BackColor = _aktSFI.Toolbox_HGrdSpfldColor
+                .BackColor = _aktSFI.Toolbox_HGrdSplFldColor
             End If
         End With
         '
-        With lblToolboxHGrdSpfldColorFallback
-            If INI.Toolbox_HGrdSpfldColorFallback = Color.Empty Then
+        With lblToolboxHGrdSplFldColorFallback
+            If INI.Toolbox_HGrdSplFldColorFallback = Color.Empty Then
                 .ForeColor = SystemColors.GrayText
                 .BackColor = Color.Transparent
-                .Text = nocol
+                .Text = NOCOLSEL
             Else
                 .Text = String.Empty
-                .BackColor = INI.Toolbox_HGrdSpfldColorFallback
+                .BackColor = INI.Toolbox_HGrdSplFldColorFallback
             End If
         End With
         '
@@ -97,7 +98,7 @@ Public Class UctlToolboxHintergrund
             If _aktSFI.Toolbox_HGrdEditorColor = Color.Empty Then
                 .ForeColor = SystemColors.GrayText
                 .BackColor = Color.Transparent
-                .Text = nocol
+                .Text = NOCOLSEL
             Else
                 .Text = String.Empty
                 .BackColor = _aktSFI.Toolbox_HGrdEditorColor
@@ -108,7 +109,7 @@ Public Class UctlToolboxHintergrund
             If INI.Toolbox_HGrdEditorColorFallback = Color.Empty Then
                 .ForeColor = SystemColors.GrayText
                 .BackColor = Color.Transparent
-                .Text = nocol
+                .Text = NOCOLSEL
             Else
                 .Text = String.Empty
                 .BackColor = INI.Toolbox_HGrdEditorColorFallback
@@ -116,35 +117,35 @@ Public Class UctlToolboxHintergrund
         End With
         '
 
-        picToolboxHGrdSpfld.Image = GetMiniThumb(_aktSFI.Toolbox_HGrdSpfldBitmapName, _aktSFI.Toolbox_HGrdSpfldBitmapIsUserGrafik)
-        picToolboxHGrdSpfldFallback.Image = GetMiniThumb(INI.Toolbox_HGrdSpfldBitmapNameFallback, INI.Toolbox_HGrdSpfldBitmapIsUserGrafikFallback)
+        picToolboxHGrdSplFld.Image = GetMiniThumb(_aktSFI.Toolbox_HGrdSplFldBitmapName, _aktSFI.Toolbox_HGrdSplFldBitmapIsUserGrafik)
+        picToolboxHGrdSplFldFallback.Image = GetMiniThumb(INI.Toolbox_HGrdSplFldBitmapNameFallback, INI.Toolbox_HGrdSplFldBitmapIsUserGrafikFallback)
 
         picToolboxHGrdEditor.Image = GetMiniThumb(_aktSFI.Toolbox_HGrdEditorBitmapName, _aktSFI.Toolbox_HGrdEditorBitmapIsUserGrafik)
         picToolboxHGrdEditorFallback.Image = GetMiniThumb(INI.Toolbox_HGrdEditorBitmapNameFallback, INI.Toolbox_HGrdEditorBitmapIsUserGrafikFallback)
 
-        lblToolboxHGrdSpfldRenderMode.Text = GetTextFromBirm(_aktSFI.Toolbox_HGrdSpfldRenderMode)
+        lblToolboxHGrdSplFldRenderMode.Text = GetTextFromBirm(_aktSFI.Toolbox_HGrdSplFldRenderMode)
         lblToolboxHGrdEditorRenderMode.Text = GetTextFromBirm(_aktSFI.Toolbox_HGrdEditorRenderMode)
 
-        lblToolboxHGrdSplfldRenderModeFallback.Text = GetTextFromBirm(INI.Toolbox_HGrdSpfldRenderModeFallback)
+        lblToolboxHGrdSplFldRenderModeFallback.Text = GetTextFromBirm(INI.Toolbox_HGrdSplFldRenderModeFallback)
         lblToolboxHGrdEditorRenderModeFallback.Text = GetTextFromBirm(INI.Toolbox_HGrdEditorRenderModeFallBack)
 
-        chkToolboxHGrdEditorUseSpfldEinstlg.Checked = _aktSFI.Toolbox_HGrdEditorUseSpfldValues
-        chkToolboxHGrdEditorUseSpfldEinstlgFallback.Checked = INI.Toolbox_HGrdEditorUseSplfldEinstlgFallback
+        chkToolboxHGrdEditorUseSplFldEinstlg.Checked = _aktSFI.Toolbox_HGrdEditorUseSplFldValues
+        chkToolboxHGrdEditorUseSplFldEinstlgFallback.Checked = INI.Toolbox_HGrdEditorUseSplfldEinstlgFallback
 
         'INI.Toolbox_HGrdEditorColorFallback  
-        'INI.Toolbox_HGrdSpfldBitmapFallback  
+        'INI.Toolbox_HGrdSplFldBitmapFallback  
         'INI.Toolbox_HGrdEditorBitmapFallback 
-        'INI.Toolbox_HGrdSpfldBitmapIsUserGrafikFallback  
+        'INI.Toolbox_HGrdSplFldBitmapIsUserGrafikFallback  
         'INI.Toolbox_HGrdEditorBitmapIsUserGrafikFallback  
 
     End Sub
 
     Private Sub CopyControlToIni()
-        'INI.Toolbox_HGrdSpfldColorFallback  
+        'INI.Toolbox_HGrdSplFldColorFallback  
         'INI.Toolbox_HGrdEditorColorFallback  
-        'INI.Toolbox_HGrdSpfldBitmapFallback  
+        'INI.Toolbox_HGrdSplFldBitmapFallback  
         'INI.Toolbox_HGrdEditorBitmapFallback 
-        'INI.Toolbox_HGrdSpfldBitmapIsUserGrafikFallback  
+        'INI.Toolbox_HGrdSplFldBitmapIsUserGrafikFallback  
         'INI.Toolbox_HGrdEditorBitmapIsUserGrafikFallback  
 
     End Sub
@@ -329,52 +330,205 @@ Public Class UctlToolboxHintergrund
                     Return "Modus: Fehler"
                 End If
         End Select
-
     End Function
 
-    Private Sub btnToolboxHGrdSpfldBitmapNameFallback_Click(sender As Object, e As EventArgs) Handles btnToolboxHGrdSpfldBitmapNameFallback.Click
-
+    Private Sub btnToolboxHGrdEditordBitmapClear_Click(sender As Object, e As EventArgs) Handles btnToolboxHGrdEditorBitmapClear.Click
+        _aktSFI.Toolbox_HGrdEditorBitmapIsUserGrafik = False
+        _aktSFI.Toolbox_HGrdEditorBitmapName = String.Empty
+        _aktSFI.Toolbox_HGrdEditorRenderMode = BackgroundImageRenderMode.None
+        With picToolboxHGrdEditor
+            .Image = BuildNoSelectionMiniThumb(New Size(.Width, .Height), Me.Font, Me.BackColor)
+        End With
     End Sub
 
-    Private Sub btnToolboxHGrdSpfldBitmapClearFallback_Click(sender As Object, e As EventArgs) Handles btnToolboxHGrdSpfldBitmapClearFallback.Click
-        CopyIniToControl()
+    Private Sub btnToolboxHGrdSplFldBitmapClear_Click(sender As Object, e As EventArgs) Handles btnToolboxHGrdSplFldBitmapClear.Click
+        _aktSFI.Toolbox_HGrdSplFldBitmapIsUserGrafik = False
+        _aktSFI.Toolbox_HGrdSplFldBitmapName = String.Empty
+        _aktSFI.Toolbox_HGrdSplFldRenderMode = BackgroundImageRenderMode.None
+        With picToolboxHGrdSplFld
+            .Image = BuildNoSelectionMiniThumb(New Size(.Width, .Height), Me.Font, Me.BackColor)
+        End With
+    End Sub
+
+    Private Sub btnToolboxHGrdEditorBitmapClearFallback_Click(sender As Object, e As EventArgs) Handles btnToolboxHGrdEditorBitmapClearFallback.Click
+        INI.Toolbox_HGrdEditorBitmapIsUserGrafikFallback = False
+        INI.Toolbox_HGrdEditorBitmapNameFallback = String.Empty
+        INI.Toolbox_HGrdEditorRenderModeFallBack = BackgroundImageRenderMode.None
+        With picToolboxHGrdEditorFallback
+            .Image = BuildNoSelectionMiniThumb(New Size(.Width, .Height), Me.Font, Me.BackColor)
+        End With
+    End Sub
+
+    Private Sub btnToolboxHGrdSplFldBitmapClearFallback_Click(sender As Object, e As EventArgs) Handles btnToolboxHGrdSplFldBitmapClearFallback.Click
+        INI.Toolbox_HGrdSplFldBitmapIsUserGrafikFallback = False
+        INI.Toolbox_HGrdSplFldBitmapNameFallback = String.Empty
+        INI.Toolbox_HGrdSplFldRenderModeFallback = BackgroundImageRenderMode.None
+        With picToolboxHGrdSplFldFallback
+            .Image = BuildNoSelectionMiniThumb(New Size(.Width, .Height), Me.Font, Me.BackColor)
+        End With
+    End Sub
+
+
+    Private Sub btnToolboxHGrdEditordBitmapName_Click(sender As Object, e As EventArgs) Handles btnToolboxHGrdEditorBitmapName.Click
+
+        Using frm As New BackgroundSelector(If(_aktSFI.Toolbox_HGrdEditorBitmapIsUserGrafik,
+                                            INI.AppDataDirectory(AppDataSubDir.Eigene_Hintergrundgrafiken),
+                                            INI.AppDataDirectory(AppDataSubDir.Hintergrundgrafiken)))
+            frm.IsUserGrafik = _aktSFI.Toolbox_HGrdEditorBitmapIsUserGrafik
+            frm.SelectedFile = _aktSFI.Toolbox_HGrdEditorBitmapName
+            frm.SelectedMode = _aktSFI.Toolbox_HGrdEditorRenderMode
+            If frm.ShowDialog = DialogResult.OK Then
+                _aktSFI.Toolbox_HGrdEditorBitmapIsUserGrafik = frm.IsUserGrafik
+                _aktSFI.Toolbox_HGrdEditorBitmapName = frm.SelectedFile
+                With picToolboxHGrdEditor
+                    .Image = GetMiniThumb(frm.SelectedFile, frm.IsUserGrafik)
+                    .Refresh()
+                End With
+                lblToolboxHGrdEditorRenderMode.Text = GetTextFromBirm(frm.SelectedMode)
+                _aktSFI.Toolbox_HGrdEditorRenderMode = frm.SelectedMode
+            End If
+        End Using
+    End Sub
+
+    Private Sub btnToolboxHGrdSplFldBitmapName_Click(sender As Object, e As EventArgs) Handles btnToolboxHGrdSplFldBitmapName.Click
+        Using frm As New BackgroundSelector(If(_aktSFI.Toolbox_HGrdSplFldBitmapIsUserGrafik,
+                                      INI.AppDataDirectory(AppDataSubDir.Eigene_Hintergrundgrafiken),
+                                      INI.AppDataDirectory(AppDataSubDir.Hintergrundgrafiken)))
+            frm.IsUserGrafik = _aktSFI.Toolbox_HGrdSplFldBitmapIsUserGrafik
+            frm.SelectedFile = _aktSFI.Toolbox_HGrdSplFldBitmapName
+            frm.SelectedMode = _aktSFI.Toolbox_HGrdSplFldRenderMode
+            If frm.ShowDialog = DialogResult.OK Then
+                _aktSFI.Toolbox_HGrdSplFldBitmapIsUserGrafik = frm.IsUserGrafik
+                _aktSFI.Toolbox_HGrdSplFldBitmapName = frm.SelectedFile
+                With picToolboxHGrdSplFld
+                    .Image = GetMiniThumb(frm.SelectedFile, frm.IsUserGrafik)
+                    .Refresh()
+                End With
+                lblToolboxHGrdSplFldRenderMode.Text = GetTextFromBirm(frm.SelectedMode)
+                _aktSFI.Toolbox_HGrdSplFldRenderMode = frm.SelectedMode
+            End If
+        End Using
     End Sub
 
     Private Sub btnToolboxHGrdEditorBitmapNameFallback_Click(sender As Object, e As EventArgs) Handles btnToolboxHGrdEditorBitmapNameFallback.Click
 
+        Using frm As New BackgroundSelector(If(INI.Toolbox_HGrdEditorBitmapIsUserGrafikFallback,
+                                            INI.AppDataDirectory(AppDataSubDir.Eigene_Hintergrundgrafiken),
+                                            INI.AppDataDirectory(AppDataSubDir.Hintergrundgrafiken)))
+            frm.IsUserGrafik = INI.Toolbox_HGrdEditorBitmapIsUserGrafikFallback
+            frm.SelectedFile = INI.Toolbox_HGrdEditorBitmapNameFallback
+            frm.SelectedMode = INI.Toolbox_HGrdEditorRenderModeFallBack
+            If frm.ShowDialog = DialogResult.OK Then
+                INI.Toolbox_HGrdEditorBitmapIsUserGrafikFallback = frm.IsUserGrafik
+                INI.Toolbox_HGrdEditorBitmapNameFallback = frm.SelectedFile
+                With picToolboxHGrdEditorFallback
+                    .Image = GetMiniThumb(frm.SelectedFile, frm.IsUserGrafik)
+                    .Refresh()
+                End With
+                lblToolboxHGrdEditorRenderModeFallback.Text = GetTextFromBirm(frm.SelectedMode)
+                INI.Toolbox_HGrdEditorRenderModeFallBack = frm.SelectedMode
+            End If
+        End Using
     End Sub
 
-    Private Sub btnToolboxHGrdEditorBitmapClearFallback_Click(sender As Object, e As EventArgs) Handles btnToolboxHGrdEditorBitmapClearFallback.Click
-        CopyIniToControl()
+    Private Sub btnToolboxHGrdSplFldBitmapNameFallback_Click(sender As Object, e As EventArgs) Handles btnToolboxHGrdSplFldBitmapNameFallback.Click
+        Using frm As New BackgroundSelector(If(INI.Toolbox_HGrdSplFldBitmapIsUserGrafikFallback,
+                                      INI.AppDataDirectory(AppDataSubDir.Eigene_Hintergrundgrafiken),
+                                      INI.AppDataDirectory(AppDataSubDir.Hintergrundgrafiken)))
+            frm.IsUserGrafik = INI.Toolbox_HGrdSplFldBitmapIsUserGrafikFallback
+            frm.SelectedFile = INI.Toolbox_HGrdSplFldBitmapNameFallback
+            frm.SelectedMode = INI.Toolbox_HGrdSplFldRenderModeFallback
+            If frm.ShowDialog = DialogResult.OK Then
+                INI.Toolbox_HGrdSplFldBitmapIsUserGrafikFallback = frm.IsUserGrafik
+                INI.Toolbox_HGrdSplFldBitmapNameFallback = frm.SelectedFile
+                With picToolboxHGrdSplFldFallback
+                    .Image = GetMiniThumb(frm.SelectedFile, frm.IsUserGrafik)
+                    .Refresh()
+                End With
+                lblToolboxHGrdSplFldRenderModeFallback.Text = GetTextFromBirm(frm.SelectedMode)
+                INI.Toolbox_HGrdSplFldRenderModeFallback = frm.SelectedMode
+            End If
+        End Using
     End Sub
 
-    Private Sub btnToolboxHGrdSpfldColorFallback_Click(sender As Object, e As EventArgs) Handles btnToolboxHGrdSpfldColorFallback.Click
-
+    Private Sub btnToolboxHGrdSplFldColorClear_Click(sender As Object, e As EventArgs) Handles btnToolboxHGrdSplFldColorClear.Click
+        _aktSFI.Toolbox_HGrdSplFldColor = Color.Empty
+        ClearColor(lblToolboxHGrdSplFldColor)
     End Sub
 
-    Private Sub btnToolboxHGrdSpfldColorClearFallback_Click(sender As Object, e As EventArgs) Handles btnToolboxHGrdSpfldColorClearFallback.Click
-        CopyIniToControl()
+    Private Sub btnToolboxHGrdEditorColorClear_Click(sender As Object, e As EventArgs) Handles btnToolboxHGrdEditorColorClear.Click
+        _aktSFI.Toolbox_HGrdEditorColor = Color.Empty
+        ClearColor(lblToolboxHGrdEditorColor)
     End Sub
-
-    Private Sub btnToolboxHGrdEditorColorFallback_Click(sender As Object, e As EventArgs) Handles btnToolboxHGrdEditorColorFallback.Click
-
+    Private Sub btnToolboxHGrdSplFldColorClearFallback_Click(sender As Object, e As EventArgs) Handles btnToolboxHGrdSplFldColorClearFallback.Click
+        INI.Toolbox_HGrdSplFldColorFallback = Color.Empty
+        lblToolboxHGrdSplFldColorFallback.BackColor = Color.Transparent
     End Sub
 
     Private Sub btnToolboxHGrdEditorColorClearFallback_Click(sender As Object, e As EventArgs) Handles btnToolboxHGrdEditorColorClearFallback.Click
-        CopyIniToControl()
+        INI.Toolbox_HGrdEditorColorFallback = Color.Empty
+        lblToolboxHGrdEditorColorFallback.BackColor = Color.Transparent
     End Sub
 
-    ''' <summary>
-    ''' Hin: die bisherige Farbe, zurück: die neue Farbe und True,
-    ''' sofern eine neue Farbe gewählt. Wenn Abbrechen gewählt, False
-    ''' </summary>
-    ''' <param name="col"></param>
-    ''' <returns></returns>
-    Private Function GetColor(ByRef col As Color) As Boolean
+    Private Sub btnToolboxHGrdSplFldColor_Click(sender As Object, e As EventArgs) Handles btnToolboxHGrdSplFldColor.Click
+        If GetColor(lblToolboxHGrdSplFldColor) Then
+            _aktSFI.Toolbox_HGrdSplFldColor = lblToolboxHGrdSplFldColor.BackColor
+        End If
+    End Sub
 
+    Private Sub btnToolboxHGrdEditorColor_Click(sender As Object, e As EventArgs) Handles btnToolboxHGrdEditorColor.Click
+        If GetColor(lblToolboxHGrdEditorColor) Then
+            _aktSFI.Toolbox_HGrdEditorColor = lblToolboxHGrdEditorColor.BackColor
+        End If
+    End Sub
+    Private Sub btnToolboxHGrdSplFldColorFallback_Click(sender As Object, e As EventArgs) Handles btnToolboxHGrdSplFldColorFallback.Click
+        If GetColor(lblToolboxHGrdSplFldColorFallback) Then
+            INI.Toolbox_HGrdSplFldColorFallback = lblToolboxHGrdSplFldColorFallback.BackColor
+        End If
+    End Sub
+
+    Private Sub btnToolboxHGrdEditorColorFallback_Click(sender As Object, e As EventArgs) Handles btnToolboxHGrdEditorColorFallback.Click
+        If GetColor(lblToolboxHGrdEditorColorFallback) Then
+            INI.Toolbox_HGrdEditorColorFallback = lblToolboxHGrdEditorColorFallback.BackColor
+        End If
+    End Sub
+
+    Private Sub chkToolboxHGrdEditorShowFraming_CheckedChanged(sender As Object, e As EventArgs) Handles chkToolboxHGrdEditorShowFraming.CheckedChanged
+
+    End Sub
+
+    Private Function GetColor(lbl As Label) As Boolean
+        Using frm As New ColorPickerHSB
+            With frm
+                .SavedColorsString = INI.ColorPickerHSB_Toolbox_SavedColorsString
+                .PickerBackColor = INI.ColorPickerHSB_Toolbox_PickerBackColor
+                .SelectedColor = lbl.BackColor
+
+                Dim dgr As DialogResult = .ShowDialog
+
+                INI.ColorPickerHSB_Toolbox_SavedColorsString = .SavedColorsString
+                INI.ColorPickerHSB_Toolbox_PickerBackColor = .PickerBackColor
+
+                If dgr <> DialogResult.OK Then
+                    Return False
+                Else
+                    lbl.BackColor = .SelectedColor
+                    lbl.Text = String.Empty
+                    lbl.Refresh()
+                    Return True
+                End If
+            End With
+        End Using
     End Function
 
-
+    Private Sub ClearColor(lbl As Label)
+        With lbl
+            .ForeColor = SystemColors.GrayText
+            .BackColor = Color.Transparent
+            .Text = NOCOLSEL
+            .Refresh()
+        End With
+    End Sub
 
 
 End Class

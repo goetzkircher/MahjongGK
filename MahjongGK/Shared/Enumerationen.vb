@@ -45,6 +45,7 @@ Public Enum AppDataSubDir
     Diverses
     Hintergrundgrafiken
     Eigene_Hintergrundgrafiken
+    Temporär
 End Enum
 ''' <summary>
 ''' Enumeration der verwendeten Unterverzeichnisse in "C:\Users\aktueller User\MahjongGK\SubDefault.value.ToString\SubSubDefault.value.ToString"
@@ -57,6 +58,8 @@ Public Enum AppDataSubSubDir
     Diverses_ScreenShots
     Grafiken_AppGrafiken16x16
     Werkbank_Basisformen
+    Temporär_SpielfeldInfo
+    Temporär_EditorfeldInfo
 End Enum
 
 ''' <summary>
@@ -68,6 +71,7 @@ Public Enum AppDataFileName
     None
     Steininfos_xml
     ScreeenShot_png
+    Spielfeldinfo_xml
 End Enum
 
 Public Enum AppDataTimeStamp

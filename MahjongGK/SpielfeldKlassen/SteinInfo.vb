@@ -117,11 +117,13 @@ Public Class SteinInfo
     ''' Nur wenn Steine entfernt werden, müssen die Index neu vergeben werden
     ''' weil dann arrFB und SteinInfos nicht mehr syncron laufen
     ''' </summary>
+    <XmlElement("Idx")>
     Public Property SteinInfoIndex As Integer
     '
     ''' <summary>
     ''' Eine Enumeration aller 43 verschiedenen Grafiken für die Steine.
     ''' </summary>
+    <XmlElement("SIdx")>
     Public Property SteinIndex As SteinIndexEnum
     '
     ''' <summary>
@@ -131,11 +133,13 @@ Public Class SteinInfo
     ''' Diese Steine gehören zur gleichen Klickgruppe, obwohl sie verschiedene Enum Stein haben.
     ''' Es gibt eine Übersetzungstabelle Enum Stein -> Klickgruppe.
     ''' </summary>
+    <XmlElement("KGrp")>
     Public Property KlickGruppe As Integer
     '
     ''' <summary>
     ''' Das ist der tatsächliche Steinstatus, den der Stein hat.
     ''' </summary>
+    <XmlElement("StStIst")>
     Public Property SteinStatusIst As SteinStatus
     '
     ''' <summary>
@@ -144,6 +148,7 @@ Public Class SteinInfo
     ''' Steine klickbar sind, oder nicht sehen soll, welche Steinpaare entnommen werden
     ''' können.
     ''' </summary>
+    <XmlElement("StStUsed")>
     Public Property SteinStatusUsed As SteinStatus
     '
     ''' <summary>
@@ -152,11 +157,13 @@ Public Class SteinInfo
     ''' Wird sicherheitshalber in der Xml mit gespeichert.
     ''' </summary>
     ''' <returns></returns>
+    <XmlElement("IsWbSt")>
     Public Property IsWerkbankStein As Boolean
     '
     ''' <summary>
     ''' Die 3D-Position des Steines im Raum auf den Spielfeld.
     ''' </summary>
+    <XmlElement("Pos3D")>
     Public Property Postion3D As Triple
     '
     ''' <summary>
@@ -200,6 +207,7 @@ Public Class SteinInfo
     ''' können. Welche der drei Properties genutzt wird, ist daher völlig egal. Auch für eine
     ''' Mischnutzung gibt es keinerlei Einschränkungen. 
     ''' </summary>
+    <XmlIgnore>
     Public Property Verdeckung As Verdeckt
     '
     ''' <summary>

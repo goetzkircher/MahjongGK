@@ -1,17 +1,15 @@
 ﻿# MahjongGK – Mahjong Solitär
 
 **MahjongGK** ist ein Open-Source-Projekt für ein Mahjong-Solitär-Spiel mit eigenem Editor, Renderer und umfangreicher Anpassbarkeit.  
-Es wird in **VB.NET (.NET Framework 4.8.1)** entwickelt und legt besonderen Wert auf saubere Architektur, flexible Erweiterbarkeit und eine klare Trennung von Daten, Logik und Darstellung.
+Geschrieben in **VB.NET (.NET Framework 4.8.1)**
 
 ---
 
 ## Features
 
-- 🎴 Eigenes Layout- und Stein-Management  
-- 🎨 Unterstützung von Bitmap, SVG und WebP-Grafiken  
-- ⚙️ Editor zum Erstellen und Bearbeiten von Spielfeldern  
+- 🎴 Eigener Editor für das Layout- und Stein-Management  
+- 🎨 Unterstützung von Bitmap, SVG und WebP-Grafiken    
 - 🌓 Anpassbares Light- und Dark-Theme  
-- 🧩 Offene Architektur für Erweiterungen  
 
 ---
 
@@ -85,7 +83,7 @@ Bitte schreib mir an MahjongGK@t-online.de, wenn du Ideen, Bugfixes oder Erweite
 
 ## Über mich
 
-Von Beruf bin ich Schreinermeister und Dipl.Ing. Holztechnik.
+Von Beruf bin ich Schreinermeister und Dipl.Ing. Holztechnik. 
 Ich programmiere seit den Anfängen des PC in den 1980er Jahren.
 Heute - als Rentner - nur noch als Hobby.
 

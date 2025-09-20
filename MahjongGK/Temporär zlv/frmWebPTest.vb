@@ -61,7 +61,7 @@ Public Class frmWebPTest
     ''Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
     ''    Try
-    ''        Dim path As String = "C:\Users\goetz\Documents\Visual Studio\MahjongGK\Eigene Ressourcen Quelle\Andere\Satz1\HGrdSpfld\SpfldUGrd02Light.webp"
+    ''        Dim path As String = "C:\Users\goetz\Documents\Visual Studio\MahjongGK\Eigene Ressourcen Quelle\Andere\Satz1\HGrdSplFld\SplFldUGrd02Light.webp"
 
     ''        Using img As New MagickImage(path)
     ''            ' Konvertieren in System.Drawing.Bitmap

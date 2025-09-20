@@ -51,6 +51,8 @@ Public Class ButtonInfo
     ' Öffentliche Eigenschaften
     ' ─────────────────────────────────────────────────────────────────────────────
     <Category("Appearance"), Description("Text, der in der MessageBox angezeigt wird.")>
+    <Editor(GetType(System.ComponentModel.Design.MultilineStringEditor),
+        GetType(System.Drawing.Design.UITypeEditor))>
     Public Property InfoText As String
         Get
             Return _infoText
@@ -143,7 +145,7 @@ Public Class ButtonInfo
             Me.OnClick(EventArgs.Empty)
             ' Standardaktion: MessageBox anzeigen
             If Not String.IsNullOrEmpty(_infoText) Then
-                MessageBox.Show(_infoText, If(String.IsNullOrEmpty(_infoHeader), "Info", _infoHeader), MessageBoxButtons.OK, MessageBoxIcon.Information)
+                MessageBoxFormatiert.Show(_infoText, If(String.IsNullOrEmpty(_infoHeader), "Info", _infoHeader), MessageBoxButtons.OK, MessageBoxIcon.Information)
             End If
         End If
         MyBase.OnMouseUp(e)

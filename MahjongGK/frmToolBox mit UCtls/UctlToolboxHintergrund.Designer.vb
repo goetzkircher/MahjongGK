@@ -22,47 +22,49 @@ Partial Class UctlToolboxHintergrund
     'Das Bearbeiten mit dem Code-Editor ist nicht möglich.
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
+        Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(UctlToolboxHintergrund))
         Me.GroupBox9 = New System.Windows.Forms.GroupBox()
         Me.TabControlToolboxHGrd = New System.Windows.Forms.TabControl()
         Me.TabPageAktSpiel = New System.Windows.Forms.TabPage()
         Me.gbxAktSpiel = New System.Windows.Forms.GroupBox()
-        Me.chkToolboxHGrdEditorUseSpfldEinstlg = New System.Windows.Forms.CheckBox()
+        Me.chkToolboxHGrdEditorUseSplFldEinstlg = New System.Windows.Forms.CheckBox()
         Me.GroupBox3 = New System.Windows.Forms.GroupBox()
         Me.lblToolboxHGrdEditorColor = New System.Windows.Forms.Label()
-        Me.lblToolboxHGrdSpfldColor = New System.Windows.Forms.Label()
+        Me.lblToolboxHGrdSplFldColor = New System.Windows.Forms.Label()
         Me.btnToolboxHGrdEditorColorClear = New System.Windows.Forms.Button()
-        Me.btnToolboxHGrdSpfldColorClear = New System.Windows.Forms.Button()
+        Me.btnToolboxHGrdSplFldColorClear = New System.Windows.Forms.Button()
         Me.btnToolboxHGrdEditorColor = New System.Windows.Forms.Button()
-        Me.btnToolboxHGrdSpfldColor = New System.Windows.Forms.Button()
+        Me.btnToolboxHGrdSplFldColor = New System.Windows.Forms.Button()
         Me.GroupBox4 = New System.Windows.Forms.GroupBox()
         Me.lblToolboxHGrdEditorRenderMode = New System.Windows.Forms.Label()
-        Me.lblToolboxHGrdSpfldRenderMode = New System.Windows.Forms.Label()
+        Me.lblToolboxHGrdSplFldRenderMode = New System.Windows.Forms.Label()
         Me.picToolboxHGrdEditor = New System.Windows.Forms.PictureBox()
-        Me.picToolboxHGrdSpfld = New System.Windows.Forms.PictureBox()
+        Me.picToolboxHGrdSplFld = New System.Windows.Forms.PictureBox()
         Me.btnToolboxHGrdEditorBitmapClear = New System.Windows.Forms.Button()
-        Me.btnToolboxHGrdSpfldBitmapClear = New System.Windows.Forms.Button()
+        Me.btnToolboxHGrdSplFldBitmapClear = New System.Windows.Forms.Button()
         Me.btnToolboxHGrdEditorBitmapName = New System.Windows.Forms.Button()
-        Me.btnToolboxHGrdSpfldBitmapName = New System.Windows.Forms.Button()
-        Me.btnInfoAktSpiel = New MahjongGK.ButtonInfo()
+        Me.btnToolboxHGrdSplFldBitmapName = New System.Windows.Forms.Button()
         Me.TabPageFallback = New System.Windows.Forms.TabPage()
         Me.gbxFallback = New System.Windows.Forms.GroupBox()
-        Me.chkToolboxHGrdEditorUseSpfldEinstlgFallback = New System.Windows.Forms.CheckBox()
+        Me.chkToolboxHGrdEditorUseSplFldEinstlgFallback = New System.Windows.Forms.CheckBox()
         Me.GroupBox2 = New System.Windows.Forms.GroupBox()
         Me.lblToolboxHGrdEditorColorFallback = New System.Windows.Forms.Label()
-        Me.lblToolboxHGrdSpfldColorFallback = New System.Windows.Forms.Label()
+        Me.lblToolboxHGrdSplFldColorFallback = New System.Windows.Forms.Label()
         Me.btnToolboxHGrdEditorColorClearFallback = New System.Windows.Forms.Button()
-        Me.btnToolboxHGrdSpfldColorClearFallback = New System.Windows.Forms.Button()
+        Me.btnToolboxHGrdSplFldColorClearFallback = New System.Windows.Forms.Button()
         Me.btnToolboxHGrdEditorColorFallback = New System.Windows.Forms.Button()
-        Me.btnToolboxHGrdSpfldColorFallback = New System.Windows.Forms.Button()
+        Me.btnToolboxHGrdSplFldColorFallback = New System.Windows.Forms.Button()
         Me.GroupBox5 = New System.Windows.Forms.GroupBox()
-        Me.picToolboxHGrdSpfldFallback = New System.Windows.Forms.PictureBox()
+        Me.picToolboxHGrdSplFldFallback = New System.Windows.Forms.PictureBox()
         Me.lblToolboxHGrdEditorRenderModeFallback = New System.Windows.Forms.Label()
-        Me.lblToolboxHGrdSplfldRenderModeFallback = New System.Windows.Forms.Label()
+        Me.lblToolboxHGrdSplFldRenderModeFallback = New System.Windows.Forms.Label()
         Me.picToolboxHGrdEditorFallback = New System.Windows.Forms.PictureBox()
         Me.btnToolboxHGrdEditorBitmapClearFallback = New System.Windows.Forms.Button()
-        Me.btnToolboxHGrdSpfldBitmapClearFallback = New System.Windows.Forms.Button()
+        Me.btnToolboxHGrdSplFldBitmapClearFallback = New System.Windows.Forms.Button()
         Me.btnToolboxHGrdEditorBitmapNameFallback = New System.Windows.Forms.Button()
-        Me.btnToolboxHGrdSpfldBitmapNameFallback = New System.Windows.Forms.Button()
+        Me.btnToolboxHGrdSplFldBitmapNameFallback = New System.Windows.Forms.Button()
+        Me.chkToolboxHGrdEditorShowFraming = New System.Windows.Forms.CheckBox()
+        Me.btnInfoAktSpiel = New MahjongGK.ButtonInfo()
         Me.ButtonInfo1 = New MahjongGK.ButtonInfo()
         Me.GroupBox9.SuspendLayout()
         Me.TabControlToolboxHGrd.SuspendLayout()
@@ -71,12 +73,12 @@ Partial Class UctlToolboxHintergrund
         Me.GroupBox3.SuspendLayout()
         Me.GroupBox4.SuspendLayout()
         CType(Me.picToolboxHGrdEditor, System.ComponentModel.ISupportInitialize).BeginInit()
-        CType(Me.picToolboxHGrdSpfld, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.picToolboxHGrdSplFld, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.TabPageFallback.SuspendLayout()
         Me.gbxFallback.SuspendLayout()
         Me.GroupBox2.SuspendLayout()
         Me.GroupBox5.SuspendLayout()
-        CType(Me.picToolboxHGrdSpfldFallback, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.picToolboxHGrdSplFldFallback, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.picToolboxHGrdEditorFallback, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
@@ -116,7 +118,8 @@ Partial Class UctlToolboxHintergrund
         '
         'gbxAktSpiel
         '
-        Me.gbxAktSpiel.Controls.Add(Me.chkToolboxHGrdEditorUseSpfldEinstlg)
+        Me.gbxAktSpiel.Controls.Add(Me.chkToolboxHGrdEditorShowFraming)
+        Me.gbxAktSpiel.Controls.Add(Me.chkToolboxHGrdEditorUseSplFldEinstlg)
         Me.gbxAktSpiel.Controls.Add(Me.GroupBox3)
         Me.gbxAktSpiel.Controls.Add(Me.GroupBox4)
         Me.gbxAktSpiel.Controls.Add(Me.btnInfoAktSpiel)
@@ -129,24 +132,24 @@ Partial Class UctlToolboxHintergrund
         Me.gbxAktSpiel.TabStop = False
         Me.gbxAktSpiel.Text = "Aktuell geladenes Spiel"
         '
-        'chkToolboxHGrdEditorUseSpfldEinstlg
+        'chkToolboxHGrdEditorUseSplFldEinstlg
         '
-        Me.chkToolboxHGrdEditorUseSpfldEinstlg.AutoSize = True
-        Me.chkToolboxHGrdEditorUseSpfldEinstlg.Location = New System.Drawing.Point(195, 280)
-        Me.chkToolboxHGrdEditorUseSpfldEinstlg.Name = "chkToolboxHGrdEditorUseSpfldEinstlg"
-        Me.chkToolboxHGrdEditorUseSpfldEinstlg.Size = New System.Drawing.Size(83, 43)
-        Me.chkToolboxHGrdEditorUseSpfldEinstlg.TabIndex = 5
-        Me.chkToolboxHGrdEditorUseSpfldEinstlg.Text = "Editor nutzt " & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Spielfeldein-" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "stellungen"
-        Me.chkToolboxHGrdEditorUseSpfldEinstlg.UseVisualStyleBackColor = True
+        Me.chkToolboxHGrdEditorUseSplFldEinstlg.AutoSize = True
+        Me.chkToolboxHGrdEditorUseSplFldEinstlg.Location = New System.Drawing.Point(196, 280)
+        Me.chkToolboxHGrdEditorUseSplFldEinstlg.Name = "chkToolboxHGrdEditorUseSplFldEinstlg"
+        Me.chkToolboxHGrdEditorUseSplFldEinstlg.Size = New System.Drawing.Size(83, 43)
+        Me.chkToolboxHGrdEditorUseSplFldEinstlg.TabIndex = 5
+        Me.chkToolboxHGrdEditorUseSplFldEinstlg.Text = "Editor nutzt " & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Spielfeldein-" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "stellungen"
+        Me.chkToolboxHGrdEditorUseSplFldEinstlg.UseVisualStyleBackColor = True
         '
         'GroupBox3
         '
         Me.GroupBox3.Controls.Add(Me.lblToolboxHGrdEditorColor)
-        Me.GroupBox3.Controls.Add(Me.lblToolboxHGrdSpfldColor)
+        Me.GroupBox3.Controls.Add(Me.lblToolboxHGrdSplFldColor)
         Me.GroupBox3.Controls.Add(Me.btnToolboxHGrdEditorColorClear)
-        Me.GroupBox3.Controls.Add(Me.btnToolboxHGrdSpfldColorClear)
+        Me.GroupBox3.Controls.Add(Me.btnToolboxHGrdSplFldColorClear)
         Me.GroupBox3.Controls.Add(Me.btnToolboxHGrdEditorColor)
-        Me.GroupBox3.Controls.Add(Me.btnToolboxHGrdSpfldColor)
+        Me.GroupBox3.Controls.Add(Me.btnToolboxHGrdSplFldColor)
         Me.GroupBox3.Location = New System.Drawing.Point(191, 19)
         Me.GroupBox3.Name = "GroupBox3"
         Me.GroupBox3.Size = New System.Drawing.Size(129, 255)
@@ -166,17 +169,17 @@ Partial Class UctlToolboxHintergrund
         Me.lblToolboxHGrdEditorColor.Text = "(keine Farbe gewählt)"
         Me.lblToolboxHGrdEditorColor.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
-        'lblToolboxHGrdSpfldColor
+        'lblToolboxHGrdSplFldColor
         '
-        Me.lblToolboxHGrdSpfldColor.BackColor = System.Drawing.Color.Transparent
-        Me.lblToolboxHGrdSpfldColor.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.lblToolboxHGrdSpfldColor.Cursor = System.Windows.Forms.Cursors.Default
-        Me.lblToolboxHGrdSpfldColor.Location = New System.Drawing.Point(6, 51)
-        Me.lblToolboxHGrdSpfldColor.Name = "lblToolboxHGrdSpfldColor"
-        Me.lblToolboxHGrdSpfldColor.Size = New System.Drawing.Size(114, 35)
-        Me.lblToolboxHGrdSpfldColor.TabIndex = 10
-        Me.lblToolboxHGrdSpfldColor.Text = "(keine Farbe gewählt)"
-        Me.lblToolboxHGrdSpfldColor.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        Me.lblToolboxHGrdSplFldColor.BackColor = System.Drawing.Color.Transparent
+        Me.lblToolboxHGrdSplFldColor.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
+        Me.lblToolboxHGrdSplFldColor.Cursor = System.Windows.Forms.Cursors.Default
+        Me.lblToolboxHGrdSplFldColor.Location = New System.Drawing.Point(6, 51)
+        Me.lblToolboxHGrdSplFldColor.Name = "lblToolboxHGrdSplFldColor"
+        Me.lblToolboxHGrdSplFldColor.Size = New System.Drawing.Size(114, 35)
+        Me.lblToolboxHGrdSplFldColor.TabIndex = 10
+        Me.lblToolboxHGrdSplFldColor.Text = "(keine Farbe gewählt)"
+        Me.lblToolboxHGrdSplFldColor.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
         'btnToolboxHGrdEditorColorClear
         '
@@ -187,14 +190,14 @@ Partial Class UctlToolboxHintergrund
         Me.btnToolboxHGrdEditorColorClear.Text = "Clear"
         Me.btnToolboxHGrdEditorColorClear.UseVisualStyleBackColor = True
         '
-        'btnToolboxHGrdSpfldColorClear
+        'btnToolboxHGrdSplFldColorClear
         '
-        Me.btnToolboxHGrdSpfldColorClear.Location = New System.Drawing.Point(77, 21)
-        Me.btnToolboxHGrdSpfldColorClear.Name = "btnToolboxHGrdSpfldColorClear"
-        Me.btnToolboxHGrdSpfldColorClear.Size = New System.Drawing.Size(43, 23)
-        Me.btnToolboxHGrdSpfldColorClear.TabIndex = 8
-        Me.btnToolboxHGrdSpfldColorClear.Text = "Clear"
-        Me.btnToolboxHGrdSpfldColorClear.UseVisualStyleBackColor = True
+        Me.btnToolboxHGrdSplFldColorClear.Location = New System.Drawing.Point(77, 21)
+        Me.btnToolboxHGrdSplFldColorClear.Name = "btnToolboxHGrdSplFldColorClear"
+        Me.btnToolboxHGrdSplFldColorClear.Size = New System.Drawing.Size(43, 23)
+        Me.btnToolboxHGrdSplFldColorClear.TabIndex = 8
+        Me.btnToolboxHGrdSplFldColorClear.Text = "Clear"
+        Me.btnToolboxHGrdSplFldColorClear.UseVisualStyleBackColor = True
         '
         'btnToolboxHGrdEditorColor
         '
@@ -205,25 +208,25 @@ Partial Class UctlToolboxHintergrund
         Me.btnToolboxHGrdEditorColor.Text = "Editor"
         Me.btnToolboxHGrdEditorColor.UseVisualStyleBackColor = True
         '
-        'btnToolboxHGrdSpfldColor
+        'btnToolboxHGrdSplFldColor
         '
-        Me.btnToolboxHGrdSpfldColor.Location = New System.Drawing.Point(5, 21)
-        Me.btnToolboxHGrdSpfldColor.Name = "btnToolboxHGrdSpfldColor"
-        Me.btnToolboxHGrdSpfldColor.Size = New System.Drawing.Size(69, 23)
-        Me.btnToolboxHGrdSpfldColor.TabIndex = 6
-        Me.btnToolboxHGrdSpfldColor.Text = "Spielfeld"
-        Me.btnToolboxHGrdSpfldColor.UseVisualStyleBackColor = True
+        Me.btnToolboxHGrdSplFldColor.Location = New System.Drawing.Point(5, 21)
+        Me.btnToolboxHGrdSplFldColor.Name = "btnToolboxHGrdSplFldColor"
+        Me.btnToolboxHGrdSplFldColor.Size = New System.Drawing.Size(69, 23)
+        Me.btnToolboxHGrdSplFldColor.TabIndex = 6
+        Me.btnToolboxHGrdSplFldColor.Text = "Spielfeld"
+        Me.btnToolboxHGrdSplFldColor.UseVisualStyleBackColor = True
         '
         'GroupBox4
         '
         Me.GroupBox4.Controls.Add(Me.lblToolboxHGrdEditorRenderMode)
-        Me.GroupBox4.Controls.Add(Me.lblToolboxHGrdSpfldRenderMode)
+        Me.GroupBox4.Controls.Add(Me.lblToolboxHGrdSplFldRenderMode)
         Me.GroupBox4.Controls.Add(Me.picToolboxHGrdEditor)
-        Me.GroupBox4.Controls.Add(Me.picToolboxHGrdSpfld)
+        Me.GroupBox4.Controls.Add(Me.picToolboxHGrdSplFld)
         Me.GroupBox4.Controls.Add(Me.btnToolboxHGrdEditorBitmapClear)
-        Me.GroupBox4.Controls.Add(Me.btnToolboxHGrdSpfldBitmapClear)
+        Me.GroupBox4.Controls.Add(Me.btnToolboxHGrdSplFldBitmapClear)
         Me.GroupBox4.Controls.Add(Me.btnToolboxHGrdEditorBitmapName)
-        Me.GroupBox4.Controls.Add(Me.btnToolboxHGrdSpfldBitmapName)
+        Me.GroupBox4.Controls.Add(Me.btnToolboxHGrdSplFldBitmapName)
         Me.GroupBox4.Location = New System.Drawing.Point(8, 19)
         Me.GroupBox4.Name = "GroupBox4"
         Me.GroupBox4.Size = New System.Drawing.Size(177, 344)
@@ -240,14 +243,14 @@ Partial Class UctlToolboxHintergrund
         Me.lblToolboxHGrdEditorRenderMode.TabIndex = 9
         Me.lblToolboxHGrdEditorRenderMode.Text = "lblToolboxHGrdEditorRenderMode"
         '
-        'lblToolboxHGrdSpfldRenderMode
+        'lblToolboxHGrdSplFldRenderMode
         '
-        Me.lblToolboxHGrdSpfldRenderMode.AutoSize = True
-        Me.lblToolboxHGrdSpfldRenderMode.Location = New System.Drawing.Point(15, 157)
-        Me.lblToolboxHGrdSpfldRenderMode.Name = "lblToolboxHGrdSpfldRenderMode"
-        Me.lblToolboxHGrdSpfldRenderMode.Size = New System.Drawing.Size(166, 13)
-        Me.lblToolboxHGrdSpfldRenderMode.TabIndex = 8
-        Me.lblToolboxHGrdSpfldRenderMode.Text = "lblToolboxHGrdSpfldRenderMode"
+        Me.lblToolboxHGrdSplFldRenderMode.AutoSize = True
+        Me.lblToolboxHGrdSplFldRenderMode.Location = New System.Drawing.Point(15, 157)
+        Me.lblToolboxHGrdSplFldRenderMode.Name = "lblToolboxHGrdSplFldRenderMode"
+        Me.lblToolboxHGrdSplFldRenderMode.Size = New System.Drawing.Size(171, 13)
+        Me.lblToolboxHGrdSplFldRenderMode.TabIndex = 8
+        Me.lblToolboxHGrdSplFldRenderMode.Text = "lblToolboxHGrdSplFldRenderMode"
         '
         'picToolboxHGrdEditor
         '
@@ -258,14 +261,14 @@ Partial Class UctlToolboxHintergrund
         Me.picToolboxHGrdEditor.TabIndex = 7
         Me.picToolboxHGrdEditor.TabStop = False
         '
-        'picToolboxHGrdSpfld
+        'picToolboxHGrdSplFld
         '
-        Me.picToolboxHGrdSpfld.BackColor = System.Drawing.SystemColors.ControlLight
-        Me.picToolboxHGrdSpfld.Location = New System.Drawing.Point(15, 51)
-        Me.picToolboxHGrdSpfld.Name = "picToolboxHGrdSpfld"
-        Me.picToolboxHGrdSpfld.Size = New System.Drawing.Size(150, 103)
-        Me.picToolboxHGrdSpfld.TabIndex = 6
-        Me.picToolboxHGrdSpfld.TabStop = False
+        Me.picToolboxHGrdSplFld.BackColor = System.Drawing.SystemColors.ControlLight
+        Me.picToolboxHGrdSplFld.Location = New System.Drawing.Point(15, 51)
+        Me.picToolboxHGrdSplFld.Name = "picToolboxHGrdSplFld"
+        Me.picToolboxHGrdSplFld.Size = New System.Drawing.Size(150, 103)
+        Me.picToolboxHGrdSplFld.TabIndex = 6
+        Me.picToolboxHGrdSplFld.TabStop = False
         '
         'btnToolboxHGrdEditorBitmapClear
         '
@@ -276,14 +279,14 @@ Partial Class UctlToolboxHintergrund
         Me.btnToolboxHGrdEditorBitmapClear.Text = "Clear"
         Me.btnToolboxHGrdEditorBitmapClear.UseVisualStyleBackColor = True
         '
-        'btnToolboxHGrdSpfldBitmapClear
+        'btnToolboxHGrdSplFldBitmapClear
         '
-        Me.btnToolboxHGrdSpfldBitmapClear.Location = New System.Drawing.Point(122, 21)
-        Me.btnToolboxHGrdSpfldBitmapClear.Name = "btnToolboxHGrdSpfldBitmapClear"
-        Me.btnToolboxHGrdSpfldBitmapClear.Size = New System.Drawing.Size(43, 23)
-        Me.btnToolboxHGrdSpfldBitmapClear.TabIndex = 4
-        Me.btnToolboxHGrdSpfldBitmapClear.Text = "Clear"
-        Me.btnToolboxHGrdSpfldBitmapClear.UseVisualStyleBackColor = True
+        Me.btnToolboxHGrdSplFldBitmapClear.Location = New System.Drawing.Point(122, 21)
+        Me.btnToolboxHGrdSplFldBitmapClear.Name = "btnToolboxHGrdSplFldBitmapClear"
+        Me.btnToolboxHGrdSplFldBitmapClear.Size = New System.Drawing.Size(43, 23)
+        Me.btnToolboxHGrdSplFldBitmapClear.TabIndex = 4
+        Me.btnToolboxHGrdSplFldBitmapClear.Text = "Clear"
+        Me.btnToolboxHGrdSplFldBitmapClear.UseVisualStyleBackColor = True
         '
         'btnToolboxHGrdEditorBitmapName
         '
@@ -294,32 +297,14 @@ Partial Class UctlToolboxHintergrund
         Me.btnToolboxHGrdEditorBitmapName.Text = "Editor"
         Me.btnToolboxHGrdEditorBitmapName.UseVisualStyleBackColor = True
         '
-        'btnToolboxHGrdSpfldBitmapName
+        'btnToolboxHGrdSplFldBitmapName
         '
-        Me.btnToolboxHGrdSpfldBitmapName.Location = New System.Drawing.Point(15, 21)
-        Me.btnToolboxHGrdSpfldBitmapName.Name = "btnToolboxHGrdSpfldBitmapName"
-        Me.btnToolboxHGrdSpfldBitmapName.Size = New System.Drawing.Size(104, 23)
-        Me.btnToolboxHGrdSpfldBitmapName.TabIndex = 2
-        Me.btnToolboxHGrdSpfldBitmapName.Text = "Spielfeld"
-        Me.btnToolboxHGrdSpfldBitmapName.UseVisualStyleBackColor = True
-        '
-        'btnInfoAktSpiel
-        '
-        Me.btnInfoAktSpiel.AccessibleDescription = "Zeigt Informationen."
-        Me.btnInfoAktSpiel.AccessibleName = "Info"
-        Me.btnInfoAktSpiel.AutoSquare = True
-        Me.btnInfoAktSpiel.BackColor = System.Drawing.SystemColors.Control
-        Me.btnInfoAktSpiel.Cursor = System.Windows.Forms.Cursors.Hand
-        Me.btnInfoAktSpiel.DarkMode = True
-        Me.btnInfoAktSpiel.InfoHeader = "Info"
-        Me.btnInfoAktSpiel.InfoText = "Wenn Farben und Bilder hinterlegt sind, gelten die Bilder."
-        Me.btnInfoAktSpiel.Location = New System.Drawing.Point(280, 280)
-        Me.btnInfoAktSpiel.MinimumSize = New System.Drawing.Size(16, 16)
-        Me.btnInfoAktSpiel.Name = "btnInfoAktSpiel"
-        Me.btnInfoAktSpiel.Size = New System.Drawing.Size(26, 26)
-        Me.btnInfoAktSpiel.TabIndex = 2
-        Me.btnInfoAktSpiel.TabStop = False
-        Me.btnInfoAktSpiel.Text = "ButtonInfo2"
+        Me.btnToolboxHGrdSplFldBitmapName.Location = New System.Drawing.Point(15, 21)
+        Me.btnToolboxHGrdSplFldBitmapName.Name = "btnToolboxHGrdSplFldBitmapName"
+        Me.btnToolboxHGrdSplFldBitmapName.Size = New System.Drawing.Size(104, 23)
+        Me.btnToolboxHGrdSplFldBitmapName.TabIndex = 2
+        Me.btnToolboxHGrdSplFldBitmapName.Text = "Spielfeld"
+        Me.btnToolboxHGrdSplFldBitmapName.UseVisualStyleBackColor = True
         '
         'TabPageFallback
         '
@@ -334,7 +319,7 @@ Partial Class UctlToolboxHintergrund
         '
         'gbxFallback
         '
-        Me.gbxFallback.Controls.Add(Me.chkToolboxHGrdEditorUseSpfldEinstlgFallback)
+        Me.gbxFallback.Controls.Add(Me.chkToolboxHGrdEditorUseSplFldEinstlgFallback)
         Me.gbxFallback.Controls.Add(Me.GroupBox2)
         Me.gbxFallback.Controls.Add(Me.GroupBox5)
         Me.gbxFallback.Controls.Add(Me.ButtonInfo1)
@@ -346,24 +331,24 @@ Partial Class UctlToolboxHintergrund
         Me.gbxFallback.TabStop = False
         Me.gbxFallback.Text = "Fallback (Wenn das aktuelles Spiel keine Werte hat)"
         '
-        'chkToolboxHGrdEditorUseSpfldEinstlgFallback
+        'chkToolboxHGrdEditorUseSplFldEinstlgFallback
         '
-        Me.chkToolboxHGrdEditorUseSpfldEinstlgFallback.AutoSize = True
-        Me.chkToolboxHGrdEditorUseSpfldEinstlgFallback.Location = New System.Drawing.Point(195, 280)
-        Me.chkToolboxHGrdEditorUseSpfldEinstlgFallback.Name = "chkToolboxHGrdEditorUseSpfldEinstlgFallback"
-        Me.chkToolboxHGrdEditorUseSpfldEinstlgFallback.Size = New System.Drawing.Size(83, 43)
-        Me.chkToolboxHGrdEditorUseSpfldEinstlgFallback.TabIndex = 5
-        Me.chkToolboxHGrdEditorUseSpfldEinstlgFallback.Text = "Editor nutzt" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Spielfeldein-" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "stellungen"
-        Me.chkToolboxHGrdEditorUseSpfldEinstlgFallback.UseVisualStyleBackColor = True
+        Me.chkToolboxHGrdEditorUseSplFldEinstlgFallback.AutoSize = True
+        Me.chkToolboxHGrdEditorUseSplFldEinstlgFallback.Location = New System.Drawing.Point(196, 280)
+        Me.chkToolboxHGrdEditorUseSplFldEinstlgFallback.Name = "chkToolboxHGrdEditorUseSplFldEinstlgFallback"
+        Me.chkToolboxHGrdEditorUseSplFldEinstlgFallback.Size = New System.Drawing.Size(83, 43)
+        Me.chkToolboxHGrdEditorUseSplFldEinstlgFallback.TabIndex = 5
+        Me.chkToolboxHGrdEditorUseSplFldEinstlgFallback.Text = "Editor nutzt" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Spielfeldein-" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "stellungen"
+        Me.chkToolboxHGrdEditorUseSplFldEinstlgFallback.UseVisualStyleBackColor = True
         '
         'GroupBox2
         '
         Me.GroupBox2.Controls.Add(Me.lblToolboxHGrdEditorColorFallback)
-        Me.GroupBox2.Controls.Add(Me.lblToolboxHGrdSpfldColorFallback)
+        Me.GroupBox2.Controls.Add(Me.lblToolboxHGrdSplFldColorFallback)
         Me.GroupBox2.Controls.Add(Me.btnToolboxHGrdEditorColorClearFallback)
-        Me.GroupBox2.Controls.Add(Me.btnToolboxHGrdSpfldColorClearFallback)
+        Me.GroupBox2.Controls.Add(Me.btnToolboxHGrdSplFldColorClearFallback)
         Me.GroupBox2.Controls.Add(Me.btnToolboxHGrdEditorColorFallback)
-        Me.GroupBox2.Controls.Add(Me.btnToolboxHGrdSpfldColorFallback)
+        Me.GroupBox2.Controls.Add(Me.btnToolboxHGrdSplFldColorFallback)
         Me.GroupBox2.Location = New System.Drawing.Point(191, 19)
         Me.GroupBox2.Name = "GroupBox2"
         Me.GroupBox2.Size = New System.Drawing.Size(129, 255)
@@ -383,17 +368,17 @@ Partial Class UctlToolboxHintergrund
         Me.lblToolboxHGrdEditorColorFallback.Text = "(keine Farbe gewählt)"
         Me.lblToolboxHGrdEditorColorFallback.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
-        'lblToolboxHGrdSpfldColorFallback
+        'lblToolboxHGrdSplFldColorFallback
         '
-        Me.lblToolboxHGrdSpfldColorFallback.BackColor = System.Drawing.Color.Transparent
-        Me.lblToolboxHGrdSpfldColorFallback.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.lblToolboxHGrdSpfldColorFallback.Cursor = System.Windows.Forms.Cursors.Default
-        Me.lblToolboxHGrdSpfldColorFallback.Location = New System.Drawing.Point(6, 51)
-        Me.lblToolboxHGrdSpfldColorFallback.Name = "lblToolboxHGrdSpfldColorFallback"
-        Me.lblToolboxHGrdSpfldColorFallback.Size = New System.Drawing.Size(114, 35)
-        Me.lblToolboxHGrdSpfldColorFallback.TabIndex = 10
-        Me.lblToolboxHGrdSpfldColorFallback.Text = "(keine Farbe gewählt)"
-        Me.lblToolboxHGrdSpfldColorFallback.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        Me.lblToolboxHGrdSplFldColorFallback.BackColor = System.Drawing.Color.Transparent
+        Me.lblToolboxHGrdSplFldColorFallback.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
+        Me.lblToolboxHGrdSplFldColorFallback.Cursor = System.Windows.Forms.Cursors.Default
+        Me.lblToolboxHGrdSplFldColorFallback.Location = New System.Drawing.Point(6, 51)
+        Me.lblToolboxHGrdSplFldColorFallback.Name = "lblToolboxHGrdSplFldColorFallback"
+        Me.lblToolboxHGrdSplFldColorFallback.Size = New System.Drawing.Size(114, 35)
+        Me.lblToolboxHGrdSplFldColorFallback.TabIndex = 10
+        Me.lblToolboxHGrdSplFldColorFallback.Text = "(keine Farbe gewählt)"
+        Me.lblToolboxHGrdSplFldColorFallback.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
         'btnToolboxHGrdEditorColorClearFallback
         '
@@ -404,14 +389,14 @@ Partial Class UctlToolboxHintergrund
         Me.btnToolboxHGrdEditorColorClearFallback.Text = "Clear"
         Me.btnToolboxHGrdEditorColorClearFallback.UseVisualStyleBackColor = True
         '
-        'btnToolboxHGrdSpfldColorClearFallback
+        'btnToolboxHGrdSplFldColorClearFallback
         '
-        Me.btnToolboxHGrdSpfldColorClearFallback.Location = New System.Drawing.Point(77, 21)
-        Me.btnToolboxHGrdSpfldColorClearFallback.Name = "btnToolboxHGrdSpfldColorClearFallback"
-        Me.btnToolboxHGrdSpfldColorClearFallback.Size = New System.Drawing.Size(43, 23)
-        Me.btnToolboxHGrdSpfldColorClearFallback.TabIndex = 8
-        Me.btnToolboxHGrdSpfldColorClearFallback.Text = "Clear"
-        Me.btnToolboxHGrdSpfldColorClearFallback.UseVisualStyleBackColor = True
+        Me.btnToolboxHGrdSplFldColorClearFallback.Location = New System.Drawing.Point(77, 21)
+        Me.btnToolboxHGrdSplFldColorClearFallback.Name = "btnToolboxHGrdSplFldColorClearFallback"
+        Me.btnToolboxHGrdSplFldColorClearFallback.Size = New System.Drawing.Size(43, 23)
+        Me.btnToolboxHGrdSplFldColorClearFallback.TabIndex = 8
+        Me.btnToolboxHGrdSplFldColorClearFallback.Text = "Clear"
+        Me.btnToolboxHGrdSplFldColorClearFallback.UseVisualStyleBackColor = True
         '
         'btnToolboxHGrdEditorColorFallback
         '
@@ -422,25 +407,25 @@ Partial Class UctlToolboxHintergrund
         Me.btnToolboxHGrdEditorColorFallback.Text = "Editor"
         Me.btnToolboxHGrdEditorColorFallback.UseVisualStyleBackColor = True
         '
-        'btnToolboxHGrdSpfldColorFallback
+        'btnToolboxHGrdSplFldColorFallback
         '
-        Me.btnToolboxHGrdSpfldColorFallback.Location = New System.Drawing.Point(5, 21)
-        Me.btnToolboxHGrdSpfldColorFallback.Name = "btnToolboxHGrdSpfldColorFallback"
-        Me.btnToolboxHGrdSpfldColorFallback.Size = New System.Drawing.Size(69, 23)
-        Me.btnToolboxHGrdSpfldColorFallback.TabIndex = 6
-        Me.btnToolboxHGrdSpfldColorFallback.Text = "Spielfeld"
-        Me.btnToolboxHGrdSpfldColorFallback.UseVisualStyleBackColor = True
+        Me.btnToolboxHGrdSplFldColorFallback.Location = New System.Drawing.Point(5, 21)
+        Me.btnToolboxHGrdSplFldColorFallback.Name = "btnToolboxHGrdSplFldColorFallback"
+        Me.btnToolboxHGrdSplFldColorFallback.Size = New System.Drawing.Size(69, 23)
+        Me.btnToolboxHGrdSplFldColorFallback.TabIndex = 6
+        Me.btnToolboxHGrdSplFldColorFallback.Text = "Spielfeld"
+        Me.btnToolboxHGrdSplFldColorFallback.UseVisualStyleBackColor = True
         '
         'GroupBox5
         '
-        Me.GroupBox5.Controls.Add(Me.picToolboxHGrdSpfldFallback)
+        Me.GroupBox5.Controls.Add(Me.picToolboxHGrdSplFldFallback)
         Me.GroupBox5.Controls.Add(Me.lblToolboxHGrdEditorRenderModeFallback)
-        Me.GroupBox5.Controls.Add(Me.lblToolboxHGrdSplfldRenderModeFallback)
+        Me.GroupBox5.Controls.Add(Me.lblToolboxHGrdSplFldRenderModeFallback)
         Me.GroupBox5.Controls.Add(Me.picToolboxHGrdEditorFallback)
         Me.GroupBox5.Controls.Add(Me.btnToolboxHGrdEditorBitmapClearFallback)
-        Me.GroupBox5.Controls.Add(Me.btnToolboxHGrdSpfldBitmapClearFallback)
+        Me.GroupBox5.Controls.Add(Me.btnToolboxHGrdSplFldBitmapClearFallback)
         Me.GroupBox5.Controls.Add(Me.btnToolboxHGrdEditorBitmapNameFallback)
-        Me.GroupBox5.Controls.Add(Me.btnToolboxHGrdSpfldBitmapNameFallback)
+        Me.GroupBox5.Controls.Add(Me.btnToolboxHGrdSplFldBitmapNameFallback)
         Me.GroupBox5.Location = New System.Drawing.Point(8, 19)
         Me.GroupBox5.Name = "GroupBox5"
         Me.GroupBox5.Size = New System.Drawing.Size(177, 344)
@@ -448,14 +433,14 @@ Partial Class UctlToolboxHintergrund
         Me.GroupBox5.TabStop = False
         Me.GroupBox5.Text = "Bilder"
         '
-        'picToolboxHGrdSpfldFallback
+        'picToolboxHGrdSplFldFallback
         '
-        Me.picToolboxHGrdSpfldFallback.BackColor = System.Drawing.SystemColors.ControlLight
-        Me.picToolboxHGrdSpfldFallback.Location = New System.Drawing.Point(15, 51)
-        Me.picToolboxHGrdSpfldFallback.Name = "picToolboxHGrdSpfldFallback"
-        Me.picToolboxHGrdSpfldFallback.Size = New System.Drawing.Size(150, 102)
-        Me.picToolboxHGrdSpfldFallback.TabIndex = 6
-        Me.picToolboxHGrdSpfldFallback.TabStop = False
+        Me.picToolboxHGrdSplFldFallback.BackColor = System.Drawing.SystemColors.ControlLight
+        Me.picToolboxHGrdSplFldFallback.Location = New System.Drawing.Point(15, 51)
+        Me.picToolboxHGrdSplFldFallback.Name = "picToolboxHGrdSplFldFallback"
+        Me.picToolboxHGrdSplFldFallback.Size = New System.Drawing.Size(150, 102)
+        Me.picToolboxHGrdSplFldFallback.TabIndex = 6
+        Me.picToolboxHGrdSplFldFallback.TabStop = False
         '
         'lblToolboxHGrdEditorRenderModeFallback
         '
@@ -466,14 +451,14 @@ Partial Class UctlToolboxHintergrund
         Me.lblToolboxHGrdEditorRenderModeFallback.TabIndex = 8
         Me.lblToolboxHGrdEditorRenderModeFallback.Text = "lblToolboxHGrdEditorRenderModeFallback"
         '
-        'lblToolboxHGrdSplfldRenderModeFallback
+        'lblToolboxHGrdSplFldRenderModeFallback
         '
-        Me.lblToolboxHGrdSplfldRenderModeFallback.AutoSize = True
-        Me.lblToolboxHGrdSplfldRenderModeFallback.Location = New System.Drawing.Point(15, 157)
-        Me.lblToolboxHGrdSplfldRenderModeFallback.Name = "lblToolboxHGrdSplfldRenderModeFallback"
-        Me.lblToolboxHGrdSplfldRenderModeFallback.Size = New System.Drawing.Size(208, 13)
-        Me.lblToolboxHGrdSplfldRenderModeFallback.TabIndex = 6
-        Me.lblToolboxHGrdSplfldRenderModeFallback.Text = "lblToolboxHGrdSplfldRenderModeFallback"
+        Me.lblToolboxHGrdSplFldRenderModeFallback.AutoSize = True
+        Me.lblToolboxHGrdSplFldRenderModeFallback.Location = New System.Drawing.Point(15, 157)
+        Me.lblToolboxHGrdSplFldRenderModeFallback.Name = "lblToolboxHGrdSplFldRenderModeFallback"
+        Me.lblToolboxHGrdSplFldRenderModeFallback.Size = New System.Drawing.Size(211, 13)
+        Me.lblToolboxHGrdSplFldRenderModeFallback.TabIndex = 6
+        Me.lblToolboxHGrdSplFldRenderModeFallback.Text = "lblToolboxHGrdSplFldRenderModeFallback"
         '
         'picToolboxHGrdEditorFallback
         '
@@ -493,14 +478,14 @@ Partial Class UctlToolboxHintergrund
         Me.btnToolboxHGrdEditorBitmapClearFallback.Text = "Clear"
         Me.btnToolboxHGrdEditorBitmapClearFallback.UseVisualStyleBackColor = True
         '
-        'btnToolboxHGrdSpfldBitmapClearFallback
+        'btnToolboxHGrdSplFldBitmapClearFallback
         '
-        Me.btnToolboxHGrdSpfldBitmapClearFallback.Location = New System.Drawing.Point(122, 21)
-        Me.btnToolboxHGrdSpfldBitmapClearFallback.Name = "btnToolboxHGrdSpfldBitmapClearFallback"
-        Me.btnToolboxHGrdSpfldBitmapClearFallback.Size = New System.Drawing.Size(43, 23)
-        Me.btnToolboxHGrdSpfldBitmapClearFallback.TabIndex = 4
-        Me.btnToolboxHGrdSpfldBitmapClearFallback.Text = "Clear"
-        Me.btnToolboxHGrdSpfldBitmapClearFallback.UseVisualStyleBackColor = True
+        Me.btnToolboxHGrdSplFldBitmapClearFallback.Location = New System.Drawing.Point(122, 21)
+        Me.btnToolboxHGrdSplFldBitmapClearFallback.Name = "btnToolboxHGrdSplFldBitmapClearFallback"
+        Me.btnToolboxHGrdSplFldBitmapClearFallback.Size = New System.Drawing.Size(43, 23)
+        Me.btnToolboxHGrdSplFldBitmapClearFallback.TabIndex = 4
+        Me.btnToolboxHGrdSplFldBitmapClearFallback.Text = "Clear"
+        Me.btnToolboxHGrdSplFldBitmapClearFallback.UseVisualStyleBackColor = True
         '
         'btnToolboxHGrdEditorBitmapNameFallback
         '
@@ -511,14 +496,42 @@ Partial Class UctlToolboxHintergrund
         Me.btnToolboxHGrdEditorBitmapNameFallback.Text = "Editor"
         Me.btnToolboxHGrdEditorBitmapNameFallback.UseVisualStyleBackColor = True
         '
-        'btnToolboxHGrdSpfldBitmapNameFallback
+        'btnToolboxHGrdSplFldBitmapNameFallback
         '
-        Me.btnToolboxHGrdSpfldBitmapNameFallback.Location = New System.Drawing.Point(15, 21)
-        Me.btnToolboxHGrdSpfldBitmapNameFallback.Name = "btnToolboxHGrdSpfldBitmapNameFallback"
-        Me.btnToolboxHGrdSpfldBitmapNameFallback.Size = New System.Drawing.Size(104, 23)
-        Me.btnToolboxHGrdSpfldBitmapNameFallback.TabIndex = 2
-        Me.btnToolboxHGrdSpfldBitmapNameFallback.Text = "Spielfeld"
-        Me.btnToolboxHGrdSpfldBitmapNameFallback.UseVisualStyleBackColor = True
+        Me.btnToolboxHGrdSplFldBitmapNameFallback.Location = New System.Drawing.Point(15, 21)
+        Me.btnToolboxHGrdSplFldBitmapNameFallback.Name = "btnToolboxHGrdSplFldBitmapNameFallback"
+        Me.btnToolboxHGrdSplFldBitmapNameFallback.Size = New System.Drawing.Size(104, 23)
+        Me.btnToolboxHGrdSplFldBitmapNameFallback.TabIndex = 2
+        Me.btnToolboxHGrdSplFldBitmapNameFallback.Text = "Spielfeld"
+        Me.btnToolboxHGrdSplFldBitmapNameFallback.UseVisualStyleBackColor = True
+        '
+        'chkToolboxHGrdEditorShowFraming
+        '
+        Me.chkToolboxHGrdEditorShowFraming.AutoSize = True
+        Me.chkToolboxHGrdEditorShowFraming.Location = New System.Drawing.Point(196, 329)
+        Me.chkToolboxHGrdEditorShowFraming.Name = "chkToolboxHGrdEditorShowFraming"
+        Me.chkToolboxHGrdEditorShowFraming.Size = New System.Drawing.Size(123, 30)
+        Me.chkToolboxHGrdEditorShowFraming.TabIndex = 6
+        Me.chkToolboxHGrdEditorShowFraming.Text = "Spielfeldumrahmung" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "anzeigen (nur Editor)"
+        Me.chkToolboxHGrdEditorShowFraming.UseVisualStyleBackColor = True
+        '
+        'btnInfoAktSpiel
+        '
+        Me.btnInfoAktSpiel.AccessibleDescription = "Zeigt Informationen."
+        Me.btnInfoAktSpiel.AccessibleName = "Info"
+        Me.btnInfoAktSpiel.AutoSquare = True
+        Me.btnInfoAktSpiel.BackColor = System.Drawing.SystemColors.Control
+        Me.btnInfoAktSpiel.Cursor = System.Windows.Forms.Cursors.Hand
+        Me.btnInfoAktSpiel.DarkMode = True
+        Me.btnInfoAktSpiel.InfoHeader = "Info"
+        Me.btnInfoAktSpiel.InfoText = resources.GetString("btnInfoAktSpiel.InfoText")
+        Me.btnInfoAktSpiel.Location = New System.Drawing.Point(280, 289)
+        Me.btnInfoAktSpiel.MinimumSize = New System.Drawing.Size(16, 16)
+        Me.btnInfoAktSpiel.Name = "btnInfoAktSpiel"
+        Me.btnInfoAktSpiel.Size = New System.Drawing.Size(26, 26)
+        Me.btnInfoAktSpiel.TabIndex = 2
+        Me.btnInfoAktSpiel.TabStop = False
+        Me.btnInfoAktSpiel.Text = "ButtonInfo2"
         '
         'ButtonInfo1
         '
@@ -556,59 +569,60 @@ Partial Class UctlToolboxHintergrund
         Me.GroupBox4.ResumeLayout(False)
         Me.GroupBox4.PerformLayout()
         CType(Me.picToolboxHGrdEditor, System.ComponentModel.ISupportInitialize).EndInit()
-        CType(Me.picToolboxHGrdSpfld, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.picToolboxHGrdSplFld, System.ComponentModel.ISupportInitialize).EndInit()
         Me.TabPageFallback.ResumeLayout(False)
         Me.gbxFallback.ResumeLayout(False)
         Me.gbxFallback.PerformLayout()
         Me.GroupBox2.ResumeLayout(False)
         Me.GroupBox5.ResumeLayout(False)
         Me.GroupBox5.PerformLayout()
-        CType(Me.picToolboxHGrdSpfldFallback, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.picToolboxHGrdSplFldFallback, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.picToolboxHGrdEditorFallback, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
 
     End Sub
 
-    Friend WithEvents lblToolboxHGrdSpfldColor As System.Windows.Forms.Label
+    Friend WithEvents lblToolboxHGrdSplFldColor As System.Windows.Forms.Label
     Friend WithEvents lblToolboxHGrdEditorColorFallback As System.Windows.Forms.Label
-    Friend WithEvents lblToolboxHGrdSpfldColorFallback As System.Windows.Forms.Label
+    Friend WithEvents lblToolboxHGrdSplFldColorFallback As System.Windows.Forms.Label
     Friend WithEvents GroupBox9 As GroupBox
     Friend WithEvents gbxAktSpiel As GroupBox
-    Friend WithEvents chkToolboxHGrdEditorUseSpfldEinstlg As CheckBox
+    Friend WithEvents chkToolboxHGrdEditorUseSplFldEinstlg As CheckBox
     Friend WithEvents GroupBox3 As GroupBox
     Friend WithEvents btnToolboxHGrdEditorColorClear As Button
-    Friend WithEvents btnToolboxHGrdSpfldColorClear As Button
+    Friend WithEvents btnToolboxHGrdSplFldColorClear As Button
     Friend WithEvents btnToolboxHGrdEditorColor As Button
-    Friend WithEvents btnToolboxHGrdSpfldColor As Button
+    Friend WithEvents btnToolboxHGrdSplFldColor As Button
     Friend WithEvents GroupBox4 As GroupBox
     Friend WithEvents btnToolboxHGrdEditorBitmapClear As Button
-    Friend WithEvents btnToolboxHGrdSpfldBitmapClear As Button
+    Friend WithEvents btnToolboxHGrdSplFldBitmapClear As Button
     Friend WithEvents btnToolboxHGrdEditorBitmapName As Button
-    Friend WithEvents btnToolboxHGrdSpfldBitmapName As Button
+    Friend WithEvents btnToolboxHGrdSplFldBitmapName As Button
     Friend WithEvents btnInfoAktSpiel As ButtonInfo
     Friend WithEvents TabControlToolboxHGrd As TabControl
     Friend WithEvents TabPageAktSpiel As TabPage
     Friend WithEvents TabPageFallback As TabPage
-    Friend WithEvents picToolboxHGrdSpfld As PictureBox
+    Friend WithEvents picToolboxHGrdSplFld As PictureBox
     Friend WithEvents picToolboxHGrdEditor As PictureBox
     Friend WithEvents gbxFallback As GroupBox
-    Friend WithEvents chkToolboxHGrdEditorUseSpfldEinstlgFallback As CheckBox
+    Friend WithEvents chkToolboxHGrdEditorUseSplFldEinstlgFallback As CheckBox
     Friend WithEvents GroupBox2 As GroupBox
     Friend WithEvents btnToolboxHGrdEditorColorClearFallback As Button
-    Friend WithEvents btnToolboxHGrdSpfldColorClearFallback As Button
+    Friend WithEvents btnToolboxHGrdSplFldColorClearFallback As Button
     Friend WithEvents btnToolboxHGrdEditorColorFallback As Button
-    Friend WithEvents btnToolboxHGrdSpfldColorFallback As Button
+    Friend WithEvents btnToolboxHGrdSplFldColorFallback As Button
     Friend WithEvents GroupBox5 As GroupBox
     Friend WithEvents picToolboxHGrdEditorFallback As PictureBox
-    Friend WithEvents picToolboxHGrdSpfldFallback As PictureBox
+    Friend WithEvents picToolboxHGrdSplFldFallback As PictureBox
     Friend WithEvents btnToolboxHGrdEditorBitmapClearFallback As Button
-    Friend WithEvents btnToolboxHGrdSpfldBitmapClearFallback As Button
+    Friend WithEvents btnToolboxHGrdSplFldBitmapClearFallback As Button
     Friend WithEvents btnToolboxHGrdEditorBitmapNameFallback As Button
-    Friend WithEvents btnToolboxHGrdSpfldBitmapNameFallback As Button
+    Friend WithEvents btnToolboxHGrdSplFldBitmapNameFallback As Button
     Friend WithEvents ButtonInfo1 As ButtonInfo
-    Friend WithEvents lblToolboxHGrdSplfldRenderModeFallback As Label
+    Friend WithEvents lblToolboxHGrdSplFldRenderModeFallback As Label
     Friend WithEvents lblToolboxHGrdEditorRenderMode As Label
-    Friend WithEvents lblToolboxHGrdSpfldRenderMode As Label
+    Friend WithEvents lblToolboxHGrdSplFldRenderMode As Label
     Friend WithEvents lblToolboxHGrdEditorRenderModeFallback As Label
     Friend WithEvents lblToolboxHGrdEditorColor As Label
+    Friend WithEvents chkToolboxHGrdEditorShowFraming As CheckBox
 End Class

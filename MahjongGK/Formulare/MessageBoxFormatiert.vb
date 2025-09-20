@@ -53,6 +53,10 @@ Public NotInheritable Class MessageBoxFormatiert
     Private Shared _useMonospacedFont As Boolean
 
     Private _flowMode As Boolean  ' True = Fließtext (MessageBox-ähnlich, WordWrap)
+    ' … bestehende Felder …
+    Private _widthHintPx As Integer = 0 ' Breiten-Hinweis aus erster Zeile via "|"
+    Private _rtbWidthCapPx As Integer = 0         ' tatsächlich anzuwendende Obergrenze für _rtb.Width
+
 
     '--- Konstanten/Layout
     Private Shadows Const PADDING As Integer = 12
@@ -238,16 +242,33 @@ Public NotInheritable Class MessageBoxFormatiert
 
             ' --- Hintertür: kein CR/LF -> Fließtext (WordWrap), "~" erzwingt Umbruch ---
             Dim rawText As String = If(text, String.Empty)
-            Dim hasCrLf As Boolean = rawText.Contains(vbCrLf) OrElse rawText.Contains(vbLf)
 
-            If Not hasCrLf Then
+            ' 3. Regel (neu): In der ERSTEN Zeile ein "|" -> Breitenhinweis messen und dieses eine "|" entfernen
+            rawText = dlg.ProcessWidthHintPipe(rawText, dlg._widthHintPx)
+
+            ' 2. Regel (neu): Wenn mindestens ein "~" vorkommt -> GANZER Text wird Fließtext:
+            '    - zuerst ALLE CR/LF zu Leerzeichen (Designer-Zeilenumbrüche sind "falsch positioniert")
+            '    - dann "~" -> CRLF
+            '    - WordWrap = True
+            If rawText.IndexOf("~"c) >= 0 Then
+                Dim normalized As String = rawText.Replace(vbCrLf, " ").Replace(vbLf, " ")
+                normalized = normalized.Replace("~", vbCrLf)
                 dlg._flowMode = True
                 dlg._rtb.WordWrap = True
-                dlg._rtb.Text = rawText.Replace("~", vbCrLf)      ' "~" -> Umbruch (Zeichen entfällt)
+                dlg._rtb.Text = normalized
             Else
-                dlg._flowMode = False
-                dlg._rtb.WordWrap = False
+                ' Ursprungslogik beibehalten: ohne CR/LF -> Fließtext, sonst CR/LF-formattreu
+                Dim hasCrLf As Boolean = rawText.Contains(vbCrLf) OrElse rawText.Contains(vbLf)
+                dlg._flowMode = Not hasCrLf
+                dlg._rtb.WordWrap = dlg._flowMode
                 dlg._rtb.Text = rawText
+            End If
+
+            ' Harte Obergrenze für die RTB-Breite vorbereiten (innen):
+            If dlg._widthHintPx > 0 AndAlso dlg._flowMode Then
+                dlg._rtbWidthCapPx = dlg._widthHintPx + SystemInformation.VerticalScrollBarWidth + dlg.MEASURE_FUDGE_W
+            Else
+                dlg._rtbWidthCapPx = 0
             End If
 
             ' Icon
@@ -434,14 +455,34 @@ Public NotInheritable Class MessageBoxFormatiert
         ' Text messen
         Dim contentSize As Size
         If _flowMode Then
-            contentSize = TextRenderer.MeasureText(_rtb.Text, _fontMessage,
-                                                   New Size(maxW, Integer.MaxValue),
-                                                   TextFormatFlags.WordBreak Or TextFormatFlags.NoPadding Or TextFormatFlags.TextBoxControl)
+            ' Maximalbreite: "|"-Hinweis als Obergrenze (innen), nicht als Mindestbreite
+            Dim widthBoundPx As Integer = maxW
+            If _widthHintPx > 0 Then
+                widthBoundPx = Math.Min(maxW, _widthHintPx + MEASURE_FUDGE_W)
+            End If
+
+            contentSize = TextRenderer.MeasureText(
+                _rtb.Text,
+                _fontMessage,
+                New Size(widthBoundPx, Integer.MaxValue),
+                TextFormatFlags.WordBreak Or TextFormatFlags.NoPadding Or TextFormatFlags.TextBoxControl
+            )
         Else
-            contentSize = TextRenderer.MeasureText(_rtb.Text, _fontMessage,
-                                                   New Size(Integer.MaxValue, Integer.MaxValue),
-                                                   TextFormatFlags.NoPadding Or TextFormatFlags.TextBoxControl)
+            contentSize = TextRenderer.MeasureText(
+                _rtb.Text,
+                _fontMessage,
+                New Size(Integer.MaxValue, Integer.MaxValue),
+                TextFormatFlags.NoPadding Or TextFormatFlags.TextBoxControl
+            )
         End If
+
+
+        ' Scrollbar-Breiten pauschal aufschlagen
+        contentSize = New Size(
+            contentSize.Width + SystemInformation.VerticalScrollBarWidth,
+            contentSize.Height + SystemInformation.HorizontalScrollBarHeight
+        )
+
 
         ' Scrollbar-Breiten pauschal aufschlagen
         contentSize = New Size(contentSize.Width + SystemInformation.VerticalScrollBarWidth,
@@ -486,9 +527,22 @@ Public NotInheritable Class MessageBoxFormatiert
         _headerLabel.Height = TextRenderer.MeasureText(_headerLabel.Text, _fontHeader).Height
 
         ' RTB darunter, bis knapp über die Buttons
+
+        ' RTB-Standardbreite:
+        Dim rtbW As Integer = Me.ClientSize.Width - headerLeft - PADDING
+
+        ' Harte Kappe, falls aktiv:
+        If _rtbWidthCapPx > 0 Then
+            rtbW = Math.Min(rtbW, _rtbWidthCapPx)
+        End If
+
         _rtb.Location = New Point(headerLeft, _headerLabel.Bottom + GAP)
-        _rtb.Width = Me.ClientSize.Width - headerLeft - PADDING
+        _rtb.Width = rtbW
         _rtb.Height = Me.ClientSize.Height - _rtb.Top - PADDING - _buttonsPanel.PreferredSize.Height - GAP
+
+        '_rtb.Location = New Point(headerLeft, _headerLabel.Bottom + GAP)
+        '_rtb.Width = Me.ClientSize.Width - headerLeft - PADDING
+        '_rtb.Height = Me.ClientSize.Height - _rtb.Top - PADDING - _buttonsPanel.PreferredSize.Height - GAP
 
         ' Buttons rechts unten
         _buttonsPanel.Location = New Point(Me.ClientSize.Width - PADDING - _buttonsPanel.PreferredSize.Width,
@@ -711,6 +765,37 @@ Public NotInheritable Class MessageBoxFormatiert
 
 
     '============ Helfer ============
+    ''' <summary>
+    ''' Sucht in der ERSTEN Zeile das erste "|" und liefert:
+    ''' - processedText: Text mit entferntem "|" (nur dieses eine in Zeile 1)
+    ''' - widthHintPx:   gerenderte Breite des Textes VOR dem "|" in Pixel (Font = _fontMessage)
+    ''' </summary>
+    Private Function ProcessWidthHintPipe(text As String, ByRef widthHintPx As Integer) As String
+        widthHintPx = 0
+        If String.IsNullOrEmpty(text) Then Return String.Empty
+
+        ' erste Zeile isolieren
+        Dim nlPos As Integer = text.IndexOf(vbCrLf, StringComparison.Ordinal)
+        If nlPos < 0 Then nlPos = text.IndexOf(ChrW(10)) ' Fallback reines LF
+        Dim firstLineEnd As Integer = If(nlPos >= 0, nlPos, text.Length)
+
+        Dim pipePos As Integer = text.IndexOf("|"c)
+        If pipePos >= 0 AndAlso pipePos < firstLineEnd Then
+            ' Breite bis zur Pipe messen (Text ohne Pipe-Zeichen)
+            Dim beforePipe As String = If(pipePos > 0, text.Substring(0, pipePos), String.Empty)
+            widthHintPx = TextRenderer.MeasureText(
+            beforePipe,
+            _fontMessage,
+            New Size(Integer.MaxValue, Integer.MaxValue),
+            TextFormatFlags.NoPadding Or TextFormatFlags.TextBoxControl
+        ).Width
+
+            ' genau DIESES Pipe in Zeile 1 entfernen
+            text = text.Remove(pipePos, 1)
+        End If
+
+        Return text
+    End Function
 
     '
     ''' <summary>

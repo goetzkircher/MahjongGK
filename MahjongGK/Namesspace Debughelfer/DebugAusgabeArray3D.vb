@@ -107,7 +107,7 @@ Namespace MjDebug
         '=== Textbox-Ausgabe ===
         Private dbgTxtForm As DebugTxtOutputForm = Nothing
 
-        Public Sub Print3DArrayToTxtOutputForm(aktSpielfeldInfo As SpielfeldInfo, Optional highlightXyz As Triple = Nothing)
+        Public Sub Print3DArrayToTxtOutputForm(AktSpielfeldInfo As SpielfeldInfo, Optional highlightXyz As Triple = Nothing)
             If Not Debugger.IsAttached Then Return
 
             If dbgTxtForm Is Nothing OrElse dbgTxtForm.IsDisposed Then
@@ -116,7 +116,7 @@ Namespace MjDebug
             End If
 
             Dim sb As New System.Text.StringBuilder()
-            With aktSpielfeldInfo
+            With SFD.AktSpielfeldInfo
                 For z As Integer = 0 To .arrFB.GetLength(2) - 1
                     sb.AppendLine($"=== Ebene Z = {z} ===")
 

@@ -75,6 +75,7 @@ Public Class frmToolBox
         Me.Width = MJ_FRMTOOLBOX_WIDTH
         Me.Height = MJ_FRMTOOLBOX_HEIGHT
 
+
         TabControlToolBox.SelectedTab = TabPageWerkbank
         ' lblImageSpieler.Image = MjGfx_HGrdEinfügenGrün(32)
 
@@ -166,6 +167,7 @@ Public Class frmToolBox
 
 #Region "Builder – WERKBANK"
     Private Sub BuildWerkbkMenu()
+
         MenuStrip_Werkbk.SuspendLayout()
         MenuStrip_Werkbk.Items.Clear()
         _mapWerkbkFile.Clear()
