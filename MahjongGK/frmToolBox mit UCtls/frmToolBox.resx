@@ -120,6 +120,27 @@
   <metadata name="MenuStrip_Editor.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>161, 17</value>
   </metadata>
+  <metadata name="ToolTipToolBox.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 17</value>
+  </metadata>
+  <data name="lblInfi1.ToolTip" xml:space="preserve">
+    <value>Die Zusammenstellung der Symbole ist nicht zum Spielen
+geeignet, da das Programm hier weder auf Paarbildung,
+noch auf irgendwelche Regeln der Verteilung achtet.
+Die eigentliche Vergabe der Steine geschieht beim Einbau
+in das Spielfeld mit dem Positionierer.</value>
+  </data>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="lblToolboxWerkbank.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAALGPC/xhBQAAAPhJREFUWEft
+        lS0SwjAQhVcikUhkZY/WG7AoJEdAVvYoSCQSiUTCZNLMNi+hzU8zIPLNPJO3u9ls0wlRpRIKU0tM70Dt
+        MT0fd5N5rU5o4dC4aEILh8YtcqSDM9Z0dVh+GbdInqKYnj4XaSJiCpJ0RisaplPcYZiauIQA5EANWi5M
+        rzH4hlYyqpau+UTLRbrdoZUM03ZSd4O2wNR7x880jOtXa92HitGxF1g3DfTWuoUElZUXNXIMLCfP57Vf
+        uw5kxvrweKj7GKty0DP1W9zebgBZ4w5oL7GBtagN/HsD8gaoC1RGpv6XN0ECymoW/cupX6mEBtyuUvk5
+        H7kmoTw8eIwjAAAAAElFTkSuQmCC
+</value>
+  </data>
   <metadata name="MenuStrip_Werkbk.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>316, 17</value>
   </metadata>
@@ -131,7 +152,7 @@
         AAEAAAD/////AQAAAAAAAAAMAgAAAFdTeXN0ZW0uV2luZG93cy5Gb3JtcywgVmVyc2lvbj00LjAuMC4w
         LCBDdWx0dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPWI3N2E1YzU2MTkzNGUwODkFAQAAACZTeXN0
         ZW0uV2luZG93cy5Gb3Jtcy5JbWFnZUxpc3RTdHJlYW1lcgEAAAAERGF0YQcCAgAAAAkDAAAADwMAAAD2
-        DAAAAk1TRnQBSQFMAgEBCAEAAeABAQHgAQEBEAEAARABAAT/AQkBAAj/AUIBTQE2AQQGAAE2AQQCAAEo
+        DAAAAk1TRnQBSQFMAgEBCAEAAfgBAQH4AQEBEAEAARABAAT/AQkBAAj/AUIBTQE2AQQGAAE2AQQCAAEo
         AwABQAMAATADAAEBAQABCAYAAQwYAAGAAgABgAMAAoABAAGAAwABgAEAAYABAAKAAgADwAEAAcAB3AHA
         AQAB8AHKAaYBAAEzBQABMwEAATMBAAEzAQACMwIAAxYBAAMcAQADIgEAAykBAANVAQADTQEAA0IBAAM5
         AQABgAF8Af8BAAJQAf8BAAGTAQAB1gEAAf8B7AHMAQABxgHWAe8BAAHWAucBAAGQAakBrQIAAf8BMwMA
@@ -189,7 +210,6 @@
         AUcB/gE/Af4BPwT/Af4BfwH+AX8Q/ws=
 </value>
   </data>
-  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
   <data name="lblToolboxSpieler.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAALGPC/xhBQAAAR5JREFUWEft
@@ -275,31 +295,8 @@
   <metadata name="ToolTipToolBox.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
-  <data name="lblInfi1.ToolTip" xml:space="preserve">
-    <value>Die Zusammenstellung der Symbole ist nicht zum Spielen
-geeignet, da das Programm hier weder auf Paarbildung,
-noch auf irgendwelche Regeln der Verteilung achtet.
-Die eigentliche Vergabe der Steine geschieht beim Einbau
-in das Spielfeld mit dem Positionierer.</value>
-  </data>
-  <data name="lblToolboxWerkbank.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAALGPC/xhBQAAAPhJREFUWEft
-        lS0SwjAQhVcikUhkZY/WG7AoJEdAVvYoSCQSiUTCZNLMNi+hzU8zIPLNPJO3u9ls0wlRpRIKU0tM70Dt
-        MT0fd5N5rU5o4dC4aEILh8YtcqSDM9Z0dVh+GbdInqKYnj4XaSJiCpJ0RisaplPcYZiauIQA5EANWi5M
-        rzH4hlYyqpau+UTLRbrdoZUM03ZSd4O2wNR7x880jOtXa92HitGxF1g3DfTWuoUElZUXNXIMLCfP57Vf
-        uw5kxvrweKj7GKty0DP1W9zebgBZ4w5oL7GBtagN/HsD8gaoC1RGpv6XN0ECymoW/cupX6mEBtyuUvk5
-        H7kmoTw8eIwjAAAAAElFTkSuQmCC
-</value>
-  </data>
-  <metadata name="MenuStrip_Werkbk.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>316, 17</value>
-  </metadata>
-  <metadata name="ToolTipToolBox.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>17, 17</value>
-  </metadata>
   <metadata name="$this.TrayHeight" type="System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>25</value>
+    <value>86</value>
   </metadata>
   <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>

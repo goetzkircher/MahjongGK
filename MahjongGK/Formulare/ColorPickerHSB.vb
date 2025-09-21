@@ -48,12 +48,9 @@ Public NotInheritable Class ColorPickerHSB
     Private Const MEM_ROWS As Integer = 4
     Private Const MEM_COUNT As Integer = MEM_COLS * MEM_ROWS
 
-    ' ── Öffentliche API ────────────────────────────────────────────────────────
-    '
-    ''' <summary>Ausgangsfarbe (wird angezeigt und initial markiert).</summary>
-    <Browsable(True)>
-    Private _initialColor As Color = Color.SteelBlue
+    Private _initialColor As Color = Color.Empty
 
+    ' ── Öffentliche API ────────────────────────────────────────────────────────
     '
     ''' <summary>Vom Benutzer übernommene Farbe (nur bei DialogResult.OK gesetzt).</summary>
     <Browsable(False)>

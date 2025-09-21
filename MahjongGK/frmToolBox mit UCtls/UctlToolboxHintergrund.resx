@@ -118,8 +118,12 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="btnInfoAktSpiel.InfoText" xml:space="preserve">
-    <value>Wenn nichts auf der Seite "Aktuelles Spiel" hinterlegt ist,gelten die Fallbackwerte. (Die wiederum Fallbackwerte in der INI, falls auch dort nichts hinterlegt ist.)~~
-"Spielfeldumrahmung einschlalten" wirkt nur, wenn der entsprechende Schalter in der INI ausgeschaltet ist,
-der Rahmen also bei ausgeschalteter Checkbox nicht angezeigt wird.~ Mit eingeschaltetem Rahmen läst sich die Spielfeldgröße, insbesondere beim Festlegen derselben, besser abschätzen.  </value>
+    <value>                                                                                |
+Wenn nichts auf der Seite "Aktuelles Spiel" hinterlegt ist, gelten die Fallbackwerte. 
+(Die wiederum Fallbackwerte in der INI haben, falls auch dort nichts hinterlegt ist.)~~
+"Spielfeldumrahmung einschalten" wirkt nur, wenn der entsprechende Schalter
+ in der INI ausgeschaltet ist, der Rahmen also bei ausgeschalteter Checkbox 
+nicht angezeigt wird.~Mit eingeschaltetem Rahmen läßt sich die Spielfeldgröße, 
+insbesondere beim Festlegen derselben, besser abschätzen.  </value>
   </data>
 </root>

@@ -498,27 +498,52 @@ Public Class UctlToolboxHintergrund
     End Sub
 
     Private Function GetColor(lbl As Label) As Boolean
-        Using frm As New ColorPickerHSB
-            With frm
-                .SavedColorsString = INI.ColorPickerHSB_Toolbox_SavedColorsString
-                .PickerBackColor = INI.ColorPickerHSB_Toolbox_PickerBackColor
-                .SelectedColor = lbl.BackColor
 
-                Dim dgr As DialogResult = .ShowDialog
+        Dim ctrlDown As Boolean = (Control.ModifierKeys And Keys.Control) = Keys.Control
 
-                INI.ColorPickerHSB_Toolbox_SavedColorsString = .SavedColorsString
-                INI.ColorPickerHSB_Toolbox_PickerBackColor = .PickerBackColor
+        If ctrlDown Then
+            Using frm As New ColorPickerNamedColors()
+                With frm
+                    If lbl.Text = NOCOLSEL Then
+                        .SelectedColor = Color.Empty
+                    Else
+                        .SelectedColor = lbl.BackColor
+                    End If
+                    Dim dgr As DialogResult = .ShowDialog
+                    If dgr <> DialogResult.OK Then
+                        Return False
+                    Else
+                        lbl.BackColor = .SelectedColor
+                        lbl.Text = String.Empty
+                        lbl.Refresh()
+                        Return True
+                    End If
+                End With
+            End Using
+        Else
+            Using frm As New ColorPickerHSB
+                With frm
+                    .SavedColorsString = INI.ColorPickerHSB_Toolbox_SavedColorsString
+                    .PickerBackColor = INI.ColorPickerHSB_Toolbox_PickerBackColor
+                    .SelectedColor = lbl.BackColor
 
-                If dgr <> DialogResult.OK Then
-                    Return False
-                Else
-                    lbl.BackColor = .SelectedColor
-                    lbl.Text = String.Empty
-                    lbl.Refresh()
-                    Return True
-                End If
-            End With
-        End Using
+                    Dim dgr As DialogResult = .ShowDialog
+
+                    INI.ColorPickerHSB_Toolbox_SavedColorsString = .SavedColorsString
+                    INI.ColorPickerHSB_Toolbox_PickerBackColor = .PickerBackColor
+
+                    If dgr <> DialogResult.OK Then
+                        Return False
+                    Else
+                        lbl.BackColor = .SelectedColor
+                        lbl.Text = String.Empty
+                        lbl.Refresh()
+                        Return True
+                    End If
+                End With
+            End Using
+        End If
+
     End Function
 
     Private Sub ClearColor(lbl As Label)

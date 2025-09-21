@@ -26,12 +26,17 @@ Partial Class frmToolBox
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(frmToolBox))
         Me.TabControlToolBox = New System.Windows.Forms.TabControl()
         Me.TabPageSpieler = New System.Windows.Forms.TabPage()
+        Me.KompassRoseX1 = New MahjongGK.KompassRoseX()
+        Me.KompassRose1 = New MahjongGK.KompassRose()
         Me.lblToolboxSpieler = New System.Windows.Forms.Label()
         Me.TabPageEditor = New System.Windows.Forms.TabPage()
         Me.lblToolboxEditor = New System.Windows.Forms.Label()
         Me.MenuStrip_Editor = New System.Windows.Forms.MenuStrip()
         Me.tsmiEditor_Datei = New System.Windows.Forms.ToolStripMenuItem()
         Me.TabPagePositionierer = New System.Windows.Forms.TabPage()
+        Me.Positionierer1 = New MahjongGK.Positionierer()
+        Me.positioniererOffsetX = New MahjongGK.Num2UpDown()
+        Me.positioniererOffsetY = New MahjongGK.Num2UpDown()
         Me.positioniererBtnReset = New System.Windows.Forms.Button()
         Me.positioniererBtnUndoStep = New System.Windows.Forms.Button()
         Me.positioniererBtnReDoStep = New System.Windows.Forms.Button()
@@ -44,6 +49,7 @@ Partial Class frmToolBox
         Me.Label11 = New System.Windows.Forms.Label()
         Me.Label10 = New System.Windows.Forms.Label()
         Me.lblToolboxPositionierer = New System.Windows.Forms.Label()
+        Me.PositioniererReferencePoint = New MahjongGK.ReferencePoint()
         Me.TabPageWerkbank = New System.Windows.Forms.TabPage()
         Me.Panel5 = New System.Windows.Forms.Panel()
         Me.pnlmoveFrei = New System.Windows.Forms.GroupBox()
@@ -77,7 +83,6 @@ Partial Class frmToolBox
         Me.GroupBox2 = New System.Windows.Forms.GroupBox()
         Me.Label15 = New System.Windows.Forms.Label()
         Me.Label16 = New System.Windows.Forms.Label()
-        Me.Label14 = New System.Windows.Forms.Label()
         Me.lblInfi1 = New System.Windows.Forms.Label()
         Me.Label8 = New System.Windows.Forms.Label()
         Me.Label5 = New System.Windows.Forms.Label()
@@ -92,19 +97,14 @@ Partial Class frmToolBox
         Me.lblToolboxWerkbank = New System.Windows.Forms.Label()
         Me.MenuStrip_Werkbk = New System.Windows.Forms.MenuStrip()
         Me.tsmiWerkbk_Datei = New System.Windows.Forms.ToolStripMenuItem()
-        Me.TabPageHintergrund = New System.Windows.Forms.TabPage()
-        Me.ImageListToolBox = New System.Windows.Forms.ImageList(Me.components)
-        Me.ToolTipToolBox = New System.Windows.Forms.ToolTip(Me.components)
-        Me.KompassRoseX1 = New MahjongGK.KompassRoseX()
-        Me.KompassRose1 = New MahjongGK.KompassRose()
-        Me.Positionierer1 = New MahjongGK.Positionierer()
-        Me.positioniererOffsetX = New MahjongGK.Num2UpDown()
-        Me.positioniererOffsetY = New MahjongGK.Num2UpDown()
-        Me.PositioniererReferencePoint = New MahjongGK.ReferencePoint()
         Me.num2UpDnFeldSizeZmax = New MahjongGK.Num2UpDown()
         Me.num2UpDnFeldSizeYmax = New MahjongGK.Num2UpDown()
         Me.num2UpDnFeldSizeXmax = New MahjongGK.Num2UpDown()
+        Me.TabPageHintergrund = New System.Windows.Forms.TabPage()
         Me.UctlToolboxHintergrund1 = New MahjongGK.UctlToolboxHintergrund()
+        Me.ImageListToolBox = New System.Windows.Forms.ImageList(Me.components)
+        Me.ToolTipToolBox = New System.Windows.Forms.ToolTip(Me.components)
+        Me.ButtonTooltip1 = New MahjongGK.ButtonTooltip()
         Me.TabControlToolBox.SuspendLayout()
         Me.TabPageSpieler.SuspendLayout()
         Me.TabPageEditor.SuspendLayout()
@@ -162,6 +162,24 @@ Partial Class frmToolBox
         Me.TabPageSpieler.TabIndex = 3
         Me.TabPageSpieler.Text = "Spieler"
         Me.TabPageSpieler.UseVisualStyleBackColor = True
+        '
+        'KompassRoseX1
+        '
+        Me.KompassRoseX1.Direction = MahjongGK.KompassRoseX.KompassXEnum.None
+        Me.KompassRoseX1.Location = New System.Drawing.Point(57, 115)
+        Me.KompassRoseX1.MinimumSize = New System.Drawing.Size(80, 80)
+        Me.KompassRoseX1.Name = "KompassRoseX1"
+        Me.KompassRoseX1.Size = New System.Drawing.Size(130, 130)
+        Me.KompassRoseX1.TabIndex = 4
+        '
+        'KompassRose1
+        '
+        Me.KompassRose1.BackColor = System.Drawing.Color.Transparent
+        Me.KompassRose1.Direction = MahjongGK.KompassEnum.None
+        Me.KompassRose1.Location = New System.Drawing.Point(98, 316)
+        Me.KompassRose1.Name = "KompassRose1"
+        Me.KompassRose1.Size = New System.Drawing.Size(48, 48)
+        Me.KompassRose1.TabIndex = 3
         '
         'lblToolboxSpieler
         '
@@ -233,6 +251,38 @@ Partial Class frmToolBox
         Me.TabPagePositionierer.TabIndex = 2
         Me.TabPagePositionierer.Text = "Positionierer"
         Me.TabPagePositionierer.UseVisualStyleBackColor = True
+        '
+        'Positionierer1
+        '
+        Me.Positionierer1.AutoUpdateOffsets = True
+        Me.Positionierer1.InitialRepeatDelayMs = 350
+        Me.Positionierer1.Location = New System.Drawing.Point(81, 164)
+        Me.Positionierer1.Name = "Positionierer1"
+        Me.Positionierer1.OffsetX = 0
+        Me.Positionierer1.OffsetY = 0
+        Me.Positionierer1.RepeatIntervalMs = 80
+        Me.Positionierer1.SelectedStartingPoint = MahjongGK.Positionierer.PositionEnum.Center
+        Me.Positionierer1.Size = New System.Drawing.Size(112, 112)
+        Me.Positionierer1.StepX = 1
+        Me.Positionierer1.StepY = 1
+        Me.Positionierer1.TabIndex = 23
+        '
+        'positioniererOffsetX
+        '
+        Me.positioniererOffsetX.Location = New System.Drawing.Point(249, 217)
+        Me.positioniererOffsetX.MinimumSize = New System.Drawing.Size(65, 24)
+        Me.positioniererOffsetX.Name = "positioniererOffsetX"
+        Me.positioniererOffsetX.Size = New System.Drawing.Size(65, 28)
+        Me.positioniererOffsetX.TabIndex = 22
+        Me.positioniererOffsetX.UseArrowRightLeft = True
+        '
+        'positioniererOffsetY
+        '
+        Me.positioniererOffsetY.Location = New System.Drawing.Point(249, 183)
+        Me.positioniererOffsetY.MinimumSize = New System.Drawing.Size(65, 24)
+        Me.positioniererOffsetY.Name = "positioniererOffsetY"
+        Me.positioniererOffsetY.Size = New System.Drawing.Size(65, 28)
+        Me.positioniererOffsetY.TabIndex = 21
         '
         'positioniererBtnReset
         '
@@ -356,8 +406,17 @@ Partial Class frmToolBox
         Me.lblToolboxPositionierer.Size = New System.Drawing.Size(32, 32)
         Me.lblToolboxPositionierer.TabIndex = 3
         '
+        'PositioniererReferencePoint
+        '
+        Me.PositioniererReferencePoint.Location = New System.Drawing.Point(119, 59)
+        Me.PositioniererReferencePoint.Name = "PositioniererReferencePoint"
+        Me.PositioniererReferencePoint.SelectedReferencePoint = MahjongGK.ReferencePoint.RefPoint.None
+        Me.PositioniererReferencePoint.Size = New System.Drawing.Size(48, 48)
+        Me.PositioniererReferencePoint.TabIndex = 6
+        '
         'TabPageWerkbank
         '
+        Me.TabPageWerkbank.Controls.Add(Me.ButtonTooltip1)
         Me.TabPageWerkbank.Controls.Add(Me.Panel5)
         Me.TabPageWerkbank.Controls.Add(Me.pnlmoveKreis)
         Me.TabPageWerkbank.Controls.Add(Me.pnlmoveZufall)
@@ -366,7 +425,6 @@ Partial Class frmToolBox
         Me.TabPageWerkbank.Controls.Add(Me.pnlmovePyramide)
         Me.TabPageWerkbank.Controls.Add(Me.pnlmoveUForm)
         Me.TabPageWerkbank.Controls.Add(Me.pnlmoveWinkel)
-        Me.TabPageWerkbank.Controls.Add(Me.Label14)
         Me.TabPageWerkbank.Controls.Add(Me.lblInfi1)
         Me.TabPageWerkbank.Controls.Add(Me.Label8)
         Me.TabPageWerkbank.Controls.Add(Me.Label5)
@@ -692,15 +750,6 @@ Partial Class frmToolBox
         Me.Label16.TabIndex = 14
         Me.Label16.Text = "Richtung"
         '
-        'Label14
-        '
-        Me.Label14.Image = Global.MahjongGK.My.Resources.Resources.Info16qBlau
-        Me.Label14.Location = New System.Drawing.Point(294, 137)
-        Me.Label14.Name = "Label14"
-        Me.Label14.Size = New System.Drawing.Size(16, 16)
-        Me.Label14.TabIndex = 15
-        Me.ToolTipToolBox.SetToolTip(Me.Label14, "Rechtklick auf die Pfeile öffnet BuddySlider")
-        '
         'lblInfi1
         '
         Me.lblInfi1.Image = Global.MahjongGK.My.Resources.Resources.Info16qBlau
@@ -830,93 +879,6 @@ Partial Class frmToolBox
         Me.tsmiWerkbk_Datei.Size = New System.Drawing.Size(50, 21)
         Me.tsmiWerkbk_Datei.Text = "Datei"
         '
-        'TabPageHintergrund
-        '
-        Me.TabPageHintergrund.Controls.Add(Me.UctlToolboxHintergrund1)
-        Me.TabPageHintergrund.Location = New System.Drawing.Point(4, 34)
-        Me.TabPageHintergrund.Name = "TabPageHintergrund"
-        Me.TabPageHintergrund.Size = New System.Drawing.Size(1602, 515)
-        Me.TabPageHintergrund.TabIndex = 4
-        Me.TabPageHintergrund.Text = "Hintergrund"
-        Me.TabPageHintergrund.UseVisualStyleBackColor = True
-        '
-        'ImageListToolBox
-        '
-        Me.ImageListToolBox.ImageStream = CType(resources.GetObject("ImageListToolBox.ImageStream"), System.Windows.Forms.ImageListStreamer)
-        Me.ImageListToolBox.TransparentColor = System.Drawing.Color.Transparent
-        Me.ImageListToolBox.Images.SetKeyName(0, "Spieler.png")
-        Me.ImageListToolBox.Images.SetKeyName(1, "SpielerAktiv.png")
-        Me.ImageListToolBox.Images.SetKeyName(2, "Editor.png")
-        Me.ImageListToolBox.Images.SetKeyName(3, "EditorAktiv.png")
-        Me.ImageListToolBox.Images.SetKeyName(4, "Werkbank.png")
-        Me.ImageListToolBox.Images.SetKeyName(5, "WerkbankAktiv.png")
-        Me.ImageListToolBox.Images.SetKeyName(6, "MoveLocation16q.png")
-        Me.ImageListToolBox.Images.SetKeyName(7, "MoveLocation16qGrün.png")
-        '
-        'ToolTipToolBox
-        '
-        Me.ToolTipToolBox.BackColor = System.Drawing.Color.Chartreuse
-        Me.ToolTipToolBox.IsBalloon = True
-        Me.ToolTipToolBox.ToolTipIcon = System.Windows.Forms.ToolTipIcon.Info
-        '
-        'KompassRoseX1
-        '
-        Me.KompassRoseX1.Direction = MahjongGK.KompassRoseX.KompassXEnum.None
-        Me.KompassRoseX1.Location = New System.Drawing.Point(57, 115)
-        Me.KompassRoseX1.MinimumSize = New System.Drawing.Size(80, 80)
-        Me.KompassRoseX1.Name = "KompassRoseX1"
-        Me.KompassRoseX1.Size = New System.Drawing.Size(130, 130)
-        Me.KompassRoseX1.TabIndex = 4
-        '
-        'KompassRose1
-        '
-        Me.KompassRose1.BackColor = System.Drawing.Color.Transparent
-        Me.KompassRose1.Direction = MahjongGK.KompassEnum.None
-        Me.KompassRose1.Location = New System.Drawing.Point(98, 316)
-        Me.KompassRose1.Name = "KompassRose1"
-        Me.KompassRose1.Size = New System.Drawing.Size(48, 48)
-        Me.KompassRose1.TabIndex = 3
-        '
-        'Positionierer1
-        '
-        Me.Positionierer1.AutoUpdateOffsets = True
-        Me.Positionierer1.InitialRepeatDelayMs = 350
-        Me.Positionierer1.Location = New System.Drawing.Point(81, 164)
-        Me.Positionierer1.Name = "Positionierer1"
-        Me.Positionierer1.OffsetX = 0
-        Me.Positionierer1.OffsetY = 0
-        Me.Positionierer1.RepeatIntervalMs = 80
-        Me.Positionierer1.SelectedStartingPoint = MahjongGK.Positionierer.PositionEnum.Center
-        Me.Positionierer1.Size = New System.Drawing.Size(112, 112)
-        Me.Positionierer1.StepX = 1
-        Me.Positionierer1.StepY = 1
-        Me.Positionierer1.TabIndex = 23
-        '
-        'positioniererOffsetX
-        '
-        Me.positioniererOffsetX.Location = New System.Drawing.Point(249, 217)
-        Me.positioniererOffsetX.MinimumSize = New System.Drawing.Size(65, 24)
-        Me.positioniererOffsetX.Name = "positioniererOffsetX"
-        Me.positioniererOffsetX.Size = New System.Drawing.Size(65, 28)
-        Me.positioniererOffsetX.TabIndex = 22
-        Me.positioniererOffsetX.UseArrowRightLeft = True
-        '
-        'positioniererOffsetY
-        '
-        Me.positioniererOffsetY.Location = New System.Drawing.Point(249, 183)
-        Me.positioniererOffsetY.MinimumSize = New System.Drawing.Size(65, 24)
-        Me.positioniererOffsetY.Name = "positioniererOffsetY"
-        Me.positioniererOffsetY.Size = New System.Drawing.Size(65, 28)
-        Me.positioniererOffsetY.TabIndex = 21
-        '
-        'PositioniererReferencePoint
-        '
-        Me.PositioniererReferencePoint.Location = New System.Drawing.Point(119, 59)
-        Me.PositioniererReferencePoint.Name = "PositioniererReferencePoint"
-        Me.PositioniererReferencePoint.SelectedReferencePoint = MahjongGK.ReferencePoint.RefPoint.None
-        Me.PositioniererReferencePoint.Size = New System.Drawing.Size(48, 48)
-        Me.PositioniererReferencePoint.TabIndex = 6
-        '
         'num2UpDnFeldSizeZmax
         '
         Me.num2UpDnFeldSizeZmax.Location = New System.Drawing.Point(226, 130)
@@ -941,13 +903,62 @@ Partial Class frmToolBox
         Me.num2UpDnFeldSizeXmax.Size = New System.Drawing.Size(65, 28)
         Me.num2UpDnFeldSizeXmax.TabIndex = 5
         '
+        'TabPageHintergrund
+        '
+        Me.TabPageHintergrund.Controls.Add(Me.UctlToolboxHintergrund1)
+        Me.TabPageHintergrund.Location = New System.Drawing.Point(4, 34)
+        Me.TabPageHintergrund.Name = "TabPageHintergrund"
+        Me.TabPageHintergrund.Size = New System.Drawing.Size(1602, 515)
+        Me.TabPageHintergrund.TabIndex = 4
+        Me.TabPageHintergrund.Text = "Hintergrund"
+        Me.TabPageHintergrund.UseVisualStyleBackColor = True
+        '
         'UctlToolboxHintergrund1
         '
         Me.UctlToolboxHintergrund1.Dock = System.Windows.Forms.DockStyle.Fill
         Me.UctlToolboxHintergrund1.Location = New System.Drawing.Point(0, 0)
         Me.UctlToolboxHintergrund1.Name = "UctlToolboxHintergrund1"
+        Me.UctlToolboxHintergrund1.Padding = New System.Windows.Forms.Padding(0, 5, 0, 0)
+        Me.UctlToolboxHintergrund1.RightToLeft = System.Windows.Forms.RightToLeft.No
         Me.UctlToolboxHintergrund1.Size = New System.Drawing.Size(1602, 515)
         Me.UctlToolboxHintergrund1.TabIndex = 0
+        '
+        'ImageListToolBox
+        '
+        Me.ImageListToolBox.ImageStream = CType(resources.GetObject("ImageListToolBox.ImageStream"), System.Windows.Forms.ImageListStreamer)
+        Me.ImageListToolBox.TransparentColor = System.Drawing.Color.Transparent
+        Me.ImageListToolBox.Images.SetKeyName(0, "Spieler.png")
+        Me.ImageListToolBox.Images.SetKeyName(1, "SpielerAktiv.png")
+        Me.ImageListToolBox.Images.SetKeyName(2, "Editor.png")
+        Me.ImageListToolBox.Images.SetKeyName(3, "EditorAktiv.png")
+        Me.ImageListToolBox.Images.SetKeyName(4, "Werkbank.png")
+        Me.ImageListToolBox.Images.SetKeyName(5, "WerkbankAktiv.png")
+        Me.ImageListToolBox.Images.SetKeyName(6, "MoveLocation16q.png")
+        Me.ImageListToolBox.Images.SetKeyName(7, "MoveLocation16qGrün.png")
+        '
+        'ToolTipToolBox
+        '
+        Me.ToolTipToolBox.BackColor = System.Drawing.Color.Chartreuse
+        Me.ToolTipToolBox.IsBalloon = True
+        Me.ToolTipToolBox.ToolTipIcon = System.Windows.Forms.ToolTipIcon.Info
+        '
+        'ButtonTooltip1
+        '
+        Me.ButtonTooltip1.AccessibleDescription = "Zeigt einen Hinweis-Tooltip."
+        Me.ButtonTooltip1.AccessibleName = "Info"
+        Me.ButtonTooltip1.BackColor = System.Drawing.SystemColors.Control
+        Me.ButtonTooltip1.Cursor = System.Windows.Forms.Cursors.Default
+        Me.ButtonTooltip1.DarkMode = False
+        Me.ButtonTooltip1.InfoHeader = "Info"
+        Me.ButtonTooltip1.InfoText = "Rechtklick auf die Pfeile öffnet BuddySlider"
+        Me.ButtonTooltip1.Location = New System.Drawing.Point(298, 132)
+        Me.ButtonTooltip1.MinimumSize = New System.Drawing.Size(16, 16)
+        Me.ButtonTooltip1.Name = "ButtonTooltip1"
+        Me.ButtonTooltip1.ShowOnFocus = False
+        Me.ButtonTooltip1.Size = New System.Drawing.Size(26, 26)
+        Me.ButtonTooltip1.TabIndex = 24
+        Me.ButtonTooltip1.TabStop = False
+        Me.ButtonTooltip1.Text = "ButtonTooltip1"
         '
         'frmToolBox
         '
@@ -1049,7 +1060,6 @@ Partial Class frmToolBox
     Friend WithEvents positioniererBtnReset As Button
     Friend WithEvents positioniererOffsetY As Num2UpDown
     Friend WithEvents positioniererOffsetX As Num2UpDown
-    Friend WithEvents Label14 As Label
     Friend WithEvents pnlmoveKegel As Panel
     Friend WithEvents GroupBox5 As GroupBox
     Friend WithEvents Label21 As Label
@@ -1089,4 +1099,5 @@ Partial Class frmToolBox
     Friend WithEvents Positionierer1 As Positionierer
     Friend WithEvents TabPageHintergrund As TabPage
     Friend WithEvents UctlToolboxHintergrund1 As UctlToolboxHintergrund
+    Friend WithEvents ButtonTooltip1 As ButtonTooltip
 End Class

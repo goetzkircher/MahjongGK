@@ -28,7 +28,12 @@ Public Class ButtonInfo
     ' Konstruktor
     ' ─────────────────────────────────────────────────────────────────────────────
     Public Sub New()
-        Me.SetStyle(ControlStyles.AllPaintingInWmPaint Or ControlStyles.OptimizedDoubleBuffer Or ControlStyles.UserPaint Or ControlStyles.ResizeRedraw, True)
+
+        Me.SetStyle(ControlStyles.AllPaintingInWmPaint Or
+            ControlStyles.OptimizedDoubleBuffer Or
+            ControlStyles.UserPaint Or
+            ControlStyles.ResizeRedraw, True)
+
         Me.TabStop = False
         Me.Cursor = Cursors.Hand
         Me.MinimumSize = New Size(16, 16)
@@ -154,6 +159,10 @@ Public Class ButtonInfo
     ' ─────────────────────────────────────────────────────────────────────────────
     ' Rendering
     ' ─────────────────────────────────────────────────────────────────────────────
+    Protected Overrides Sub OnPaintBackground(e As PaintEventArgs)
+        e.Graphics.Clear(Me.BackColor)
+    End Sub
+
     Protected Overrides Sub OnPaint(e As PaintEventArgs)
         MyBase.OnPaint(e)
 
@@ -161,7 +170,6 @@ Public Class ButtonInfo
         g.SmoothingMode = SmoothingMode.AntiAlias
         g.InterpolationMode = InterpolationMode.HighQualityBicubic
         g.PixelOffsetMode = PixelOffsetMode.HighQuality
-        g.Clear(Me.ParentBackColor())
 
         Dim rect As Rectangle = Me.ClientRectangle
         If rect.Width <= 0 OrElse rect.Height <= 0 Then Return
@@ -174,17 +182,20 @@ Public Class ButtonInfo
                  If(_hover, Color.FromArgb(40, 255, 255, 255), Color.FromArgb(20, 255, 255, 255)))
             border = Color.FromArgb(120, 255, 255, 255)
         Else
-            bg = If(_pressed, Color.FromArgb(90, 0, 0, 0),
-                 If(_hover, Color.FromArgb(40, 0, 0, 0), Color.FromArgb(20, 0, 0, 0)))
-            border = Color.FromArgb(150, 0, 0, 0)
+            Const COL As Integer = 128
+            bg = If(_pressed, Color.FromArgb(90, COL, COL, COL),
+                 If(_hover, Color.FromArgb(40, COL, COL, COL), Color.FromArgb(20, COL, COL, COL)))
+            border = Color.FromArgb(150, COL, COL, COL)
         End If
 
         Using br As New SolidBrush(bg)
             g.FillRectangle(br, rect)
         End Using
-        Using pen As New Pen(border, 1.0F)
-            g.DrawRectangle(pen, 0, 0, rect.Width - 1, rect.Height - 1)
-        End Using
+
+        ' ''Der Rahmen um das Icon ist deaktiviert, sieht m.E. nicht gut aus
+        ''Using pen As New Pen(border, 1.0F)
+        ''    g.DrawRectangle(pen, 0, 0, rect.Width - 1, rect.Height - 1)
+        ''End Using
 
         ' Info-Icon zentral zeichnen
         Dim iconPadding As Integer = Math.Max(2, CInt(Math.Min(rect.Width, rect.Height) * 0.12))
@@ -224,10 +235,11 @@ Public Class ButtonInfo
 
             If dark Then
                 fill = Color.DodgerBlue
-                border = Color.FromArgb(220, Color.WhiteSmoke)
+                'border = Color.FromArgb(220, Color.WhiteSmoke)
+                border = Color.SteelBlue
             Else
                 fill = Color.RoyalBlue
-                border = Color.MidnightBlue
+                border = Color.Black
             End If
 
             Dim pad As Single = CSng(Math.Max(1.0, size * 0.1F))
@@ -236,7 +248,7 @@ Public Class ButtonInfo
             Using br As New SolidBrush(fill)
                 g.FillEllipse(br, rc)
             End Using
-            Using pen As New Pen(border, CSng(Math.Max(1.0, size * 0.06F)))
+            Using pen As New Pen(border, CSng(Math.Max(1.0, size * 0.1F)))
                 g.DrawEllipse(pen, rc)
             End Using
 

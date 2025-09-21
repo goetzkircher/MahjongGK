@@ -251,7 +251,7 @@ Public NotInheritable Class MessageBoxFormatiert
             '    - dann "~" -> CRLF
             '    - WordWrap = True
             If rawText.IndexOf("~"c) >= 0 Then
-                Dim normalized As String = rawText.Replace(vbCrLf, " ").Replace(vbLf, " ")
+                Dim normalized As String = rawText.Replace(vbCrLf, "").Replace(vbLf, "")
                 normalized = normalized.Replace("~", vbCrLf)
                 dlg._flowMode = True
                 dlg._rtb.WordWrap = True
@@ -534,6 +534,9 @@ Public NotInheritable Class MessageBoxFormatiert
         ' Harte Kappe, falls aktiv:
         If _rtbWidthCapPx > 0 Then
             rtbW = Math.Min(rtbW, _rtbWidthCapPx)
+            'nur einmal anwenden, damit die Rtb über die _rtbWidthCapPx-Breite hinaus mitzieht,
+            'wenn die Form vergrößert wird.
+            _rtbWidthCapPx = 0
         End If
 
         _rtb.Location = New Point(headerLeft, _headerLabel.Bottom + GAP)
@@ -784,14 +787,17 @@ Public NotInheritable Class MessageBoxFormatiert
             ' Breite bis zur Pipe messen (Text ohne Pipe-Zeichen)
             Dim beforePipe As String = If(pipePos > 0, text.Substring(0, pipePos), String.Empty)
             widthHintPx = TextRenderer.MeasureText(
-            beforePipe,
-            _fontMessage,
-            New Size(Integer.MaxValue, Integer.MaxValue),
-            TextFormatFlags.NoPadding Or TextFormatFlags.TextBoxControl
-        ).Width
-
-            ' genau DIESES Pipe in Zeile 1 entfernen
-            text = text.Remove(pipePos, 1)
+                beforePipe,
+                _fontMessage,
+                New Size(Integer.MaxValue, Integer.MaxValue),
+                TextFormatFlags.NoPadding Or TextFormatFlags.TextBoxControl
+            ).Width
+            If String.IsNullOrWhiteSpace(beforePipe) Then
+                text = text.Substring(pipePos + 1)
+            Else
+                ' genau DIESES Pipe in Zeile 1 entfernen
+                text = text.Remove(pipePos, 1)
+            End If
         End If
 
         Return text

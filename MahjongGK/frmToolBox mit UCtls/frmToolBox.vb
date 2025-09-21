@@ -577,9 +577,7 @@ Public Class frmToolBox
 
     End Function
 
-    Private Sub GroupBox10_Enter(sender As Object, e As EventArgs)
 
-    End Sub
 
 #End Region
 #End Region

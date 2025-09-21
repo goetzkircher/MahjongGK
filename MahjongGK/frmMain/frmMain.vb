@@ -90,9 +90,10 @@ Public Class frmMain
     End Sub
 
     Private Sub Test2()
-        Using frm As New frmWebPTest
-            frm.ShowDialog()
-        End Using
+        'Using frm As New frmWebPTest
+        '    frm.ShowDialog()
+        'End Using
+
     End Sub
 
     Private Sub Go()
