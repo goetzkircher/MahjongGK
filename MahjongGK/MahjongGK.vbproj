@@ -415,9 +415,6 @@
     <None Include="App.config" />
     <None Include="packages.config" />
     <None Include="ReleaseNotes_github.md" />
-    <None Include="Thirdparty\Quelldaten\magick.net-q8-anycpu.14.8.2.nupkg.zip" />
-    <None Include="Thirdparty\Quelldaten\magick.net.core.14.8.2.nupkg.zip" />
-    <None Include="Thirdparty\Quelldaten\svg.3.4.0.nupkg.zip" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.8.1">
