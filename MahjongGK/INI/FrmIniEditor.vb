@@ -52,6 +52,14 @@ Public Class FrmIniEditor
     'Dark/Light Mode nach Geschmack umschalten.
     'Schriftart jederzeit per Menü ändern.
 
+    Private _iniFullLoadPath As String = String.Empty
+    Private _iniFullSavePath As String = String.Empty
+    Private _iniAktIniFileName As String = "Basis.ini"
+    '
+    'Hier erweitern, wenn noch zusätzliche INI-Files hinzukommen. 
+    'Weiteres nicht nötig.
+    Private _iniIniFileNames() As String = {"Basis.ini", "ToolBox.ini"}
+
 
     Private ReadOnly _rtb As New RichTextBox()
     Private ReadOnly _menu As New MenuStrip()
@@ -89,8 +97,8 @@ Public Class FrmIniEditor
     Private _darkMode As Boolean = INI.IfRunningInIDE_IniEditorDarkmode
     Private _scheme As ColorScheme = ColorScheme.DarkDefault
 
-    Private ReadOnly _iniFullLoadPath As String = String.Empty
-    Private ReadOnly _iniFullSavePath As String = String.Empty
+
+
     Private _isDirty As Boolean
 
     <DllImport("user32.dll", CharSet:=CharSet.Auto, EntryPoint:="SendMessageW")>
@@ -111,7 +119,7 @@ Public Class FrmIniEditor
 
         ' Zielgröße 1400x650 – an Arbeitsbereich anpassen
         Dim work As Rectangle = Screen.PrimaryScreen.WorkingArea
-        Dim target As New Size(1400, 650)
+        Dim target As New Size(1500, 650)
         Dim w As Integer = Math.Min(target.Width, Math.Max(800, work.Width - 40))
         Dim h As Integer = Math.Min(target.Height, Math.Max(450, work.Height - 80))
         Me.Size = New Size(w, h)
@@ -144,19 +152,24 @@ Public Class FrmIniEditor
         AddHandler Me.Shown, AddressOf Frm_Shown
         AddHandler _rtb.HandleCreated, Sub(_s, _e) SetRtbMargins(18, 5)
 
+        SetIniFullPath()
+
+        ApplyScheme(_scheme)
+    End Sub
+
+    Private Sub SetIniFullPath()
         ' Pfad zur INI-Datei ermitteln (mit Fallback)
         Try
-            _iniFullLoadPath = Path.Combine(AppDataDirectory(AppDataSubDir.INI), "Basis.ini")
+            _iniFullLoadPath = Path.Combine(AppDataDirectory(AppDataSubDir.INI), _iniAktIniFileName)
             _iniFullSavePath = _iniFullLoadPath & ".tmp"
         Catch
             Dim fallbackDir As String = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "MahjongGK", "INI")
             Directory.CreateDirectory(fallbackDir)
-            _iniFullLoadPath = Path.Combine(fallbackDir, "Basis.ini")
+            _iniFullLoadPath = Path.Combine(fallbackDir, _iniAktIniFileName)
             _iniFullSavePath = _iniFullLoadPath & ".tmp"
         End Try
-
-        ApplyScheme(_scheme)
     End Sub
+
 
     Dim _IniFileChanged As Boolean
     ReadOnly Property IniFileChanged As Boolean
@@ -236,6 +249,28 @@ Public Class FrmIniEditor
 
         _cboSektion.DropDownStyle = ComboBoxStyle.DropDownList
         _cboSektion.Width = 300
+
+        _menu.Items.Add(New ToolStripSeparator())
+
+        ' >>> HIER: SelINI-Menü nach den bisherigen Menüs einfügen (vor den rechts ausgerichteten Hosts) <<<
+        Dim miSelIni As New ToolStripMenuItem("SelINI")
+
+        If _iniIniFileNames IsNot Nothing AndAlso _iniIniFileNames.Length > 0 Then
+            For Each name As String In _iniIniFileNames
+                Dim capturedName As String = name ' Closure-sicher
+                Dim mi As New ToolStripMenuItem(capturedName)
+                AddHandler mi.Click, Sub() SelIniFile(capturedName)
+                miSelIni.DropDownItems.Add(mi)
+            Next
+        Else
+            ' Optional: Platzhalter, falls Liste leer ist
+            Dim miEmpty As New ToolStripMenuItem("(keine INI-Dateien)") With {.Enabled = False}
+            miSelIni.DropDownItems.Add(miEmpty)
+        End If
+
+        _menu.Items.Add(miSelIni)
+        ' <<< Ende SelINI-Menü <<<
+
 
         ' In ToolStripControlHost packen
         Dim host1 As New ToolStripControlHost(_cboKeys) With {
@@ -871,6 +906,19 @@ Public Class FrmIniEditor
         End Try
     End Function
 
+    Private Sub SelIniFile(filename As String)
+        If _isDirty Then
+            Dim mbr As MsgBoxResult = MsgBox($"{_iniAktIniFileName} wurde geändert. Speichern?", MsgBoxStyle.YesNo Or MsgBoxStyle.Question)
+            If mbr = MsgBoxResult.Yes Then
+                SaveIniFile()
+            End If
+        End If
+
+        _iniAktIniFileName = filename
+        SetIniFullPath()
+        LoadIniFile(hlight:=True, _darkMode)
+        _rtb.Focus()
+    End Sub
 
 End Class
 

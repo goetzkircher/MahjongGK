@@ -1,4 +1,8 @@
-﻿'
+﻿Option Compare Text
+Option Explicit On
+Option Infer Off
+Option Strict On
+'
 ' SPDX-License-Identifier: GPL-3.0-or-later
 '###########################################################################
 '#                                                                         #
@@ -20,10 +24,9 @@
 '###########################################################################
 '
 '
-Option Compare Text
-Option Explicit On
-Option Infer Off
-Option Strict On
+Imports System.Drawing.Drawing2D
+
+
 
 #Disable Warning IDE0079
 #Disable Warning IDE1006
@@ -42,9 +45,9 @@ Namespace Spielfeld
 
         Public Sub DoPaintSpielfeld_Paint(gfx As Graphics, rectOutput As Rectangle, timeDifferenzFaktor As Double, clear As Boolean)
 
-            If SFD.AktRendering = RenderingEnum.None OrElse clear OrElse SFD.AktSpielfeldInfo.IsEmpty Then
+            If SFD.AktRendering = RenderingEnum.None OrElse clear OrElse IsNothing(SFD.AktSpielfeldInfo) OrElse SFD.AktSpielfeldInfo.IsEmpty Then
 
-                gfx.Clear(INI.Spielfeld_BackgroundColor)
+                gfx.Clear(INI.Rendering_BackgroundColor)
 
                 Dim text As String = Nothing
 
@@ -69,7 +72,7 @@ Namespace Spielfeld
             End If
 
             If SFD.AktSpielfeldInfo.IsEmpty Then
-                gfx.Clear(INI.Spielfeld_BackgroundColor)
+                gfx.Clear(INI.Rendering_BackgroundColor)
                 Exit Sub
             End If
 
@@ -77,32 +80,51 @@ Namespace Spielfeld
             If SFD.AktSpielfeldInfo.HasBitmapUGrd Then
                 gfx.DrawImage(SFD.AktSpielfeldInfo.GetBitmapUGrd(rectOutput.Size), Point.Empty)
             Else
-                gfx.Clear(SFD.AktSpielfeldInfo.HGrdColor)
+                gfx.Clear(SFD.AktSpielfeldInfo.HGrdSplFldColor)
             End If
 
 
+            If INI.Rendering_DrawRenderRect Then
+                Using pen As New Pen(INI.Rendering_RenderRectColor)
 
+                    If SFD.AktRendering = RenderingEnum.Editor Then
 
+                        pen.DashStyle = DashStyle.Solid
+                        gfx.DrawRectangle(pen, SFD.ugrdRect)
 
-            Dim shrink As Single = INI.Spielfeld_FramingThickness / 2.0F
-            Dim shrinkLeft As Single = MJ_MARGIN_ABSOLUT_LEFT_HALF + shrink
-            Dim shrinkRight As Single = -shrinkLeft - MJ_MARGIN_ABSOLUT_RIGHT_HALF - shrink
-            Dim shrinkTop As Single = MJ_MARGIN_ABSOLUT_TOP_HALF + shrink
-            Dim shrinkBottom As Single = -shrinkTop - MJ_MARGIN_ABSOLUT_BOTTOM_HALF - shrink
+                        pen.DashStyle = DashStyle.Dash
+                        gfx.DrawRectangle(pen, SFD.stockRect)
 
-            Dim shrinkRectF As New RectangleF(rectOutput.X + shrinkLeft, rectOutput.Y + shrinkTop, rectOutput.Width + shrinkRight, rectOutput.Height + shrinkBottom)
+                        pen.DashStyle = DashStyle.Dot
+                        gfx.DrawRectangle(pen, SFD.scrollbarRect)
 
-            If INI.Spielfeld_DrawFraming Then
-                Using pen As New Pen(INI.Spielfeld_FramingColor, INI.Spielfeld_FramingThickness)
-                    gfx.DrawRectangle(pen, shrinkRectF.X, shrinkRectF.Y, shrinkRectF.Width, shrinkRectF.Height)
+                        pen.DashStyle = DashStyle.Solid
+                        gfx.DrawRectangle(pen, SFD.splfldFullRect)
+
+                        pen.DashStyle = DashStyle.Dot
+                        gfx.DrawRectangle(pen, SFD.splfldUsedRect)
+                        gfx.DrawString()
+                    Else
+
+                        pen.DashStyle = DashStyle.Solid
+                        gfx.DrawRectangle(pen, SFD.ugrdRect)
+
+                        pen.DashStyle = DashStyle.Dash
+                        gfx.DrawRectangle(pen, SFD.splfldFullRect)
+
+                        pen.DashStyle = DashStyle.Dot
+                        gfx.DrawRectangle(pen, SFD.splfldUsedRect)
+
+                    End If
+
                 End Using
             End If
 
-            If INI.Spielfeld_DrawRenderRect Then
-                Using pen As New Pen(INI.Spielfeld_RenderRectColor)
-                    gfx.DrawRectangle(pen, renderRect.Left + CInt(shrinkRectF.Left), renderRect.Top + CInt(shrinkRectF.Top), renderRect.Width, renderRect.Height)
-                End Using
-            End If
+            'If SFD.AktRendering = RenderingEnum.Editor Then
+            '    'If HScrollRenderer.PumpAutoRepeat Then
+            '    HScrollRenderer.PaintHScroll(gfx, scrollbarRect, Color.Cornsilk, enabled:=True)
+            '    'End If
+            'End If
 
             Dim aktSteinInfo As SteinInfo
 
@@ -140,8 +162,8 @@ Namespace Spielfeld
                                 If .AnimShowAnimated Then
                                     PaintAnimatedStein(gfx, rectOutput, timeDifferenzFaktor, aktSteinInfo, New Triple(x, y, z))
                                 Else
-                                    Dim left As Integer = SFD.renderRectLeft + (SFD.steinWidthHalf * (x - 1) + SFD.offset3DLeftSumme - (SFD.offset3DLeftJeEbene * z)) + CInt(shrinkRectF.Left)
-                                    Dim top As Integer = SFD.renderRectTop + (SFD.steinHeightHalf * (y - 1) + SFD.offset3DTopSumme - (SFD.offset3DTopJeEbene * z)) + CInt(shrinkRectF.Top)
+                                    Dim left As Integer = SFD.splfldUsedRect.Left + (SFD.steinWidthHalf * (x - 1) + SFD.offset3DLeftSumme - (SFD.offset3DLeftJeEbene * z))
+                                    Dim top As Integer = SFD.splfldUsedRect.Top + (SFD.steinHeightHalf * (y - 1) + SFD.offset3DTopSumme - (SFD.offset3DTopJeEbene * z))
                                     ''Debug
                                     'debugInfo &= $"x={x},y={y},z={z},arrFB-SteinIdx={ SFD.AktSpielfeldInfo.GetIndexStein(x, y, z)},SII={aktSteinInfo.SteinInfoIndex},SI={aktSteinInfo.SteinIndex}|"
                                     ''/Debug
@@ -221,10 +243,10 @@ Namespace Spielfeld
 
         Private Sub PaintAnimatedStein(gfx As Graphics, rectOutput As Rectangle, timeDifferenzFaktor As Double, aktSteinInfo As SteinInfo, pos3D As Triple)
 
-            Dim left As Integer = SFD.renderRectLeft + (SFD.steinWidthHalf * pos3D.x) - (SFD.offset3DLeftJeEbene * pos3D.z)
-            Dim top As Integer = SFD.renderRectTop + (SFD.steinHeightHalf * pos3D.y) - (SFD.offset3DTopJeEbene * pos3D.z)
+            'Dim left As Integer = SFD.renderRectLeft + (SFD.steinWidthHalf * pos3D.x) - (SFD.offset3DLeftJeEbene * pos3D.z)
+            'Dim top As Integer = SFD.renderRectTop + (SFD.steinHeightHalf * pos3D.y) - (SFD.offset3DTopJeEbene * pos3D.z)
 
-            Dim rectStein As New Rectangle(left, top, SFD.steinWidth, SFD.steinHeight)
+            'Dim rectStein As New Rectangle(left, top, SFD.steinWidth, SFD.steinHeight)
 
         End Sub
 

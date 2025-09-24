@@ -84,13 +84,11 @@ Namespace Spielfeld
         End Sub
         Public Sub TestDaten_Spielfeld_Methodenaufruf_zum_Debuggen()
 
-            Dim newSpielfeld As New SpielfeldInfo(New Triple(30, 6, 10), SpielfeldOrEditorMode.Spielfeld)
+            Dim newSpielfeld As New SpielfeldInfo(New Triple(20, 6, 10), SpielfeldOrEditorMode.Spielfeld)
             Dim newWerkbank As New SpielfeldInfo(New Triple(5, 5, 10), SpielfeldOrEditorMode.Editor)
-            Dim newEditor As New SpielfeldInfo(New Triple(20, 5, 6), SpielfeldOrEditorMode.Editor)
 
             SFD.SpielerSpielfeldInfo = newSpielfeld
             SFD.WerkbankSpielfeldInfo = newWerkbank
-            SFD.EditorSpielfeldInfo = newEditor
 
             ' Das Polling läuft bereits Spielfeld.TaktgeberModul.PaintSpielfeld_ReInitialisierung()
 
@@ -101,7 +99,6 @@ Namespace Spielfeld
 
             newSpielfeld.AddWerkstückToSpielfeld(wbsWB, New Triple(1, 1, 0))
             newWerkbank.AddWerkstückToSpielfeld(wbsSF, New Triple(1, 1, 0))
-            newEditor.AddWerkstückToSpielfeld(wbsEd, New Triple(1, 1, 0))
 
             'With newSpielfeldInfo
 

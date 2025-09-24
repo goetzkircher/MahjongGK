@@ -31,7 +31,6 @@ Partial Class frmMain
         Me.TabPageEinstellungen = New System.Windows.Forms.TabPage()
         Me.UCtlEinstellungenMain = New MahjongGK.UctlEinstellungen()
         Me.TabPageEditor = New System.Windows.Forms.TabPage()
-        Me.UCtlEditorMain = New MahjongGK.UCtlEditor()
         Me.TabPageWerkbank = New System.Windows.Forms.TabPage()
         Me.UCtlWerkbankMain = New MahjongGK.UCtlWerkbank()
         Me.TabPageAbout = New System.Windows.Forms.TabPage()
@@ -117,7 +116,6 @@ Partial Class frmMain
         '
         'TabPageEditor
         '
-        Me.TabPageEditor.Controls.Add(Me.UCtlEditorMain)
         Me.TabPageEditor.Location = New System.Drawing.Point(4, 22)
         Me.TabPageEditor.Name = "TabPageEditor"
         Me.TabPageEditor.Size = New System.Drawing.Size(1052, 409)
@@ -125,13 +123,6 @@ Partial Class frmMain
         Me.TabPageEditor.Text = "Editor"
         Me.TabPageEditor.UseVisualStyleBackColor = True
         '
-        'UCtlEditorMain
-        '
-        Me.UCtlEditorMain.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.UCtlEditorMain.Location = New System.Drawing.Point(0, 0)
-        Me.UCtlEditorMain.Name = "UCtlEditorMain"
-        Me.UCtlEditorMain.Size = New System.Drawing.Size(1052, 409)
-        Me.UCtlEditorMain.TabIndex = 0
         '
         'TabPageWerkbank
         '
@@ -237,7 +228,6 @@ Partial Class frmMain
     Friend WithEvents TabPageEinstellungen As TabPage
     Friend WithEvents UCtlEinstellungenMain As UctlEinstellungen
     Friend WithEvents TabPageEditor As TabPage
-    Friend WithEvents UCtlEditorMain As UCtlEditor
     Friend WithEvents TabPageWerkbank As TabPage
     Friend WithEvents UCtlWerkbankMain As UCtlWerkbank
     Friend WithEvents ToolStripExMain As ToolStripEx

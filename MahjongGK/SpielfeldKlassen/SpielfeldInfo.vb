@@ -144,7 +144,6 @@ Public Class SpielfeldInfo
 
 #Region "Daten, die gespeichert werden"
 
-
     Public Property Version As String = "1"
 
     Public Name As String
@@ -170,7 +169,6 @@ Public Class SpielfeldInfo
     End Property
 
     Public Property SpielSize As Triple
-
     Public Property xMin As Integer = 1
     Public Property yMin As Integer = 1
     Public Property zMin As Integer = 0
@@ -182,9 +180,6 @@ Public Class SpielfeldInfo
     Public Property zUBnd As Integer
 
     Public Property SteinInfo_Count As Integer
-
-
-
 
 #Region "Hintergrund Grafik und Farbe"
 
@@ -264,11 +259,7 @@ Public Class SpielfeldInfo
 
     Public Property ToolboxHGrdEditorShowFraming As Boolean
         Get
-            If INI.Spielfeld_DrawFraming Then
-                Return True
-            Else
-                Return _toolbox_hgrdEditorShowFraming
-            End If
+            Return _toolbox_hgrdEditorShowFraming
         End Get
         Set(value As Boolean)
             _toolbox_hgrdEditorShowFraming = value
@@ -283,6 +274,7 @@ Public Class SpielfeldInfo
             Else
                 _hgrdEditorShowFraming = ToolboxHGrdEditorShowFraming
                 _hgrdEditorShowFramingIsInit = True
+                Return _hgrdEditorShowFraming
             End If
         End Get
     End Property
@@ -303,43 +295,6 @@ Public Class SpielfeldInfo
         End Get
     End Property
 
-    Public ReadOnly Property HGrdEditorColor As Color
-        Get
-            If _hgrdEditorColorIsInit Then
-                Return _hgrdEditorColor
-            Else
-                If Toolbox_HGrdEditorUseSplFldValues Then
-                    If Toolbox_HGrdSplFldColor.IsEmpty Then
-                        _hgrdEditorColor = INI.Toolbox_HGrdSplFldColorFallback
-                    Else
-                        _hgrdEditorColor = Toolbox_HGrdSplFldColor
-                    End If
-                Else
-                    If Toolbox_HGrdEditorColor.IsEmpty Then
-                        If INI.Toolbox_HGrdEditorUseSplFldValues Then
-                            _hgrdEditorColor = HGrdSplFldColor
-                        Else
-                            _hgrdEditorColor = INI.Toolbox_HGrdEditorColorFallback
-                        End If
-                    Else
-                        _hgrdEditorColor = Toolbox_HGrdEditorColor
-                    End If
-                End If
-                _hgrdEditorColorIsInit = True
-                Return _hgrdEditorColor
-            End If
-        End Get
-    End Property
-
-    Public ReadOnly Property HGrdColor As Color
-        Get
-            If Mode = SpielfeldOrEditorMode.Spielfeld Then
-                Return HGrdSplFldColor
-            Else
-                Return HGrdEditorColor
-            End If
-        End Get
-    End Property
 
     ' ───────────────────────────────────────────────────────────────────────────
     ' BitmapName (String.Empty => Fallback analog Farbe)
@@ -556,11 +511,6 @@ Public Class SpielfeldInfo
 
 #End Region
 
-
-
-
-
-
 #End Region
 
 #Region "Editor und Spielfeld"
@@ -617,15 +567,6 @@ Public Class SpielfeldInfo
     Public Function GetBitmapUGrd(size As Size) As Bitmap
         Return BitmapUGrdSingleImgCache.GetBitmap(size)
     End Function
-
-    Public Function GetHGrdColor() As Color
-        If Mode = SpielfeldOrEditorMode.Spielfeld Then
-            Return HGrdSplFldColor
-        Else
-            Return HGrdEditorColor
-        End If
-    End Function
-
 
     ''' <summary>
     ''' Spielbar ist ein Spiel dann, wenn Daten vorhanden sind und wenn

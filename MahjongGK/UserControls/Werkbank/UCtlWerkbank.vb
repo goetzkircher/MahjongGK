@@ -54,7 +54,7 @@ Public Class UCtlWerkbank
     End Sub
 
     Private stopwatch As New Stopwatch
-
+    <DebuggerStepThrough>
     Protected Overrides Sub OnPaint(e As PaintEventArgs)
         ' Immer malen, Factor kommt vom Scheduler (Stopwatch-basiert):
         Dim factor As Double = RenderingTaktgeberModul.FrameScheduler.TimeDifferenzFaktor

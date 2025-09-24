@@ -383,15 +383,15 @@ Public Class frmToolBox
                 _aktVisibleUserControl = VisibleUserControl.Spielfeld
             End If
         ElseIf TabControlToolBox.SelectedTab Is TabPageEditor Then
-            If frmMain.SetAktVisibleUserControl(VisibleUserControl.Editor) Then
+            If frmMain.SetAktVisibleUserControl(VisibleUserControl.Spielfeld) Then
                 frmMain.InitialisierungSpielfeldEditorAndWerkbank(RenderingEnum.Editor)
-                _aktVisibleUserControl = VisibleUserControl.Editor
+                _aktVisibleUserControl = VisibleUserControl.Spielfeld
             End If
 
         ElseIf TabControlToolBox.SelectedTab Is TabPagePositionierer Then
-            If frmMain.SetAktVisibleUserControl(VisibleUserControl.Editor) Then
+            If frmMain.SetAktVisibleUserControl(VisibleUserControl.Spielfeld) Then
                 frmMain.InitialisierungSpielfeldEditorAndWerkbank(RenderingEnum.Editor)
-                _aktVisibleUserControl = VisibleUserControl.Editor
+                _aktVisibleUserControl = VisibleUserControl.Spielfeld
             End If
 
         ElseIf TabControlToolBox.SelectedTab Is TabPageWerkbank Then

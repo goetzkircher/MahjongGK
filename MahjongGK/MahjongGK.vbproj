@@ -145,6 +145,7 @@
     <Import Include="System.Threading.Tasks" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Container\RectangleX.vb" />
     <Compile Include="Controls erweiterte\ButtonInfo.vb">
       <SubType>Component</SubType>
     </Compile>
@@ -223,6 +224,7 @@
     <Compile Include="INI\IniCleanup.vb" />
     <Compile Include="INI\IniCommentReader.vb" />
     <Compile Include="INI\IniChangedEventArgs.vb" />
+    <Compile Include="Namespace Spielfeld\HScrollRenderer.vb" />
     <Compile Include="Namesspace Debughelfer\DebugBitmaps.vb" />
     <Compile Include="Shared\DebugStep.vb" />
     <Compile Include="Formulare\MessageBoxFormatiert.vb">
@@ -240,12 +242,6 @@
     <Compile Include="Textdateien\StrictOnCheatSheet.vb" />
     <Compile Include="runtimes\StartupMagicNative.vb" />
     <Compile Include="UserControls\About\UICtlAboutMahjongGK.vb">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="UserControls\Editor\UCtlEditor.Designer.vb">
-      <DependentUpon>UCtlEditor.vb</DependentUpon>
-    </Compile>
-    <Compile Include="UserControls\Editor\UCtlEditor.vb">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="UserControls\Verschiedene kleine\BuddySlider.vb">
@@ -383,9 +379,6 @@
     <EmbeddedResource Include="Temporär zlv\frmWebPTest.resx">
       <DependentUpon>frmWebPTest.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="UserControls\Editor\UCtlEditor.resx">
-      <DependentUpon>UCtlEditor.vb</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="UserControls\Einstellungen\UctlEinstellungen.resx">
       <DependentUpon>UctlEinstellungen.vb</DependentUpon>
       <SubType>Designer</SubType>
@@ -471,6 +464,7 @@
     <Content Include="Namespace Spielfeld\liesmich.txt" />
     <Content Include="Namespace Spielfeld\Nicht verwenderter Code.txt" />
     <Content Include="Namespace Spielfeld\RenderingTaktgeber.txt" />
+    <Content Include="Namespace Spielfeld\SpielfeldManager.txt" />
     <Content Include="Namespace Spielfeld\_Variablennamen %28Auszug%29.txt" />
     <None Include="Resources\CompassN.png" />
     <None Include="Resources\Dummy16q.png" />

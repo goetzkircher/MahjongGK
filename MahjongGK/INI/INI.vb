@@ -85,13 +85,14 @@ Public Module INI
     Public ReadOnly AllIniManagers As New List(Of IniManager)
 
     Public ReadOnly BasisIni As IniManager
-    Public ReadOnly Spieler1Ini As IniManager
-    Public ReadOnly Spieler2Ini As IniManager
+    Public ReadOnly ToolBoxIni As IniManager
+    'Public ReadOnly Spieler2Ini As IniManager
 
 
     Sub New()
         'Instanzen für verschiedene INIs hier anlegen
         BasisIni = New IniManager("Basis.ini")
+        ToolBoxIni = New IniManager("ToolBox.ini")
 
         'Spieler1Ini = New IniManager("Spieler1.ini")
         'Spieler2Ini = New IniManager("Spieler2.ini")
@@ -639,6 +640,8 @@ Public Module INI
 
 #End Region
 
+#Region "BasisIni"
+
 #Region "Hinweis"
 
     'Hinweis:
@@ -1120,6 +1123,23 @@ Public Module INI
         End Set
     End Property
 
+    Private _Rendering_HScrollbarHeight As Integer?
+    Public Property Rendering_HScrollbarHeight As Integer
+        Get
+            If Not _Rendering_HScrollbarHeight.HasValue Then
+                Dim [Default] As Integer = 20
+                Dim comment As String = "Höhe der horizontalen Scrollbar im Editormodus"
+                _Rendering_HScrollbarHeight = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+                _Rendering_HScrollbarHeight = Math.Max(0, Math.Min(20, _Rendering_HScrollbarHeight.Value))
+            End If
+            Return _Rendering_HScrollbarHeight.Value
+        End Get
+        Set(value As Integer)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+            _Rendering_HScrollbarHeight = Nothing
+        End Set
+    End Property
+
     Public Event Rendering_AktMaxSteineXYZ_Event()
     Public Property Rendering_AktMaxSteineX As Integer
         Get
@@ -1170,6 +1190,119 @@ Public Module INI
             BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
         End Set
     End Property
+
+
+    Private _Rendering_BackgroundColorDarkMode As Color
+    Public Property Rendering_BackgroundColorDarkMode As Color
+        Get
+            If _Rendering_BackgroundColorDarkMode.IsEmpty Then
+                Dim [Default] As Color = IniManager.CvtHexStringToColor("FFC0C0C0")
+                Dim comment As String = Nothing
+                _Rendering_BackgroundColorDarkMode = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            End If
+            Return _Rendering_BackgroundColorDarkMode
+        End Get
+        Set(value As Color)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+            _Rendering_BackgroundColorDarkMode = Color.Empty
+        End Set
+    End Property
+
+    Private _Rendering_BackgroundColorLightMode As Color
+    Public Property Rendering_BackgroundColorLightMode As Color
+        Get
+            If _Rendering_BackgroundColorLightMode.IsEmpty Then
+                Dim [Default] As Color = IniManager.CvtHexStringToColor("FF606060")
+                Dim comment As String = "Fallbackwerte. Werden benutzt, solage mit der Toolbox nichts anderes festgelegt wurde."
+                _Rendering_BackgroundColorLightMode = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            End If
+            Return _Rendering_BackgroundColorLightMode
+        End Get
+        Set(value As Color)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+            _Rendering_BackgroundColorLightMode = Color.Empty
+        End Set
+    End Property
+
+    ''' <summary>
+    ''' Bereits selektiert nach Light/Darkmode
+    ''' </summary>
+    ''' <returns></returns>
+    Public ReadOnly Property Rendering_BackgroundColor As Color
+        Get
+            If Global_DarkMode Then
+                Return Rendering_BackgroundColorDarkMode
+            Else
+                Return Rendering_BackgroundColorLightMode
+            End If
+        End Get
+    End Property
+
+
+    Private _Rendering_DrawRenderRect As Boolean?
+    Public Property Rendering_DrawRenderRect As Boolean
+        Get
+            If IsNothing(_Rendering_DrawRenderRect) Then
+                Dim [Default] As Boolean = Debugger.IsAttached
+                Dim comment As String = "Für die Programmentwicklung zur Kontrolle, daher steht der Default auf Debugger.IsAttached"
+                _Rendering_DrawRenderRect = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            End If
+            Return CBool(_Rendering_DrawRenderRect)
+        End Get
+        Set(value As Boolean)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+            _Rendering_DrawRenderRect = Nothing
+        End Set
+    End Property
+
+    Private _Rendering_RenderRectColor As Color
+    Public Property Rendering_RenderRectColor As Color
+        Get
+            If _Rendering_RenderRectColor.IsEmpty Then
+                Dim [Default] As Color = Color.Red
+                Dim comment As String = Nothing
+                _Rendering_RenderRectColor = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            End If
+            Return _Rendering_RenderRectColor
+        End Get
+        Set(value As Color)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+            _Rendering_RenderRectColor = Color.Empty
+        End Set
+    End Property
+
+    Private _Rendering_UseHistoryBoxLeft As Boolean?
+    Public Property Rendering_UseHistoryBoxLeft As Boolean
+        Get
+            If IsNothing(_Rendering_UseHistoryBoxLeft) Then
+                Dim [Default] As Boolean = True
+                Dim comment As String = Nothing
+                _Rendering_UseHistoryBoxLeft = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            End If
+            Return CBool(_Rendering_UseHistoryBoxLeft)
+        End Get
+        Set(value As Boolean)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+            _Rendering_UseHistoryBoxLeft = Nothing
+        End Set
+    End Property
+
+    Private _Rendering_UseHistoryBoxRight As Boolean?
+    Public Property Rendering_UseHistoryBoxRight As Boolean
+        Get
+            If IsNothing(_Rendering_UseHistoryBoxRight) Then
+                Dim [Default] As Boolean = True
+                Dim comment As String = Nothing
+                _Rendering_UseHistoryBoxRight = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            End If
+            Return CBool(_Rendering_UseHistoryBoxRight)
+        End Get
+        Set(value As Boolean)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+            _Rendering_UseHistoryBoxRight = Nothing
+        End Set
+    End Property
+
 
 #End Region
 
@@ -1288,139 +1421,6 @@ Public Module INI
         End Get
         Set(value As Integer)
             BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
-        End Set
-    End Property
-
-#End Region
-
-#Region "Spielfeld"
-
-
-
-    Private _Spielfeld_BackgroundColorDarkMode As Color
-    Public Property Spielfeld_BackgroundColorDarkMode As Color
-        Get
-            If _Spielfeld_BackgroundColorDarkMode.IsEmpty Then
-                Dim [Default] As Color = IniManager.CvtHexStringToColor("FFC0C0C0")
-                Dim comment As String = Nothing
-                _Spielfeld_BackgroundColorDarkMode = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-            End If
-            Return _Spielfeld_BackgroundColorDarkMode
-        End Get
-        Set(value As Color)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
-            _Spielfeld_BackgroundColorDarkMode = Color.Empty
-        End Set
-    End Property
-
-    Private _Spielfeld_BackgroundColorLightMode As Color
-    Public Property Spielfeld_BackgroundColorLightMode As Color
-        Get
-            If _Spielfeld_BackgroundColorLightMode.IsEmpty Then
-                Dim [Default] As Color = IniManager.CvtHexStringToColor("FF606060")
-                Dim comment As String = "Fallbackwerte. Werden benutzt, solage mit der Toolbox nichts anderes festgelegt wurde."
-                _Spielfeld_BackgroundColorLightMode = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-            End If
-            Return _Spielfeld_BackgroundColorLightMode
-        End Get
-        Set(value As Color)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
-            _Spielfeld_BackgroundColorLightMode = Color.Empty
-        End Set
-    End Property
-
-    ''' <summary>
-    ''' Bereits selektiert nach Light/Darkmode
-    ''' </summary>
-    ''' <returns></returns>
-    Public ReadOnly Property Spielfeld_BackgroundColor As Color
-        Get
-            If Global_DarkMode Then
-                Return Spielfeld_BackgroundColorDarkMode
-            Else
-                Return Spielfeld_BackgroundColorLightMode
-            End If
-        End Get
-    End Property
-
-
-    Private _Spielfeld_DrawFraming As Boolean?
-    Public Property Spielfeld_DrawFraming As Boolean
-        Get
-            If IsNothing(_Spielfeld_DrawFraming) Then
-                Dim [Default] As Boolean = Debugger.IsAttached
-                Dim comment As String = Nothing
-                _Spielfeld_DrawFraming = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-            End If
-            Return CBool(_Spielfeld_DrawFraming)
-        End Get
-        Set(value As Boolean)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
-            _Spielfeld_DrawFraming = Nothing
-        End Set
-    End Property
-
-    Private _Spielfeld_FramingColor As Color
-    Public Property Spielfeld_FramingColor As Color
-        Get
-            If _Spielfeld_FramingColor.IsEmpty Then
-                Dim [Default] As Color = Color.Black
-                Dim comment As String = Nothing
-                _Spielfeld_FramingColor = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-            End If
-            Return _Spielfeld_FramingColor
-        End Get
-        Set(value As Color)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
-            _Spielfeld_FramingColor = Color.Empty
-        End Set
-    End Property
-
-    Private _Spielfeld_FramingThickness As Single?
-    Public Property Spielfeld_FramingThickness As Single
-        Get
-            If Not _Spielfeld_FramingThickness.HasValue Then
-                Dim [Default] As Single = 1
-                Dim comment As String = Nothing
-                _Spielfeld_FramingThickness = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-            End If
-            Return _Spielfeld_FramingThickness.Value
-        End Get
-        Set(value As Single)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
-            _Spielfeld_FramingThickness = Nothing
-        End Set
-    End Property
-
-    Private _Spielfeld_DrawRenderRect As Boolean?
-    Public Property Spielfeld_DrawRenderRect As Boolean
-        Get
-            If IsNothing(_Spielfeld_DrawRenderRect) Then
-                Dim [Default] As Boolean = Debugger.IsAttached
-                Dim comment As String = Nothing
-                _Spielfeld_DrawRenderRect = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-            End If
-            Return CBool(_Spielfeld_DrawRenderRect)
-        End Get
-        Set(value As Boolean)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
-            _Spielfeld_DrawRenderRect = Nothing
-        End Set
-    End Property
-
-    Private _Spielfeld_RenderRectColor As Color
-    Public Property Spielfeld_RenderRectColor As Color
-        Get
-            If _Spielfeld_RenderRectColor.IsEmpty Then
-                Dim [Default] As Color = Color.Black
-                Dim comment As String = "Sinnvoll während der Programmentwicklung, daher stehen die Defaultwerte auf Debugger.IsAttached"
-                _Spielfeld_RenderRectColor = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-            End If
-            Return _Spielfeld_RenderRectColor
-        End Get
-        Set(value As Color)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
-            _Spielfeld_RenderRectColor = Color.Empty
         End Set
     End Property
 
@@ -1726,367 +1726,6 @@ Public Module INI
 
 #End Region
 
-#Region "Toolbox"
-    '
-    ''' <summary>
-    ''' Speicherung der aktuellen Position der Form Toolbox
-    ''' </summary>
-    ''' <returns></returns>
-    Public Property ToolBox_Rectangle As Rectangle
-        Get
-            Dim [Default] As New Rectangle(100, 100, frmToolBox.MJ_FRMTOOLBOX_WIDTH, frmToolBox.MJ_FRMTOOLBOX_HEIGHT) '
-            Dim comment As String = Nothing
-            Dim rc As Rectangle = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-
-            ' --- Größe absichern 
-            rc.Width = frmToolBox.MJ_FRMTOOLBOX_WIDTH
-            rc.Height = frmToolBox.MJ_FRMTOOLBOX_HEIGHT
-
-            ' Arbeitsbereich des Monitors ermitteln, der dem Rechteck am nächsten ist
-            Dim wa As Rectangle = Screen.FromRectangle(rc).WorkingArea
-
-            ' Falls zu groß: auf Arbeitsbereich kappen
-            If rc.Width > wa.Width Then rc.Width = wa.Width
-            If rc.Height > wa.Height Then rc.Height = wa.Height
-
-            ' Position so klemmen, dass das Rechteck komplett innerhalb des Arbeitsbereichs liegt
-            If rc.Right > wa.Right Then rc.X = wa.Right - rc.Width
-            If rc.Bottom > wa.Bottom Then rc.Y = wa.Bottom - rc.Height
-            If rc.X < wa.Left Then rc.X = wa.Left
-            If rc.Y < wa.Top Then rc.Y = wa.Top
-
-            Return rc
-        End Get
-        Set(value As Rectangle)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
-        End Set
-    End Property
-
-
-    Public Property ToolBox_FeldSizeXmax() As Integer
-        Get
-            Dim [Default] As Integer = 30
-            Dim comment As String = $"Maximale Anzahl der Steine nebeneinander. Gültig: 1 bis {MJ_STEINE_MAXX_SIDEBYSIDE}, Satz1 = 30"
-            Dim value As Integer = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-            Return Math.Max(1, Math.Min(MJ_STEINE_MAXX_SIDEBYSIDE, value))
-        End Get
-        Set(value As Integer)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
-        End Set
-    End Property
-    Public Property ToolBox_FeldSizeYmax() As Integer
-        Get
-            Dim [Default] As Integer = 15
-            Dim comment As String = $"Maximale Anzahl der Steine übereinander. Gültig: 1 bis {MJ_STEINE_MAXY_OVERANOTHER}, Satz1 = 15"
-            Dim value As Integer = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-            Return Math.Max(1, Math.Min(MJ_STEINE_MAXY_OVERANOTHER, value))
-        End Get
-        Set(value As Integer)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
-        End Set
-    End Property
-    Public Property ToolBox_FeldSizeZmax() As Integer
-        Get
-            Dim [Default] As Integer = 10
-            Dim comment As String = $"Maximale Anzahl der Steine aufeinander. Gültig: 1 bis {MJ_STEINE_MAXZ_LAYER}, Satz1 = 10"
-            Dim value As Integer = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-            Return Math.Max(1, Math.Min(MJ_STEINE_MAXZ_LAYER, value))
-        End Get
-        Set(value As Integer)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
-        End Set
-    End Property
-    Public Property ToolBox_FeldSizeX(bform As BasisformEnum) As Integer
-        Get
-            Dim [Default] As Integer = 10
-            Dim comment As String = Nothing
-            If bform = 0 Then
-                comment = "Die jeweiligen aktuellen Werte der Basisformen in der Toolbox. Satz1 für X = 10, Y = 10, Z = 5"
-            End If
-            Dim value As Integer = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), [Default], comment)
-            Return Math.Max(1, Math.Min(MJ_STEINE_MAXX_SIDEBYSIDE, value))
-        End Get
-        Set(value As Integer)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), value.ToString)
-        End Set
-    End Property
-    Public Property ToolBox_FeldSizeY(bform As BasisformEnum) As Integer
-        Get
-            Dim [Default] As Integer = 10
-            Dim comment As String = Nothing
-            Dim value As Integer = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), [Default], comment)
-            Return Math.Max(1, Math.Min(MJ_STEINE_MAXX_SIDEBYSIDE, value))
-        End Get
-        Set(value As Integer)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), value.ToString)
-        End Set
-    End Property
-    Public Property ToolBox_FeldSizeZ(bform As BasisformEnum) As Integer
-        Get
-            Dim [Default] As Integer = 5
-            Dim comment As String = Nothing
-            Dim value As Integer = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), [Default], comment)
-            Return Math.Max(1, Math.Min(MJ_STEINE_MAXZ_LAYER, value))
-        End Get
-        Set(value As Integer)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), value.ToString)
-        End Set
-    End Property
-    Public Property ToolBox_FeldSizeDefaultX(bform As BasisformEnum) As Integer
-        Get
-            Dim [Default] As Integer = 10
-            Select Case bform
-                Case BasisformEnum.Kegel
-                    [Default] = 5
-                Case BasisformEnum.Kreis
-                    [Default] = 5
-                Case BasisformEnum.Linie
-                    [Default] = 8
-                Case BasisformEnum.Pyramide
-                    [Default] = 5
-                Case BasisformEnum.Rechteck
-                    [Default] = 4
-                Case BasisformEnum.UForm
-                    [Default] = 4
-                Case BasisformEnum.Winkel
-                    [Default] = 5
-                Case BasisformEnum.Zufall
-                    [Default] = 6
-            End Select
-            Dim comment As String = Nothing
-            If bform = 0 Then
-                comment = "Die jeweiligen aktuellen Werte der Basisformen in der Toolbox. Satz1 für X = 10, Y = 10, Z = 5"
-            End If
-            Dim value As Integer = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), [Default], comment)
-            Return Math.Max(1, Math.Min(MJ_STEINE_MAXX_SIDEBYSIDE, value))
-        End Get
-        Set(value As Integer)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), value.ToString)
-        End Set
-    End Property
-    Public Property ToolBox_FeldSizeDefauktY(bform As BasisformEnum) As Integer
-        Get
-            Dim [Default] As Integer = 10
-            Select Case bform
-                Case BasisformEnum.Kegel
-                    [Default] = 5
-                Case BasisformEnum.Kreis
-                    [Default] = 5
-                Case BasisformEnum.Linie
-                    [Default] = 8
-                Case BasisformEnum.Pyramide
-                    [Default] = 5
-                Case BasisformEnum.Rechteck
-                    [Default] = 6
-                Case BasisformEnum.UForm
-                    [Default] = 4
-                Case BasisformEnum.Winkel
-                    [Default] = 6
-                Case BasisformEnum.Zufall
-                    [Default] = 6
-            End Select
-            Dim comment As String = Nothing
-            Dim value As Integer = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), [Default], comment)
-            Return Math.Max(1, Math.Min(MJ_STEINE_MAXX_SIDEBYSIDE, value))
-        End Get
-        Set(value As Integer)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), value.ToString)
-        End Set
-    End Property
-    Public Property ToolBox_FeldSizeDefauktZ(bform As BasisformEnum) As Integer
-        Get
-            Dim [Default] As Integer = 5
-            Select Case bform
-                Case BasisformEnum.Kegel
-                    [Default] = 4
-                Case BasisformEnum.Kreis
-                    [Default] = 1
-                Case BasisformEnum.Linie
-                    [Default] = 3
-                Case BasisformEnum.Pyramide
-                    [Default] = 5
-                Case BasisformEnum.Rechteck
-                    [Default] = 1
-                Case BasisformEnum.UForm
-                    [Default] = 1
-                Case BasisformEnum.Winkel
-                    [Default] = 1
-                Case BasisformEnum.Zufall
-                    [Default] = 4
-            End Select
-
-            Dim comment As String = Nothing
-            Dim value As Integer = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), [Default], comment)
-            Return Math.Max(1, Math.Min(MJ_STEINE_MAXZ_LAYER, value))
-        End Get
-        Set(value As Integer)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), value.ToString)
-        End Set
-    End Property
-
-
-    Public Property ToolBox_NameBasisformForSaving(bform As BasisformEnum) As String
-        Get
-            Dim [Default] As String = bform.ToString & "_1"
-            Dim comment As String = Nothing
-            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), [Default], comment)
-        End Get
-        Set(value As String)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), value.ToString)
-        End Set
-    End Property
-
-    Public Property ToolBox_AktBasisform As BasisformEnum
-        Get
-            Dim [Default] As String = BasisformEnum.Pyramide.ToString
-            Dim comment As String = Nothing
-            Dim zRetVal As String = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-            Dim result As BasisformEnum
-            If Not [Enum].TryParse(Of BasisformEnum)(zRetVal, True, result) Then
-                result = BasisformEnum.Pyramide
-            End If
-            Return result
-        End Get
-        Set(value As BasisformEnum)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
-        End Set
-    End Property
-
-    Public Property Toolbox_HGrdSplFldColorFallback As Color
-        Get
-            Dim [Default] As Color = Color.Empty
-            Dim comment As String = Nothing
-            Dim col As Color = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-            If col = Color.Empty Then
-                Return Spielfeld_BackgroundColor
-            Else
-                Return col
-            End If
-        End Get
-        Set(value As Color)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
-        End Set
-    End Property
-    '
-    Public Property Toolbox_HGrdEditorColorFallback As Color
-        Get
-            Dim [Default] As Color = Color.Empty
-            'alternativ
-            'Dim [Default] As Color = IniManager.CvtHexStringToColor("FF000000")
-            Dim comment As String = Nothing
-            Dim col As Color = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-            If col = Color.Empty Then
-                Return Spielfeld_BackgroundColor
-            Else
-                Return col
-            End If
-        End Get
-        Set(value As Color)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
-        End Set
-    End Property
-
-    Public Property Toolbox_HGrdSplFldBitmapNameFallback As String
-        Get
-            Dim [Default] As String = Nothing
-            Dim comment As String = Nothing
-            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-        End Get
-        Set(value As String)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
-        End Set
-    End Property
-
-    Public Property Toolbox_HGrdEditorBitmapNameFallback As String
-        Get
-            Dim [Default] As String = Nothing
-            Dim comment As String = Nothing
-            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-        End Get
-        Set(value As String)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
-        End Set
-    End Property
-
-    Public Property Toolbox_HGrdSplFldBitmapIsUserGrafikFallback As Boolean
-        Get
-            Dim [Default] As Boolean = False
-            Dim comment As String = Nothing
-            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-        End Get
-        Set(value As Boolean)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
-        End Set
-    End Property
-
-    Public Property Toolbox_HGrdEditorBitmapIsUserGrafikFallback As Boolean
-        Get
-            Dim [Default] As Boolean = False
-            Dim comment As String = Nothing
-            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-        End Get
-        Set(value As Boolean)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
-        End Set
-    End Property
-
-    Public Property Toolbox_HGrdEditorUseSplFldValues As Boolean
-        Get
-            Dim [Default] As Boolean = False
-            Dim comment As String = Nothing
-            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-        End Get
-        Set(value As Boolean)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
-        End Set
-    End Property
-
-    Public Property Toolbox_HGrdSplFldRenderModeFallback As BackgroundImageRenderMode
-        Get
-            Dim [Default] As String = BackgroundImageRenderMode.None.ToString
-            Dim comment As String = Nothing
-            Dim zRetVal As String = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-            Dim result As BackgroundImageRenderMode
-            If Not [Enum].TryParse(Of BackgroundImageRenderMode)(zRetVal, True, result) Then
-                result = BackgroundImageRenderMode.Stretch
-            End If
-            Return result
-        End Get
-        Set(value As BackgroundImageRenderMode)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
-        End Set
-    End Property
-    Public Property Toolbox_HGrdEditorRenderModeFallBack As BackgroundImageRenderMode
-        Get
-            Dim [Default] As String = BackgroundImageRenderMode.None.ToString
-            Dim comment As String = Nothing
-            Dim zRetVal As String = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-            Dim result As BackgroundImageRenderMode
-            If Not [Enum].TryParse(Of BackgroundImageRenderMode)(zRetVal, True, result) Then
-                result = BackgroundImageRenderMode.Stretch
-            End If
-            Return result
-        End Get
-        Set(value As BackgroundImageRenderMode)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
-        End Set
-    End Property
-
-    Public Property Toolbox_HGrdEditorUseSplfldEinstlgFallback As Boolean
-        Get
-            Dim [Default] As Boolean = False
-            Dim comment As String = Nothing
-            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-        End Get
-        Set(value As Boolean)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
-        End Set
-    End Property
-
-
-
-#End Region
-
 #Region "RuntimeOnly"
 
     Public Event RuntimeOnly_AktRendering_Event()
@@ -2096,10 +1735,14 @@ Public Module INI
             Return _RuntimeOnly_AktRendering
         End Get
         Set(value As RenderingEnum)
+            RuntimeOnly_LastRendering = _RuntimeOnly_AktRendering
             _RuntimeOnly_AktRendering = value
             RaiseEvent RuntimeOnly_AktRendering_Event()
         End Set
     End Property
+
+    Public Property RuntimeOnly_LastRendering As RenderingEnum
+
 
     Public Event RuntimeOnly_ToolboxAktiv_Event()
     Private _RuntimeOnly_ToolboxAktiv As Boolean
@@ -2399,6 +2042,11 @@ Public Module INI
 
 #End Region
 
+
+#End Region
+
+#Region "ToolboxINI"
+
 #Region "ColorPickerHSB"
 
     Public Property ColorPickerHSB_Toolbox_PickerBackColor As Color
@@ -2407,10 +2055,10 @@ Public Module INI
             'alternativ
             'Dim [Default] As Color = IniManager.CvtHexStringToColor("FF000000")
             Dim comment As String = Nothing
-            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            Return ToolBoxIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
         End Get
         Set(value As Color)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+            ToolBoxIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
         End Set
     End Property
 
@@ -2418,14 +2066,311 @@ Public Module INI
         Get
             Dim [Default] As String = Nothing
             Dim comment As String = Nothing
-            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            Return ToolBoxIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
         End Get
         Set(value As String)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+            ToolBoxIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
         End Set
     End Property
 
 #End Region
+
+
+#Region "Toolbox"
+    '
+    ''' <summary>
+    ''' Speicherung der aktuellen Position der Form Toolbox
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property ToolBox_Rectangle As Rectangle
+        Get
+            Dim [Default] As New Rectangle(100, 100, frmToolBox.MJ_FRMTOOLBOX_WIDTH, frmToolBox.MJ_FRMTOOLBOX_HEIGHT) '
+            Dim comment As String = Nothing
+            Dim rc As Rectangle = ToolBoxIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+
+            ' --- Größe absichern 
+            rc.Width = frmToolBox.MJ_FRMTOOLBOX_WIDTH
+            rc.Height = frmToolBox.MJ_FRMTOOLBOX_HEIGHT
+
+            ' Arbeitsbereich des Monitors ermitteln, der dem Rechteck am nächsten ist
+            Dim wa As Rectangle = Screen.FromRectangle(rc).WorkingArea
+
+            ' Falls zu groß: auf Arbeitsbereich kappen
+            If rc.Width > wa.Width Then rc.Width = wa.Width
+            If rc.Height > wa.Height Then rc.Height = wa.Height
+
+            ' Position so klemmen, dass das Rechteck komplett innerhalb des Arbeitsbereichs liegt
+            If rc.Right > wa.Right Then rc.X = wa.Right - rc.Width
+            If rc.Bottom > wa.Bottom Then rc.Y = wa.Bottom - rc.Height
+            If rc.X < wa.Left Then rc.X = wa.Left
+            If rc.Y < wa.Top Then rc.Y = wa.Top
+
+            Return rc
+        End Get
+        Set(value As Rectangle)
+            ToolBoxIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+        End Set
+    End Property
+
+    Public Property ToolBox_FeldSizeXmax() As Integer
+        Get
+            Dim [Default] As Integer = 30
+            Dim comment As String = $"Maximale Anzahl der Steine nebeneinander. Gültig: 1 bis {MJ_STEINE_MAXX_SIDEBYSIDE}, Satz1 = 30"
+            Dim value As Integer = ToolBoxIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            Return Math.Max(1, Math.Min(MJ_STEINE_MAXX_SIDEBYSIDE, value))
+        End Get
+        Set(value As Integer)
+            ToolBoxIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+        End Set
+    End Property
+    Public Property ToolBox_FeldSizeYmax() As Integer
+        Get
+            Dim [Default] As Integer = 15
+            Dim comment As String = $"Maximale Anzahl der Steine übereinander. Gültig: 1 bis {MJ_STEINE_MAXY_OVERANOTHER}, Satz1 = 15"
+            Dim value As Integer = ToolBoxIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            Return Math.Max(1, Math.Min(MJ_STEINE_MAXY_OVERANOTHER, value))
+        End Get
+        Set(value As Integer)
+            ToolBoxIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+        End Set
+    End Property
+    Public Property ToolBox_FeldSizeZmax() As Integer
+        Get
+            Dim [Default] As Integer = 10
+            Dim comment As String = $"Maximale Anzahl der Steine aufeinander. Gültig: 1 bis {MJ_STEINE_MAXZ_LAYER}, Satz1 = 10"
+            Dim value As Integer = ToolBoxIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            Return Math.Max(1, Math.Min(MJ_STEINE_MAXZ_LAYER, value))
+        End Get
+        Set(value As Integer)
+            ToolBoxIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+        End Set
+    End Property
+    Public Property ToolBox_FeldSizeX(bform As BasisformEnum) As Integer
+        Get
+            Dim [Default] As Integer = 10
+            Dim comment As String = Nothing
+            If bform = 0 Then
+                comment = "Die jeweiligen aktuellen Werte der Basisformen in der Toolbox. Satz1 für X = 10, Y = 10, Z = 5"
+            End If
+            Dim value As Integer = ToolBoxIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), [Default], comment)
+            Return Math.Max(1, Math.Min(MJ_STEINE_MAXX_SIDEBYSIDE, value))
+        End Get
+        Set(value As Integer)
+            ToolBoxIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), value.ToString)
+        End Set
+    End Property
+    Public Property ToolBox_FeldSizeY(bform As BasisformEnum) As Integer
+        Get
+            Dim [Default] As Integer = 10
+            Dim comment As String = Nothing
+            Dim value As Integer = ToolBoxIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), [Default], comment)
+            Return Math.Max(1, Math.Min(MJ_STEINE_MAXX_SIDEBYSIDE, value))
+        End Get
+        Set(value As Integer)
+            ToolBoxIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), value.ToString)
+        End Set
+    End Property
+    Public Property ToolBox_FeldSizeZ(bform As BasisformEnum) As Integer
+        Get
+            Dim [Default] As Integer = 5
+            Dim comment As String = Nothing
+            Dim value As Integer = ToolBoxIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), [Default], comment)
+            Return Math.Max(1, Math.Min(MJ_STEINE_MAXZ_LAYER, value))
+        End Get
+        Set(value As Integer)
+            ToolBoxIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), value.ToString)
+        End Set
+    End Property
+    Public Property ToolBox_FeldSizeDefaultX(bform As BasisformEnum) As Integer
+        Get
+            Dim [Default] As Integer = 10
+            Select Case bform
+                Case BasisformEnum.Kegel
+                    [Default] = 5
+                Case BasisformEnum.Kreis
+                    [Default] = 5
+                Case BasisformEnum.Linie
+                    [Default] = 8
+                Case BasisformEnum.Pyramide
+                    [Default] = 5
+                Case BasisformEnum.Rechteck
+                    [Default] = 4
+                Case BasisformEnum.UForm
+                    [Default] = 4
+                Case BasisformEnum.Winkel
+                    [Default] = 5
+                Case BasisformEnum.Zufall
+                    [Default] = 6
+            End Select
+            Dim comment As String = Nothing
+            If bform = 0 Then
+                comment = "Die jeweiligen aktuellen Werte der Basisformen in der Toolbox. Satz1 für X = 10, Y = 10, Z = 5"
+            End If
+            Dim value As Integer = ToolBoxIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), [Default], comment)
+            Return Math.Max(1, Math.Min(MJ_STEINE_MAXX_SIDEBYSIDE, value))
+        End Get
+        Set(value As Integer)
+            ToolBoxIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), value.ToString)
+        End Set
+    End Property
+    Public Property ToolBox_FeldSizeDefauktY(bform As BasisformEnum) As Integer
+        Get
+            Dim [Default] As Integer = 10
+            Select Case bform
+                Case BasisformEnum.Kegel
+                    [Default] = 5
+                Case BasisformEnum.Kreis
+                    [Default] = 5
+                Case BasisformEnum.Linie
+                    [Default] = 8
+                Case BasisformEnum.Pyramide
+                    [Default] = 5
+                Case BasisformEnum.Rechteck
+                    [Default] = 6
+                Case BasisformEnum.UForm
+                    [Default] = 4
+                Case BasisformEnum.Winkel
+                    [Default] = 6
+                Case BasisformEnum.Zufall
+                    [Default] = 6
+            End Select
+            Dim comment As String = Nothing
+            Dim value As Integer = ToolBoxIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), [Default], comment)
+            Return Math.Max(1, Math.Min(MJ_STEINE_MAXX_SIDEBYSIDE, value))
+        End Get
+        Set(value As Integer)
+            ToolBoxIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), value.ToString)
+        End Set
+    End Property
+    Public Property ToolBox_FeldSizeDefauktZ(bform As BasisformEnum) As Integer
+        Get
+            Dim [Default] As Integer = 5
+            Select Case bform
+                Case BasisformEnum.Kegel
+                    [Default] = 4
+                Case BasisformEnum.Kreis
+                    [Default] = 1
+                Case BasisformEnum.Linie
+                    [Default] = 3
+                Case BasisformEnum.Pyramide
+                    [Default] = 5
+                Case BasisformEnum.Rechteck
+                    [Default] = 1
+                Case BasisformEnum.UForm
+                    [Default] = 1
+                Case BasisformEnum.Winkel
+                    [Default] = 1
+                Case BasisformEnum.Zufall
+                    [Default] = 4
+            End Select
+
+            Dim comment As String = Nothing
+            Dim value As Integer = ToolBoxIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), [Default], comment)
+            Return Math.Max(1, Math.Min(MJ_STEINE_MAXZ_LAYER, value))
+        End Get
+        Set(value As Integer)
+            ToolBoxIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), value.ToString)
+        End Set
+    End Property
+
+
+    Public Property ToolBox_NameBasisformForSaving(bform As BasisformEnum) As String
+        Get
+            Dim [Default] As String = bform.ToString & "_1"
+            Dim comment As String = Nothing
+            Return ToolBoxIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), [Default], comment)
+        End Get
+        Set(value As String)
+            ToolBoxIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), value.ToString)
+        End Set
+    End Property
+
+    Public Property ToolBox_AktBasisform As BasisformEnum
+        Get
+            Dim [Default] As String = BasisformEnum.Pyramide.ToString
+            Dim comment As String = Nothing
+            Dim zRetVal As String = ToolBoxIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            Dim result As BasisformEnum
+            If Not [Enum].TryParse(Of BasisformEnum)(zRetVal, True, result) Then
+                result = BasisformEnum.Pyramide
+            End If
+            Return result
+        End Get
+        Set(value As BasisformEnum)
+            ToolBoxIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+        End Set
+    End Property
+
+    Public Property Toolbox_HGrdSplFldColorFallback As Color
+        Get
+            Dim [Default] As Color = Color.Empty
+            Dim comment As String = Nothing
+            Dim col As Color = ToolBoxIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            If col = Color.Empty Then
+                Return Rendering_BackgroundColor
+            Else
+                Return col
+            End If
+        End Get
+        Set(value As Color)
+            ToolBoxIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+        End Set
+    End Property
+
+    Public Property Toolbox_HGrdSplFldBitmapNameFallback As String
+        Get
+            Dim [Default] As String = Nothing
+            Dim comment As String = Nothing
+            Return ToolBoxIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As String)
+            ToolBoxIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+        End Set
+    End Property
+
+    Public Property Toolbox_HGrdSplFldBitmapIsUserGrafikFallback As Boolean
+        Get
+            Dim [Default] As Boolean = False
+            Dim comment As String = Nothing
+            Return ToolBoxIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As Boolean)
+            ToolBoxIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+        End Set
+    End Property
+
+    Public Property Toolbox_HGrdEditorUseSplFldValues As Boolean
+        Get
+            Dim [Default] As Boolean = False
+            Dim comment As String = Nothing
+            Return ToolBoxIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As Boolean)
+            ToolBoxIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+        End Set
+    End Property
+
+    Public Property Toolbox_HGrdSplFldRenderModeFallback As BackgroundImageRenderMode
+        Get
+            Dim [Default] As String = BackgroundImageRenderMode.None.ToString
+            Dim comment As String = Nothing
+            Dim zRetVal As String = ToolBoxIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            Dim result As BackgroundImageRenderMode
+            If Not [Enum].TryParse(Of BackgroundImageRenderMode)(zRetVal, True, result) Then
+                result = BackgroundImageRenderMode.Stretch
+            End If
+            Return result
+        End Get
+        Set(value As BackgroundImageRenderMode)
+            ToolBoxIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+        End Set
+    End Property
+
+
+#End Region
+
+#End Region
+
 
 #Region "Ini Editieren"
 

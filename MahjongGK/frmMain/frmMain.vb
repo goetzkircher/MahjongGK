@@ -34,7 +34,6 @@ Imports MahjongGK.MjMix
 Public Enum VisibleUserControl
     None = -1
     Spielfeld
-    Editor
     Werkbank
     Einstellungen
     About
@@ -65,7 +64,7 @@ Public Class frmMain
                 SFD.AktRendering = RenderingEnum.Spielfeld
 
             Case RenderingEnum.Editor
-                AktVisibleUserControl = VisibleUserControl.Editor
+                AktVisibleUserControl = VisibleUserControl.Spielfeld
                 SFD.AktRendering = RenderingEnum.Editor
             Case RenderingEnum.Werkbank
                 AktVisibleUserControl = VisibleUserControl.Werkbank
@@ -75,8 +74,6 @@ Public Class frmMain
     End Sub
 
     '######################################################################################################
-
-
 
     Private Sub Test1(value As Boolean)
 
@@ -105,9 +102,6 @@ Public Class frmMain
         'Using tst As New MahjongGKSymbolFactory.TileStyleTuner
         '    tst.ShowDialog()
         'End Using
-
-
-
 
         'SpielfeldTest_SpielsteinGenerator.RunAll()
 
@@ -161,7 +155,6 @@ Public Class frmMain
         ' Fügen Sie Initialisierungen nach dem InitializeComponent()-Aufruf hinzu.
 
     End Sub
-
 
     Private Sub frmMain_Load(sender As Object, e As EventArgs) Handles Me.Load
 
@@ -217,9 +210,6 @@ Public Class frmMain
         'aufgerufen werden können.
         VisibleUserControls.Add(UCtlSpielfeldMain)
         UCtlSpielfeldMain.Parent = Nothing
-
-        VisibleUserControls.Add(UCtlEditorMain)
-        UCtlEditorMain.Parent = Nothing
 
         VisibleUserControls.Add(UCtlWerkbankMain)
         UCtlWerkbankMain.Parent = Nothing
@@ -375,7 +365,6 @@ Public Class frmMain
 
             'Erläuterung siehe PaintLimiterErläuterung.txt
             If value = VisibleUserControl.Spielfeld OrElse
-                value = VisibleUserControl.Editor OrElse
                 value = VisibleUserControl.Werkbank Then
 
                 Spielfeld.PaintSpielfeld_Initialisierung(VisibleUserControls(value), value)
@@ -445,9 +434,9 @@ Public Class frmMain
         Dim mnuEditor As New ToolStripMenuItem("Editor")
 
         Dim editorItem As ToolStripMenuItem = CreateMenuItem("Editor",
-                                                         Sub() ChangeVisibleControl(VisibleUserControl.Editor),
+                                                         Sub() ChangeVisibleControl(VisibleUserControl.Spielfeld),
                                                          Function() As Boolean
-                                                             Return AktVisibleUserControl <> VisibleUserControl.Editor
+                                                             Return AktVisibleUserControl <> VisibleUserControl.Spielfeld
                                                          End Function)
 
 

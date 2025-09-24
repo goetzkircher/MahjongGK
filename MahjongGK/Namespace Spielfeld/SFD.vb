@@ -27,10 +27,7 @@ Option Strict On
 
 #Disable Warning IDE0079
 #Disable Warning IDE1006
-
-
 '
-
 ''' <summary>
 ''' SFD (SpielFeldDaten) ist bewußt nicht im Namespace Spielfeld untergebracht,
 ''' Member werden aber genauso bewußt immer mit SFD angesprochen.
@@ -59,18 +56,28 @@ Public Module SFD
     ''' </summary>
     Public Property AktSpielfeldInfo As SpielfeldInfo = Nothing
     Public Property SpielerSpielfeldInfo As SpielfeldInfo = Nothing
-    Public Property EditorSpielfeldInfo As SpielfeldInfo = Nothing
     Public Property WerkbankSpielfeldInfo As SpielfeldInfo = Nothing
-
     Public Property AktSpielfeldInfo_Ident As String = Nothing
     Public Property LastSpielfeldInfo_Ident As String = Nothing
     Public Property AktRendering As RenderingEnum
         Get
-            Return RuntimeOnly_AktRendering
+            Return INI.RuntimeOnly_AktRendering
         End Get
         Set(value As RenderingEnum)
-            RuntimeOnly_AktRendering = value
+            INI.RuntimeOnly_AktRendering = value
         End Set
+    End Property
+
+    Public ReadOnly Property LastRendering(Optional afterwardsSyncIt As Boolean = False) As RenderingEnum
+        Get
+            If afterwardsSyncIt Then
+                Dim retval As RenderingEnum = INI.RuntimeOnly_LastRendering
+                INI.RuntimeOnly_LastRendering = INI.RuntimeOnly_AktRendering
+                Return retval
+            Else
+                Return INI.RuntimeOnly_LastRendering
+            End If
+        End Get
     End Property
 
     Public Property FrozenBitmapPlayerSpielfeld As Bitmap = Nothing
@@ -119,8 +126,6 @@ Public Module SFD
         End Set
     End Property
 
-
-
     Public xMin As Integer = 1
     Public yMin As Integer = 1
     Public zMin As Integer = 0
@@ -160,11 +165,14 @@ Public Module SFD
         End Set
     End Property
 
-    Public renderRectLeft As Integer
-    Public renderRectTop As Integer
-    Public renderRectWidth As Integer
-    Public renderRectHeight As Integer
-    Public renderRect As Rectangle
+    Public outputRect As Rectangle
+    Public stockRect As Rectangle
+    Public scrollbarRect As Rectangle
+    Public ugrdRect As Rectangle
+    Public splfldFullRect As Rectangle
+    Public splfldUsedRect As Rectangle
+    Public historyBoxLeft As Rectangle
+    Public historyBoxRight As Rectangle
 
     ''' <summary>
     ''' Das ist die aktuelle Breite der Steine
@@ -190,17 +198,9 @@ Public Module SFD
 
     Public offset3DLeftSumme As Integer
     Public offset3DTopSumme As Integer
-
-    Public Property WidthSpielfeld As Integer
-    Public Property HeightSpielfeld As Integer
-    Public Property LeftSpielfeld As Integer
-    Public Property TopSpielfeld As Integer
-
-    Public Property RectSpielfeld As Rectangle
     '
     Public steinWidthLastCreated As Integer
     Public steinHeightLastCreated As Integer
-
 
 End Module
 

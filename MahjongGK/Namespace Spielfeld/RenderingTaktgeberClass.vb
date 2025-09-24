@@ -80,6 +80,7 @@ Namespace Spielfeld
         ''' <summary>
         ''' Liefert True, wenn ein neuer Frame fällig ist. Setzt dabei Factor.
         ''' </summary>
+        <DebuggerStepThrough>
         Public Function TryNextFrame() As Boolean
 
             Dim nowMs As Double = sw.Elapsed.TotalMilliseconds

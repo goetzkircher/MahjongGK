@@ -36,54 +36,59 @@ Namespace Spielfeld
 
         'Hinweis: Die Daten, die hier nicht deklariert sind
         'stehen alle im Modul "SpielfeldDaten"
-
-
         '
-        Public Sub UpdateSpielfeld(rectOutput As Rectangle, Optional forceUpdate As Boolean = False)
+        Public Sub UpdateSpielfeld(outputRect As Rectangle, Optional forceUpdate As Boolean = False)
 
             Dim saveToTmpVerz As Boolean = False
 
+
             'Auf eine Änderung von AktRendering reagieren
             Dim changed As Boolean = False
-            Dim createFrozenBitmap As Boolean = Not RectSpielfeld.IsEmpty 'es gibt ein gültiges Rect, d.h. es wurde bereits gerendert
+            Dim createFrozenBitmap As Boolean = Not splfldUsedRect.IsEmpty 'es gibt ein gültiges Rect, d.h. es wurde bereits gerendert
 
-            Select Case SFD.AktRendering
-                Case RenderingEnum.Spielfeld
-                    If Not IsNothing(SFD.SpielerSpielfeldInfo) Then
-                        If Not SpielerSpielfeldInfo.IsEqual(SFD.AktSpielfeldInfo) Then
 
-                            SFD.AktSpielfeldInfo = SFD.SpielerSpielfeldInfo
-                            changed = True
+            If SFD.AktRendering <> SFD.LastRendering(afterwardsSyncIt:=True) Then
+                changed = True
+            Else
+                Select Case SFD.AktRendering
+                    Case RenderingEnum.Spielfeld
+                        If Not IsNothing(SFD.SpielerSpielfeldInfo) Then
+                            If Not SpielerSpielfeldInfo.IsEqual(SFD.AktSpielfeldInfo) Then
+                                SFD.AktSpielfeldInfo = SFD.SpielerSpielfeldInfo
+                                changed = True
+                            End If
                         End If
-                    End If
-                Case RenderingEnum.Werkbank
-                    If Not IsNothing(SFD.WerkbankSpielfeldInfo) Then
-                        If Not SFD.WerkbankSpielfeldInfo.IsEqual(SFD.AktSpielfeldInfo) Then
-                            SFD.AktSpielfeldInfo = SFD.WerkbankSpielfeldInfo
-                            changed = True
-                        End If
-                    End If
 
-                Case RenderingEnum.Editor
-                    If Not IsNothing(SFD.EditorSpielfeldInfo) Then
-                        If Not SFD.EditorSpielfeldInfo.IsEqual(SFD.AktSpielfeldInfo) Then
-                            SFD.AktSpielfeldInfo = EditorSpielfeldInfo
-                            changed = True
+                    Case RenderingEnum.Editor
+                        If Not IsNothing(SFD.SpielerSpielfeldInfo) Then
+                            If Not SpielerSpielfeldInfo.IsEqual(SFD.AktSpielfeldInfo) Then
+                                SFD.AktSpielfeldInfo = SFD.SpielerSpielfeldInfo
+                                changed = True
+                            End If
                         End If
-                    End If
-            End Select
+
+                    Case RenderingEnum.Werkbank
+                        If Not IsNothing(SFD.WerkbankSpielfeldInfo) Then
+                            If Not SFD.WerkbankSpielfeldInfo.IsEqual(SFD.AktSpielfeldInfo) Then
+                                SFD.AktSpielfeldInfo = SFD.WerkbankSpielfeldInfo
+                                changed = True
+                            End If
+                        End If
+                End Select
+            End If
+
             '
             If IsNothing(SFD.AktSpielfeldInfo) Then
                 Exit Sub
             End If
             '
             If changed Or forceUpdate Then
-                SFD.RectSpielfeld = rectOutput
+                SFD.outputRect = outputRect
             Else
-                If SFD.RectSpielfeld = rectOutput Then
+                If SFD.outputRect = outputRect Then
                     Exit Sub
                 Else
-                    SFD.RectSpielfeld = rectOutput
+                    SFD.outputRect = outputRect
                 End If
             End If
 
@@ -109,7 +114,7 @@ Namespace Spielfeld
 
                 ElseIf identNew = SFD.LastSpielfeldInfo_Ident Then
                     ' Sonderfall: Hin- und Her zwischen zwei bekannten IDs
-                    ' (Aktuelle Daten von Spielfeld und Editor)
+                    ' (Aktuelle Daten von Spielfeld/Editor und Werkbank)
                     ' -> NICHT speichern, nur die Historie spiegeln/aktualisieren
                     Dim tmp As String = SFD.AktSpielfeldInfo_Ident
                     SFD.AktSpielfeldInfo_Ident = SFD.LastSpielfeldInfo_Ident
@@ -125,8 +130,6 @@ Namespace Spielfeld
             End If
             '
             With SFD.AktSpielfeldInfo
-
-
                 SFD.xMax = .xMax 'das sind die Felder
                 SFD.yMax = .yMax
                 SFD.zMax = .zMax
@@ -156,19 +159,17 @@ Namespace Spielfeld
                 End If
             End If
 
-            Dim insideWidth As Integer = SFD.RectSpielfeld.Width - MJ_MARGIN_ABSOLUT_LEFT - MJ_MARGIN_ABSOLUT_RIGHT
-            Dim insideHeight As Integer = SFD.RectSpielfeld.Height - MJ_MARGIN_ABSOLUT_TOP - MJ_MARGIN_ABSOLUT_BOTTOM
 
-            'Das sind Startwerte
-            SFD.steinWidth = insideWidth \ SFD.xMaxSteine + 2 'mindestens aufrunden + 1
-            SFD.steinHeight = insideHeight \ SFD.yMaxSteine + 2
+            'Startwerte
+            CreateMainLayout(New Size(INI.Rendering_OrgGrafikSizeWidth, INI.Rendering_OrgGrafikSizeHeight))
+            SFD.steinWidth = SFD.splfldFullRect.Width \ SFD.xMaxSteine + 2 '+2 = aufrunden + 1
+            SFD.steinHeight = SFD.splfldFullRect.Height \ SFD.yMaxSteine + 2
 
             'Die Steinabmessungen werden interativ berechnet.
             'Sie sind abhängig von der Feldgröße in Steinen, der Feldgröße in Pixeln
-            'und der Feldhöhe in Pixelverschiebungen je Stein und Ebene.
-            'Zusätzlich fließen noch die Paddings rings um das Ausgaberechteck
-            'in die Berechnung ein.
-
+            'und der Feldhöhe in Pixelverschiebungen je Stein und Ebene und ob oben die Vorratssteine sind.
+            'Zusätzlich fließen noch die Paddings rings um das Ausgaberechteck in die Berechnung ein.
+            '
             '
             Dim summeWidth As Integer
             Dim summeHeight As Integer
@@ -191,9 +192,10 @@ Namespace Spielfeld
                 SFD.offset3DTopSumme = SFD.offset3DTopJeEbene * SFD.zMax '+ INI.Rendering_RectOutputPaddingTop + INI.Rendering_RectOutputPaddingBottom
 
                 summeWidth = steinSize.Width * SFD.xMaxSteine + SFD.offset3DLeftSumme
-                summeHeight = steinSize.Height * SFD.yMaxSteine + SFD.offset3DTopSumme
+                summeHeight = steinSize.Height * SFD.yMaxSteine + SFD.offset3DTopSumme + If(SFD.AktRendering = RenderingEnum.Editor, steinSize.Height + INI.Rendering_HScrollbarHeight, 0)
 
-                If summeWidth <= insideWidth AndAlso summeHeight <= insideHeight Then
+                CreateMainLayout(steinSize)
+                If summeWidth <= SFD.splfldFullRect.Width AndAlso summeHeight <= SFD.splfldFullRect.Height Then
                     Exit Do
                 End If
             Loop
@@ -210,24 +212,21 @@ Namespace Spielfeld
             'und einem MJ_SPIELFELD_MIN_WIDTH MJ_SPIELFELD_MIN_HEIGHT von 600 x 400 Pixeln.
             'Das läuft.
             ''Auf das Spielfeld passen 75 x 25 x 25 = 46,875 Steine (und der Computer schafft die Anzeige.) 
-
-
-
             '
             'neu berechnen
             summeWidth = SFD.steinWidth * SFD.xMaxSteine + SFD.offset3DLeftSumme '+ 2
             summeHeight = SFD.steinHeight * SFD.yMaxSteine + SFD.offset3DTopSumme '+ 2
 
-            Dim deltaWidth As Integer = insideWidth - summeWidth
-            Dim deltaHeigh As Integer = insideHeight - summeHeight
+            Dim deltaWidth As Integer = SFD.splfldFullRect.Width - summeWidth
+            Dim deltaHeigh As Integer = SFD.splfldFullRect.Height - summeHeight
 
             'Ausgabefeld zentrieren
-            SFD.renderRectLeft = deltaWidth \ 2 + MJ_MARGIN_ABSOLUT_LEFT
-            SFD.renderRectTop = deltaHeigh \ 2 + MJ_MARGIN_ABSOLUT_TOP
-            SFD.renderRectWidth = summeWidth
-            SFD.renderRectHeight = summeHeight
+            Dim splfldRectLeft As Integer = deltaWidth \ 2 + MJ_MARGIN_ABSOLUT_LEFT
+            Dim splfldRectTop As Integer = deltaHeigh \ 2 + MJ_MARGIN_ABSOLUT_TOP
+            Dim splfldRectWidth As Integer = summeWidth
+            Dim splfldRectHeight As Integer = summeHeight
 
-            SFD.renderRect = New Rectangle(SFD.renderRectLeft, SFD.renderRectTop, SFD.renderRectWidth, SFD.renderRectHeight)
+            SFD.splfldUsedRect = New Rectangle(splfldRectLeft, splfldRectTop, splfldRectWidth, splfldRectHeight)
 
             If SFD.steinWidthLastCreated <> SFD.steinWidth OrElse SFD.steinHeightLastCreated <> SFD.steinHeight Then
                 BitmapContainer.ChangeImagesSize(SFD.steinWidth, SFD.steinHeight)
@@ -387,6 +386,49 @@ Namespace Spielfeld
             End If
             Return n
         End Function
+
+        ''' <summary>
+        ''' Setzt die einzelnen Bereiche, außer splfldUsedRect
+        ''' </summary>
+        ''' <param name="steinSize"></param>
+        Private Sub CreateMainLayout(steinSize As Size)
+
+
+            If SFD.AktRendering = RenderingEnum.Spielfeld Then
+
+                ugrdRect = New Rectangle(outputRect.Left, outputRect.Top, outputRect.Width - 1, outputRect.Height - 1)
+                splfldFullRect = New Rectangle(ugrdRect.Left + MJ_MARGIN_ABSOLUT_LEFT,
+                                               ugrdRect.Top + MJ_MARGIN_ABSOLUT_TOP,
+                                               ugrdRect.Width - MJ_MARGIN_ABSOLUT_LEFT - MJ_MARGIN_ABSOLUT_RIGHT,
+                                               ugrdRect.Height - MJ_MARGIN_ABSOLUT_TOP - MJ_MARGIN_ABSOLUT_BOTTOM)
+
+            ElseIf SFD.AktRendering = RenderingEnum.Editor Then
+
+
+                ugrdRect = New Rectangle(outputRect.Left, outputRect.Top, outputRect.Width, outputRect.Height)
+
+                stockRect = New Rectangle(ugrdRect.Left + MJ_MARGIN_ABSOLUT_LEFT,
+                                                ugrdRect.Top + MJ_MARGIN_ABSOLUT_TOP,
+                                                ugrdRect.Width - MJ_MARGIN_ABSOLUT_LEFT - MJ_MARGIN_ABSOLUT_RIGHT,
+                                                steinSize.Height)
+
+                scrollbarRect = New Rectangle(stockRect.Left, stockRect.Bottom + 1, stockRect.Width, INI.Rendering_HScrollbarHeight)
+
+                splfldFullRect = New Rectangle(scrollbarRect.Left,
+                                               scrollbarRect.Bottom + 1,
+                                               scrollbarRect.Width,
+                                               ugrdRect.Height - MJ_MARGIN_ABSOLUT_TOP - MJ_MARGIN_ABSOLUT_BOTTOM -
+                                                    scrollbarRect.Height - stockRect.Height)
+
+                splfldFullRect = New Rectangle(ugrdRect.Left + MJ_MARGIN_ABSOLUT_LEFT,
+                                               ugrdRect.Top + MJ_MARGIN_ABSOLUT_TOP,
+                                               ugrdRect.Width - MJ_MARGIN_ABSOLUT_LEFT - MJ_MARGIN_ABSOLUT_RIGHT,
+                                               ugrdRect.Height - MJ_MARGIN_ABSOLUT_TOP - MJ_MARGIN_ABSOLUT_BOTTOM)
+            End If
+
+        End Sub
+
+
 
     End Module
 

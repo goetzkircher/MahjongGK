@@ -196,9 +196,9 @@ Namespace Spielfeld
         ''' </summary>
         ''' <param name="visibleUserControl"></param>
         ''' <param name="e"></param>
-        ''' <param name="rectOutput"></param>
+        ''' <param name="outputRect"></param>
         ''' <param name="timeDifferenzFaktor"></param>
-        Public Sub PaintSpielfeld_Paint(visibleUserControl As VisibleUserControl, e As PaintEventArgs, rectOutput As Rectangle, timeDifferenzFaktor As Double)
+        Public Sub PaintSpielfeld_Paint(visibleUserControl As VisibleUserControl, e As PaintEventArgs, outputRect As Rectangle, timeDifferenzFaktor As Double)
 
             If _takteAussetzen > 0 Then
                 _takteAussetzen -= 1
@@ -219,9 +219,9 @@ Namespace Spielfeld
 
             If _ContinuePause OrElse _createScreenShot Then
                 If _BeginnPause OrElse _createScreenShot Then
-                    _bmpFrozen = New Bitmap(rectOutput.Width, rectOutput.Height, PixelFormat.Format32bppArgb)
+                    _bmpFrozen = New Bitmap(outputRect.Width, outputRect.Height, PixelFormat.Format32bppArgb)
                     Dim gfx As Graphics = Graphics.FromImage(_bmpFrozen)
-                    DoPaintSpielfeld_Paint(gfx, rectOutput, timeDifferenzFaktor, clear:=False)
+                    DoPaintSpielfeld_Paint(gfx, outputRect, timeDifferenzFaktor, clear:=False)
                     gfx.Dispose()
                     _BeginnPause = False
                     If _createScreenShot Then
@@ -242,7 +242,7 @@ Namespace Spielfeld
                 Else
                     If _visibleUserControlOnBeginnPause = visibleUserControl Then
                         If Not IsNothing(_bmpFrozen) Then
-                            e.Graphics.DrawImage(_bmpFrozen, rectOutput.Location)
+                            e.Graphics.DrawImage(_bmpFrozen, outputRect.Location)
                         End If
                     End If
                 End If
@@ -265,7 +265,6 @@ Namespace Spielfeld
 
             'Sicherheitsgurt
             If Not (visibleUserControl = VisibleUserControl.Spielfeld Or
-                    visibleUserControl = VisibleUserControl.Editor Or
                 visibleUserControl = VisibleUserControl.Werkbank) Then
                 Exit Sub
             End If
@@ -280,8 +279,8 @@ Namespace Spielfeld
                             If Not IsNothing(SFD.SpielerSpielfeldInfo.SteinInfos) Then
                                 _initialisierungLäuft = False
                                 _updateSpielfeldIsDone = True
-                                UpdateSpielfeld(rectOutput)
-                                DoPaintSpielfeld_Paint(e.Graphics, rectOutput, timeDifferenzFaktor, clear:=False)
+                                UpdateSpielfeld(outputRect)
+                                DoPaintSpielfeld_Paint(e.Graphics, outputRect, timeDifferenzFaktor, clear:=False)
                                 Exit Sub
 
                             End If
@@ -292,20 +291,20 @@ Namespace Spielfeld
                             If Not IsNothing(SFD.WerkbankSpielfeldInfo.SteinInfos) Then
                                 _initialisierungLäuft = False
                                 _updateSpielfeldIsDone = True
-                                UpdateSpielfeld(rectOutput)
-                                DoPaintSpielfeld_Paint(e.Graphics, rectOutput, timeDifferenzFaktor, clear:=False)
+                                UpdateSpielfeld(outputRect)
+                                DoPaintSpielfeld_Paint(e.Graphics, outputRect, timeDifferenzFaktor, clear:=False)
                                 Exit Sub
 
                             End If
                         End If
 
                     Case RenderingEnum.Editor
-                        If Not IsNothing(SFD.EditorSpielfeldInfo) Then
-                            If Not IsNothing(SFD.EditorSpielfeldInfo.SteinInfos) Then
+                        If Not IsNothing(SFD.SpielerSpielfeldInfo) Then
+                            If Not IsNothing(SFD.SpielerSpielfeldInfo.SteinInfos) Then
                                 _initialisierungLäuft = False
                                 _updateSpielfeldIsDone = True
-                                UpdateSpielfeld(rectOutput)
-                                DoPaintSpielfeld_Paint(e.Graphics, rectOutput, timeDifferenzFaktor, clear:=False)
+                                UpdateSpielfeld(outputRect)
+                                DoPaintSpielfeld_Paint(e.Graphics, outputRect, timeDifferenzFaktor, clear:=False)
                                 Exit Sub
 
                             End If
@@ -314,8 +313,8 @@ Namespace Spielfeld
             End If
 
             If Not _updateSpielfeldIsDone Then
-                UpdateSpielfeld(rectOutput, _forceUpdate)
-                DoPaintSpielfeld_Paint(e.Graphics, rectOutput, timeDifferenzFaktor, clear:=False)
+                UpdateSpielfeld(outputRect, _forceUpdate)
+                DoPaintSpielfeld_Paint(e.Graphics, outputRect, timeDifferenzFaktor, clear:=False)
             End If
 
 
