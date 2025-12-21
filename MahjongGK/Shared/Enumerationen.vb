@@ -155,6 +155,7 @@ End Enum
 ''' enthalten jeweils einen kompletten Satz Steine und sie heißen nach dieser Enum.
 ''' </summary>
 Public Enum SteinSatz
+    None
     Satz1
     Satz2
 End Enum
@@ -506,6 +507,12 @@ Public Enum Quadrant
     RU = 8
 End Enum
 
+Public Enum SichtbarResult
+    None
+    Full
+    Only3DArea
+End Enum
+
 Public Enum UpdateSrc
     Initialisierung
     PaintSpielfeld_UpdteSpielfeld_IsSet
@@ -533,6 +540,7 @@ Public Enum RenderingEnum
     Editor
     Werkbank
 End Enum
+
 
 #Region "Enums und Konstanten"
 ' Datei-Menü getrennt für Editor/Werkbank (unterschiedlich erweiterbar)

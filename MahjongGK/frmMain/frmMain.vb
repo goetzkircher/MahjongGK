@@ -26,7 +26,6 @@ Option Strict On
 '
 
 Imports System.Drawing.Imaging
-Imports MahjongGK.MjMix
 
 #Disable Warning IDE0079
 #Disable Warning IDE1006
@@ -34,7 +33,6 @@ Imports MahjongGK.MjMix
 Public Enum VisibleUserControl
     None = -1
     Spielfeld
-    Werkbank
     Einstellungen
     About
     SpielfeldWählen
@@ -53,6 +51,10 @@ Public Class frmMain
 
         If Not _initialisierungSpielfeldEditorAndWerkbankIsDone Then
 
+            'Die Steine Laden
+            Spielfeld.SGM.PreloadSteinSatz(SteinSatz.Satz1)
+
+
             'Hier werden die Anfangs-Spiele/Editor/Werkbanksdaten zugewiesen
             Spielfeld.TestDaten_Spielfeld_Methodenaufruf_zum_Debuggen()
 
@@ -61,14 +63,14 @@ Public Class frmMain
         Select Case startRenderingWithOrToggleTo
             Case RenderingEnum.Spielfeld
                 AktVisibleUserControl = VisibleUserControl.Spielfeld
-                SFD.AktRendering = RenderingEnum.Spielfeld
+                Spielfeld.SFD.AktRendering = RenderingEnum.Spielfeld
 
             Case RenderingEnum.Editor
                 AktVisibleUserControl = VisibleUserControl.Spielfeld
-                SFD.AktRendering = RenderingEnum.Editor
+                Spielfeld.SFD.AktRendering = RenderingEnum.Editor
             Case RenderingEnum.Werkbank
-                AktVisibleUserControl = VisibleUserControl.Werkbank
-                SFD.AktRendering = RenderingEnum.Werkbank
+                AktVisibleUserControl = VisibleUserControl.Spielfeld
+                Spielfeld.SFD.AktRendering = RenderingEnum.Werkbank
             Case Else
         End Select
     End Sub
@@ -94,7 +96,7 @@ Public Class frmMain
     End Sub
 
     Private Sub Go()
-        InitialisierungSpielfeldEditorAndWerkbank(startRenderingWithOrToggleTo:=RenderingEnum.Spielfeld)
+        Spielfeld.EnsureSpielfeldInfoAreAvailable(startRenderingWithOrToggleTo:=RenderingEnum.Spielfeld)
     End Sub
 
     Private Sub Parkplatz()
@@ -147,6 +149,8 @@ Public Class frmMain
     Private _frmToolBox As frmToolBox = Nothing
     Private _themer As Theme.ThemeManager
 
+    Private _startupMainBounds As Rectangle = Rectangle.Empty
+    Private _splash As frmSplash
     Sub New()
 
         ' Dieser Aufruf ist für den Designer erforderlich.
@@ -157,6 +161,26 @@ Public Class frmMain
     End Sub
 
     Private Sub frmMain_Load(sender As Object, e As EventArgs) Handles Me.Load
+
+        'Starup 1) Startup-Bounds bestimmen (INI oder zentriert auf einem ausgewählten Screen)
+        Dim iniRect As Rectangle = INI.Sonstiges_FrmMainStartupPosition
+
+        If IsValidStartupRect(iniRect) Then
+            _startupMainBounds = iniRect
+        Else
+            Dim scr As Screen = PickTargetScreen()
+            _startupMainBounds = ComputeCenteredBoundsOnScreen(scr, Me.Size)
+        End If
+
+        'Startup 2) Splash über den geplanten Main-Bounds positionieren und anzeigen
+        _splash = New frmSplash()
+        _splash.PositionForMainTarget(_startupMainBounds)
+        _splash.Show()
+        _splash.Refresh()
+
+        'Die Hintergrundgrafiken Auspacken, überprüfen, Thumbs anlegen .
+        Dim bzm As New BackgroundZipManager
+        bzm.InitializeOnStartup()
 
         ' ───────────────────────────────────────────────────────────────
         ' PRELOAD der nativen Magick-DLL:
@@ -211,9 +235,6 @@ Public Class frmMain
         VisibleUserControls.Add(UCtlSpielfeldMain)
         UCtlSpielfeldMain.Parent = Nothing
 
-        VisibleUserControls.Add(UCtlWerkbankMain)
-        UCtlWerkbankMain.Parent = Nothing
-
         VisibleUserControls.Add(UCtlEinstellungenMain)
         UCtlEinstellungenMain.Parent = Nothing
 
@@ -232,13 +253,6 @@ Public Class frmMain
         'und das erste UserControl anzeigen
 
         AktVisibleUserControl = VisibleUserControl.Spielfeld
-
-
-        AddHandler INI.EventsOnly_RefreshUINachIniÄnderung_Event, AddressOf RefreshUINachIniÄnderung
-        AddHandler INI.Rendering_AktMaxSteineXYZ_Event, AddressOf RefreshToolStripExMainAktMaxSteineXYZ
-        AddHandler INI.RuntimeOnly_AktRendering_Event, AddressOf UpdateGrpEditorButtons
-        AddHandler INI.RuntimeOnly_ToolboxAktiv_Event, AddressOf ShowOrHideToolboxAndUpdateToolboxButton
-        '()
 
         'Das Menue wird dynamisch erzeugt, damit es
         'übersichtlicher wird, als die statische Erzeugung im Designer.
@@ -259,20 +273,76 @@ Public Class frmMain
         'hier geht es um um eine Reinitialisierung mit Werfen der IniEvents.
         INI.Initialisierung(update:=True, raiseIniEventsDefault:=IniEvents.OnChangeValue)
 
-        Me.EnsureLocationVisibleOnAnyScreen()
 
-        Dim bzm As New BackgroundZipManager
-        bzm.InitializeOnStartup()
+        '' Obsolet durch 1) Startup-Bounds bestimmen  Me.EnsureLocationVisibleOnAnyScreen()
 
+        ' Startup 3) frmMain final positionieren & Splash schließen
+        If IsValidStartupRect(iniRect) Then
+            Me.StartPosition = FormStartPosition.Manual
+            Me.Bounds = _startupMainBounds
+        Else
+            Me.StartPosition = FormStartPosition.CenterScreen
+            ' Windows legt Location dann selbst fest; Bounds schonen
+        End If
+
+        _splash.SetStatusText("")
+        ' --- Splash bleibt noch 1 Sekunde stehen ---
+        Dim killer As New Timer() With {.Interval = 1000}
+        AddHandler killer.Tick,
+            Sub(s2, e2)
+                killer.Stop()
+                killer.Dispose()
+                If _splash IsNot Nothing Then
+                    _splash.Close()
+                    _splash.Dispose()
+                    _splash = Nothing
+                End If
+            End Sub
+        killer.Start()
 
     End Sub
 
-    Private Sub frmMain_Disposed(sender As Object, e As EventArgs) Handles Me.Disposed
-        RemoveHandler INI.EventsOnly_RefreshUINachIniÄnderung_Event, AddressOf RefreshUINachIniÄnderung
-        RemoveHandler INI.Rendering_AktMaxSteineXYZ_Event, AddressOf RefreshToolStripExMainAktMaxSteineXYZ
-        RemoveHandler INI.RuntimeOnly_AktRendering_Event, AddressOf UpdateGrpEditorButtons
-        RemoveHandler INI.RuntimeOnly_ToolboxAktiv_Event, AddressOf ShowOrHideToolboxAndUpdateToolboxButton
+    Private Sub frmMain_FormClosing(sender As Object, e As FormClosingEventArgs) Handles Me.FormClosing
+        Spielfeld.SFD.MousePolling.Dispose()
     End Sub
+
+    Private Sub frmMain_ResizeEnd(sender As Object, e As EventArgs) Handles Me.ResizeEnd, Me.Closing
+        If Me.WindowState = FormWindowState.Normal Then
+            INI.Sonstiges_FrmMainStartupPosition = Me.Bounds
+        End If
+    End Sub
+    'Private Sub frmMain_Move(sender As Object, e As EventArgs) Handles Me.Move
+    '    If Me.WindowState = FormWindowState.Normal Then
+    '        INI.Sonstiges_FrmMainStartupPosition = Me.Bounds
+    '    End If
+    'End Sub
+
+    'Helfer
+    Private Shared Function PickTargetScreen() As Screen
+        ' Nimm den Screen unter dem Mauszeiger (fühlt sich „richtig“ an).
+        ' Fallback: Primärmonitor.
+        Dim scr As Screen = Screen.FromPoint(Cursor.Position)
+        If scr Is Nothing Then scr = Screen.PrimaryScreen
+        Return scr
+    End Function
+
+    Private Shared Function ComputeCenteredBoundsOnScreen(scr As Screen, formSize As Size) As Rectangle
+        Dim wa As Rectangle = scr.WorkingArea
+        Dim w As Integer = Math.Min(formSize.Width, Math.Max(200, wa.Width))
+        Dim h As Integer = Math.Min(formSize.Height, Math.Max(150, wa.Height))
+        Dim x As Integer = wa.Left + (wa.Width - w) \ 2
+        Dim y As Integer = wa.Top + (wa.Height - h) \ 2
+        Return New Rectangle(x, y, w, h)
+    End Function
+
+    Private Shared Function IsValidStartupRect(r As Rectangle) As Boolean
+        If r.IsEmpty OrElse r.Width <= 0 OrElse r.Height <= 0 Then Return False
+        ' Rect muss vollständig in genau EINEM Screen liegen
+        For Each scr As Screen In Screen.AllScreens
+            If scr.Bounds.Contains(r) Then Return True
+        Next
+        Return False
+    End Function
 
 #End Region
 
@@ -304,8 +374,6 @@ Public Class frmMain
             AktVisibleUserControl = value
             Return True
         End If
-
-
     End Function
 
     Public Property AktVisibleUserControl As VisibleUserControl
@@ -364,8 +432,7 @@ Public Class frmMain
             RefreshMenuStates()
 
             'Erläuterung siehe PaintLimiterErläuterung.txt
-            If value = VisibleUserControl.Spielfeld OrElse
-                value = VisibleUserControl.Werkbank Then
+            If value = VisibleUserControl.Spielfeld Then
 
                 Spielfeld.PaintSpielfeld_Initialisierung(VisibleUserControls(value), value)
             End If
@@ -631,8 +698,6 @@ Public Class frmMain
 
             ToolStripExMain.Items.Add(cbo1)
 
-
-
             ' ---- Icon-Kategorien → Material Icons mit Farbvorgabe öffnen ----
             Dim cbo2 As New ToolStripComboBox("dbg_iconcats") With {
                 .DropDownStyle = ComboBoxStyle.DropDownList,
@@ -699,7 +764,6 @@ Public Class frmMain
             ' Enabled-Zustand abhängig von UsingEditor
             SetGroupEnabled("grpEditor", INI.Editor_UsingEditor)
         End If
-
 
         ' =======================
         ' Status-Gruppe (links)
@@ -1043,29 +1107,49 @@ Public Class frmMain
 
 #Region "ToolStrip unten Event-Verarbeitung"
 
-    Private Sub DoSpielfeld()
-        InitialisierungSpielfeldEditorAndWerkbank(startRenderingWithOrToggleTo:=RenderingEnum.Spielfeld)
+    Public Sub DoSpielfeld()
+        If Spielfeld.SFD.AktRendering = RenderingEnum.None Then
+            MsgBox("Kein Spiel geladen", MsgBoxStyle.Information)
+        Else
+            Spielfeld.SFD.AktRendering = RenderingEnum.Spielfeld
+        End If
+        UpdateSpielfeldEditorWerkbankButtons()
     End Sub
 
     Private Sub DoEditor()
-        InitialisierungSpielfeldEditorAndWerkbank(startRenderingWithOrToggleTo:=RenderingEnum.Editor)
+        If Spielfeld.SFD.AktRendering = RenderingEnum.None Then
+            MsgBox("Kein Spiel geladen", MsgBoxStyle.Information)
+        Else
+            Spielfeld.SFD.AktRendering = RenderingEnum.Editor
+        End If
+        UpdateSpielfeldEditorWerkbankButtons()
     End Sub
 
     Private Sub DoWerkbank()
-        InitialisierungSpielfeldEditorAndWerkbank(startRenderingWithOrToggleTo:=RenderingEnum.Werkbank)
+        If Spielfeld.SFD.AktRendering = RenderingEnum.None Then
+            MsgBox("Kein Spiel geladen", MsgBoxStyle.Information)
+        Else
+            Spielfeld.SFD.AktRendering = RenderingEnum.Werkbank
+        End If
+        UpdateSpielfeldEditorWerkbankButtons()
     End Sub
 
     Private Sub DoToolBox()
-        'Das lößt das Event RuntimeOnly_ToolboxAktiv_Event aus, das  UpdateGrpEditorButtons
-        'aufruft, das die Toolbox öffnet oder schließt.
-        'Klingt wie durch die Brust ins Auge, har aber den Vorteil von überall aus nur durch
-        'Setzen oder Löschen des Flags RuntimeOnly_ToolboxAktiv die Toolbox zu öffnen oder zu schließen.
-        INI.RuntimeOnly_ToolboxAktiv = Not INI.RuntimeOnly_ToolboxAktiv
+
+        If Spielfeld.SFD.AktRendering = RenderingEnum.None Then
+            MsgBox("Kein Spiel geladen", MsgBoxStyle.Information)
+        Else
+            ShowOrHideToolboxAndUpdateToolboxButton()
+        End If
     End Sub
 
     Private Sub DoTakeScreenShot()
-        Spielfeld.PaintSpielfeld_CreateScreenShot()
-        MsgBox("Screnshot erzeugt.", MsgBoxStyle.Information)
+        If Spielfeld.SFD.AktRendering = RenderingEnum.None Then
+            MsgBox("Kein Spiel geladen", MsgBoxStyle.Information)
+        Else
+            Spielfeld.PaintSpielfeld_CreateScreenShot()
+            MsgBox("Screnshot erzeugt.", MsgBoxStyle.Information)
+        End If
     End Sub
 
     Private Sub DoTipEinzel()
@@ -1088,18 +1172,11 @@ Public Class frmMain
 
     End Sub
 
-    Private Sub RefreshToolStripExMainAktMaxSteineXYZ()
-
-        Dim lblSize As ToolStripLabel = TryCast(ToolStripExMain.Items("stat_size"), ToolStripLabel)
-
-        lblSize.Text = $"Feldgröße: {INI.Rendering_AktMaxSteineX}/{INI.Rendering_AktMaxSteineY}/{INI.Rendering_AktMaxSteineZ}"
-
-    End Sub
-
     ''' <summary>
     ''' Aktualisiert die Statuswerte (Gesamt, Aktuell, Wählbar, Paare).
     ''' </summary>
-    Public Sub UpdateStatus(gesamt As Integer, aktuell As Integer, waehlbar As Integer, paare As Integer)
+    Public Sub UpdateStatus(gesamt As Integer, aktuell As Integer, waehlbar As Integer, paare As Integer, maxSteine As Triple)
+        Dim lblSize As ToolStripLabel = TryCast(ToolStripExMain.Items("stat_size"), ToolStripLabel)
         Dim lblGesamt As ToolStripLabel = TryCast(ToolStripExMain.Items("stat_total"), ToolStripLabel)
         Dim lblAktuell As ToolStripLabel = TryCast(ToolStripExMain.Items("stat_current"), ToolStripLabel)
         Dim lblWaehlbar As ToolStripLabel = TryCast(ToolStripExMain.Items("stat_sel"), ToolStripLabel)
@@ -1109,22 +1186,29 @@ Public Class frmMain
         If lblAktuell IsNot Nothing Then lblAktuell.Text = $"{aktuell} Aktuell"
         If lblWaehlbar IsNot Nothing Then lblWaehlbar.Text = $"{waehlbar} wählbar"
         If lblPaare IsNot Nothing Then lblPaare.Text = $"{paare} Paare"
+        If lblSize IsNot Nothing Then lblSize.Text = $"Feldgröße: {maxSteine.x }/{maxSteine.y}/{maxSteine.z }"
     End Sub
 
 
 
 
-    Private Sub UpdateGrpEditorButtons()
+    Public Sub UpdateSpielfeldEditorWerkbankButtons()
 
         If Not INI.Editor_UsingEditorAllowed Then
             Exit Sub
         End If
 
         Dim btnPlayer As ToolStripButton = TryCast(ToolStripExMain.Items("grpEditor_player"), ToolStripButton)
+
+        If btnPlayer Is Nothing Then
+            'Formular noch nicht initialisiert. Die Anderen sind dann auch Nothing
+            Exit Sub
+        End If
+
         Dim btnEditor As ToolStripButton = TryCast(ToolStripExMain.Items("grpEditor_editor"), ToolStripButton)
         Dim btnWerkbank As ToolStripButton = TryCast(ToolStripExMain.Items("grpEditor_werkbank"), ToolStripButton)
 
-        Select Case INI.RuntimeOnly_AktRendering
+        Select Case Spielfeld.SFD.AktRendering
             Case RenderingEnum.None
                 btnPlayer.Image = Theme.GetResBmp(AppGrafikName.Spieler.ToString)
                 btnEditor.Image = Theme.GetResBmp(AppGrafikName.Editor.ToString)
@@ -1148,18 +1232,15 @@ Public Class frmMain
 
     End Sub
 
-    'Das ist diese Methode, sie ist angesiedelt in FrmMain.
-    'Sie wird per Event aus der INI heraus aufgerufen.
-    '(Dort gibt es eine Sektion [OnlyRuntime] mit einem Key ToolboxAktiv As Boolean,
-    'der von überall heraus geschaltet werden kann.)
-    Private Sub ShowOrHideToolboxAndUpdateToolboxButton()
-        ' 1) Immer auf dem UI-Thread ausführen (INI-Event könnte im Hintergrund kommen)
-        If Me.InvokeRequired Then
-            Me.BeginInvoke(New MethodInvoker(AddressOf ShowOrHideToolboxAndUpdateToolboxButton))
-            Return
+    Public Sub ShowOrHideToolboxAndUpdateToolboxButton()
+
+
+        If Not INI.Editor_UsingEditorAllowed Then
+            Exit Sub
         End If
 
-        If Not INI.Editor_UsingEditorAllowed Then Exit Sub
+        ''Sicherstellen, daß Daten für Spielfeld/Editor/Werkbank geladen sind.
+        'Spielfeld.EnsureSpielfeldInfoAreAvailable(startRenderingWithOrToggleTo:=RenderingEnum.Editor)
 
         ' 2) Button sicher ermitteln
         Dim btnToolBox As ToolStripButton = Nothing
@@ -1169,7 +1250,8 @@ Public Class frmMain
             btnToolBox = TryCast(item, ToolStripButton)
         End If
 
-        If INI.RuntimeOnly_ToolboxAktiv Then
+        If Not Spielfeld.SFD.ToolboxIsVisible Then
+
             If btnToolBox IsNot Nothing Then
                 btnToolBox.Image = Theme.GetResBmp(AppGrafikName.WerkzeugAktiv.ToString)
                 btnToolBox.Checked = True
@@ -1180,7 +1262,8 @@ Public Class frmMain
                 _frmToolBox = New frmToolBox() With {
                 .ShowInTaskbar = False,
                 .TopMost = False   ' Relativ zu Owner statt absolut
-            }
+                }
+
                 ' Empfehlung in frmToolBox:
                 ' Private Sub frmToolBox_FormClosing(...) Handles Me.FormClosing
                 '   If e.CloseReason = UserClosing Then e.Cancel = True : Me.Hide()
@@ -1194,9 +1277,14 @@ Public Class frmMain
                 ' Optional:
                 ' _frmToolBox.Activate()
 
+                ' 5) Maus-Overlay registrieren (falls noch nicht geschehen)
+                'sonst wird die Toolbox von der Maus abgefangen und Spielfeld bekommt keine Mausbewegungen mehr,
+                'wenn ein Stein unter der Toolbox hindurch gezogen wird.
+                ' Spielfeld.SFD.MousePolling.RegisterOverlay(_frmToolBox.Handle) 'ist jetzt in frmToolBox
             Catch ex As Exception
                 'ist bereits aktiv
             End Try
+
 
         Else
             If btnToolBox IsNot Nothing Then
@@ -1208,10 +1296,10 @@ Public Class frmMain
                 _frmToolBox.Hide()
             End If
         End If
+
+        Spielfeld.SFD.ToolboxIsVisible = Not Spielfeld.SFD.ToolboxIsVisible
+
     End Sub
-
-
-
 
 #End Region
 

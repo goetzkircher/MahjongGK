@@ -1,25 +1,12 @@
 ﻿
 Imports System.Drawing.Drawing2D
 Imports System.Drawing.Imaging
-Imports System.Drawing.Text
 Imports System.IO
 Imports System.Runtime.InteropServices
 Imports ImageMagick
 
 Namespace MjGDI
     Public Module GdiHelfer
-        ''' <summary>
-        ''' Wendet hochwertige Render-Settings auf ein vorhandenes Graphics an (z. B. im Paint-Event).
-        ''' </summary>
-        Public Sub ConfigureHighQuality(g As Graphics)
-            g.SmoothingMode = SmoothingMode.AntiAlias
-            g.InterpolationMode = InterpolationMode.HighQualityBicubic
-            g.PixelOffsetMode = PixelOffsetMode.HighQuality
-            g.CompositingQuality = CompositingQuality.HighQuality
-            g.TextRenderingHint = TextRenderingHint.AntiAliasGridFit
-        End Sub
-
-
 
         ''' <summary>
         ''' Erzeugt eine neue aufgehellte Bitmap-Kopie (additiver Offset auf RGB).

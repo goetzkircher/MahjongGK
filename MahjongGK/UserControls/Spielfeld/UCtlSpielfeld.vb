@@ -56,8 +56,16 @@ Public Class UCtlSpielfeld
     Private stopwatch As New Stopwatch
     <DebuggerStepThrough>
     Protected Overrides Sub OnPaint(e As PaintEventArgs)
+
+        If MjMix.IsInDesigner(Me) Then
+            ' Im Designer NICHTS mehr rendern, nur optional füllen
+            e.Graphics.Clear(SystemColors.Control)
+            Return
+        End If
+
+
         ' Immer malen, Factor kommt vom Scheduler (Stopwatch-basiert):
-        Dim factor As Double = RenderingTaktgeberModul.FrameScheduler.TimeDifferenzFaktor
+        Dim factor As Double = SpielfeldRenderingManager.RenderTakt.TimeDifferenzFaktor
 
         Spielfeld.PaintSpielfeld_Paint(VisibleUserControl.Spielfeld,
                                        e,

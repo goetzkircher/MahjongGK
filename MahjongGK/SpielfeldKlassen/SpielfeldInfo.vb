@@ -311,17 +311,6 @@ Public Class SpielfeldInfo
         End Set
     End Property
 
-    <XmlElement(ElementName:="HGrdEditorBitmapName")>
-    Public Property Toolbox_HGrdEditorBitmapName As String
-        Get
-            Return _toolbox_HGrdEditorBitmapName
-        End Get
-        Set(value As String)
-            _toolbox_HGrdEditorBitmapName = value
-            _hgrdEditorBitmapNameIsInit = False
-        End Set
-    End Property
-
     Public ReadOnly Property HGrdSplFldBitmapName As String
         Get
             If _hgrdSplFldBitmapNameIsInit Then
@@ -338,37 +327,6 @@ Public Class SpielfeldInfo
         End Get
     End Property
 
-    Public ReadOnly Property HGrdEditorBitmapName As String
-        Get
-            If _hgrdEditorBitmapNameIsInit Then
-                Return _hgrdEditorBitmapName
-            Else
-                If Toolbox_HGrdEditorUseSplFldValues Then
-                    If String.IsNullOrEmpty(Toolbox_HGrdSplFldBitmapName) Then
-                        _hgrdEditorBitmapName = INI.Toolbox_HGrdSplFldBitmapNameFallback
-                    Else
-                        _hgrdEditorBitmapName = Toolbox_HGrdSplFldBitmapName
-                    End If
-                Else
-                    If String.IsNullOrEmpty(Toolbox_HGrdEditorBitmapName) Then
-                        If INI.Toolbox_HGrdEditorUseSplFldValues Then
-                            _hgrdEditorBitmapName = INI.Toolbox_HGrdSplFldBitmapNameFallback
-                        Else
-                            _hgrdEditorBitmapName = Toolbox_HGrdEditorBitmapName
-                        End If
-                    Else
-                        _hgrdEditorBitmapName = Toolbox_HGrdEditorBitmapName
-                    End If
-                End If
-                _hgrdEditorBitmapNameIsInit = True
-                Return _hgrdEditorBitmapName
-            End If
-        End Get
-    End Property
-
-    ' ───────────────────────────────────────────────────────────────────────────
-    ' IsUserGrafik (Boolean; Fallbackwerte aus INI)
-    ' ───────────────────────────────────────────────────────────────────────────
 
     <XmlElement(ElementName:="HGrdSplFldBitmapIsUserGrafik")>
     Public Property Toolbox_HGrdSplFldBitmapIsUserGrafik As Boolean
@@ -378,17 +336,6 @@ Public Class SpielfeldInfo
         Set(value As Boolean)
             _toolbox_HGrdSplFldBitmapIsUserGrafik = value
             _hgrdSplFldBitmapIsUserGrafikIsInit = False
-        End Set
-    End Property
-
-    <XmlElement(ElementName:="HGrdEditorBitmapIsUserGrafik")>
-    Public Property Toolbox_HGrdEditorBitmapIsUserGrafik As Boolean
-        Get
-            Return _toolbox_HGrdEditorBitmapIsUserGrafik
-        End Get
-        Set(value As Boolean)
-            _toolbox_HGrdEditorBitmapIsUserGrafik = value
-            _hgrdEditorBitmapIsUserGrafikIsInit = False
         End Set
     End Property
 
@@ -404,30 +351,6 @@ Public Class SpielfeldInfo
         End Get
     End Property
 
-    Public ReadOnly Property HGrdEditorBitmapIsUserGrafik As Boolean
-        Get
-            If _hgrdEditorBitmapIsUserGrafikIsInit Then
-                Return _hgrdEditorBitmapIsUserGrafik
-            Else
-                If Toolbox_HGrdEditorUseSplFldValues Then
-                    _hgrdEditorBitmapIsUserGrafik = HGrdSplFldBitmapIsUserGrafik
-                Else
-                    If INI.Toolbox_HGrdEditorUseSplFldValues Then
-                        _hgrdEditorBitmapIsUserGrafik = INI.Toolbox_HGrdSplFldBitmapIsUserGrafikFallback
-                    Else
-                        _hgrdEditorBitmapIsUserGrafik = Toolbox_HGrdEditorBitmapIsUserGrafik
-                    End If
-                End If
-                _hgrdEditorBitmapIsUserGrafikIsInit = True
-                Return _hgrdEditorBitmapIsUserGrafik
-            End If
-        End Get
-    End Property
-
-    ' ───────────────────────────────────────────────────────────────────────────
-    ' NEU: RenderMode (Enum; Fallbackwerte aus INI)
-    ' ───────────────────────────────────────────────────────────────────────────
-
     <XmlElement(ElementName:="HGrdSplFldRenderMode")>
     Public Property Toolbox_HGrdSplFldRenderMode As BackgroundImageRenderMode
         Get
@@ -436,17 +359,6 @@ Public Class SpielfeldInfo
         Set(value As BackgroundImageRenderMode)
             _toolbox_HGrdSplFldRenderMode = value
             _hgrdSplFldRenderModeIsInit = False
-        End Set
-    End Property
-
-    <XmlElement(ElementName:="HGrdEditorRenderMode")>
-    Public Property Toolbox_HGrdEditorRenderMode As BackgroundImageRenderMode
-        Get
-            Return _toolbox_HGrdEditorRenderMode
-        End Get
-        Set(value As BackgroundImageRenderMode)
-            _toolbox_HGrdEditorRenderMode = value
-            _hgrdEditorRenderModeIsInit = False
         End Set
     End Property
 
@@ -462,26 +374,6 @@ Public Class SpielfeldInfo
                 End If
                 _hgrdSplFldRenderModeIsInit = True
                 Return _hgrdSplFldRenderMode
-            End If
-        End Get
-    End Property
-
-    Public ReadOnly Property HGrdEditorRenderMode As BackgroundImageRenderMode
-        Get
-            If _hgrdEditorRenderModeIsInit Then
-                Return _hgrdEditorRenderMode
-            Else
-                If Toolbox_HGrdEditorUseSplFldValues Then
-                    _hgrdEditorRenderMode = HGrdSplFldRenderMode
-                Else
-                    If INI.Toolbox_HGrdEditorUseSplFldValues Then
-                        _hgrdEditorRenderMode = INI.Toolbox_HGrdSplFldRenderModeFallback
-                    Else
-                        _hgrdEditorRenderMode = Toolbox_HGrdEditorRenderMode
-                    End If
-                End If
-                _hgrdEditorRenderModeIsInit = True
-                Return _hgrdEditorRenderMode
             End If
         End Get
     End Property
@@ -524,30 +416,22 @@ Public Class SpielfeldInfo
             Dim fullpath As String
             Dim hgrdRenderMode As BackgroundImageRenderMode
 
-            If Mode = SpielfeldOrEditorMode.Spielfeld Then
-                If String.IsNullOrEmpty(HGrdEditorBitmapName) Then
-                    Return False
-                Else
-                    fullpath = AppDataFullPath(AppDataSubDir.Eigene_Hintergrundgrafiken, HGrdEditorBitmapName)
-                    hgrdRenderMode = HGrdEditorRenderMode
-                End If
+            If String.IsNullOrEmpty(HGrdSplFldBitmapName) Then
+                Return False
             Else
-                If String.IsNullOrEmpty(HGrdSplFldBitmapName) Then
-                    Return False
-                Else
-                    fullpath = AppDataFullPath(AppDataSubDir.Hintergrundgrafiken, HGrdSplFldBitmapName)
-                    hgrdRenderMode = HGrdSplFldRenderMode
-                End If
+                fullpath = AppDataFullPath(AppDataSubDir.Hintergrundgrafiken, HGrdSplFldBitmapName)
+                hgrdRenderMode = HGrdSplFldRenderMode
             End If
 
             If IsNothing(BitmapUGrdSingleImgCache) Then
                 If _lastResult = False AndAlso fullpath = _lastFullpath Then
+                    'Die Datei war schon mal gesucht und nicht gefunden.
                     Return False
                 End If
                 _lastFullpath = String.Copy(fullpath)
                 If File.Exists(fullpath) Then
                     BitmapUGrdSingleImgCache = New BackgroundSingleImageCache()
-                    BitmapUGrdSingleImgCache.Load(AppDataFullPath(AppDataSubDir.Eigene_Hintergrundgrafiken, HGrdSplFldBitmapName), hgrdRenderMode)
+                    BitmapUGrdSingleImgCache.Load(AppDataFullPath(AppDataSubDir.Hintergrundgrafiken, HGrdSplFldBitmapName), hgrdRenderMode)
                     _lastResult = True
                     Return True
                 Else

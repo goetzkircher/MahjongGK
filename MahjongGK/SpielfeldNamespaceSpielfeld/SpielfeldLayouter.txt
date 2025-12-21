@@ -1,0 +1,40 @@
+﻿
+Auf dem Controll tummeln sich rund um das zentrale Spielfeld von MahjongGK mehrere Fenster.
+Im Editiermodus wird das ganze verkleinert und um zusätzliche Fenster weitert. 
+Mehrere RectangleX dienen dazu dieses Layout zu beschreiben. 
+Es kann dann bleiben, solange das Control seine Größe nicht ändert oder AktRendering 
+nicht geändert wird. 
+
+Es gibt folgende Ausgabebereiche:
+
+    Public rectxOutput As RectangleX					'Gesamte Ausgabefläche - Basis der Berechnungen
+    Public rectxStock As RectangleX						'Oben die Leiste des Steinvorrat beim Editieren.
+    Public rectxStockScrollbar As RectangleX			'Scrollbar des Steinvorrat
+    Public rectxBitmapUgrd As RectangleX				'Hält die UGHrdBitmap. Beim Spielen so groß wie outputRect
+    Public rectxHeader As RectangleX				    'Optional. Hält die Überschrift
+    Public rectxContent As RectangleX				    'UGrdRect ohne Header
+    Public rectxHistoryBoxLeft As RectangleX			'Optional
+    Public rectxHistoryBoxRight As RectangleX			'Optional
+    Public rectxHistoryBoxLeftScrollbar As RectangleX	'Optional
+    Public rectxHistoryBoxRightScrollbar As RectangleX	'Optional
+    Public rectxStageAvailable As RectangleX			'Der für Spielfeld/Editor zur Verfügung stehende Platz
+                                                        'und Basis für die Interation.
+    Public rectxStageUsed As RectangleX					'Der von Spielfeld/Editor genutzte Platz.
+
+
+    'Für alle außer rectxOutput, rectxStageUsed und den Scrollbars gibt es Paddings
+    Public INI.Rendering_PadStock As PaddingValues						
+    Public INI.Rendering_PadBitmapUgrd As PaddingValues				
+    Public INI.Rendering_PadHeader As PaddingValues				
+    Public INI.Rendering_PadContent As PaddingValues				
+    Public INI.Rendering_PadHistoryBoxLeft As PaddingValues			
+    Public INI.Rendering_PadHistoryBoxRight As PaddingValues			
+    Public INI.Rendering_PadStageAvailable As PaddingValues			
+
+    'Diese Felder sind optional:
+     Public INI.Rendering_UsePadHeader As Boolean
+     Public INI.Rendering_UsePadHistoryBoxLeft As Boolean			
+     Public INI.Rendering_UsePadHistoryBoxRight As Boolean	
+
+     'Debughilfe:
+     'Public INI.Rendering_DrawDebugLines As Boolean

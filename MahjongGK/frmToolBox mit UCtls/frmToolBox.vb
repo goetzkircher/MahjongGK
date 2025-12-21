@@ -28,6 +28,7 @@ Option Strict On
 #Disable Warning IDE1006
 
 
+Imports System.ComponentModel
 Imports MahjongGK.MjMix
 
 
@@ -42,6 +43,8 @@ Public Class frmToolBox
 
     Private _themer As Theme.ThemeManager
     Private _aktVisibleUserControl As VisibleUserControl
+
+    Private _toolboxBinder As OverlayHandleBinder
 
 #Region "Maps für Enable/Disable"
     Private ReadOnly _mapEditorFile As New Dictionary(Of EditorFileCmd, ToolStripMenuItem)
@@ -96,6 +99,7 @@ Public Class frmToolBox
 
         DoBasisformen(ToolBox_AktBasisform)
 
+        _toolboxBinder = New OverlayHandleBinder(Spielfeld.SFD.MousePolling, Me)
 
     End Sub
 
@@ -106,7 +110,6 @@ Public Class frmToolBox
     Private Sub frmToolBox_FormClosing(sender As Object, e As FormClosingEventArgs) Handles Me.FormClosing
         If e.CloseReason = CloseReason.UserClosing Then
             e.Cancel = True     ' Schließen verhindern
-            INI.RuntimeOnly_ToolboxAktiv = False 'frmToolBox.Hide veranlassen
         End If
     End Sub
 
@@ -375,30 +378,24 @@ Public Class frmToolBox
         'pnl.Anchor = AnchorStyles.Left Or AnchorStyles.Bottom
     End Sub
 
+
     Private Sub TabControlToolBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles TabControlToolBox.SelectedIndexChanged
 
         If TabControlToolBox.SelectedTab Is TabPageSpieler Then
-            If frmMain.SetAktVisibleUserControl(VisibleUserControl.Spielfeld) Then
-                frmMain.InitialisierungSpielfeldEditorAndWerkbank(RenderingEnum.Spielfeld)
-                _aktVisibleUserControl = VisibleUserControl.Spielfeld
-            End If
+            Spielfeld.SFD.ToolboxTabPageChanged = True
+            Spielfeld.SFD.AktRendering = RenderingEnum.Spielfeld
+
         ElseIf TabControlToolBox.SelectedTab Is TabPageEditor Then
-            If frmMain.SetAktVisibleUserControl(VisibleUserControl.Spielfeld) Then
-                frmMain.InitialisierungSpielfeldEditorAndWerkbank(RenderingEnum.Editor)
-                _aktVisibleUserControl = VisibleUserControl.Spielfeld
-            End If
+            Spielfeld.SFD.ToolboxTabPageChanged = True
+            Spielfeld.SFD.AktRendering = RenderingEnum.Editor
 
         ElseIf TabControlToolBox.SelectedTab Is TabPagePositionierer Then
-            If frmMain.SetAktVisibleUserControl(VisibleUserControl.Spielfeld) Then
-                frmMain.InitialisierungSpielfeldEditorAndWerkbank(RenderingEnum.Editor)
-                _aktVisibleUserControl = VisibleUserControl.Spielfeld
-            End If
+            Spielfeld.SFD.ToolboxTabPageChanged = True
+            Spielfeld.SFD.AktRendering = RenderingEnum.Editor
 
         ElseIf TabControlToolBox.SelectedTab Is TabPageWerkbank Then
-            If frmMain.SetAktVisibleUserControl(VisibleUserControl.Werkbank) Then
-                frmMain.InitialisierungSpielfeldEditorAndWerkbank(RenderingEnum.Werkbank)
-                _aktVisibleUserControl = VisibleUserControl.Werkbank
-            End If
+            Spielfeld.SFD.ToolboxTabPageChanged = True
+            Spielfeld.SFD.AktRendering = RenderingEnum.Werkbank
 
         ElseIf TabControlToolBox.SelectedTab Is TabPageHintergrund Then
             UctlToolboxHintergrund1.InitialisierungAndUpdate()
@@ -577,8 +574,13 @@ Public Class frmToolBox
 
     End Function
 
+    Private Sub frmToolBox_Closing(sender As Object, e As CancelEventArgs) Handles Me.Closing
 
+        frmMain.ShowOrHideToolboxAndUpdateToolboxButton()
+
+    End Sub
 
 #End Region
 #End Region
+
 End Class

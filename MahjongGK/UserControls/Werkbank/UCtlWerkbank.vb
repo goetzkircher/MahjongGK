@@ -57,9 +57,9 @@ Public Class UCtlWerkbank
     <DebuggerStepThrough>
     Protected Overrides Sub OnPaint(e As PaintEventArgs)
         ' Immer malen, Factor kommt vom Scheduler (Stopwatch-basiert):
-        Dim factor As Double = RenderingTaktgeberModul.FrameScheduler.TimeDifferenzFaktor
+        Dim factor As Double = SpielfeldRenderingManager.RenderTakt.TimeDifferenzFaktor
 
-        Spielfeld.PaintSpielfeld_Paint(VisibleUserControl.Werkbank,
+        Spielfeld.PaintSpielfeld_Paint(VisibleUserControl.Spielfeld,
                                        e,
                                        New Rectangle(200, 100, Me.Width - 200 - 50, Me.Height - 100 - 50),
                                        factor)

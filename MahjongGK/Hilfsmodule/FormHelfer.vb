@@ -1,4 +1,5 @@
-﻿Imports System.Reflection
+﻿Imports System.ComponentModel
+Imports System.Reflection
 
 Namespace MjMix
     Public Module FormHelfer
@@ -36,5 +37,24 @@ Namespace MjMix
                 End If
             Next
         End Sub
+
+
+        ''' <summary>
+        ''' Liefert True, wenn sich das aktuelle Control im Designer befindet.
+        ''' Kombination aus LicenseManager.UsageMode und Site.DesignMode.
+        ''' </summary>
+        <DebuggerStepThrough>
+        Public Function IsInDesigner(ctrl As Control) As Boolean
+            If LicenseManager.UsageMode = LicenseUsageMode.Designtime Then
+                Return True
+            End If
+            If ctrl IsNot Nothing AndAlso
+               ctrl.Site IsNot Nothing AndAlso
+               ctrl.Site.DesignMode Then
+                Return True
+            End If
+            Return False
+        End Function
+
     End Module
 End Namespace

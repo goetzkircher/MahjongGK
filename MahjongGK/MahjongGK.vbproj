@@ -145,7 +145,14 @@
     <Import Include="System.Threading.Tasks" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Container\RectangleX.vb" />
+    <Compile Include="Bitmaps Eigene Ressourcen\Verwaltung\SteinEntry.vb" />
+    <Compile Include="Bitmaps Eigene Ressourcen\Verwaltung\SteinGrafikManagerClass.vb" />
+    <Compile Include="Bitmaps Eigene Ressourcen\Verwaltung\SteinGrafikManagerModul.vb" />
+    <Compile Include="Bitmaps Eigene Ressourcen\Verwaltung\SteinPack.vb" />
+    <Compile Include="Container\RectangleX\PaddingValues.vb" />
+    <Compile Include="Container\RectangleX\RectangleX.vb" />
+    <Compile Include="Container\RectangleX\RectangleXDebugBinder.vb" />
+    <Compile Include="Container\RectangleX\DebugLabelPlacer.vb" />
     <Compile Include="Controls erweiterte\ButtonInfo.vb">
       <SubType>Component</SubType>
     </Compile>
@@ -155,11 +162,17 @@
     <Compile Include="Controls erweiterte\ListBoxSelectOnWheel.vb">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Eigene Ressourcen\Verwaltung\MjGfx.vb" />
+    <Compile Include="Bitmaps Eigene Ressourcen\Verwaltung\MjGfx.vb" />
     <Compile Include="Formulare\ColorPickerHSB.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Formulare\ColorPickerNamedColors.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmMain\frmSplash.Designer.vb">
+      <DependentUpon>frmSplash.vb</DependentUpon>
+    </Compile>
+    <Compile Include="frmMain\frmSplash.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="frmToolBox mit UCtls\UctlToolboxHintergrund.Designer.vb">
@@ -168,45 +181,49 @@
     <Compile Include="frmToolBox mit UCtls\UctlToolboxHintergrund.vb">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Images\PhotographyVerwaltung\BackgroundSingleImageCache.vb" />
+    <Compile Include="Hilfsmodule\GfxHelfer.vb" />
+    <Compile Include="Polling\FormRezise\ResizeActivityPoller.vb" />
+    <Compile Include="Polling\Mouse\MouseInputPoller.vb" />
+    <Compile Include="Polling\Mouse\OverlayBinderGroup.vb" />
+    <Compile Include="Polling\Mouse\OverlayHandleBinder.vb" />
+    <Compile Include="Bitmaps\PhotographyVerwaltung\BackgroundSingleImageCache.vb" />
     <Compile Include="Formulare\BackgroundSelector.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Images\MahjongSymbolFactory\ChinesicheUndAndereZeichen.vb" />
-    <Compile Include="Images\MahjongSymbolFactory\GlyphGradientRenderer.vb" />
-    <Compile Include="Images\MahjongSymbolFactory\MahjongSymbolEnumerationen.vb" />
-    <Compile Include="Images\MahjongSymbolFactory\MahjongSymbols.vb" />
-    <Compile Include="Images\MahjongSymbolFactory\MahjongTileRenderer.vb" />
-    <Compile Include="Images\MahjongSymbolFactory\IniFile.vb" />
-    <Compile Include="Images\MahjongSymbolFactory\CreateIniFileTileStylePresetsDefault.vb" />
-    <Compile Include="Images\MahjongSymbolFactory\MahjongSymbolFactory.vb" />
-    <Compile Include="Images\MahjongSymbolFactory\SeriesMapping.vb" />
-    <Compile Include="Images\MahjongSymbolFactory\SeriesPalettes.vb" />
-    <Compile Include="Images\MahjongSymbolFactory\TileExport.vb" />
-    <Compile Include="Images\MahjongSymbolFactory\TileRenderSettings.vb" />
-    <Compile Include="Images\MahjongSymbolFactory\TileRenderSettingsWatcher.vb" />
-    <Compile Include="Images\MahjongSymbolFactory\TileStyle.vb" />
-    <Compile Include="Images\MahjongSymbolFactory\TileStyleTuner.vb">
+    <Compile Include="Bitmaps\MahjongSymbolFactory\ChinesicheUndAndereZeichen.vb" />
+    <Compile Include="Bitmaps\MahjongSymbolFactory\GlyphGradientRenderer.vb" />
+    <Compile Include="Bitmaps\MahjongSymbolFactory\MahjongSymbolEnumerationen.vb" />
+    <Compile Include="Bitmaps\MahjongSymbolFactory\MahjongSymbols.vb" />
+    <Compile Include="Bitmaps\MahjongSymbolFactory\MahjongTileRenderer.vb" />
+    <Compile Include="Bitmaps\MahjongSymbolFactory\IniFile.vb" />
+    <Compile Include="Bitmaps\MahjongSymbolFactory\CreateIniFileTileStylePresetsDefault.vb" />
+    <Compile Include="Bitmaps\MahjongSymbolFactory\MahjongSymbolFactory.vb" />
+    <Compile Include="Bitmaps\MahjongSymbolFactory\SeriesMapping.vb" />
+    <Compile Include="Bitmaps\MahjongSymbolFactory\SeriesPalettes.vb" />
+    <Compile Include="Bitmaps\MahjongSymbolFactory\TileExport.vb" />
+    <Compile Include="Bitmaps\MahjongSymbolFactory\TileRenderSettings.vb" />
+    <Compile Include="Bitmaps\MahjongSymbolFactory\TileRenderSettingsWatcher.vb" />
+    <Compile Include="Bitmaps\MahjongSymbolFactory\TileStyle.vb" />
+    <Compile Include="Bitmaps\MahjongSymbolFactory\TileStyleTuner.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Images\PhotographyVerwaltung\BackgroundZipManager.vb" />
-    <Compile Include="Images\SteinOverlays.vb" />
+    <Compile Include="Bitmaps\PhotographyVerwaltung\BackgroundZipManager.vb" />
+    <Compile Include="Bitmaps\XML-Container alt\SteinOverlays.vb" />
     <Compile Include="DarkMode\ThemedRenderer.vb" />
     <Compile Include="DarkMode\ThemeImageCache.vb" />
     <Compile Include="DarkMode\ThemeManager.vb" />
     <Compile Include="DarkMode\ThemePalette.vb" />
     <Compile Include="DarkMode\ThemeResourcesRaw_zlv.vb" />
     <Compile Include="DarkMode\WindowsTheme.vb" />
-    <Compile Include="Eigene Ressourcen\Verwaltung\frmGfxCompiler.Designer.vb">
+    <Compile Include="Bitmaps Eigene Ressourcen\Verwaltung\frmGfxCompiler.Designer.vb">
       <DependentUpon>frmGfxCompiler.vb</DependentUpon>
     </Compile>
-    <Compile Include="Eigene Ressourcen\Verwaltung\frmGfxCompiler.vb">
+    <Compile Include="Bitmaps Eigene Ressourcen\Verwaltung\frmGfxCompiler.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Eigene Ressourcen\Verwaltung\GfxPack.vb" />
-    <Compile Include="Eigene Ressourcen\Verwaltung\GfxUtils.vb" />
-    <Compile Include="Eigene Ressourcen\Verwaltung\ImageContainer.vb" />
-    <Compile Include="Eigene Ressourcen\Verwaltung\SteinManager.vb" />
+    <Compile Include="Bitmaps Eigene Ressourcen\Verwaltung\GfxPack.vb" />
+    <Compile Include="Bitmaps Eigene Ressourcen\Verwaltung\GfxUtils.vb" />
+    <Compile Include="Bitmaps Eigene Ressourcen\Verwaltung\ImageContainer.vb" />
     <Compile Include="frmToolBox mit UCtls\frmToolBox.Designer.vb">
       <DependentUpon>frmToolBox.vb</DependentUpon>
     </Compile>
@@ -221,11 +238,18 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Hilfsmodule\GdiHelfer.vb" />
+    <Compile Include="INI\FrmIniResetConfirm.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="INI\IniCleanup.vb" />
     <Compile Include="INI\IniCommentReader.vb" />
     <Compile Include="INI\IniChangedEventArgs.vb" />
-    <Compile Include="Namespace Spielfeld\HScrollRenderer.vb" />
-    <Compile Include="Namesspace Debughelfer\DebugBitmaps.vb" />
+    <Compile Include="SpielfeldNamespaceSpielfeld\HScrollRenderer.vb" />
+    <Compile Include="SpielfeldNamespaceSpielfeld\Rendermodule\RenderingHelper.vb" />
+    <Compile Include="SpielfeldNamespaceSpielfeld\Rendermodule\RenderingStartScreen.vb" />
+    <Compile Include="SpielfeldNamespaceSpielfeld\SpielfeldDatenModul.vb" />
+    <Compile Include="SpielfeldNamespaceSpielfeld\SpielfeldMainManager.vb" />
+    <Compile Include="DebughelferNamespaceMjDebug\DebugBitmaps.vb" />
     <Compile Include="Shared\DebugStep.vb" />
     <Compile Include="Formulare\MessageBoxFormatiert.vb">
       <SubType>Form</SubType>
@@ -286,18 +310,18 @@
     <Compile Include="Werken %28Bausteine erzeugen%29\Werkbank.vb" />
     <Compile Include="Werken %28Bausteine erzeugen%29\WerkbankHelfer.vb" />
     <Compile Include="Werken %28Bausteine erzeugen%29\Werkstück.vb" />
-    <Compile Include="Namespace Spielfeld\RenderingTaktgeberModul.vb" />
-    <Compile Include="Namespace Spielfeld\RenderingTaktgeberClass.vb" />
+    <Compile Include="SpielfeldNamespaceSpielfeld\SpielfeldRenderingManager.vb" />
+    <Compile Include="SpielfeldNamespaceSpielfeld\RenderingTaktgeber.vb" />
     <Compile Include="Werken %28Bausteine erzeugen%29\Werkstücke.vb" />
     <Compile Include="Shared\Konstanten.vb" />
     <Compile Include="SpielfeldKlassen\SteinInfo.vb" />
-    <Compile Include="Container\Triple.vb" />
-    <Compile Include="Namesspace Debughelfer\DebugAusgabeArray3D.vb" />
-    <Compile Include="Namesspace Debughelfer\ConsoleHelper.vb" />
-    <Compile Include="Namesspace Debughelfer\DebugTxtOutputForm.vb">
+    <Compile Include="Container\Triple\Triple.vb" />
+    <Compile Include="DebughelferNamespaceMjDebug\DebugAusgabeArray3D.vb" />
+    <Compile Include="DebughelferNamespaceMjDebug\ConsoleHelper.vb" />
+    <Compile Include="DebughelferNamespaceMjDebug\DebugTxtOutputForm.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Namesspace Debughelfer\DebugRtfOutputForm.vb">
+    <Compile Include="DebughelferNamespaceMjDebug\DebugRtfOutputForm.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="frmMain\frmMain.Designer.vb">
@@ -306,8 +330,8 @@
     <Compile Include="frmMain\frmMain.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Images\BitmapContainer.vb" />
-    <Compile Include="Images\ImagesBase64XML.vb" />
+    <Compile Include="Bitmaps\XML-Container alt\BitmapContainer.vb" />
+    <Compile Include="Bitmaps\XML-Container alt\ImagesBase64XML.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="My Project\Application.Designer.vb">
       <AutoGen>True</AutoGen>
@@ -324,20 +348,18 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Persistierung\PersistAttribute.vb" />
-    <Compile Include="Persistierung\PersistHelper.vb" />
-    <Compile Include="Namespace Spielfeld\DigitHelper.vb" />
-    <Compile Include="Namespace Spielfeld\SpielfeldAnimator.vb" />
+    <Compile Include="SpielfeldNamespaceSpielfeld\DigitHelper.vb" />
+    <Compile Include="SpielfeldNamespaceSpielfeld\SpielfeldAnimator.vb" />
     <Compile Include="Shared\Enumerationen.vb" />
-    <Compile Include="Namespace Spielfeld\SpielfeldHelper.vb" />
+    <Compile Include="SpielfeldNamespaceSpielfeld\SpielfeldHelper.vb" />
     <Compile Include="Shared\Helper.vb" />
-    <Compile Include="Namespace Spielfeld\SpielfeldRenderer.vb" />
-    <Compile Include="Namespace Spielfeld\SFD.vb" />
-    <Compile Include="Namespace Spielfeld\SpielfeldManager.vb" />
+    <Compile Include="SpielfeldNamespaceSpielfeld\SpielfeldRenderer.vb" />
+    <Compile Include="SpielfeldNamespaceSpielfeld\SpielfeldDatenClass.vb" />
+    <Compile Include="SpielfeldNamespaceSpielfeld\SpielfeldLayouter.vb" />
     <Compile Include="SpielfeldKlassen\SpielsteinGenerator.vb" />
-    <Compile Include="Namespace Spielfeld\Testdaten.vb" />
+    <Compile Include="SpielfeldNamespaceSpielfeld\Testdaten.vb" />
     <Compile Include="SpielfeldKlassen\SpielfeldInfo.vb" />
-    <Compile Include="Namespace Spielfeld\Testmodule\SpielfeldTest_SpielsteinGenerator.vb" />
+    <Compile Include="SpielfeldNamespaceSpielfeld\Testmodule\SpielfeldTest_SpielsteinGenerator.vb" />
     <Compile Include="UserControls\Einstellungen\UctlEinstellungen.Designer.vb">
       <DependentUpon>UctlEinstellungen.vb</DependentUpon>
     </Compile>
@@ -353,8 +375,11 @@
     <Compile Include="Werken %28Bausteine erzeugen%29\WerkstückLayout.vb" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Eigene Ressourcen\Verwaltung\frmGfxCompiler.resx">
+    <EmbeddedResource Include="Bitmaps Eigene Ressourcen\Verwaltung\frmGfxCompiler.resx">
       <DependentUpon>frmGfxCompiler.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmMain\frmSplash.resx">
+      <DependentUpon>frmSplash.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="frmToolBox mit UCtls\frmToolBox.resx">
       <DependentUpon>frmToolBox.vb</DependentUpon>
@@ -392,7 +417,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Images\Photography\Hintergrundgrafiken.zip">
+    <None Include="Bitmaps\Photography\Hintergrundgrafiken.zip">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="keys\MahjongGK.snk" />
@@ -426,46 +451,43 @@
       <Link>LICENCE.txt</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Images\MahjongSymbolFactory\liesmich.txt" />
-    <Content Include="Images\XML-Container\MahjongImagesSrcBase64_00_Normal.xml">
+    <Content Include="Bitmaps Eigene Ressourcen\Steine_Satz1.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Images\XML-Container\MahjongImagesSrcBase64_01_Selected.xml">
+    <Content Include="Bitmaps Eigene Ressourcen\Steine_Satz2.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Images\XML-Container\MahjongImagesSrcBase64_02_Selectable.xml">
+    <Content Include="Bitmaps\MahjongSymbolFactory\liesmich.txt" />
+    <Content Include="Bitmaps\XML-Container alt\MahjongImagesSrcBase64_00_Normal.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Images\XML-Container\MahjongImagesSrcBase64_03_Removable.xml">
+    <Content Include="Bitmaps\XML-Container alt\MahjongImagesSrcBase64_01_Selected.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Images\XML-Container\MahjongImagesSrcBase64_04_Locked.xml">
+    <Content Include="Bitmaps\XML-Container alt\MahjongImagesSrcBase64_02_Selectable.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Images\XML-Container\MahjongImagesSrcBase64_05_NotUsed.xml">
+    <Content Include="Bitmaps\XML-Container alt\MahjongImagesSrcBase64_03_Removable.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Images\XML-Container\MahjongImagesSrcBase64_06_MissingSecond.xml">
+    <Content Include="Bitmaps\XML-Container alt\MahjongImagesSrcBase64_04_Locked.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Eigene Ressourcen\Basis_Satz1.gfx.xml">
+    <Content Include="Bitmaps\XML-Container alt\MahjongImagesSrcBase64_05_NotUsed.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Eigene Ressourcen\liesmich1.txt" />
-    <Content Include="Eigene Ressourcen\liesmich2.txt" />
-    <Content Include="Eigene Ressourcen\Steine_Default.xml">
+    <Content Include="Bitmaps\XML-Container alt\MahjongImagesSrcBase64_06_MissingSecond.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Eigene Ressourcen\Steine_Satz2.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <Content Include="Bitmaps Eigene Ressourcen\liesmich1.txt" />
+    <Content Include="Bitmaps Eigene Ressourcen\liesmich2.txt" />
     <Content Include="Hilfsmodule\Bitmaps.txt" />
     <Content Include="MahjongGK.ico" />
-    <Content Include="Namespace Spielfeld\liesmich.txt" />
-    <Content Include="Namespace Spielfeld\Nicht verwenderter Code.txt" />
-    <Content Include="Namespace Spielfeld\RenderingTaktgeber.txt" />
-    <Content Include="Namespace Spielfeld\SpielfeldManager.txt" />
-    <Content Include="Namespace Spielfeld\_Variablennamen %28Auszug%29.txt" />
+    <Content Include="SpielfeldNamespaceSpielfeld\liesmich.txt" />
+    <Content Include="SpielfeldNamespaceSpielfeld\Nicht verwenderter Code.txt" />
+    <Content Include="SpielfeldNamespaceSpielfeld\RenderingTaktgeber.txt" />
+    <Content Include="SpielfeldNamespaceSpielfeld\SpielfeldLayouter.txt" />
+    <Content Include="SpielfeldNamespaceSpielfeld\_Variablennamen %28Auszug%29.txt" />
     <None Include="Resources\CompassN.png" />
     <None Include="Resources\Dummy16q.png" />
     <None Include="Resources\Dummy24q.png" />

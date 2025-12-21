@@ -30,9 +30,6 @@ Partial Class frmMain
         Me.UCtlSpielfeldMain = New MahjongGK.UCtlSpielfeld()
         Me.TabPageEinstellungen = New System.Windows.Forms.TabPage()
         Me.UCtlEinstellungenMain = New MahjongGK.UctlEinstellungen()
-        Me.TabPageEditor = New System.Windows.Forms.TabPage()
-        Me.TabPageWerkbank = New System.Windows.Forms.TabPage()
-        Me.UCtlWerkbankMain = New MahjongGK.UCtlWerkbank()
         Me.TabPageAbout = New System.Windows.Forms.TabPage()
         Me.UCtlAboutMahjongGKMain = New MahjongGK.UICtlAboutMahjongGK()
         Me.ToolStripExMain = New MahjongGK.ToolStripEx()
@@ -40,15 +37,15 @@ Partial Class frmMain
         Me.ToolTipMain = New System.Windows.Forms.ToolTip(Me.components)
         Me.MenuStripExMain = New MahjongGK.MenuStripEx()
         Me.MenueStripMainToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.FileSystemWatcher1 = New System.IO.FileSystemWatcher()
         Me.PanelFrmMainUGrd.SuspendLayout()
         Me.TabControlMain.SuspendLayout()
         Me.TabPageSpielfeld.SuspendLayout()
         Me.TabPageEinstellungen.SuspendLayout()
-        Me.TabPageEditor.SuspendLayout()
-        Me.TabPageWerkbank.SuspendLayout()
         Me.TabPageAbout.SuspendLayout()
         Me.ToolStripExMain.SuspendLayout()
         Me.MenuStripExMain.SuspendLayout()
+        CType(Me.FileSystemWatcher1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'PanelFrmMainUGrd
@@ -67,8 +64,6 @@ Partial Class frmMain
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.TabControlMain.Controls.Add(Me.TabPageSpielfeld)
         Me.TabControlMain.Controls.Add(Me.TabPageEinstellungen)
-        Me.TabControlMain.Controls.Add(Me.TabPageEditor)
-        Me.TabControlMain.Controls.Add(Me.TabPageWerkbank)
         Me.TabControlMain.Controls.Add(Me.TabPageAbout)
         Me.TabControlMain.Location = New System.Drawing.Point(12, 28)
         Me.TabControlMain.Name = "TabControlMain"
@@ -113,34 +108,6 @@ Partial Class frmMain
         Me.UCtlEinstellungenMain.Name = "UCtlEinstellungenMain"
         Me.UCtlEinstellungenMain.Size = New System.Drawing.Size(1046, 403)
         Me.UCtlEinstellungenMain.TabIndex = 0
-        '
-        'TabPageEditor
-        '
-        Me.TabPageEditor.Location = New System.Drawing.Point(4, 22)
-        Me.TabPageEditor.Name = "TabPageEditor"
-        Me.TabPageEditor.Size = New System.Drawing.Size(1052, 409)
-        Me.TabPageEditor.TabIndex = 2
-        Me.TabPageEditor.Text = "Editor"
-        Me.TabPageEditor.UseVisualStyleBackColor = True
-        '
-        '
-        'TabPageWerkbank
-        '
-        Me.TabPageWerkbank.Controls.Add(Me.UCtlWerkbankMain)
-        Me.TabPageWerkbank.Location = New System.Drawing.Point(4, 22)
-        Me.TabPageWerkbank.Name = "TabPageWerkbank"
-        Me.TabPageWerkbank.Size = New System.Drawing.Size(1052, 409)
-        Me.TabPageWerkbank.TabIndex = 3
-        Me.TabPageWerkbank.Text = "Werkbank"
-        Me.TabPageWerkbank.UseVisualStyleBackColor = True
-        '
-        'UCtlWerkbankMain
-        '
-        Me.UCtlWerkbankMain.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.UCtlWerkbankMain.Location = New System.Drawing.Point(0, 0)
-        Me.UCtlWerkbankMain.Name = "UCtlWerkbankMain"
-        Me.UCtlWerkbankMain.Size = New System.Drawing.Size(1052, 409)
-        Me.UCtlWerkbankMain.TabIndex = 0
         '
         'TabPageAbout
         '
@@ -194,6 +161,11 @@ Partial Class frmMain
         Me.MenueStripMainToolStripMenuItem.Size = New System.Drawing.Size(129, 21)
         Me.MenueStripMainToolStripMenuItem.Text = "MenueStripExMain"
         '
+        'FileSystemWatcher1
+        '
+        Me.FileSystemWatcher1.EnableRaisingEvents = True
+        Me.FileSystemWatcher1.SynchronizingObject = Me
+        '
         'frmMain
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -205,18 +177,18 @@ Partial Class frmMain
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.MainMenuStrip = Me.MenuStripExMain
         Me.Name = "frmMain"
+        Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "MahjongGK - by Götz Kircher - Version: "
         Me.PanelFrmMainUGrd.ResumeLayout(False)
         Me.TabControlMain.ResumeLayout(False)
         Me.TabPageSpielfeld.ResumeLayout(False)
         Me.TabPageEinstellungen.ResumeLayout(False)
-        Me.TabPageEditor.ResumeLayout(False)
-        Me.TabPageWerkbank.ResumeLayout(False)
         Me.TabPageAbout.ResumeLayout(False)
         Me.ToolStripExMain.ResumeLayout(False)
         Me.ToolStripExMain.PerformLayout()
         Me.MenuStripExMain.ResumeLayout(False)
         Me.MenuStripExMain.PerformLayout()
+        CType(Me.FileSystemWatcher1, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -227,9 +199,6 @@ Partial Class frmMain
     Friend WithEvents UCtlSpielfeldMain As UCtlSpielfeld
     Friend WithEvents TabPageEinstellungen As TabPage
     Friend WithEvents UCtlEinstellungenMain As UctlEinstellungen
-    Friend WithEvents TabPageEditor As TabPage
-    Friend WithEvents TabPageWerkbank As TabPage
-    Friend WithEvents UCtlWerkbankMain As UCtlWerkbank
     Friend WithEvents ToolStripExMain As ToolStripEx
     Friend WithEvents ToolTipMain As ToolTip
     Friend WithEvents ToolStripLabel1 As ToolStripLabel
@@ -237,4 +206,5 @@ Partial Class frmMain
     Friend WithEvents MenueStripMainToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents TabPageAbout As TabPage
     Friend WithEvents UCtlAboutMahjongGKMain As UICtlAboutMahjongGK
+    Friend WithEvents FileSystemWatcher1 As IO.FileSystemWatcher
 End Class

@@ -458,6 +458,38 @@ Public Class IniManager
         End Get
     End Property
 
+    '
+    '--- PaddingValues
+    Public Function WriteValue(folderAndKey As (folder As String, key As String), value As PaddingValues) As Boolean
+        Return WriteValueToINI(folderAndKey, CvtPaddingToString(value))
+    End Function
+
+    Public ReadOnly Property ReadValue(folderAndKey As (folder As String, key As String), [default] As PaddingValues, comment As String) As PaddingValues
+        Get
+            Try
+                Dim raw As String = ReadValueFromINI(folderAndKey, CvtPaddingToString([default]), comment)
+                Return CvtStringToPadding(raw, [default])
+            Catch ex As Exception
+                Return [default]
+            End Try
+        End Get
+    End Property
+
+    '
+    '--- Tripl
+    Public Function WriteValue(folderAndKey As (folder As String, key As String), value As Triple) As Boolean
+        Return WriteValueToINI(folderAndKey, CvtTripleToString(value))
+    End Function
+    Public ReadOnly Property ReadValue(folderAndKey As (folder As String, key As String), [default] As Triple, comment As String) As Triple
+        Get
+            Try
+                Return CvtStringToTriple(ReadValueFromINI(folderAndKey, CvtTripleToString([default]), comment), [default])
+            Catch ex As Exception
+                Return [default]
+            End Try
+        End Get
+    End Property
+
 #End Region
 
 #Region "Lesen und schreiben - zentrale Routinen"
@@ -1011,6 +1043,33 @@ Public Class IniManager
         End Try
     End Function
 
+
+    ''' <summary>Triple ⇒ "x;y;z;Valide" (leer bei Nothing)</summary>
+    Public Shared Function CvtTripleToString(value As Triple) As String
+        If value Is Nothing Then Return String.Empty
+        Return $"{value.x};{value.y};{value.z};{CInt(value.Valide)}"
+    End Function
+
+    ''' <summary>"x;y;z;Valide" ⇒ Triple (bei Fehlern/leer: Default)</summary>
+    Public Shared Function CvtStringToTriple(s As String, [default] As Triple) As Triple
+        If String.IsNullOrWhiteSpace(s) Then Return [default]
+        Try
+            Dim p() As String = s.Split(";"c)
+            If p.Length >= 4 Then
+                Dim xi As Integer = Integer.Parse(p(0).Trim())
+                Dim yi As Integer = Integer.Parse(p(1).Trim())
+                Dim zi As Integer = Integer.Parse(p(2).Trim())
+                Dim v As ValidePlaceEnum = CType(Integer.Parse(p(3).Trim()), ValidePlaceEnum)
+                Return New Triple(xi, yi, zi, v)
+            End If
+        Catch
+            ' ignorieren → Default
+        End Try
+        Return [default]
+    End Function
+
+
+
     '==========================================================
     ' Point/Size/Rectangle – Semikolon-Format; int-basiert
     '   (liest zusätzlich alte Komma-Variante)
@@ -1112,6 +1171,81 @@ Public Class IniManager
         End Try
     End Function
 
+    '
+    ''' <summary>
+    ''' Serialisiert PaddingValues kompakt als "L,T,R,B".
+    ''' </summary>
+    Public Shared Function CvtPaddingToString(p As PaddingValues) As String
+        ' Falls deine Structure bereits ToDataString besitzt, kannst du 1:1 delegieren:
+        ' Return p.ToDataString()
+        Return $"{p.Left},{p.Top},{p.Right},{p.Bottom}"
+    End Function
+
+    '
+    ''' <summary>
+    ''' Wandelt einen String in PaddingValues zurück.
+    ''' Akzeptiert:
+    '''  - "L,T,R,B" (z. B. "10,5,10,5", Semikolon auch erlaubt)
+    '''  - benannte Felder "L=10,T=5,R=10,B=5" (Reihenfolge egal)
+    '''  - "Empty" oder Leerstring → 0,0,0,0
+    ''' Fehler → liefert [default].
+    ''' </summary>
+    Public Shared Function CvtStringToPadding(s As String, [default] As PaddingValues) As PaddingValues
+        Try
+            If String.IsNullOrWhiteSpace(s) Then Return [default]
+
+            Dim txt As String = s.Trim()
+            If txt.Equals("Empty", StringComparison.OrdinalIgnoreCase) Then
+                Return New PaddingValues(0, 0, 0, 0)
+            End If
+
+            txt = txt.Replace(";", ",")
+
+            ' Benannte Felder?
+            If txt.Contains("="c) Then
+                Dim l As Integer, t As Integer, r As Integer, b As Integer
+                Dim seenL As Boolean, seenT As Boolean, seenR As Boolean, seenB As Boolean
+
+                For Each part As String In txt.Split(","c)
+                    Dim kv() As String = part.Split({"="c}, 2)
+                    If kv.Length <> 2 Then Continue For
+                    Dim name As String = kv(0).Trim().ToUpperInvariant()
+                    Dim valStr As String = kv(1).Trim()
+                    Dim val As Integer
+                    If Not Integer.TryParse(valStr, val) Then Return [default]
+
+                    Select Case name
+                        Case "L", "LEFT" : l = val : seenL = True
+                        Case "T", "TOP" : t = val : seenT = True
+                        Case "R", "RIGHT" : r = val : seenR = True
+                        Case "B", "BOTTOM" : b = val : seenB = True
+                    End Select
+                Next
+
+                If seenL AndAlso seenT AndAlso seenR AndAlso seenB Then
+                    Return New PaddingValues(l, t, r, b)
+                Else
+                    Return [default]
+                End If
+            End If
+
+            ' Einfache Liste "L,T,R,B"
+            Dim parts As String() = txt.Split(","c)
+            If parts.Length <> 4 Then Return [default]
+
+            Dim li, ti, ri, bi As Integer
+            If Integer.TryParse(parts(0).Trim(), li) AndAlso
+               Integer.TryParse(parts(1).Trim(), ti) AndAlso
+               Integer.TryParse(parts(2).Trim(), ri) AndAlso
+               Integer.TryParse(parts(3).Trim(), bi) Then
+                Return New PaddingValues(li, ti, ri, bi)
+            End If
+
+            Return [default]
+        Catch
+            Return [default]
+        End Try
+    End Function
     '==========================================================
     ' Kleine Helfer zum robusten Splitten (Semikolon bevorzugt;
     ' Komma als Legacy-Fallback)

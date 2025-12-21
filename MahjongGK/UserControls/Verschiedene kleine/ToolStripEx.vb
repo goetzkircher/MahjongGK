@@ -22,6 +22,7 @@ Public Class ToolStripEx
     Private Const WM_MOUSEACTIVATE As Integer = &H21
     Private Shared ReadOnly MA_ACTIVATE As IntPtr = New IntPtr(1) ' = MA_ACTIVATE
 
+    <DebuggerStepThrough>
     Protected Overrides Sub WndProc(ByRef m As Message)
         If m.Msg = WM_MOUSEACTIVATE Then
             ' Aktivieren, aber Klick nicht verschlucken

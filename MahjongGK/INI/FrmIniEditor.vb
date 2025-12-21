@@ -58,7 +58,7 @@ Public Class FrmIniEditor
     '
     'Hier erweitern, wenn noch zusätzliche INI-Files hinzukommen. 
     'Weiteres nicht nötig.
-    Private _iniIniFileNames() As String = {"Basis.ini", "ToolBox.ini"}
+    Private _iniIniFileNames() As String = {"Basis.ini", "ToolBox.ini", "Rendering.ini"}
 
 
     Private ReadOnly _rtb As New RichTextBox()
@@ -377,18 +377,44 @@ Public Class FrmIniEditor
     End Sub
 
     Private Sub Reset_Click(sender As Object, e As EventArgs)
-        If MsgBox("INI mit Defaultwerten neu aufbauen?", MsgBoxStyle.Question Or MsgBoxStyle.YesNo, "INI Editor") = MsgBoxResult.Yes Then
-            _rtb.Text = Nothing
-            SaveIniFile()
-        End If
+        Dim choice As FrmIniResetConfirm.IniResetChoice = FrmIniResetConfirm.ShowTheDialog(Me)
+        Select Case choice
+            Case FrmIniResetConfirm.IniResetChoice.AlleIni,
+                 FrmIniResetConfirm.IniResetChoice.AktiveIniRestart
+                ' → alle INI neu aufbauen
+                For Each s As String In _iniIniFileNames
+                    _iniAktIniFileName = s
+                    SetIniFullPath()
+                    IO.File.Delete(_iniFullSavePath)
+                    IO.File.Delete(_iniFullLoadPath)
+                    _IniFileChanged = True
+                Next
+                If choice = FrmIniResetConfirm.IniResetChoice.AktiveIniRestart Then
+                    'Application.Restart() lädt die EXE außerhalb der IDE!
+                    'deshalb hier anders:
+                    Application.Exit() 'und dann wieder Starten über F5
+                Else
+                    Me.DialogResult = DialogResult.OK
+                End If
+            Case FrmIniResetConfirm.IniResetChoice.AktiveIni
+                ' → nur aktive INI neu aufbauen
+                IO.File.Delete(_iniFullSavePath)
+                IO.File.Delete(_iniFullLoadPath)
+                _isDirty = False
+                _IniFileChanged = True
+                Me.DialogResult = DialogResult.OK
+            Case Else
+                ' → abgebrochen
+        End Select
+
+
     End Sub
-    Private Sub SaveIniFile()
+    Private Sub SaveIniFile(Optional reset As Boolean = False)
 
         If String.IsNullOrWhiteSpace(_rtb.Text) Then
             Try
                 IO.File.Delete(_iniFullSavePath)
                 IO.File.Delete(_iniFullLoadPath)
-                Application.DoEvents()
                 _isDirty = False
                 _IniFileChanged = True
                 Me.DialogResult = DialogResult.OK
@@ -400,8 +426,14 @@ Public Class FrmIniEditor
 
         If _isDirty Then
             Try
-                Directory.CreateDirectory(Path.GetDirectoryName(_iniFullSavePath))
-                Using sw As New StreamWriter(_iniFullSavePath, append:=False, encoding:=New UTF8Encoding(encoderShouldEmitUTF8Identifier:=True))
+                Dim fullpath As String
+                If Spielfeld.SFD.AktRendering = RenderingEnum.None OrElse reset = True Then
+                    fullpath = _iniFullLoadPath
+                Else
+                    fullpath = _iniFullSavePath
+                End If
+                Directory.CreateDirectory(Path.GetDirectoryName(fullpath))
+                Using sw As New StreamWriter(fullpath, append:=False, encoding:=New UTF8Encoding(encoderShouldEmitUTF8Identifier:=True))
                     sw.Write(_rtb.Text)
                 End Using
                 _isDirty = False
@@ -534,12 +566,28 @@ Public Class FrmIniEditor
         Return bmp
     End Function
 
+    ' Merker für zuletzt gesetzte Images (zum Entsorgen)
+    Private _imgSec As Image, _imgCom As Image, _imgKey As Image, _imgEq As Image, _imgVal As Image
+
     Private Sub RefreshColorSwatches()
-        _miColSection.Image = MakeColorSwatch(_scheme.SectionColor)
-        _miColComment.Image = MakeColorSwatch(_scheme.CommentColor)
-        _miColKey.Image = MakeColorSwatch(_scheme.KeyColor)
-        _miColEquals.Image = MakeColorSwatch(_scheme.EqualsColor)
-        _miColValue.Image = MakeColorSwatch(_scheme.ValueColor)
+        ' Alte Bitmaps entsorgen
+        If _imgSec IsNot Nothing Then _imgSec.Dispose()
+        If _imgCom IsNot Nothing Then _imgCom.Dispose()
+        If _imgKey IsNot Nothing Then _imgKey.Dispose()
+        If _imgEq IsNot Nothing Then _imgEq.Dispose()
+        If _imgVal IsNot Nothing Then _imgVal.Dispose()
+
+        _imgSec = MakeColorSwatch(_scheme.SectionColor)
+        _imgCom = MakeColorSwatch(_scheme.CommentColor)
+        _imgKey = MakeColorSwatch(_scheme.KeyColor)
+        _imgEq = MakeColorSwatch(_scheme.EqualsColor)
+        _imgVal = MakeColorSwatch(_scheme.ValueColor)
+
+        _miColSection.Image = _imgSec
+        _miColComment.Image = _imgCom
+        _miColKey.Image = _imgKey
+        _miColEquals.Image = _imgEq
+        _miColValue.Image = _imgVal
     End Sub
 
     Private Sub FillCboKeys(selection As String)
@@ -754,7 +802,6 @@ Public Class FrmIniEditor
     Private Sub HideMarkerOnScroll(sender As Object, e As EventArgs)
         ShowLabelMark(New Point)
     End Sub
-    '###############################################################################################
 
     Public Shared Function Highlight(text As String,
                                  schema As ColorScheme,
@@ -918,6 +965,14 @@ Public Class FrmIniEditor
         SetIniFullPath()
         LoadIniFile(hlight:=True, _darkMode)
         _rtb.Focus()
+    End Sub
+
+    Protected Overrides Sub Dispose(disposing As Boolean)
+        If disposing Then
+            _imgSec?.Dispose() : _imgCom?.Dispose() : _imgKey?.Dispose()
+            _imgEq?.Dispose() : _imgVal?.Dispose()
+        End If
+        MyBase.Dispose(disposing)
     End Sub
 
 End Class

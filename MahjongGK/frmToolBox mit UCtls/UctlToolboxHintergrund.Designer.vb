@@ -52,6 +52,7 @@ Partial Class UctlToolboxHintergrund
         Me.btnToolboxHGrdSplFldBitmapClearFallback = New System.Windows.Forms.Button()
         Me.btnToolboxHGrdSplFldBitmapNameFallback = New System.Windows.Forms.Button()
         Me.ButtonInfo1 = New MahjongGK.ButtonInfo()
+        Me.GroupBox1 = New System.Windows.Forms.GroupBox()
         Me.GroupBox9.SuspendLayout()
         Me.TabControlToolboxHGrd.SuspendLayout()
         Me.TabPageAktSpiel.SuspendLayout()
@@ -64,6 +65,7 @@ Partial Class UctlToolboxHintergrund
         Me.GroupBox2.SuspendLayout()
         Me.GroupBox5.SuspendLayout()
         CType(Me.picToolboxHGrdSplFldFallback, System.ComponentModel.ISupportInitialize).BeginInit()
+        Me.GroupBox1.SuspendLayout()
         Me.SuspendLayout()
         '
         'GroupBox9
@@ -72,7 +74,7 @@ Partial Class UctlToolboxHintergrund
         Me.GroupBox9.Dock = System.Windows.Forms.DockStyle.Fill
         Me.GroupBox9.Location = New System.Drawing.Point(0, 5)
         Me.GroupBox9.Name = "GroupBox9"
-        Me.GroupBox9.Size = New System.Drawing.Size(360, 495)
+        Me.GroupBox9.Size = New System.Drawing.Size(360, 330)
         Me.GroupBox9.TabIndex = 3
         Me.GroupBox9.TabStop = False
         Me.GroupBox9.Text = "Hintergrundbilder und Farben"
@@ -86,7 +88,7 @@ Partial Class UctlToolboxHintergrund
         Me.TabControlToolboxHGrd.Location = New System.Drawing.Point(3, 16)
         Me.TabControlToolboxHGrd.Name = "TabControlToolboxHGrd"
         Me.TabControlToolboxHGrd.SelectedIndex = 0
-        Me.TabControlToolboxHGrd.Size = New System.Drawing.Size(354, 476)
+        Me.TabControlToolboxHGrd.Size = New System.Drawing.Size(354, 311)
         Me.TabControlToolboxHGrd.TabIndex = 18
         '
         'TabPageAktSpiel
@@ -95,22 +97,21 @@ Partial Class UctlToolboxHintergrund
         Me.TabPageAktSpiel.Location = New System.Drawing.Point(4, 36)
         Me.TabPageAktSpiel.Name = "TabPageAktSpiel"
         Me.TabPageAktSpiel.Padding = New System.Windows.Forms.Padding(10)
-        Me.TabPageAktSpiel.Size = New System.Drawing.Size(346, 436)
+        Me.TabPageAktSpiel.Size = New System.Drawing.Size(346, 271)
         Me.TabPageAktSpiel.TabIndex = 0
         Me.TabPageAktSpiel.Text = "Aktuelles Spiel"
         Me.TabPageAktSpiel.UseVisualStyleBackColor = True
         '
         'gbxAktSpiel
         '
-        Me.gbxAktSpiel.Controls.Add(Me.chkToolboxHGrdEditorShowFraming)
+        Me.gbxAktSpiel.Controls.Add(Me.GroupBox1)
         Me.gbxAktSpiel.Controls.Add(Me.GroupBox3)
         Me.gbxAktSpiel.Controls.Add(Me.GroupBox4)
-        Me.gbxAktSpiel.Controls.Add(Me.btnInfoAktSpiel)
         Me.gbxAktSpiel.Dock = System.Windows.Forms.DockStyle.Fill
         Me.gbxAktSpiel.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.gbxAktSpiel.Location = New System.Drawing.Point(10, 10)
         Me.gbxAktSpiel.Name = "gbxAktSpiel"
-        Me.gbxAktSpiel.Size = New System.Drawing.Size(326, 416)
+        Me.gbxAktSpiel.Size = New System.Drawing.Size(326, 251)
         Me.gbxAktSpiel.TabIndex = 17
         Me.gbxAktSpiel.TabStop = False
         Me.gbxAktSpiel.Text = "Aktuell geladenes Spiel"
@@ -118,7 +119,7 @@ Partial Class UctlToolboxHintergrund
         'chkToolboxHGrdEditorShowFraming
         '
         Me.chkToolboxHGrdEditorShowFraming.AutoSize = True
-        Me.chkToolboxHGrdEditorShowFraming.Location = New System.Drawing.Point(196, 329)
+        Me.chkToolboxHGrdEditorShowFraming.Location = New System.Drawing.Point(6, 14)
         Me.chkToolboxHGrdEditorShowFraming.Name = "chkToolboxHGrdEditorShowFraming"
         Me.chkToolboxHGrdEditorShowFraming.Size = New System.Drawing.Size(123, 30)
         Me.chkToolboxHGrdEditorShowFraming.TabIndex = 6
@@ -133,7 +134,7 @@ Partial Class UctlToolboxHintergrund
         Me.GroupBox3.Controls.Add(Me.btnToolboxHGrdSplFldColor)
         Me.GroupBox3.Location = New System.Drawing.Point(191, 19)
         Me.GroupBox3.Name = "GroupBox3"
-        Me.GroupBox3.Size = New System.Drawing.Size(129, 255)
+        Me.GroupBox3.Size = New System.Drawing.Size(129, 126)
         Me.GroupBox3.TabIndex = 4
         Me.GroupBox3.TabStop = False
         Me.GroupBox3.Text = "Farben"
@@ -194,7 +195,7 @@ Partial Class UctlToolboxHintergrund
         Me.GroupBox4.Controls.Add(Me.btnToolboxHGrdSplFldBitmapName)
         Me.GroupBox4.Location = New System.Drawing.Point(8, 19)
         Me.GroupBox4.Name = "GroupBox4"
-        Me.GroupBox4.Size = New System.Drawing.Size(177, 344)
+        Me.GroupBox4.Size = New System.Drawing.Size(177, 211)
         Me.GroupBox4.TabIndex = 3
         Me.GroupBox4.TabStop = False
         Me.GroupBox4.Text = "Bilder"
@@ -245,7 +246,7 @@ Partial Class UctlToolboxHintergrund
         Me.btnInfoAktSpiel.DarkMode = True
         Me.btnInfoAktSpiel.InfoHeader = "Info"
         Me.btnInfoAktSpiel.InfoText = resources.GetString("btnInfoAktSpiel.InfoText")
-        Me.btnInfoAktSpiel.Location = New System.Drawing.Point(280, 289)
+        Me.btnInfoAktSpiel.Location = New System.Drawing.Point(89, 43)
         Me.btnInfoAktSpiel.MinimumSize = New System.Drawing.Size(16, 16)
         Me.btnInfoAktSpiel.Name = "btnInfoAktSpiel"
         Me.btnInfoAktSpiel.Size = New System.Drawing.Size(26, 26)
@@ -259,7 +260,7 @@ Partial Class UctlToolboxHintergrund
         Me.TabPageFallback.Location = New System.Drawing.Point(4, 36)
         Me.TabPageFallback.Name = "TabPageFallback"
         Me.TabPageFallback.Padding = New System.Windows.Forms.Padding(10)
-        Me.TabPageFallback.Size = New System.Drawing.Size(346, 436)
+        Me.TabPageFallback.Size = New System.Drawing.Size(346, 271)
         Me.TabPageFallback.TabIndex = 1
         Me.TabPageFallback.Text = "Fallback"
         Me.TabPageFallback.UseVisualStyleBackColor = True
@@ -272,7 +273,7 @@ Partial Class UctlToolboxHintergrund
         Me.gbxFallback.Dock = System.Windows.Forms.DockStyle.Fill
         Me.gbxFallback.Location = New System.Drawing.Point(10, 10)
         Me.gbxFallback.Name = "gbxFallback"
-        Me.gbxFallback.Size = New System.Drawing.Size(326, 416)
+        Me.gbxFallback.Size = New System.Drawing.Size(326, 251)
         Me.gbxFallback.TabIndex = 18
         Me.gbxFallback.TabStop = False
         Me.gbxFallback.Text = "Fallback (Wenn das aktuelles Spiel keine Werte hat)"
@@ -405,6 +406,16 @@ Partial Class UctlToolboxHintergrund
         Me.ButtonInfo1.TabStop = False
         Me.ButtonInfo1.Text = "ButtonInfo2"
         '
+        'GroupBox1
+        '
+        Me.GroupBox1.Controls.Add(Me.chkToolboxHGrdEditorShowFraming)
+        Me.GroupBox1.Controls.Add(Me.btnInfoAktSpiel)
+        Me.GroupBox1.Location = New System.Drawing.Point(191, 151)
+        Me.GroupBox1.Name = "GroupBox1"
+        Me.GroupBox1.Size = New System.Drawing.Size(129, 74)
+        Me.GroupBox1.TabIndex = 7
+        Me.GroupBox1.TabStop = False
+        '
         'UctlToolboxHintergrund
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -413,12 +424,11 @@ Partial Class UctlToolboxHintergrund
         Me.Name = "UctlToolboxHintergrund"
         Me.Padding = New System.Windows.Forms.Padding(0, 5, 0, 0)
         Me.RightToLeft = System.Windows.Forms.RightToLeft.No
-        Me.Size = New System.Drawing.Size(360, 500)
+        Me.Size = New System.Drawing.Size(360, 335)
         Me.GroupBox9.ResumeLayout(False)
         Me.TabControlToolboxHGrd.ResumeLayout(False)
         Me.TabPageAktSpiel.ResumeLayout(False)
         Me.gbxAktSpiel.ResumeLayout(False)
-        Me.gbxAktSpiel.PerformLayout()
         Me.GroupBox3.ResumeLayout(False)
         Me.GroupBox4.ResumeLayout(False)
         Me.GroupBox4.PerformLayout()
@@ -429,6 +439,8 @@ Partial Class UctlToolboxHintergrund
         Me.GroupBox5.ResumeLayout(False)
         Me.GroupBox5.PerformLayout()
         CType(Me.picToolboxHGrdSplFldFallback, System.ComponentModel.ISupportInitialize).EndInit()
+        Me.GroupBox1.ResumeLayout(False)
+        Me.GroupBox1.PerformLayout()
         Me.ResumeLayout(False)
 
     End Sub
@@ -462,4 +474,5 @@ Partial Class UctlToolboxHintergrund
     Friend WithEvents chkToolboxHGrdEditorShowFraming As CheckBox
     Friend WithEvents ButtonTooltip1 As ButtonTooltip
     Friend WithEvents ButtonTooltip2 As ButtonTooltip
+    Friend WithEvents GroupBox1 As GroupBox
 End Class
