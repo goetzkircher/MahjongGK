@@ -124,6 +124,11 @@ Namespace Spielfeld
         Public rxStockScrollbar As RectangleX = Nothing
         '
         ''' <summary>
+        ''' Markierung des Steinvorrat
+        ''' </summary>
+        Public rxStockMark As RectangleX = Nothing
+        '
+        ''' <summary>
         ''' Hält die UGHrdBitmap. Beim Spielen so groß wie outputRect
         ''' Im Editor rxStageAvailable
         ''' In der Werkbank wie outputRect
@@ -189,7 +194,7 @@ Namespace Spielfeld
         Public Property Backbuffer_HasContent As Boolean
         Public Sub CreateBackbufferAndGfx()
             If rxOutput Is Nothing OrElse rxOutput.IsEmpty Then
-                Throw New Exception("Programmierfehler: CreateBackbufferAndGfx vor CreateMainLayout aufgerufen.")
+                Throw New Exception("Programmierfehler: CreateBackbufferAndGfx vor CreateMainLayoutIterativStep aufgerufen.")
             End If
             'Nur auf Änderungen reagieren, zeitkritisch!
             If Backbuffer Is Nothing Then
@@ -222,6 +227,8 @@ Namespace Spielfeld
         ''' Das ist die halbe aktuelle Höhe der Steine
         ''' </summary>
         Public steinHeightHalf As Integer
+
+        Public steinSize As Size
 
         Public offset3DLeftJeEbene As Integer
         Public offset3DTopJeEbene As Integer

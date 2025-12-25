@@ -2208,9 +2208,9 @@ Public Module INI
         Get
             If Not _Rendering_HScrollbarHeight.HasValue Then
                 Dim [Default] As Integer = 20
-                Dim comment As String = "Höhe der horizontalen Scrollbar im Editormodus und Breite der vertikalen Scrollbars im Spielmodus"
+                Dim comment As String = "Höhe der horizontalen Scrollbar im Editormodus und Breite der vertikalen Scrollbars. Default = 20"
                 _Rendering_HScrollbarHeight = Rendering.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-                _Rendering_HScrollbarHeight = Math.Max(0, Math.Min(20, _Rendering_HScrollbarHeight.Value))
+                _Rendering_HScrollbarHeight = Math.Max(10, Math.Min(30, _Rendering_HScrollbarHeight.Value))
             End If
             Return _Rendering_HScrollbarHeight.Value
         End Get
@@ -2219,6 +2219,24 @@ Public Module INI
             _Rendering_HScrollbarHeight = Nothing
         End Set
     End Property
+
+    Private _Rendering_StockMarkHeight As Integer?
+    Public Property Rendering_StockMarkHeight As Integer
+        Get
+            If Not _Rendering_StockMarkHeight.HasValue Then
+                Dim [Default] As Integer = 10
+                Dim comment As String = "Höhe der Markierungslsite im Editormodus. Default = 10"
+                _Rendering_StockMarkHeight = Rendering.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+                _Rendering_StockMarkHeight = Math.Max(5, Math.Min(20, _Rendering_StockMarkHeight.Value))
+            End If
+            Return _Rendering_StockMarkHeight.Value
+        End Get
+        Set(value As Integer)
+            Rendering.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+            _Rendering_StockMarkHeight = Nothing
+        End Set
+    End Property
+
 
     Private _Rendering_BackgroundColorDarkMode As Color
     Public Property Rendering_BackgroundColorDarkMode As Color
@@ -2392,92 +2410,8 @@ Public Module INI
         End Set
     End Property
     '
-    Private _Rendering_PaddingStock As PaddingValues? ' Cache
-    Public Property Rendering_PaddingStock As PaddingValues
-        Get
-            If Not _Rendering_PaddingStock.HasValue Then
-                'Mögliche Schreibweise in der INI: Left=1,Top=1,Right=2,Bottom=2 oder L=1,T=... oder einfach 1,1,2,2 
-                Dim [Default] As New PaddingValues(0, 0, 0, 0)
-                Dim comment As String = ""
-                _Rendering_PaddingStock = Rendering.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-            End If
-            Return _Rendering_PaddingStock.Value
-        End Get
-        Set(value As PaddingValues)
-            Rendering.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
-            _Rendering_PaddingStock = Nothing   ' Cache ungültig machen
-        End Set
-    End Property
-    '
-    Private _Rendering_PaddingBitmapUgrd As PaddingValues? ' Cache
-    Public Property Rendering_PaddingBitmapUgrd As PaddingValues
-        Get
-            If Not _Rendering_PaddingBitmapUgrd.HasValue Then
-                'Mögliche Schreibweise in der INI: Left=1,Top=1,Right=2,Bottom=2 oder L=1,T=... oder einfach 1,1,2,2 
-                Dim [Default] As New PaddingValues(0, 0, 0, 0)
-                Dim comment As String = ""
-                _Rendering_PaddingBitmapUgrd = Rendering.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-            End If
-            Return _Rendering_PaddingBitmapUgrd.Value
-        End Get
-        Set(value As PaddingValues)
-            Rendering.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
-            _Rendering_PaddingBitmapUgrd = Nothing   ' Cache ungültig machen
-        End Set
-    End Property
-    '
-    Private _Rendering_PaddingHeader As PaddingValues? ' Cache
-    Public Property Rendering_PaddingHeader As PaddingValues
-        Get
-            If Not _Rendering_PaddingHeader.HasValue Then
-                'Mögliche Schreibweise in der INI: Left=1,Top=1,Right=2,Bottom=2 oder L=1,T=... oder einfach 1,1,2,2 
-                Dim [Default] As New PaddingValues(0, 0, 0, 0)
-                Dim comment As String = ""
-                _Rendering_PaddingHeader = Rendering.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-            End If
-            Return _Rendering_PaddingHeader.Value
-        End Get
-        Set(value As PaddingValues)
-            Rendering.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
-            _Rendering_PaddingHeader = Nothing   ' Cache ungültig machen
-        End Set
-    End Property
-    '
-    Private _Rendering_PaddingContent As PaddingValues? ' Cache
-    Public Property Rendering_PaddingContent As PaddingValues
-        Get
-            If Not _Rendering_PaddingContent.HasValue Then
-                'Mögliche Schreibweise in der INI: Left=1,Top=1,Right=2,Bottom=2 oder L=1,T=... oder einfach 1,1,2,2 
-                Dim [Default] As New PaddingValues(0, 0, 0, 0)
-                Dim comment As String = ""
-                _Rendering_PaddingContent = Rendering.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-            End If
-            Return _Rendering_PaddingContent.Value
-        End Get
-        Set(value As PaddingValues)
-            Rendering.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
-            _Rendering_PaddingContent = Nothing   ' Cache ungültig machen
-        End Set
-    End Property
-    '
-    Private _Rendering_PaddingHistoryBoxContainer As PaddingValues? ' Cache
-    Public Property Rendering_PaddingHistoryBoxContainer As PaddingValues
-        Get
-            If Not _Rendering_PaddingHistoryBoxContainer.HasValue Then
-                'Mögliche Schreibweise in der INI: Left=1,Top=1,Right=2,Bottom=2 oder L=1,T=... oder einfach 1,1,2,2 
-                Dim [Default] As New PaddingValues(5, 5, 5, 5)
-                Dim comment As String = ""
-                _Rendering_PaddingHistoryBoxContainer = Rendering.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-            End If
-            Return _Rendering_PaddingHistoryBoxContainer.Value
-        End Get
-        Set(value As PaddingValues)
-            Rendering.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
-            _Rendering_PaddingHistoryBoxContainer = Nothing   ' Cache ungültig machen
-        End Set
-    End Property
-    '
 
+    '
     Private _Rendering_PaddingStageAvailable As PaddingValues? ' Cache
     Public Property Rendering_PaddingStageAvailable As PaddingValues
         Get

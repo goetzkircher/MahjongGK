@@ -84,7 +84,7 @@ Namespace Spielfeld
         End Sub
         Public Sub TestDaten_Spielfeld_Methodenaufruf_zum_Debuggen()
 
-            Dim newSpielfeld As New SpielfeldInfo(New Triple(20, 6, 10), SpielfeldOrEditorMode.Spielfeld)
+            Dim newSpielfeld As New SpielfeldInfo(New Triple(10, 5, 10), SpielfeldOrEditorMode.Spielfeld)
             Dim newWerkbank As New SpielfeldInfo(New Triple(5, 5, 10), SpielfeldOrEditorMode.Editor)
 
             SFD.SpielfeldSpielfeldInfo = newSpielfeld

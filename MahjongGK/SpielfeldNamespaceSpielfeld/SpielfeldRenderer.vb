@@ -55,14 +55,15 @@ Namespace Spielfeld
             '    PaintEventGfx.Clear(SFD.AktSpielfeldInfo.HGrdSplFldColor)
             'End If
 
+            'Es wird grundsätzlich in den Backpuffer gezeichnet, der am Ende dann auf das Control geplittet wird.
             SFD.CreateBackbufferAndGfx()
-
             SFD.Backbuffer_HasContent = True
 
             'Den Zeichenknecht des Background-Backbuffers setzen
             SFD.rxOutput?.SetGfx(SFD.BackBufferGfx)
             SFD.rxStock?.SetGfx(SFD.BackBufferGfx)
             SFD.rxStockScrollbar?.SetGfx(SFD.BackBufferGfx)
+            SFD.rxStockMark?.SetGfx(SFD.BackBufferGfx)
             SFD.rxBitmapUgrd?.SetGfx(SFD.BackBufferGfx)
             SFD.rxHeader?.SetGfx(SFD.BackBufferGfx)
             SFD.rxContent?.SetGfx(SFD.BackBufferGfx)
@@ -83,6 +84,7 @@ Namespace Spielfeld
                 SFD.rxOutput?.SetDebugHost(SFD.VisibleUserControlUCtl)
                 SFD.rxStock?.SetDebugHost(SFD.VisibleUserControlUCtl)
                 SFD.rxStockScrollbar?.SetDebugHost(SFD.VisibleUserControlUCtl)
+                SFD.rxStockMark?.SetDebugHost(SFD.VisibleUserControlUCtl)
                 SFD.rxBitmapUgrd?.SetDebugHost(SFD.VisibleUserControlUCtl)
                 SFD.rxHeader?.SetDebugHost(SFD.VisibleUserControlUCtl)
                 SFD.rxContent?.SetDebugHost(SFD.VisibleUserControlUCtl)
@@ -96,11 +98,12 @@ Namespace Spielfeld
                 SFD.rxStageUsed?.SetDebugHost(SFD.VisibleUserControlUCtl)
 
                 SFD.rxOutput?.DrawDebug()
+                SFD.rxBitmapUgrd?.DrawDebug()
+                SFD.rxContent?.DrawDebug()
+                SFD.rxHeader?.DrawDebug()
                 SFD.rxStock?.DrawDebug()
                 SFD.rxStockScrollbar?.DrawDebug()
-                SFD.rxBitmapUgrd?.DrawDebug()
-                SFD.rxHeader?.DrawDebug()
-                SFD.rxContent?.DrawDebug()
+                SFD.rxStockMark?.DrawDebug()
                 SFD.rxHistoryBoxLeftContainer?.DrawDebug()
                 SFD.rxHistoryBoxRightContainer?.DrawDebug()
                 SFD.rxHistoryBoxLeft?.DrawDebug()
@@ -112,7 +115,7 @@ Namespace Spielfeld
 
             End If
 
-            PaintEventGfx.DrawImageUnscaledAndClipped(SFD.Backbuffer, rectOutput)
+
             If INI.Rendering_DrawRenderingSkipDoneMarker Then
                 'unterer rechter Marker, wenn der Backpuffer wiederverwendet wird
                 DrawRenderingSkipDoneMarker(PaintEventGfx, rectOutput.Width, rectOutput.Height, SFD.RenderingDoneCounter, "Done")
@@ -120,10 +123,10 @@ Namespace Spielfeld
 
 
 
-            SFD.rxHeader.DrawStringCentered("Hallo", New Font("Arial", 16, FontStyle.Bold), usePadding:=False, foreColor:=Nothing)
+            SFD.rxHeader?.DrawStringCentered("Hallo", New Font("Arial", 16, FontStyle.Bold), usePadding:=False, foreColor:=Nothing)
 
 
-            Exit Sub
+            '   Exit Sub
 
             Using pen As New Pen(INI.Rendering_RenderRectColor)
 
@@ -180,7 +183,9 @@ Namespace Spielfeld
                                     ''Debug
                                     'debugInfo &= $"x={x},y={y},z={z},arrFB-SteinIdx={ SFD.AktSpielfeldInfo.GetIndexStein(x, y, z)},SII={aktSteinInfo.SteinInfoIndex},SI={aktSteinInfo.SteinIndex}|"
                                     ''/Debug
-                                    PaintEventGfx.DrawImage(BitmapContainer.GetBitmap(.SteinStatusUsed, .SteinIndex), left, top)
+                                    Dim bmp As Bitmap = SGM.GetStein(SFD.AktRendering, .SteinStatusUsed, .SteinIndex, SFD.steinSize, sichtbar:=SichtbarResult.Full, showGhost:=True)
+                                    'alte Version:PaintEventGfx.DrawImage(BitmapContainer.GetBitmap(.SteinStatusUsed, .SteinIndex), left, top)
+                                    SFD.BackBufferGfx.DrawImage(bmp, left, top)
 
                                     If INI.IfRunningInIDE_InsertStoneIndex Then
 
@@ -193,9 +198,9 @@ Namespace Spielfeld
                                                 sf.Alignment = StringAlignment.Center
                                                 sf.FormatFlags = StringFormatFlags.NoWrap
                                                 sf.LineAlignment = StringAlignment.Near     ' oben
-                                                PaintEventGfx.DrawString(dbg, f, Brushes.Black, r, sf)
+                                                SFD.BackBufferGfx.DrawString(dbg, f, Brushes.Black, r, sf)
                                                 sf.LineAlignment = StringAlignment.Far     ' unten
-                                                PaintEventGfx.DrawString(dbg, f, Brushes.Black, r, sf)
+                                                SFD.BackBufferGfx.DrawString(dbg, f, Brushes.Black, r, sf)
 
                                             End Using
                                         End Using
@@ -206,40 +211,40 @@ Namespace Spielfeld
                                                 sf.Alignment = StringAlignment.Center
                                                 sf.LineAlignment = StringAlignment.Near     ' oben
                                                 sf.FormatFlags = StringFormatFlags.NoWrap
-                                                PaintEventGfx.DrawString(dbg, f, Brushes.Black, r, sf)
+                                                SFD.BackBufferGfx.DrawString(dbg, f, Brushes.Black, r, sf)
                                                 sf.LineAlignment = StringAlignment.Far      ' unten
-                                                PaintEventGfx.DrawString(dbg, f, Brushes.Black, r, sf)
+                                                SFD.BackBufferGfx.DrawString(dbg, f, Brushes.Black, r, sf)
                                             End Using
 
                                             ' 2) Vertikal links (oben -> unten), höhenzentriert
-                                            Dim stLeft As Drawing2D.GraphicsState = PaintEventGfx.Save()
-                                            PaintEventGfx.TranslateTransform(r.Left, r.Top + r.Height / 2.0F)
-                                            PaintEventGfx.RotateTransform(-90.0F) ' oben -> unten am linken Rand
+                                            Dim stLeft As Drawing2D.GraphicsState = SFD.BackBufferGfx.Save()
+                                            SFD.BackBufferGfx.TranslateTransform(r.Left, r.Top + r.Height / 2.0F)
+                                            SFD.BackBufferGfx.RotateTransform(-90.0F) ' oben -> unten am linken Rand
 
                                             Using sfV As New StringFormat(StringFormat.GenericTypographic)
                                                 sfV.Alignment = StringAlignment.Center
                                                 sfV.LineAlignment = StringAlignment.Center
                                                 sfV.FormatFlags = StringFormatFlags.NoWrap
-                                                Dim lineH As Single = f.GetHeight(PaintEventGfx)
+                                                Dim lineH As Single = f.GetHeight(SFD.BackBufferGfx)
                                                 Dim layout As New RectangleF(-r.Height / 2.0F, -lineH / 2.0F, r.Height, lineH)
-                                                PaintEventGfx.DrawString(dbg, f, Brushes.Black, layout, sfV)
+                                                SFD.BackBufferGfx.DrawString(dbg, f, Brushes.Black, layout, sfV)
                                             End Using
-                                            PaintEventGfx.Restore(stLeft)
+                                            SFD.BackBufferGfx.Restore(stLeft)
 
                                             ' 3) Vertikal rechts (oben -> unten), höhenzentriert
                                             Dim stRight As Drawing2D.GraphicsState = PaintEventGfx.Save()
-                                            PaintEventGfx.TranslateTransform(r.Right, r.Top + r.Height / 2.0F)
-                                            PaintEventGfx.RotateTransform(90.0F) ' oben -> unten am rechten Rand
+                                            SFD.BackBufferGfx.TranslateTransform(r.Right, r.Top + r.Height / 2.0F)
+                                            SFD.BackBufferGfx.RotateTransform(90.0F) ' oben -> unten am rechten Rand
 
                                             Using sfV As New StringFormat(StringFormat.GenericTypographic)
                                                 sfV.Alignment = StringAlignment.Center
                                                 sfV.LineAlignment = StringAlignment.Center
                                                 sfV.FormatFlags = StringFormatFlags.NoWrap
-                                                Dim lineH As Single = f.GetHeight(PaintEventGfx)
+                                                Dim lineH As Single = f.GetHeight(SFD.BackBufferGfx)
                                                 Dim layout As New RectangleF(-r.Height / 2.0F, -lineH / 2.0F, r.Height, lineH)
-                                                PaintEventGfx.DrawString(dbg, f, Brushes.Black, layout, sfV)
+                                                SFD.BackBufferGfx.DrawString(dbg, f, Brushes.Black, layout, sfV)
                                             End Using
-                                            PaintEventGfx.Restore(stRight)
+                                            SFD.BackBufferGfx.Restore(stRight)
                                         End Using
 
 
@@ -251,6 +256,9 @@ Namespace Spielfeld
                     Next
                 Next
                 'Debug.Print(debugInfo)
+
+                PaintEventGfx.DrawImageUnscaled(SFD.Backbuffer, rectOutput.Location)
+
             End With
         End Sub
 

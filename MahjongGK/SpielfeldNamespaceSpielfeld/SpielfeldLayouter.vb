@@ -159,9 +159,34 @@ Namespace Spielfeld
                 End If
             End If
 
+            Dim layout As Layout
+
+            If SFD.AktRendering = RenderingEnum.Spielfeld Then
+                'Es ist übersichtlicher die einzelnen Layouts jeweils komplett gesondert zu
+                'bearbeiten und nicht nach Gemeinsamkeiten zu sortieren.
+                'spätestens bei Änderungen geht es einfacher.
+                'Daher zunächst, ganz übersichtlich und kurz:
+                '
+                layout = Layout.SplfldWithHeaderAndHistRight
+
+            ElseIf SFD.AktRendering = RenderingEnum.Editor Then
+                layout = Layout.EditorWithHeader
+
+            ElseIf SFD.AktRendering = RenderingEnum.Werkbank Then
+                layout = Layout.WerkbankWithHeader
+            Else ' SFD.AktRendering = RenderingEnum.None Then
+                layout = Layout.None
+            End If
 
             'Startwerte
-            CreateMainLayout(New Size(INI.Rendering_OrgGrafikSizeWidth, INI.Rendering_OrgGrafikSizeHeight))
+
+            SFD.steinWidth = INI.Rendering_OrgGrafikSizeWidth
+            SFD.steinHeight = INI.Rendering_OrgGrafikSizeHeight
+            SFD.steinWidthHalf = SFD.steinWidth \ 2
+            SFD.steinHeightHalf = SFD.steinHeight \ 2
+            SFD.steinSize = New Size(SFD.steinWidth, SFD.steinHeight)
+
+            CreateMainLayoutIterativStep(layout)
             SFD.steinWidth = SFD.rxStageAvailable.Width \ SFD.xMaxSteine + 2 '+2 = aufrunden + 1
             SFD.steinHeight = SFD.rxStageAvailable.Height \ SFD.yMaxSteine + 2
 
@@ -176,36 +201,51 @@ Namespace Spielfeld
 
             Dim steinSize As Size
             Dim shrink As Integer = -1
+            Dim errorcounter As Integer = 0
 
             Dim test As Integer = INI.Rendering_OrgGrafikReferenceSizeWidth
-
             Do
                 shrink += 1
 
                 steinSize = GetNewSteinSize(shrink)
 
+                If steinSize.Width = steinSize.Height Then
+                    If steinSize.Width = MJ_GRAFIK_STEIN_MIN_WIDTH_OR_HEIGHT Then
+                        If errorcounter = 0 Then
+                            errorcounter += 1
+                        Else
+                            Stop 'Programmierfehler
+                            'Es gibt keinen Ausgang aus der Do-Loop-Schleife
+                            'Meist liegt der Fehler in CreateMainLayoutIterativStep
+                            'und SFD.rxStageAvailable wird nicht oder falsch zugewiesen.
+                        End If
+                    End If
+                End If
 
                 SFD.offset3DLeftJeEbene = CInt(Math.Max(INI.Rendering_Offset3DFaktorAbsolutX * steinSize.Width, CDbl(INI.Rendering_Offset3DMinPerLayerX)))
                 SFD.offset3DTopJeEbene = CInt(Math.Max(INI.Rendering_Offset3DFaktorAbsolutY * steinSize.Height, CDbl(INI.Rendering_Offset3DMinPerLayerY)))
 
-                SFD.offset3DLeftSumme = SFD.offset3DLeftJeEbene * SFD.zMax ' + INI.Rendering_RectOutputPaddingLeft + INI.Rendering_RectOutputPaddingRight
-                SFD.offset3DTopSumme = SFD.offset3DTopJeEbene * SFD.zMax '+ INI.Rendering_RectOutputPaddingTop + INI.Rendering_RectOutputPaddingBottom
+                SFD.offset3DLeftSumme = SFD.offset3DLeftJeEbene * SFD.zMax
+                SFD.offset3DTopSumme = SFD.offset3DTopJeEbene * SFD.zMax
 
                 summeWidth = steinSize.Width * SFD.xMaxSteine + SFD.offset3DLeftSumme
-                summeHeight = steinSize.Height * SFD.yMaxSteine + SFD.offset3DTopSumme + If(SFD.AktRendering = RenderingEnum.Editor, steinSize.Height + INI.Rendering_HScrollbarHeightVScrollbarWitdh, 0)
+                summeHeight = steinSize.Height * SFD.yMaxSteine + SFD.offset3DTopSumme
 
-                CreateMainLayout(steinSize)
+                SFD.steinWidth = steinSize.Width 'Hier schon zuweisen, wird in CreateMainLayoutIterativStep gebraucht
+                SFD.steinHeight = steinSize.Height '
+
+                SFD.steinWidthHalf = SFD.steinWidth \ 2 'sicherhatshalber die auch bereits zuweisen
+                SFD.steinHeightHalf = SFD.steinHeight \ 2
+
+                SFD.steinSize = New Size(SFD.steinWidth, SFD.steinHeight) 'und das hier auch
+
+                CreateMainLayoutIterativStep(layout)
                 If summeWidth <= SFD.rxStageAvailable.WidthInside AndAlso summeHeight <= SFD.rxStageAvailable.HeightInside Then
                     Exit Do
                 End If
             Loop
 
-
-            SFD.steinWidth = steinSize.Width
-            SFD.steinHeight = steinSize.Height
-
-            SFD.steinWidthHalf = SFD.steinWidth \ 2
-            SFD.steinHeightHalf = SFD.steinHeight \ 2
+            CreateMainLayoutIterativStep(layout, fDoStop:=True) 'zum Debuggen
 
             'getestet mit einem Spielfeld mit 75 X 25 X 25 Steinen
             'und einem RenderRect mit 344 x 194 Pixeln
@@ -213,23 +253,8 @@ Namespace Spielfeld
             'Das läuft.
             ''Auf das Spielfeld passen 75 x 25 x 25 = 46,875 Steine (und der Computer schafft die Anzeige.) 
             '
-            'neu berechnen
-            summeWidth = SFD.steinWidth * SFD.xMaxSteine + SFD.offset3DLeftSumme '+ 2
-            summeHeight = SFD.steinHeight * SFD.yMaxSteine + SFD.offset3DTopSumme '+ 2
-
-            'Dim deltaWidth As Integer = SFD.rxStageAvailable.Width - summeWidth
-            'Dim deltaHeigh As Integer = SFD.rxStageAvailable.Height - summeHeight
-
-            ''Ausgabefeld zentrieren
-            'Dim splfldRectLeft As Integer = deltaWidth \ 2 '+ MJ_MARGIN_ABSOLUT_LEFT
-            'Dim splfldRectTop As Integer = deltaHeigh \ 2 '+ MJ_MARGIN_ABSOLUT_TOP
-            'Dim splfldRectWidth As Integer = summeWidth
-            'Dim splfldRectHeight As Integer = summeHeight
-
-
-            Dim rxTmp As RectangleX = SFD.rxStageAvailable.GetRectangleXInside(SFD.rxStageAvailable.WidthInside, -1, align:=RectangleX.Align.Center, usePadding:=True)
-            ' SFD.rxStageUsed = New Rectangle(splfldRectLeft + rxTmp.Left, splfldRectTop + rxTmp.Top, splfldRectWidth, splfldRectHeight)
             SFD.rxStageUsed = SFD.rxStageAvailable.GetRectangleXInside(summeWidth, summeHeight, align:=RectangleX.Align.Center, usePadding:=True)
+
             If Debugger.IsAttached Then
 
             End If
@@ -409,8 +434,7 @@ Namespace Spielfeld
         ''' <summary>
         ''' Setzt die einzelnen Bereiche, außer splfldUsedRect
         ''' </summary>
-        ''' <param name="steinSize"></param>
-        Private Sub CreateMainLayout(steinSize As Size)
+        Private Sub CreateMainLayoutIterativStep(layout As Layout, Optional fDoStop As Boolean = False)
 
             ' 1.) SFD.rxOutput ist gegeben.
             ' 2.) Der Renderer fragt SFD.AktRendering nicht ab. 
@@ -420,6 +444,7 @@ Namespace Spielfeld
 
             SFD.rxStock = Nothing
             SFD.rxStockScrollbar = Nothing
+            SFD.rxStockMark = Nothing
             SFD.rxBitmapUgrd = Nothing
             SFD.rxHeader = Nothing
             SFD.rxContent = Nothing
@@ -433,50 +458,31 @@ Namespace Spielfeld
             SFD.rxStageUsed = Nothing
 
 
-            Dim layout As Layout
 
-            If SFD.AktRendering = RenderingEnum.Spielfeld Then
-                'Es ist übersichtlicher die einzelnen Layouts jeweils komplett gesondert zu
-                'bearbeiten und nicht nach nach Gemeinsamkeiten zu sortieren.
-                'spätestens bei Änderungen geht es einfacher.
-                'Daher zunächst, ganz übersichtlich und kurz:
-                '
-                layout = Layout.SplfldWithHeaderAndHistLeft
 
-            ElseIf SFD.AktRendering = RenderingEnum.Editor Then
-                layout = Layout.EditorWithHeader
-
-            ElseIf SFD.AktRendering = RenderingEnum.Werkbank Then
-                layout = Layout.WerkbankWithHeader
-            Else ' SFD.AktRendering = RenderingEnum.None Then
-                layout = Layout.None
-            End If
             '
             '
             ' Überschreibung zum Debuggen
-            ' layout = Layout.WerkbankWithHeader 
+            'layout = Layout.SplfldWithHeaderAndHistLeft
             '
             '
             'Auf gehts,
-            Dim histboxContainerWidth As Integer = 2 * steinSize.Width +
-                INI.Rendering_HScrollbarHeightVScrollbarWitdh +
-                INI.Rendering_PaddingHistoryBoxContainer.Left +
-                INI.Rendering_PaddingHistoryBoxContainer.Right
+            Dim histboxContainerWidth As Integer = 2 * SFD.steinWidth +
+                INI.Rendering_HScrollbarHeightVScrollbarWitdh
 
             Select Case layout
 
                 Case Layout.SplfldWithHeaderAndHistLeft
-                    SFD.rxBitmapUgrd = New RectangleX(SFD.rxOutput, INI.Rendering_PaddingBitmapUgrd)
-                    SFD.rxHeader = SFD.rxBitmapUgrd.GetRectangleXInside(width:=-1, INI.Rendering_HeaderHeight, align:=RectangleX.Align.Top, usePadding:=True, INI.Rendering_PaddingHeader)
-                    SFD.rxContent = SFD.rxBitmapUgrd.GetRectangleXInside(width:=-1, height:=-1, align:=RectangleX.Align.Center, usePadding:=True, INI.Rendering_PaddingContent)
+                    SFD.rxBitmapUgrd = New RectangleX(SFD.rxOutput)
+                    SFD.rxHeader = SFD.rxBitmapUgrd.GetRectangleXInside(width:=-1, INI.Rendering_HeaderHeight, align:=RectangleX.Align.Top)
+                    SFD.rxContent = SFD.rxBitmapUgrd.GetRectangleXInside(width:=-1, height:=-1, align:=RectangleX.Align.Center)
                     SFD.rxContent.IncTop(SFD.rxHeader.Height + 1)
 
-                    SFD.rxHistoryBoxLeftContainer = SFD.rxContent.GetRectangleXInside(width:=histboxContainerWidth, height:=-1, align:=RectangleX.Align.Left, usePadding:=True, INI.Rendering_PaddingHistoryBoxContainer)
+                    SFD.rxHistoryBoxLeftContainer = SFD.rxContent.GetRectangleXInside(width:=histboxContainerWidth, height:=-1, align:=RectangleX.Align.Left)
 
 
                     SFD.rxHistoryBoxLeft = SFD.rxContent.DeepCopy
-                    SFD.rxHistoryBoxLeft.Left = INI.Rendering_PaddingHistoryBoxContainer.Left
-                    SFD.rxHistoryBoxLeft.Width = steinSize.Width * 2
+                    SFD.rxHistoryBoxLeft.Width = SFD.steinWidth * 2
 
                     SFD.rxHistoryBoxLeftScrollbar = SFD.rxContent.DeepCopy
                     SFD.rxHistoryBoxLeftScrollbar.Left = SFD.rxHistoryBoxLeft.Right + 1
@@ -486,13 +492,12 @@ Namespace Spielfeld
                     SFD.rxStageAvailable.IncLeft(SFD.rxHistoryBoxLeftContainer.Left + SFD.rxHistoryBoxLeftContainer.Width + 1)
 
                 Case Layout.SplfldWithHeaderAndHistRight
-                    SFD.rxBitmapUgrd = New RectangleX(SFD.rxOutput, INI.Rendering_PaddingBitmapUgrd)
-                    SFD.rxHeader = SFD.rxBitmapUgrd.GetRectangleXInside(width:=-1, INI.Rendering_HeaderHeight, align:=RectangleX.Align.Top, usePadding:=True, INI.Rendering_PaddingHeader)
-                    SFD.rxContent = SFD.rxBitmapUgrd.GetRectangleXInside(width:=-1, height:=-1, align:=RectangleX.Align.Center, usePadding:=True, INI.Rendering_PaddingContent)
+                    SFD.rxBitmapUgrd = New RectangleX(SFD.rxOutput)
+                    SFD.rxHeader = SFD.rxBitmapUgrd.GetRectangleXInside(width:=-1, INI.Rendering_HeaderHeight, align:=RectangleX.Align.Top)
+                    SFD.rxContent = SFD.rxBitmapUgrd.GetRectangleXInside(width:=-1, height:=-1, align:=RectangleX.Align.Center)
                     SFD.rxContent.IncTop(SFD.rxHeader.Height + 1)
 
-                    SFD.rxHistoryBoxRightContainer = SFD.rxContent.GetRectangleXInside(width:=histboxContainerWidth, height:=-1, align:=RectangleX.Align.Right, usePadding:=True, INI.Rendering_PaddingHistoryBoxContainer)
-
+                    SFD.rxHistoryBoxRightContainer = SFD.rxContent.GetRectangleXInside(width:=histboxContainerWidth, height:=-1, align:=RectangleX.Align.Right)
 
                     SFD.rxHistoryBoxRight = SFD.rxHistoryBoxRightContainer.DeepCopy
                     SFD.rxHistoryBoxRight.DecRight(INI.Rendering_HScrollbarHeightVScrollbarWitdh)
@@ -504,28 +509,36 @@ Namespace Spielfeld
                     SFD.rxStageAvailable.DecRight(SFD.rxHistoryBoxRightContainer.Width + 1)
 
                 Case Layout.EditorWithHeader
-                    SFD.rxBitmapUgrd = New RectangleX(SFD.rxOutput, New PaddingValues)
-                    SFD.rxHeader = SFD.rxBitmapUgrd.GetRectangleXInside(width:=-1, INI.Rendering_HeaderHeight, align:=RectangleX.Align.Top, usePadding:=False, New PaddingValues)
-                    SFD.rxContent = SFD.rxBitmapUgrd.GetRectangleXInside(width:=-1, height:=-1, align:=RectangleX.Align.Center, usePadding:=False, New PaddingValues)
+
+                    'If fDoStop Then Stop
+
+                    SFD.rxBitmapUgrd = New RectangleX(SFD.rxOutput)
+                    SFD.rxHeader = SFD.rxBitmapUgrd.GetRectangleXInside(width:=-1, INI.Rendering_HeaderHeight, align:=RectangleX.Align.Top)
+                    SFD.rxContent = SFD.rxBitmapUgrd.GetRectangleXInside(width:=-1, height:=-1, align:=RectangleX.Align.Center)
                     SFD.rxContent.IncTop(SFD.rxHeader.Height + 1)
 
-                    SFD.rxStock = SFD.rxContent.GetRectangleXInside(width:=-1, height:=SFD.steinHeight, align:=RectangleX.Align.Top, usePadding:=False, New PaddingValues)
+                    SFD.rxStockMark = SFD.rxContent.GetRectangleXInside(width:=-1, height:=INI.Rendering_StockMarkHeight, align:=RectangleX.Align.Top)
 
-                    SFD.rxStockScrollbar = SFD.rxContent.GetRectangleXInside(width:=-1, height:=INI.Rendering_HScrollbarHeightVScrollbarWitdh, align:=RectangleX.Align.Top, usePadding:=False, New PaddingValues)
-                    SFD.rxStockScrollbar.Top = SFD.steinHeight + 1
+                    SFD.rxStock = SFD.rxContent.GetRectangleXInside(width:=-1, height:=SFD.steinHeight, align:=RectangleX.Align.Top)
+                    SFD.rxStock.MoveDown(INI.Rendering_StockMarkHeight + 1)
 
-                    SFD.rxStageAvailable = SFD.rxContent.GetRectangleXInside(width:=-1, height:=-1, align:=RectangleX.Align.Center, usePadding:=True, INI.Rendering_PaddingStageAvailable)
-                    SFD.rxStageAvailable.IncTop(SFD.steinHeight + 1)
+                    SFD.rxStockScrollbar = SFD.rxContent.GetRectangleXInside(width:=-1, height:=INI.Rendering_HScrollbarHeightVScrollbarWitdh, align:=RectangleX.Align.Top)
+                    SFD.rxStockScrollbar.MoveDown(INI.Rendering_StockMarkHeight + SFD.steinHeight + 2)
+
+                    SFD.rxStageAvailable = SFD.rxContent.GetRectangleXInside(width:=-1, height:=-1, align:=RectangleX.Align.Top, usePadding:=True, INI.Rendering_PaddingStageAvailable)
+                    SFD.rxStageAvailable.IncTop(INI.Rendering_StockMarkHeight + SFD.steinHeight + INI.Rendering_HScrollbarHeightVScrollbarWitdh + 3)
+                   ' SFD.rxStageAvailable.MoveDown(200)
 
                 Case Layout.WerkbankWithHeader
                     SFD.rxBitmapUgrd = New RectangleX(SFD.rxOutput, New PaddingValues)
-                    SFD.rxHeader = SFD.rxBitmapUgrd.GetRectangleXInside(width:=-1, INI.Rendering_HeaderHeight, align:=RectangleX.Align.Top, usePadding:=False, New PaddingValues)
-                    SFD.rxContent = SFD.rxBitmapUgrd.GetRectangleXInside(width:=-1, height:=-1, align:=RectangleX.Align.Center, usePadding:=False, New PaddingValues)
+                    SFD.rxHeader = SFD.rxBitmapUgrd.GetRectangleXInside(width:=-1, INI.Rendering_HeaderHeight, align:=RectangleX.Align.Top)
+                    SFD.rxContent = SFD.rxBitmapUgrd.GetRectangleXInside(width:=-1, height:=-1, align:=RectangleX.Align.Center)
                     SFD.rxContent.IncTop(SFD.rxHeader.Height + 1)
 
 
-                    SFD.rxStageAvailable = SFD.rxContent.GetRectangleXInside(width:=-1, height:=-1, align:=RectangleX.Align.Center, usePadding:=True, INI.Rendering_PaddingStageAvailable)
-
+                    SFD.rxStageAvailable = SFD.rxContent.GetRectangleXInside(width:=-1, height:=-1, align:=RectangleX.Align.Center)
+                Case Else
+                    Stop
             End Select
 
 
@@ -570,6 +583,7 @@ Namespace Spielfeld
                 SFD.rxOutput?.SetDrawBoundsAndContentDebug(Style(reset:=True))
                 SFD.rxStock?.SetDrawBoundsAndContentDebug(Style)
                 SFD.rxStockScrollbar?.SetDrawBoundsAndContentDebug(Style)
+                SFD.rxStockMark?.SetDrawBoundsAndContentDebug(Style)
                 SFD.rxBitmapUgrd?.SetDrawBoundsAndContentDebug(Style)
                 SFD.rxHeader?.SetDrawBoundsAndContentDebug(Style)
                 SFD.rxContent?.SetDrawBoundsAndContentDebug(Style)
@@ -584,8 +598,8 @@ Namespace Spielfeld
             End If
 
             If SFD.rxStageAvailable Is Nothing Then
-                Stop
-
+                Stop 'Programmierfehler
+                'SFD.rxStageAvailable muß zugewiesen werden
             End If
 
         End Sub

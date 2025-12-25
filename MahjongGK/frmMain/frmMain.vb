@@ -270,7 +270,7 @@ Public Class frmMain
         End If
         '
         'Die INI ist bereits initialisiert, das passiert beim allererstem Zugriff auf einen Wert automatisch.
-        'hier geht es um um eine Reinitialisierung mit Werfen der IniEvents.
+        'hier geht es um um eine Reinitialisierung mit Werten der IniEvents.
         INI.Initialisierung(update:=True, raiseIniEventsDefault:=IniEvents.OnChangeValue)
 
 

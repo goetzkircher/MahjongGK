@@ -37,9 +37,13 @@ Public NotInheritable Class DebugLabelPlacer
     ''' Vorgehen: vom gewünschten Punkt aus zeilenweise nach unten,
     ''' danach in die nächste "Spalte" nach rechts usw.
     ''' </summary>
-    Public Function Request(preferredTopLeft As Point, size As Size) As Rectangle
+    Public Function RequestDown(preferredTopLeft As Point, size As Size) As Rectangle
+
+
+
         Dim w As Integer = Math.Max(1, size.Width)
         Dim h As Integer = Math.Max(1, size.Height)
+
 
         ' Startposition in die Fläche zwingen
         Dim startX As Integer = Math.Max(_surface.Left, Math.Min(preferredTopLeft.X, _surface.Right - w))
@@ -59,12 +63,15 @@ Public NotInheritable Class DebugLabelPlacer
                 ' Kein Platz mehr in dieser Spalte -> nächste Spalte
                 x += stepX
                 y = _surface.Top
-                If x + w + Margin > _surface.Right Then Exit Do
+                If x + w + Margin > _surface.Right Then
+                    Exit Do
+                End If
                 Continue Do
             End If
 
             If Not IntersectsAny(cand) Then
                 _occupied.Add(cand)
+
                 Return cand
             End If
 
@@ -75,6 +82,60 @@ Public NotInheritable Class DebugLabelPlacer
                 x += stepX
                 y = _surface.Top
                 If x + w + Margin > _surface.Right Then Exit Do
+            End If
+        Loop
+
+        ' Fallback: oben links in die Fläche (kann im Extremfall überlappen)
+        Dim fb As New Rectangle(_surface.Left, _surface.Top, w, h)
+        _occupied.Add(fb)
+        Return fb
+    End Function
+
+    Public Function RequestRight(preferredTopLeft As Point, size As Size) As Rectangle
+
+
+
+        Dim w As Integer = Math.Max(1, size.Width)
+        Dim h As Integer = Math.Max(1, size.Height)
+
+
+        ' Startposition in die Fläche zwingen
+        Dim startX As Integer = Math.Max(_surface.Left, Math.Min(preferredTopLeft.X, _surface.Right - w))
+        Dim startY As Integer = Math.Max(_surface.Top, Math.Min(preferredTopLeft.Y, _surface.Bottom - h))
+
+        Dim x As Integer = startX
+        Dim y As Integer = startY
+
+        Dim stepY As Integer = h + Gap
+        Dim stepX As Integer = w + Gap
+
+        ' Einfache, robuste Suche: rasterartig nach unten, dann Spalte nach rechts.
+        Do
+            Dim cand As New Rectangle(x, y, w, h)
+            cand = ConfineToSurface(cand)
+            If cand.Width <= 0 OrElse cand.Height <= 0 Then
+                ' Kein Platz mehr in dieser Zeile -> nächste Zeile
+                x = _surface.Left
+                y += stepY
+                If y + h + Margin > _surface.Bottom Then
+                    Exit Do
+                End If
+                Continue Do
+            End If
+
+            If Not IntersectsAny(cand) Then
+                _occupied.Add(cand)
+
+                Return cand
+            End If
+
+            ' Nächste Spalte innerhalb der Zeile
+            x += stepX
+            If x + w + Margin > _surface.Right Then
+                ' Umbruch in nächste Zeile
+                x = _surface.Left
+                y += stepY
+                If y + h + Margin > _surface.Bottom Then Exit Do
             End If
         Loop
 

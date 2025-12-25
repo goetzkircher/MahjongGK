@@ -340,6 +340,19 @@ Public Class RectangleX
         _h = Math.Max(0, _h - n)
     End Sub
 
+    Public Sub MoveDown(Optional ByVal n As Integer = 1)
+        _y += n
+    End Sub
+    Public Sub MoveRight(Optional ByVal n As Integer = 1)
+        _x += n
+    End Sub
+
+    Public Sub MoveUp(Optional ByVal n As Integer = 1)
+        _y -= n
+    End Sub
+    Public Sub MoveLeft(Optional ByVal n As Integer = 1)
+        _x -= n
+    End Sub
 
     Public Sub ShrinkAll(Optional n As Integer = 1)
         _x += n : _y += n
@@ -443,6 +456,11 @@ Public Class RectangleX
             Case Align.Right
                 nx = baseRect.X + baseRect.Width - tgtW
                 ny = baseRect.Y + baseRect.Height - tgtH
+            Case Align.Top
+                ny = baseRect.Y
+            Case Align.Bottom
+                ny = baseRect.Y + (baseRect.Height - tgtH)
+
         End Select
 
         Return New Rectangle(nx, ny, tgtW, tgtH)
@@ -471,6 +489,13 @@ Public Class RectangleX
                                         Optional paddings As System.Nullable(Of PaddingValues) = Nothing) As RectangleX
         Dim r As Rectangle = GetRectangleInside(marginLeft, marginRight, marginTop, marginBottom, usePadding)
         Dim rx As New RectangleX(r) : rx.Padding = ResolvePaddings(Me.Padding, paddings)
+        Return rx
+    End Function
+    Public Function GetRectangleXInside(width As Integer,
+                                        height As Integer,
+                                        align As Align) As RectangleX
+        Dim r As Rectangle = GetRectangleInside(width, height, align, False)
+        Dim rx As New RectangleX(r) ': rx.Padding = ResolvePaddings(Me.Padding, New PaddingValues)
         Return rx
     End Function
 
@@ -950,7 +975,7 @@ Public Class RectangleX
 
         Dim sizePx As Size = TextRenderer.MeasureText(txt, New Font("Segoe UI", 9.0F))
         Dim preferred As New Point(r.Left + 4, r.Top + 3)
-        Dim target As Rectangle = Spielfeld.SFD.DebugLabels.Request(preferred, sizePx)
+        Dim target As Rectangle = Spielfeld.SFD.DebugLabels.RequestRight(preferred, sizePx)
 
         _gfx.TextRenderingHint = Drawing.Text.TextRenderingHint.ClearTypeGridFit
         Using f As New Font("Segoe UI", 9.0F, FontStyle.Regular, GraphicsUnit.Point)
