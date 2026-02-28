@@ -743,6 +743,35 @@ Public Module INI
 
 #End Region
 
+#Region "Debughilfen"
+
+    Private _Debug_StopRenderingOnce As Boolean
+    ''' <summary>
+    ''' Ein Flag, das das Rendern einmalig anhält, wenn es True gesetzt wird.
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property Debug_StopRenderingOnce As Boolean
+        Get
+            If Not _Debug_StopRenderingOnce Then
+                Return False
+            Else
+                _Debug_StopRenderingOnce = False
+                Return True
+            End If
+        End Get
+        Set(value As Boolean)
+            _Debug_StopRenderingOnce = value
+        End Set
+    End Property
+    '
+    ''' <summary>
+    ''' Ein Flag, das das Rendern anhält, wenn es True gesetzt wird.
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property Debug_StopRendering As Boolean
+#End Region
+
+
 #Region "Global"
 
     Public Property Global_UseSystemDarkMode As Boolean
@@ -1000,6 +1029,25 @@ Public Module INI
             BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
         End Set
     End Property
+
+    Private _Spielbetrieb_PositionHistory As Integer?
+    Public Property Spielbetrieb_PositionHistory As Integer
+        Get
+            If Not _Spielbetrieb_PositionHistory.HasValue Then
+                Dim [Default] As Integer = 1
+                Dim comment As String = "0 = ohne sichtbare History, 1 = links vom Spielfeld, 2 = rechts vom Spielfeld. Default:  = 1"
+                _Spielbetrieb_PositionHistory = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            End If
+            Return _Spielbetrieb_PositionHistory.Value
+        End Get
+        Set(value As Integer)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+            _Spielbetrieb_PositionHistory = Nothing
+        End Set
+    End Property
+
+
+
 #End Region
 
 #Region "BackGroundImage"
@@ -1783,12 +1831,12 @@ Public Module INI
 
     Public Property ToolBox_AktBasisform As BasisformEnum
         Get
-            Dim [Default] As String = BasisformEnum.Pyramide.ToString
+            Dim [Default] As String = BasisformEnum.Linie.ToString
             Dim comment As String = Nothing
             Dim zRetVal As String = ToolBoxIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
             Dim result As BasisformEnum
             If Not [Enum].TryParse(Of BasisformEnum)(zRetVal, True, result) Then
-                result = BasisformEnum.Pyramide
+                result = BasisformEnum.Linie
             End If
             Return result
         End Get
@@ -2132,7 +2180,7 @@ Public Module INI
     Public Property Rendering_Offset3DMinPerLayerX As Integer
         Get
             If Not _Rendering_Offset3DMinPerLayerX.HasValue Then
-                Dim [Default] As Integer = 1
+                Dim [Default] As Integer = 3
                 Dim comment As String = "Die Mindest-Verschiebung je Stein in Pixel, unabhängig von der Steingröße." &
                                         "~Erlaubt: 0 bis 5. Die 0 nur verwenden, wenn Rendering_Offset3DMaxX auch auf 0 steht. Satz1: 1"
                 _Rendering_Offset3DMinPerLayerX = Rendering.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
@@ -2151,7 +2199,7 @@ Public Module INI
     Public Property Rendering_Offset3DMinPerLayerY As Integer
         Get
             If Not _Rendering_Offset3DMinPerLayerY.HasValue Then
-                Dim [Default] As Integer = 1
+                Dim [Default] As Integer = 3
                 Dim comment As String = Nothing
                 _Rendering_Offset3DMinPerLayerY = Rendering.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
                 _Rendering_Offset3DMinPerLayerY = Math.Max(0, Math.Min(5, _Rendering_Offset3DMinPerLayerY.Value))

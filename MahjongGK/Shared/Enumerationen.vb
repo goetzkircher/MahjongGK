@@ -615,3 +615,12 @@ Public Enum KompassXEnum
     NW
     NNW
 End Enum
+
+Public Enum Layout
+    None
+    SplfldWithHeaderAndHistNone
+    SplfldWithHeaderAndHistLeft
+    SplfldWithHeaderAndHistRight
+    EditorWithHeader
+    WerkbankWithHeader
+End Enum

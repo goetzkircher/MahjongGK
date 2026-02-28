@@ -49,15 +49,19 @@ Namespace Spielfeld
 
         Public Sub DoPaintSpielfeld_Paint(PaintEventGfx As Graphics, rectOutput As Rectangle, timeDifferenzFaktor As Double)
 
-            'If SFD.AktSpielfeldInfo.HasBitmapUGrd Then
-            '    PaintEventGfx.DrawImage(SFD.AktSpielfeldInfo.GetBitmapUGrd(rectOutput.Size), Point.Empty)
-            'Else
-            '    PaintEventGfx.Clear(SFD.AktSpielfeldInfo.HGrdSplFldColor)
-            'End If
+            If SFD.AktSpielfeldInfo.HasBitmapUGrd Then
+                PaintEventGfx.DrawImage(SFD.AktSpielfeldInfo.GetBitmapUGrd(rectOutput.Size), Point.Empty)
+            Else
+                PaintEventGfx.Clear(SFD.AktSpielfeldInfo.HGrdSplFldColor)
+            End If
 
             'Es wird grundsätzlich in den Backpuffer gezeichnet, der am Ende dann auf das Control geplittet wird.
             SFD.CreateBackbufferAndGfx()
             SFD.Backbuffer_HasContent = True
+
+
+
+
 
             'Den Zeichenknecht des Background-Backbuffers setzen
             SFD.rxOutput?.SetGfx(SFD.BackBufferGfx)
@@ -67,8 +71,6 @@ Namespace Spielfeld
             SFD.rxBitmapUgrd?.SetGfx(SFD.BackBufferGfx)
             SFD.rxHeader?.SetGfx(SFD.BackBufferGfx)
             SFD.rxContent?.SetGfx(SFD.BackBufferGfx)
-            SFD.rxHistoryBoxLeftContainer?.SetGfx(SFD.BackBufferGfx)
-            SFD.rxHistoryBoxRightContainer?.SetGfx(SFD.BackBufferGfx)
             SFD.rxHistoryBoxLeft?.SetGfx(SFD.BackBufferGfx)
             SFD.rxHistoryBoxRight?.SetGfx(SFD.BackBufferGfx)
             SFD.rxHistoryBoxLeftScrollbar?.SetGfx(SFD.BackBufferGfx)
@@ -88,8 +90,6 @@ Namespace Spielfeld
                 SFD.rxBitmapUgrd?.SetDebugHost(SFD.VisibleUserControlUCtl)
                 SFD.rxHeader?.SetDebugHost(SFD.VisibleUserControlUCtl)
                 SFD.rxContent?.SetDebugHost(SFD.VisibleUserControlUCtl)
-                SFD.rxHistoryBoxLeftContainer?.SetDebugHost(SFD.VisibleUserControlUCtl)
-                SFD.rxHistoryBoxRightContainer?.SetDebugHost(SFD.VisibleUserControlUCtl)
                 SFD.rxHistoryBoxLeft?.SetDebugHost(SFD.VisibleUserControlUCtl)
                 SFD.rxHistoryBoxRight?.SetDebugHost(SFD.VisibleUserControlUCtl)
                 SFD.rxHistoryBoxLeftScrollbar?.SetDebugHost(SFD.VisibleUserControlUCtl)
@@ -104,8 +104,6 @@ Namespace Spielfeld
                 SFD.rxStock?.DrawDebug()
                 SFD.rxStockScrollbar?.DrawDebug()
                 SFD.rxStockMark?.DrawDebug()
-                SFD.rxHistoryBoxLeftContainer?.DrawDebug()
-                SFD.rxHistoryBoxRightContainer?.DrawDebug()
                 SFD.rxHistoryBoxLeft?.DrawDebug()
                 SFD.rxHistoryBoxRight?.DrawDebug()
                 SFD.rxHistoryBoxLeftScrollbar?.DrawDebug()
@@ -119,6 +117,12 @@ Namespace Spielfeld
             If INI.Rendering_DrawRenderingSkipDoneMarker Then
                 'unterer rechter Marker, wenn der Backpuffer wiederverwendet wird
                 DrawRenderingSkipDoneMarker(PaintEventGfx, rectOutput.Width, rectOutput.Height, SFD.RenderingDoneCounter, "Done")
+            End If
+
+
+            If SFD.AktSpielfeldInfo.IsEmpty Then
+                SFD.rxHeader?.DrawStringCentered("Keine Daten geladen", New Font("Arial", 16, FontStyle.Bold), usePadding:=False, foreColor:=Nothing)
+                Exit Sub
             End If
 
 
@@ -136,18 +140,18 @@ Namespace Spielfeld
 
             End Using
 
-            'If SFD.AktRendering = RenderingEnum.Editor Then
-            '    'If HScrollRenderer.PumpAutoRepeat Then
-            '    HScrollRenderer.PaintHScroll(gfx, scrollbarRect, Color.Cornsilk, enabled:=True)
-            '    'End If
-            'End If
+            If Not IsNothing(SFD.HScrollStock) Then
+                'If HScrollRenderer.PumpAutoRepeat Then
+                SFD.HScrollStock.PaintHScroll(SFD.BackBufferGfx, enabled:=True)
+                'End If
+            End If
 
             Dim aktSteinInfo As SteinInfo
 
             Dim toggleVergleichsflag As Boolean = SFD.AktSpielfeldInfo.GetFirstToggleFlagValue
 
-            'Die Vaiable, auf die hier zugegriffen wird, und die nicht hier
-            'deklariert sind, stehen alle im Modul SpielfeldDaten.
+            'Die Variable, auf die hier zugegriffen wird, und die nicht hier
+            'deklariert sind, stehen alle im Modul SpielfeldDaten. (geändert, alle über SFD....)
             With SFD.AktSpielfeldInfo
 
                 'Dim debugInfo As String = String.Empty
@@ -172,7 +176,7 @@ Namespace Spielfeld
                             'als bearbeitet markieren
                             .ToggleToggleFlag(x, y, z)
                             '
-                            aktSteinInfo = .SteinInfos(.GetIndexStein(x, y, z))
+                            aktSteinInfo = .SteinInfoCol(.GetIndexStein(x, y, z))
 
                             With aktSteinInfo
                                 If .AnimShowAnimated Then

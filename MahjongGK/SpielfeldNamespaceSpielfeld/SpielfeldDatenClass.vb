@@ -144,16 +144,7 @@ Namespace Spielfeld
         ''' UGrdRect ohne Header
         ''' </summary>
         Public rxContent As RectangleX = Nothing
-        '
-        ''' <summary>
-        ''' innerhalb rectxContent
-        ''' </summary>
-        Public rxHistoryBoxLeftContainer As RectangleX = Nothing
-        '
-        ''' <summary>
-        ''' innerhalb rxHistoryBoxRightContainer
-        ''' </summary>
-        Public rxHistoryBoxRightContainer As RectangleX = Nothing
+
         ''' <summary>
         ''' Optional innerhalb rxHistoryBoxLeftContainer
         ''' </summary>
@@ -189,6 +180,11 @@ Namespace Spielfeld
         ''' </summary>
         Public rxStageUsed As RectangleX = Nothing
 
+        ''' <summary>
+        ''' Die aktuelle Aufteilung des Anzeigebereiches
+        ''' </summary>
+        Public AktLayout As Layout
+
         Public Property Backbuffer As Bitmap                'Das Zeichenbrett
         Public Property BackBufferGfx As Graphics           'Der Zeichenknecht
         Public Property Backbuffer_HasContent As Boolean
@@ -212,23 +208,49 @@ Namespace Spielfeld
         ''' <summary>
         ''' Das ist die aktuelle Breite der Steine
         ''' </summary>
-        Public steinWidth As Integer
+        Public ReadOnly Property steinWidth As Integer
+            Get
+                Return _steinSize.Width
+            End Get
+        End Property
         '
         ''' <summary>
         ''' Das ist die aktuelle Höhe der Steine
         ''' </summary>
-        Public steinHeight As Integer
+        Public ReadOnly Property steinHeight As Integer
+            Get
+                Return _steinSize.Height
+            End Get
+        End Property
         ''' <summary>
         ''' Das ist die halbe aktuelle Breite der Steine
         ''' </summary>
-        Public steinWidthHalf As Integer
+        Public ReadOnly Property steinWidthHalf As Integer
+            Get
+                Return _steinSize.Width \ 2
+            End Get
+        End Property
         '
         ''' <summary>
         ''' Das ist die halbe aktuelle Höhe der Steine
         ''' </summary>
-        Public steinHeightHalf As Integer
+        Public ReadOnly Property steinHeightHalf As Integer
+            Get
+                Return _steinSize.Height \ 2
+            End Get
+        End Property
 
-        Public steinSize As Size
+
+        Private _steinSize As Size
+        Public Property steinSize As Size
+            Get
+                Return _steinSize
+            End Get
+            Set(value As Size)
+                _steinSize = value
+            End Set
+        End Property
+
 
         Public offset3DLeftJeEbene As Integer
         Public offset3DTopJeEbene As Integer
@@ -250,6 +272,61 @@ Namespace Spielfeld
         Public RenderingDoneCounter As Integer
         Public RenderingSkipCounter As Integer
 
+        Private _renderversionSpielfeld As Integer = -1
+        Private _renderversionWerkbank As Integer = -1
+        Private _sessionIdentSpielfeld As String = "irgendwas"
+        Private _sessionIdentWerkbank As String = "irgendwas"
+        '
+        ''' <summary>
+        ''' Gibt True zurück, wenn sich die Renderversion geändert hat.
+        ''' Es werden immer beide Möglichkeiten geprüft (SpielfeldSpielfeldInfo und WerkbankSpielfeldInfo)
+        ''' Da unbekannt ist, auf welchen der beiden Möglichkeiten sich die Frage beziegt, da ein Wechsel
+        ''' der Anzeige möglich ist.
+        ''' </summary>
+        ''' <returns></returns>
+        Public ReadOnly Property RenderVersionChanged As Boolean
+            Get
+                Dim result As Boolean
+                If Not IsNothing(SpielfeldSpielfeldInfo) Then
+                    If _renderversionSpielfeld <> SpielfeldSpielfeldInfo.SteinInfoCol.RenderVersion Then
+                        _renderversionSpielfeld = SpielfeldSpielfeldInfo.SteinInfoCol.RenderVersion
+                        result = True
+                    End If
+                End If
+                If Not IsNothing(WerkbankSpielfeldInfo) Then
+                    If _renderversionWerkbank <> WerkbankSpielfeldInfo.SteinInfoCol.RenderVersion Then
+                        _renderversionWerkbank = WerkbankSpielfeldInfo.SteinInfoCol.RenderVersion
+                        result = True
+                    End If
+                End If
+                Return result
+            End Get
+        End Property
+        '
+        ''' <summary>
+        ''' Analog RenderVersionChanged
+        ''' </summary>
+        ''' <returns></returns>
+        Public ReadOnly Property SessionIdentChanged As Boolean
+            Get
+                Dim result As Boolean
+                If Not IsNothing(SpielfeldSpielfeldInfo) Then
+                    If _sessionIdentSpielfeld <> SpielfeldSpielfeldInfo.SessionIdent Then
+                        _sessionIdentSpielfeld = SpielfeldSpielfeldInfo.SessionIdent
+                        result = True
+                    End If
+                End If
+                If Not IsNothing(WerkbankSpielfeldInfo) Then
+                    If _sessionIdentWerkbank <> WerkbankSpielfeldInfo.SessionIdent Then
+                        _sessionIdentWerkbank = WerkbankSpielfeldInfo.SessionIdent
+                        result = True
+                    End If
+                End If
+                Return result
+            End Get
+        End Property
+
+
         Public ReadOnly DebugLabels As New DebugLabelPlacer()
 
         Public ToolboxIsVisible As Boolean
@@ -268,6 +345,8 @@ Namespace Spielfeld
                 _toolboxTabPageChanged = value
             End Set
         End Property
+
+        Public HScrollStock As HScrollRenderer = Nothing
 
     End Class
 

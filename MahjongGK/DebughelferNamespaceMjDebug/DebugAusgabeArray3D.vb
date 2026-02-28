@@ -137,7 +137,7 @@ Namespace MjDebug
                                 'Hier in diesem Feld sind die Flags (derzeit, Programmversion 0) immer 0
                                 'der Index steht hier mit 100 multipliziert.
                                 'deshalb zum sichtbar machen den SteinIndex addieren.
-                                fb += .SteinInfos((fb \ 1000) - 1).SteinIndex
+                                fb += .SteinInfoCol((fb \ 1000) - 1).SteinIndex
                             End If
 
                             If isHighlight Then

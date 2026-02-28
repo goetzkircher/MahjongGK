@@ -88,7 +88,56 @@ Imports System.Xml.Serialization
 
 <Serializable>
 Public Class SteinInfo
+    <XmlIgnore>
+    Private _notifyDirty As Action
 
+    <XmlIgnore>
+    Private _pos3D As Triple
+
+    <XmlIgnore>
+    Private _tmpDebug As Integer
+
+    <XmlIgnore>
+    Private _SteinInfoIndex As Integer
+
+    <XmlIgnore>
+    Private _SteinIndex As SteinIndexEnum
+
+    <XmlIgnore>
+    Private _KlickGruppe As Integer
+
+    <XmlIgnore>
+    Private _SteinStatusIst As SteinStatus
+
+    <XmlIgnore>
+    Private _SteinStatusUsed As SteinStatus
+
+    <XmlIgnore>
+    Private _IsWerkbankStein As Boolean
+
+    <XmlIgnore>
+    Private _Verdeckung As Verdeckt
+
+    <XmlIgnore>
+    Private _AnimTyp As Animation
+
+    <XmlIgnore>
+    Private _AnimShowAnimated As Boolean
+
+    <XmlIgnore>
+    Private _AnimStartDelay As Integer
+
+    <XmlIgnore>
+    Private _AnimCurStep As Integer
+
+    <XmlIgnore>
+    Private _AnimLoopCount As Integer
+
+    <XmlIgnore>
+    Private _AnimMaxStep As Integer
+
+    <XmlIgnore>
+    Private _AnimLoops As Single
     Sub New()
 
     End Sub
@@ -104,11 +153,39 @@ Public Class SteinInfo
     End Sub
     '
     ''' <summary>
-    ''' wird temporär zum Debuggen genutzt.
+    ''' Wird vom Container gesetzt. Jede relevante Änderung an SteinInfo ruft dann MarkDirty().
     ''' </summary>
-    ''' <returns></returns>
+    Friend Sub SetDirtyNotifier(notifier As Action)
+        _notifyDirty = notifier
+    End Sub
+
+    Private Sub MarkDirty()
+        Dim n As Action = _notifyDirty
+        If n IsNot Nothing Then
+            n.Invoke()
+        End If
+    End Sub
+
+    Private Sub Pos3D_Changed(sender As Triple)
+        ' Jede Änderung in Triple (x/y/z/Valide) zählt als "dirty"
+        MarkDirty()
+    End Sub
+    '
+    ''' <summary>
+    ''' Wird temporär zum Debuggen genutzt.
+    ''' </summary>
     <XmlIgnore>
     Public Property tmpDebug As Integer
+        Get
+            Return _tmpDebug
+        End Get
+        Set(value As Integer)
+            If _tmpDebug = value Then Return
+            _tmpDebug = value
+            ' Debug-Overlay ja/nein? Wenn Debug Teil der Ausgabe ist -> MarkDirty()
+            MarkDirty()
+        End Set
+    End Property
 
     ''' <summary>
     ''' Identisch des Index in SteinInfos
@@ -119,12 +196,30 @@ Public Class SteinInfo
     ''' </summary>
     <XmlElement("Idx")>
     Public Property SteinInfoIndex As Integer
+        Get
+            Return _SteinInfoIndex
+        End Get
+        Set(value As Integer)
+            If _SteinInfoIndex = value Then Return
+            _SteinInfoIndex = value
+            MarkDirty()
+        End Set
+    End Property
     '
     ''' <summary>
     ''' Eine Enumeration aller 43 verschiedenen Grafiken für die Steine.
     ''' </summary>
     <XmlElement("SIdx")>
     Public Property SteinIndex As SteinIndexEnum
+        Get
+            Return _SteinIndex
+        End Get
+        Set(value As SteinIndexEnum)
+            If _SteinIndex = value Then Return
+            _SteinIndex = value
+            MarkDirty()
+        End Set
+    End Property
     '
     ''' <summary>
     ''' Steine können immer nur paarweise entfernt werden. Meist gleich aussehende Steine,
@@ -135,12 +230,30 @@ Public Class SteinInfo
     ''' </summary>
     <XmlElement("KGrp")>
     Public Property KlickGruppe As Integer
+        Get
+            Return _KlickGruppe
+        End Get
+        Set(value As Integer)
+            If _KlickGruppe = value Then Return
+            _KlickGruppe = value
+            MarkDirty()
+        End Set
+    End Property
     '
     ''' <summary>
     ''' Das ist der tatsächliche Steinstatus, den der Stein hat.
     ''' </summary>
     <XmlElement("StStIst")>
     Public Property SteinStatusIst As SteinStatus
+        Get
+            Return _SteinStatusIst
+        End Get
+        Set(value As SteinStatus)
+            If _SteinStatusIst = value Then Return
+            _SteinStatusIst = value
+            MarkDirty()
+        End Set
+    End Property
     '
     ''' <summary>
     ''' Das ist der Steinstatus, der zur Renderung ausgewertet wird. Er kann sich vom
@@ -150,6 +263,15 @@ Public Class SteinInfo
     ''' </summary>
     <XmlElement("StStUsed")>
     Public Property SteinStatusUsed As SteinStatus
+        Get
+            Return _SteinStatusUsed
+        End Get
+        Set(value As SteinStatus)
+            If _SteinStatusUsed = value Then Return
+            _SteinStatusUsed = value
+            MarkDirty()
+        End Set
+    End Property
     '
     ''' <summary>
     ''' Die IsWerkstattStein setzt dieses Flag als Kennzeichen,
@@ -159,12 +281,42 @@ Public Class SteinInfo
     ''' <returns></returns>
     <XmlElement("IsWbSt")>
     Public Property IsWerkbankStein As Boolean
+        Get
+            Return _IsWerkbankStein
+        End Get
+        Set(value As Boolean)
+            If _IsWerkbankStein = value Then Return
+            _IsWerkbankStein = value
+            MarkDirty()
+        End Set
+    End Property
     '
     ''' <summary>
     ''' Die 3D-Position des Steines im Raum auf den Spielfeld.
     ''' </summary>
     <XmlElement("Pos3D")>
     Public Property Postion3D As Triple
+        Get
+            Return _pos3D
+        End Get
+        Set(value As Triple)
+            If Object.ReferenceEquals(_pos3D, value) Then Return
+
+            ' vom alten Triple abmelden
+            If _pos3D IsNot Nothing Then
+                RemoveHandler _pos3D.Changed, AddressOf Pos3D_Changed
+            End If
+
+            _pos3D = value
+
+            ' am neuen Triple anmelden
+            If _pos3D IsNot Nothing Then
+                AddHandler _pos3D.Changed, AddressOf Pos3D_Changed
+            End If
+
+            MarkDirty()
+        End Set
+    End Property
     '
     ''' <summary>
     ''' Die X-Koordinate des Steines im Raum auf dem Spielfeld
@@ -172,7 +324,8 @@ Public Class SteinInfo
     ''' <returns></returns>
     Public ReadOnly Property X As Integer
         Get
-            Return Postion3D.x
+            If _pos3D Is Nothing Then Return 0
+            Return _pos3D.x
         End Get
     End Property
     '
@@ -182,7 +335,8 @@ Public Class SteinInfo
     ''' <returns></returns>
     Public ReadOnly Property Y As Integer
         Get
-            Return Postion3D.y
+            If _pos3D Is Nothing Then Return 0
+            Return _pos3D.y
         End Get
     End Property
     '
@@ -192,7 +346,8 @@ Public Class SteinInfo
     ''' <returns></returns>
     Public ReadOnly Property Z As Integer
         Get
-            Return Postion3D.z
+            If _pos3D Is Nothing Then Return 0
+            Return _pos3D.z
         End Get
     End Property
 
@@ -209,12 +364,30 @@ Public Class SteinInfo
     ''' </summary>
     <XmlIgnore>
     Public Property Verdeckung As Verdeckt
+        Get
+            Return _Verdeckung
+        End Get
+        Set(value As Verdeckt)
+            If _Verdeckung = value Then Return
+            _Verdeckung = value
+            MarkDirty()
+        End Set
+    End Property
     '
     ''' <summary>
     ''' Eine Enumeration, die den Typ der Animation festlegt.
     ''' </summary>
     <XmlIgnore>
     Public Property AnimTyp As Animation
+        Get
+            Return _AnimTyp
+        End Get
+        Set(value As Animation)
+            If _AnimTyp = value Then Return
+            _AnimTyp = value
+            MarkDirty()
+        End Set
+    End Property
     '
     ''' <summary>
     ''' Wenn dieses Flag gesetzt ist, verzweigt die Ausgabe beim nächsten Paint-Event
@@ -222,6 +395,15 @@ Public Class SteinInfo
     ''' </summary>
     <XmlIgnore>
     Public Property AnimShowAnimated As Boolean
+        Get
+            Return _AnimShowAnimated
+        End Get
+        Set(value As Boolean)
+            If _AnimShowAnimated = value Then Return
+            _AnimShowAnimated = value
+            MarkDirty()
+        End Set
+    End Property
     '
     ''' <summary>
     ''' Wenn der Wert größer 0 ist, werden nach dem Start der Animation diese nicht wirklich
@@ -230,8 +412,16 @@ Public Class SteinInfo
     ''' </summary>
     <XmlIgnore>
     Public Property AnimStartDelay As Integer
+        Get
+            Return _AnimStartDelay
+        End Get
+        Set(value As Integer)
+            If _AnimStartDelay = value Then Return
+            _AnimStartDelay = value
+            MarkDirty()
+        End Set
+    End Property
     '
-    Private _AnimMaxStep As Integer
     '
     ''' <summary>
     ''' Gibt an, wieviele Schritte zur Verfügung stehen um einen Loop der Animation ablaufen
@@ -250,7 +440,10 @@ Public Class SteinInfo
             Return _AnimMaxStep
         End Get
         Set(value As Integer)
-            _AnimMaxStep = value * 100
+            Dim scaled As Integer = value * 100
+            If _AnimMaxStep = scaled Then Return
+            _AnimMaxStep = scaled
+            MarkDirty()
         End Set
     End Property
     '
@@ -259,9 +452,16 @@ Public Class SteinInfo
     ''' </summary>
     <XmlIgnore>
     Public Property AnimCurStep As Integer
+        Get
+            Return _AnimCurStep
+        End Get
+        Set(value As Integer)
+            If _AnimCurStep = value Then Return
+            _AnimCurStep = value
+            MarkDirty()
+        End Set
+    End Property
     '        '
-    <XmlIgnore>
-    Private _AnimLoops As Single
     '
     ''' <summary>
     ''' Anzahl der Wiederholungen der Animationen in Folge.
@@ -274,6 +474,7 @@ Public Class SteinInfo
         End Get
         Set(value As Single)
             _AnimLoops = value
+            MarkDirty()
             'TODO 
             'Berechnung von AnimationMaxStepLastLoop aus AnimationMaxStep
             'und setzten des AnimationLoopCounter
@@ -290,6 +491,15 @@ Public Class SteinInfo
     ''' </summary>
     <XmlIgnore>
     Public Property AnimLoopCount As Integer
+        Get
+            Return _AnimLoopCount
+        End Get
+        Set(value As Integer)
+            If _AnimLoopCount = value Then Return
+            _AnimLoopCount = value
+            MarkDirty()
+        End Set
+    End Property
 
     ' Sichtbar = logisches NOT (im Bitbereich) von Verdeckt, bei 4 relevanten Bits
     <XmlIgnore>
@@ -299,6 +509,7 @@ Public Class SteinInfo
             Return CType(15 Xor CInt(Verdeckung), Sichtbar)
         End Get
         Set(value As Sichtbar)
+            ' Setter läuft über Verdeckung => dirty kommt dort
             ' Umgekehrt: Verdeckt ist invertiert zu Sichtbar
             Verdeckung = CType(15 Xor CInt(value), Verdeckt)
         End Set
@@ -330,12 +541,16 @@ Public Class SteinInfo
         Set(value As Boolean)
             Dim mask As Integer = CInt(quadrant)
             Dim v As Integer = CInt(Verdeckung)
+            Dim newV As Integer
+
             If value Then
-                v = v Or mask   ' Bit setzen
+                newV = v Or mask 'Bit setzen
             Else
-                v = v And Not mask ' Bit löschen
+                newV = v And Not mask 'Bit löschen
             End If
-            Verdeckung = CType(v, Verdeckt)
+
+            If newV = v Then Return
+            Verdeckung = CType(newV, Verdeckt) ' dirty kommt im Verdeckung-Setter
         End Set
     End Property
 
@@ -349,14 +564,16 @@ Public Class SteinInfo
         Set(value As Boolean)
             Dim mask As Integer = CInt(quadrant)
             Dim v As Integer = CInt(Verdeckung)
+            Dim newV As Integer
             If value Then
                 ' Sichtbar => Verdeckt-Bit löschen
-                v = v And Not mask
+                newV = v And Not mask
             Else
                 ' Nicht sichtbar => Verdeckt-Bit setzen
-                v = v Or mask
+                newV = v Or mask
             End If
-            Verdeckung = CType(v, Verdeckt)
+            If newV = v Then Return
+            Verdeckung = CType(newV, Verdeckt) ' dirty kommt im Verdeckung-Setter
         End Set
     End Property
     '
@@ -391,11 +608,16 @@ Public Class SteinInfo
 
         ' Tiefer Kopieren aller Referenztypen/Felder:
         ' Triple ist eine Klasse → explizit klonen
+        ' Triple ist Klasse -> tief kopieren, aber: Ereignisse werden später durch Container gesetzt
         If Me.Postion3D IsNot Nothing Then
             c.Postion3D = Me.Postion3D.DeepCopy
         End If
 
         ' Falls später weitere Referenztypen hinzukommen, hier analog tief kopieren.
+
+        ' Notifier nicht kopieren weil der Clone später vom Container neu 
+        ' "owned" werden muss (sonst meldet er in den falschen Owner).
+        c.SetDirtyNotifier(Nothing)
 
         Return c
 
@@ -416,6 +638,7 @@ Public Class SteinInfo
     End Function
 
     Public Function IsEmpty() As Boolean
+        If _pos3D Is Nothing Then Return True
         Return Postion3D.x = 0
     End Function
 

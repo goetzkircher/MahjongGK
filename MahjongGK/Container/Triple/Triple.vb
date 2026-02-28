@@ -30,19 +30,64 @@ Option Strict On
 #Disable Warning IDE0079
 #Disable Warning IDE1006
 
+
 ''' <summary>Klasse zum Kapseln von x, y und z-Koordinaten</summary>
 <DebuggerDisplay("{DebuggerView}")>
 <DebuggerStepThrough>
 <Serializable>
 Public Class Triple
 
+    Public Event Changed(sender As Triple)
+
+    Private _x As Integer
+    Private _y As Integer
+    Private _z As Integer
+    Private _Valide As ValidePlaceEnum
+
     Public Property x As Integer
+        Get
+            Return _x
+        End Get
+        Set(value As Integer)
+            If _x = value Then Return
+            _x = value
+            RaiseChanged()
+        End Set
+    End Property
+
     Public Property y As Integer
+        Get
+            Return _y
+        End Get
+        Set(value As Integer)
+            If _y = value Then Return
+            _y = value
+            RaiseChanged()
+        End Set
+    End Property
+
     Public Property z As Integer
+        Get
+            Return _z
+        End Get
+        Set(value As Integer)
+            If _z = value Then Return
+            _z = value
+            RaiseChanged()
+        End Set
+    End Property
+
     Public Property Valide As ValidePlaceEnum
-    ' Hinweis: Wenn ToString vorhanden ist, sind <DebuggerDisplay("{DebuggerView}")>
-    ' und der Code hier nicht nötig.
-    ' nur für den Debugger – wird nicht serialisiert/angezeigt
+        Get
+            Return _Valide
+        End Get
+        Set(value As ValidePlaceEnum)
+            If _Valide = value Then Return
+            _Valide = value
+            RaiseChanged()
+        End Set
+    End Property
+
     <DebuggerBrowsable(DebuggerBrowsableState.Never)>
     Private ReadOnly Property DebuggerView As String
         Get
@@ -50,20 +95,19 @@ Public Class Triple
         End Get
     End Property
 
-
     Sub New()
     End Sub
 
     Sub New(x As Integer, y As Integer, z As Integer)
-        Me.x = x : Me.y = y : Me.z = z
+        _x = x : _y = y : _z = z
     End Sub
 
-    Sub New(x As Integer, y As Integer, z As Integer, Valide As ValidePlaceEnum)
-        Me.x = x : Me.y = y : Me.z = z : Me.Valide = Valide
+    Sub New(x As Integer, y As Integer, z As Integer, valide As ValidePlaceEnum)
+        _x = x : _y = y : _z = z : _Valide = valide
     End Sub
 
-    Sub New(tripl As Triple, Valide As ValidePlaceEnum)
-        Me.x = tripl.x : Me.y = tripl.y : Me.z = tripl.z : Me.Valide = Valide
+    Sub New(tripl As Triple, valide As ValidePlaceEnum)
+        _x = tripl.x : _y = tripl.y : _z = tripl.z : _Valide = valide
     End Sub
 
     Public ReadOnly Property DeepCopy As Triple
@@ -99,4 +143,9 @@ Public Class Triple
     Public Overrides Function ToString() As String
         Return $"(X={x}, Y={y}, Z={z}, Valide={Valide})"
     End Function
+
+    Private Sub RaiseChanged()
+        RaiseEvent Changed(Me)
+    End Sub
+
 End Class

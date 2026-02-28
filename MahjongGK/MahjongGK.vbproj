@@ -184,6 +184,12 @@
     <Compile Include="frmToolBox mit UCtls\UctlToolboxHintergrund.vb">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="frmToolBox mit UCtls\UCtlWerkbank.Designer.vb">
+      <DependentUpon>UCtlWerkbank.vb</DependentUpon>
+    </Compile>
+    <Compile Include="frmToolBox mit UCtls\UCtlWerkbank.vb">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="Hilfsmodule\GfxHelfer.vb" />
     <Compile Include="Polling\FormRezise\ResizeActivityPoller.vb" />
     <Compile Include="Polling\Mouse\MouseInputPoller.vb" />
@@ -247,6 +253,7 @@
     <Compile Include="INI\IniCleanup.vb" />
     <Compile Include="INI\IniCommentReader.vb" />
     <Compile Include="INI\IniChangedEventArgs.vb" />
+    <Compile Include="SpielfeldKlassen\SteinInfoCollection.vb" />
     <Compile Include="SpielfeldNamespaceSpielfeld\HScrollRenderer.vb" />
     <Compile Include="SpielfeldNamespaceSpielfeld\Rendermodule\RenderingHelper.vb" />
     <Compile Include="SpielfeldNamespaceSpielfeld\Rendermodule\RenderingStartScreen.vb" />
@@ -303,12 +310,6 @@
     </Compile>
     <Compile Include="UserControls\Verschiedene kleine\ToolStripEx.vb">
       <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="UserControls\Werkbank\UCtlWerkbank.Designer.vb">
-      <DependentUpon>UCtlWerkbank.vb</DependentUpon>
-    </Compile>
-    <Compile Include="UserControls\Werkbank\UCtlWerkbank.vb">
-      <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Werken %28Bausteine erzeugen%29\Werkbank.vb" />
     <Compile Include="Werken %28Bausteine erzeugen%29\WerkbankHelfer.vb" />
@@ -391,6 +392,9 @@
       <DependentUpon>UctlToolboxHintergrund.vb</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <EmbeddedResource Include="frmToolBox mit UCtls\UCtlWerkbank.resx">
+      <DependentUpon>UCtlWerkbank.vb</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="INI\FrmIniEditor.resx">
       <DependentUpon>FrmIniEditor.vb</DependentUpon>
     </EmbeddedResource>
@@ -414,9 +418,6 @@
     <EmbeddedResource Include="UserControls\Spielfeld\UCtlSpielfeld.resx">
       <DependentUpon>UCtlSpielfeld.vb</DependentUpon>
       <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UserControls\Werkbank\UCtlWerkbank.resx">
-      <DependentUpon>UCtlWerkbank.vb</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

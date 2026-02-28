@@ -102,9 +102,7 @@ Public Class SpielfeldInfo
 
 #Region "Konstruktor / Initialisierung"
     Sub New()
-        If String.IsNullOrWhiteSpace(_ident) Then
-            _ident = MjMix.NewIdent
-        End If
+
     End Sub
 
     ''' <summary>
@@ -113,9 +111,6 @@ Public Class SpielfeldInfo
     ''' </summary>
     ''' <param name="spielSize"></param>
     Sub New(spielSize As Triple, mode As SpielfeldOrEditorMode)
-        If String.IsNullOrWhiteSpace(_ident) Then
-            _ident = MjMix.NewIdent
-        End If
         Me.Mode = mode
         Initialisierung(spielSize)
     End Sub
@@ -136,7 +131,7 @@ Public Class SpielfeldInfo
         End With
 
         ReDim arrFB(xUBnd, yUBnd, zUBnd)
-        SteinInfos = New List(Of SteinInfo)
+        SteinInfoCol = New SteinInfoCollection
 
     End Sub
 
@@ -149,24 +144,37 @@ Public Class SpielfeldInfo
     Public Name As String
     Public Property Mode As SpielfeldOrEditorMode
 
-    Private _ident As String
+    <XmlElement(ElementName:="PersistentIdent")>
+    Public _persistentIdent As String = MjMix.NewIdent
 
     ''' <summary>
-    ''' Eindeutige Identifikation. Wird bei New() automatisch vergeben.
+    ''' Eindeutige Identifikation (persistent).
     ''' </summary>
-    Public Property Ident As String
+    Public ReadOnly Property PersistentIdent As String
         Get
-            Return _ident
+            Return _persistentIdent
         End Get
-        Set(value As String)
-            ' Beim Deserialisieren/Setzen niemals leer lassen:
-            If String.IsNullOrWhiteSpace(value) Then
-                _ident = MjMix.NewIdent
-            Else
-                _ident = value.Trim()
-            End If
-        End Set
     End Property
+
+    ''' <summary>
+    ''' temporäre Ident,(nicht persistent) wird bei jedem Erzeugen der Spielfeldinfo erneut vergeben,
+    ''' auch beim Laden der XML-Datei von Festplatte.
+    ''' </summary>
+    <XmlIgnore>
+    Private _sessionIdent As String = Guid.NewGuid.ToString
+    Public ReadOnly Property SessionIdent As String
+        Get
+            Return _sessionIdent
+        End Get
+    End Property
+
+    Public Function HasSameSessionIdent(lastSessionIdent As String) As Boolean
+        If String.IsNullOrEmpty(lastSessionIdent) Then
+            Return False
+        Else
+            Return lastSessionIdent = _sessionIdent
+        End If
+    End Function
 
     Public Property SpielSize As Triple
     Public Property xMin As Integer = 1
@@ -399,7 +407,9 @@ Public Class SpielfeldInfo
         End Set
     End Property
 
-    Public Property SteinInfos As List(Of SteinInfo) = Nothing
+    Public Property SteinInfoCol As SteinInfoCollection = Nothing
+
+    Public Property SteinChanged As Boolean
 
 #End Region
 
@@ -461,7 +471,7 @@ Public Class SpielfeldInfo
     ''' <returns></returns>
     Public ReadOnly Property IsPlayable As Boolean
         Get
-            If IsNothing(SteinInfos) OrElse SteinInfos.Count = 0 Then
+            If IsNothing(SteinInfoCol) OrElse SteinInfoCol.Count = 0 Then
                 Return False
             End If
 
@@ -469,7 +479,7 @@ Public Class SpielfeldInfo
             Dim foundWerkstattStein As Boolean
 
 
-            For Each stein As SteinInfo In SteinInfos
+            For Each stein As SteinInfo In SteinInfoCol
                 arrKlickGruppeCount(stein.KlickGruppe) += 1
                 If stein.IsWerkbankStein Then
                     foundWerkstattStein = True
@@ -497,8 +507,9 @@ Public Class SpielfeldInfo
 
     Public ReadOnly Property IsEmpty As Boolean
         Get
-            If IsNothing(SteinInfos) Then Return True
-            If SteinInfos.Count = 0 Then Return True
+            'If INI.Debug_StopRendering Then Stop
+            If IsNothing(SteinInfoCol) Then Return True
+            If SteinInfoCol.Count = 0 Then Return True
             If xMax = 0 Then Return True
             If yMax = 0 Then Return True
             Return False
@@ -611,7 +622,7 @@ Public Class SpielfeldInfo
         'Index in SteinInfos. Grund: werden später Steine im Editor entfernt, verschieben sich die
         'Indexnummern in SteinInfos und da muss arrFB aktualisert werden. Dazu braucht man den
         '"alten" steinInfoIndex, eben diesen steinInfoIndex.
-        Dim newSteinInfo As New SteinInfo(steinInfoIndex:=SteinInfos.Count, steinIndex, steinPos3D, tmpDebug)
+        Dim newSteinInfo As New SteinInfo(steinInfoIndex:=SteinInfoCol.Count, steinIndex, steinPos3D, tmpDebug)
 
         If Not steinPos3D.IsInsideSpielfeldBounds(arrFB) Then
             'Falsche Positionsangabe.
@@ -656,10 +667,10 @@ Public Class SpielfeldInfo
         'Hier ist jetzt die Normal -Routine
         '
         'SteinInfos.Count ist der Index, den der Stein in SteinInfos haben wird.
-        CopySteinIndexToSpielfeldPos3DAndSetOffsetXY(steinPos3D, SteinInfoIndex:=SteinInfos.Count)
+        CopySteinIndexToSpielfeldPos3DAndSetOffsetXY(steinPos3D, SteinInfoIndex:=SteinInfoCol.Count)
         '() nicht trennen, der Index muss stimmen. Späterer Zugriff über
         'Dim aktSteininfo As SteinInfo = SteinInfos(indexSteinInfo)
-        SteinInfos.Add(newSteinInfo)
+        SteinInfoCol.Add(newSteinInfo)
 
         Return True
 
@@ -679,7 +690,7 @@ Public Class SpielfeldInfo
         Dim siDc As SteinInfo = wsSteinInfo.DeepCopy
 
         With siDc
-            .SteinInfoIndex = SteinInfos.Count
+            .SteinInfoIndex = SteinInfoCol.Count
             .Postion3D = steinPos3D
         End With
 
@@ -727,10 +738,10 @@ Public Class SpielfeldInfo
         'Hier ist jetzt die Normal -Routine
         '
         'SteinInfos.Count ist der Index, den der Stein in SteinInfos haben wird.
-        CopySteinIndexToSpielfeldPos3DAndSetOffsetXY(steinPos3D, SteinInfoIndex:=SteinInfos.Count)
+        CopySteinIndexToSpielfeldPos3DAndSetOffsetXY(steinPos3D, SteinInfoIndex:=SteinInfoCol.Count)
         '() nicht trennen, der Index muss stimmen. Späterer Zugriff über
         'Dim aktSteininfo As SteinInfo = SteinInfos(indexSteinInfo)
-        SteinInfos.Add(siDc)
+        SteinInfoCol.Add(siDc)
 
         Return True
 
@@ -1615,9 +1626,9 @@ Public Class SpielfeldInfo
         Dim steineVorrat As New List(Of SteinIndexEnum)
         Dim steineSpielfeld As New List(Of SteinIndexEnum)
 
-        If SteinInfos IsNot Nothing AndAlso SteinInfos.Count > 0 Then
+        If SteinInfoCol IsNot Nothing AndAlso SteinInfoCol.Count > 0 Then
             'Steine einsammeln
-            For Each item As SteinInfo In SteinInfos
+            For Each item As SteinInfo In SteinInfoCol
                 steineSpielfeld.Add(item.SteinIndex)
             Next
         End If
@@ -1773,7 +1784,7 @@ Public Class SpielfeldInfo
     End Sub
     Public Sub Save(fullpath As String)
         ' Defensive: Null-Propagation falls SteinInfos Nothing ist
-        SteinInfo_Count = If(SteinInfos IsNot Nothing, SteinInfos.Count, 0)
+        SteinInfo_Count = If(SteinInfoCol IsNot Nothing, SteinInfoCol.Count, 0)
 
         Dim ser As New XmlSerializer(GetType(SpielfeldInfo)) ' explizit, nicht Me.GetType()
         Dim settings As New XmlWriterSettings With {

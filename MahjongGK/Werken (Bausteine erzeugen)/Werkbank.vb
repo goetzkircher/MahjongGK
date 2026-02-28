@@ -64,6 +64,8 @@ Public Class Werkbank
         ReDim arrFB(xUBnd, yUBnd, zUBnd)
         SteinInfos = New List(Of SteinInfo)
 
+
+
     End Sub
 
     Public xMin As Integer = 1

@@ -23,28 +23,54 @@ Public Class KompassRoseX
 #Region "Enums & Events"
 
     Public Enum KompassXEnum
-        None    ' nichts ausgewählt
-        Center  ' Center wurde geklickt
+        None
+        Center
         N
         NNO
         NO
-        NOO
+        OON
         O
-        SOO
+        OOS
         SO
         SSO
         S
         SSW
         SW
-        SWW
+        WWS
         W
-        NWW
+        WWN
         NW
         NNW
     End Enum
 
+    Public Enum KompassXDiagonalEnum
+        None
+        Center
+        '
+        N_S
+        NNO_SSW
+        NO_SW
+        WWS_OON
+        W_O
+        WWN_OOS
+        NW_SO
+        NNW_SSO
+
+    End Enum
+
+    Public Function CvtKompassXToDiagonale(kpx As KompassXEnum) As KompassXDiagonalEnum
+
+        If kpx < KompassXEnum.S Then
+            Return CType(kpx, KompassXDiagonalEnum)
+        Else
+            Return CType(kpx - 8, KompassXDiagonalEnum)
+        End If
+
+    End Function
+
     ''' <summary>Ausgelöst nur bei neuer Selektion.</summary>
     Public Event DirectionChanged(direction As KompassXEnum)
+    Public Event DirectionClick(direction As KompassXEnum)
 
 #End Region
 
@@ -97,8 +123,8 @@ Public Class KompassRoseX
     Private Shared ReadOnly RING_MID As KompassXEnum() =
         {KompassXEnum.NW, KompassXEnum.NO, KompassXEnum.SW, KompassXEnum.SO}
     Private Shared ReadOnly RING_INNER As KompassXEnum() =
-        {KompassXEnum.NNO, KompassXEnum.NOO, KompassXEnum.SOO, KompassXEnum.SSO,
-         KompassXEnum.SSW, KompassXEnum.SWW, KompassXEnum.NWW, KompassXEnum.NNW}
+        {KompassXEnum.NNO, KompassXEnum.OON, KompassXEnum.OOS, KompassXEnum.SSO,
+         KompassXEnum.SSW, KompassXEnum.WWS, KompassXEnum.WWN, KompassXEnum.NNW}
 
 #End Region
 
@@ -141,6 +167,13 @@ Public Class KompassRoseX
 
 #Region "Öffentliche API"
 
+    Public ReadOnly Property DirectionDiagonal As KompassXDiagonalEnum
+        Get
+            Return CvtKompassXToDiagonale(_direction)
+        End Get
+    End Property
+
+
     ''' <summary>
     ''' Der aktuell ausgewählte Punkt. Setter wirft Exception bei Disabled/NotVisible.
     ''' </summary>
@@ -157,6 +190,7 @@ Public Class KompassRoseX
         End Set
     End Property
 
+
     ''' <summary>Richtungen als Disabled (funktionslos) markieren.</summary>
     Public Sub DisableDirection(ByVal disabled() As KompassXEnum)
         _disabled.Clear()
@@ -171,18 +205,62 @@ Public Class KompassRoseX
         End If
     End Sub
 
+    Public Sub DisableXDirections()
+        Dim disabled() As KompassXEnum = {KompassXEnum.NNO,
+                                          KompassXEnum.OON,
+                                          KompassXEnum.OOS,
+                                          KompassXEnum.SSO,
+                                          KompassXEnum.SSW,
+                                          KompassXEnum.WWS,
+                                          KompassXEnum.WWN,
+                                          KompassXEnum.NNW}
+        DisableDirection(disabled)
+    End Sub
+
     ''' <summary>Richtungen als NotVisible (unsichtbar und funktionslos) markieren.</summary>
     Public Sub NotVisibleDirection(ByVal notvisible() As KompassXEnum)
         _notVisible.Clear()
         If notvisible IsNot Nothing Then
             For Each d As KompassXEnum In notvisible
-                If d <> KompassXEnum.None Then _notVisible.Add(d) ' FIX
+                If d <> KompassXEnum.None Then
+                    If Not _notVisible.Contains(d) Then
+                        _notVisible.Add(d) ' FIX
+                    End If
+                End If
             Next
         End If
         RefreshVisualsAll()
         If _direction <> KompassXEnum.None AndAlso _notVisible.Contains(_direction) Then
             ApplySelection(KompassXEnum.None, raiseEvt:=False)
         End If
+    End Sub
+    ''' <summary>
+    ''' Schaltet die Richtungen NNO, NNW...SSO ab.
+    ''' </summary>
+    Public Sub SetVisibleXDirectionsXXX(status As Boolean)
+        Dim visible() As KompassXEnum = {KompassXEnum.NNO,
+                                         KompassXEnum.OON,
+                                         KompassXEnum.OOS,
+                                         KompassXEnum.SSO,
+                                         KompassXEnum.SSW,
+                                         KompassXEnum.WWS,
+                                         KompassXEnum.WWN,
+                                         KompassXEnum.NNW}
+
+        If status Then
+            For Each d As KompassXEnum In visible
+                If _notVisible.Contains(d) Then
+                    _notVisible.Remove(d) ' FIX
+                End If
+            Next
+        Else
+            For Each d As KompassXEnum In visible
+                If Not _notVisible.Contains(d) Then
+                    _notVisible.Add(d) ' FIX
+                End If
+            Next
+        End If
+        RefreshVisualsAll()
     End Sub
 
     ''' <summary>True, falls Richtung deaktiviert oder unsichtbar ist.</summary>
@@ -306,12 +384,12 @@ Public Class KompassRoseX
 
         ' Innenring (22.5°-Offsets)
         PlacePolar(KompassXEnum.NNO, RADIUS_INNEN, 22.5, cx, cy, maxR, dotSize)
-        PlacePolar(KompassXEnum.NOO, RADIUS_INNEN, 67.5, cx, cy, maxR, dotSize)
-        PlacePolar(KompassXEnum.SOO, RADIUS_INNEN, 112.5, cx, cy, maxR, dotSize)
+        PlacePolar(KompassXEnum.OON, RADIUS_INNEN, 67.5, cx, cy, maxR, dotSize)
+        PlacePolar(KompassXEnum.OOS, RADIUS_INNEN, 112.5, cx, cy, maxR, dotSize)
         PlacePolar(KompassXEnum.SSO, RADIUS_INNEN, 157.5, cx, cy, maxR, dotSize)
         PlacePolar(KompassXEnum.SSW, RADIUS_INNEN, 202.5, cx, cy, maxR, dotSize)
-        PlacePolar(KompassXEnum.SWW, RADIUS_INNEN, 247.5, cx, cy, maxR, dotSize)
-        PlacePolar(KompassXEnum.NWW, RADIUS_INNEN, 292.5, cx, cy, maxR, dotSize)
+        PlacePolar(KompassXEnum.WWN, RADIUS_INNEN, 247.5, cx, cy, maxR, dotSize)
+        PlacePolar(KompassXEnum.WWS, RADIUS_INNEN, 292.5, cx, cy, maxR, dotSize)
         PlacePolar(KompassXEnum.NNW, RADIUS_INNEN, 337.5, cx, cy, maxR, dotSize)
     End Sub
 
@@ -501,7 +579,13 @@ Public Class KompassRoseX
     End Sub
 
     Private Sub ApplySelection(ByVal newDir As KompassXEnum, ByVal raiseEvt As Boolean)
+
+
+
         If newDir = _direction Then
+            If raiseEvt Then
+                RaiseEvent DirectionClick(_direction)
+            End If
             Return
         End If
 
@@ -524,6 +608,7 @@ Public Class KompassRoseX
         Me.Invalidate()
 
         If raiseEvt Then
+            RaiseEvent DirectionClick(_direction)
             RaiseEvent DirectionChanged(_direction)
         End If
     End Sub

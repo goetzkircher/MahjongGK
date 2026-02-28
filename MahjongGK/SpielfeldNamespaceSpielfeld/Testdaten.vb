@@ -92,7 +92,7 @@ Namespace Spielfeld
 
             ' Das Polling läuft bereits Spielfeld.TaktgeberModul.PaintSpielfeld_ReInitialisierung()
 
-            Dim wbsSF As Werkstück = Umfeld.Werkstück_Rechteck(New Triple(5, 5, 10), demoMode:=True) ', True, True)
+            Dim wbsSF As Werkstück = Umfeld.Werkstück_Rechteck(New Triple(5, 6, 10), demoMode:=True) ', True, True)
             'Dim wbs As Werkstück = Umfeld.Werkstück_Rechteck(New Triple(5, 5, 25))
             Dim wbsWB As Werkstück = Umfeld.Werkstück_Pyramide(New Triple(5, 5, 10), True, True, demoMode:=True)
             Dim wbsEd As Werkstück = Umfeld.Werkstück_Pyramide(New Triple(10, 5, 4), True, True, demoMode:=True)

@@ -12,7 +12,7 @@ Imports Grafix = System.Drawing.Graphics   ' Alias, damit die Signatur exakt "Gr
 '   - Pfeilbuttons links/rechts (SmallChange), gedrückt halten = Auto-Repeat
 '   - Auto-Repeat per PumpAutoRepeat() (zeitgesteuert, fürs Polling)
 ' ─────────────────────────────────────────────────────────────────────────────
-Public Module HScrollRenderer
+Public Class HScrollRenderer
 
     ' Monotone Uhr (startet einmalig beim Laden)
     '(Monoton heißt, die Zeit springt nicht bei Änderungen der Systemzeit.)
@@ -63,6 +63,25 @@ Public Module HScrollRenderer
     Private _lastTrackRect As Rectangle = Rectangle.Empty
     Private _lastLeftArrow As Rectangle = Rectangle.Empty
     Private _lastRightArrow As Rectangle = Rectangle.Empty
+    Private _rectHScrollbar As Rectangle = Rectangle.Empty
+    Private _colorschemeEnabled As ScrollColorScheme
+    Private _colorschemeDisabled As ScrollColorScheme
+    Private _isInit As Boolean = False
+
+
+    Sub New()
+
+    End Sub
+
+    Public Sub New(rectHScrollbar As Rectangle, basisColor As Color)
+        If rectHScrollbar.Width <= 0 OrElse rectHScrollbar.Height <= 0 Then
+            Throw New Exception("HScrollRenderer rectHScrollbar.Width <= 0 OrElse rectHScrollbar.Height <= 0")
+        End If
+        _rectHScrollbar = rectHScrollbar
+        _colorschemeEnabled = BuildScheme(basisColor, enabled:=True)
+        _colorschemeDisabled = BuildScheme(basisColor, enabled:=False)
+        _isInit = True
+    End Sub
 
     ' ── Bereich / Value / Schritte ───────────────────────────────────────────
     Public Sub SetRange(minimum As Integer, maximum As Integer)
@@ -111,15 +130,18 @@ Public Module HScrollRenderer
     End Function
 
     ' ── Zeichnen ─────────────────────────────────────────────────────────────
-    Public Sub PaintHScroll(gfx As Grafix, rectHScrollbar As Rectangle, basisColor As Color, enabled As Boolean)
-        If rectHScrollbar.Width <= 0 OrElse rectHScrollbar.Height <= 0 Then Return
+    Public Sub PaintHScroll(gfx As Grafix, enabled As Boolean)
 
-        Dim scheme As ScrollColorScheme = BuildScheme(basisColor, enabled)
+        If Not _isInit Then
+            Throw New Exception("HScrollRenderer.PaintHScroll not Init")
+        End If
+
+        Dim scheme As ScrollColorScheme = If(enabled, _colorschemeEnabled, _colorschemeDisabled)
 
         ' Pfeil- und Trackrechtecke berechnen
-        _lastLeftArrow = New Rectangle(rectHScrollbar.Left, rectHScrollbar.Top, ArrowWidth, rectHScrollbar.Height)
-        _lastRightArrow = New Rectangle(rectHScrollbar.Right - ArrowWidth, rectHScrollbar.Top, ArrowWidth, rectHScrollbar.Height)
-        _lastTrackRect = Rectangle.FromLTRB(_lastLeftArrow.Right, rectHScrollbar.Top, _lastRightArrow.Left, rectHScrollbar.Bottom)
+        _lastLeftArrow = New Rectangle(_rectHScrollbar.Left, _rectHScrollbar.Top, ArrowWidth, _rectHScrollbar.Height)
+        _lastRightArrow = New Rectangle(_rectHScrollbar.Right - ArrowWidth, _rectHScrollbar.Top, ArrowWidth, _rectHScrollbar.Height)
+        _lastTrackRect = Rectangle.FromLTRB(_lastLeftArrow.Right, _rectHScrollbar.Top, _lastRightArrow.Left, _rectHScrollbar.Bottom)
 
         ' Track
         Using bg As New SolidBrush(scheme.Track)
@@ -544,4 +566,4 @@ Public Module HScrollRenderer
         Return Color.FromArgb(c.A, r, g, b)
     End Function
 
-End Module
+End Class

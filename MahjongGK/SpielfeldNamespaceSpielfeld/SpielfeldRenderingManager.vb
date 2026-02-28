@@ -1,4 +1,12 @@
-﻿Option Compare Text
+﻿' Dim somethingMouseDone As Boolean = SFD.MousePolling.PeekPoll() findest du in
+' PaintSpielfeld_Paint am Anfang.
+' Die Auswertung erfolgt dann in SpielfeldLayouter.UpdateMouseValues
+' Der Knackpunkt ist: SpielfeldLayouter.UpdateMouseValues wird nicht immer erreicht
+' und dann liefert SFD.MousePolling.PeekPoll() falsche Werte.
+
+
+
+Option Compare Text
 Option Explicit On
 Option Infer Off
 Option Strict On
@@ -51,6 +59,9 @@ Namespace Spielfeld
         Private _takteAussetzen As Integer
         Private _readNewIni As Boolean
         Private _raiseIniEvents As IniEvents
+
+        Private _Spielbetrieb_PositionHistory As Integer = -1 'nicht möglicher Wert
+
         Public Sub PaintSpielfeld_CreateScreenShot()
             _createScreenShot = True
         End Sub
@@ -156,11 +167,15 @@ Namespace Spielfeld
             End If
         End Sub
 
-        Private Sub SetRendertimerIntervall()
-            If SFD.RenderingSkipCounter > INI.Rendering_RenderTimerFramesToPause Then
-                RenderTimer.Interval = INI.Rendering_RenderTimerIntervalPaused
-            Else
+        Private Sub SetRendertimerIntervall(Optional setWorking As Boolean = False)
+            If setWorking Then
                 RenderTimer.Interval = INI.Rendering_RenderTimerIntervalWorking
+            Else
+                If SFD.RenderingSkipCounter > INI.Rendering_RenderTimerFramesToPause Then
+                    RenderTimer.Interval = INI.Rendering_RenderTimerIntervalPaused
+                Else
+                    RenderTimer.Interval = INI.Rendering_RenderTimerIntervalWorking
+                End If
             End If
         End Sub
 
@@ -179,7 +194,7 @@ Namespace Spielfeld
                 'möglich ist und auch dann nur, wenn das Programm in der IDE läuft), weil die Ini dann diverse
                 'Events auslöst, die erst abgearbeitet werden müssen. Um Seiteneffekte zu vermeiden, muß das
                 'Rendern ausgesetzt werden.
-                'Die Taktzahl ist bewußt viel zu hoch angesetzt (etwa eine Sekunde), damit erübrigt sich es,
+                'Die Taktzahl ist bewußt viel zu hoch angesetzt (etwa 1/2 Sekunde), damit erübrigt sich es,
                 'darüber nachzudenken, ob es notwendig wird, die Taktzahl später nochmal zu erhöhen. 
 
                 _takteAussetzen -= 1
@@ -212,129 +227,128 @@ Namespace Spielfeld
 #Region "Mausaktionen und Größenänderung der Form auswerten und Rendern ggf verkürzen."
 
 
-            Dim somethingMouseDone As Boolean = SFD.MousePolling.Poll
+
+            Dim somethingMouseDone As Boolean = SFD.MousePolling.PeekPoll()
+
+            Debug.Print("somethingMouseDone " & somethingMouseDone.ToString)
             Dim somethingResizeDone As Boolean = SFD.ResizePolling.Poll
+
             'If SFD.ToolboxTabPageChanged Then
             '    Stop
             'End If
 
             Dim updateSpielfeld As Boolean = False
+            Dim doRendering As Boolean = False
 
-            If somethingResizeDone Then
-                'Auswertung des Resizing hat Priorität
-                If SFD.ResizePolling.ConsumeResizeStarted Then
-                    SFD.ResizingIsAktiv = True
-                End If
-                If SFD.ResizePolling.ConsumeResizeEnded Then
-                    SFD.ResizingIsAktiv = False
-                End If
-            ElseIf somethingMouseDone Then
-                'Auswerten der Mausbewegung
-                '    Dim d As Size = _mouse.ConsumeCursorMovedDelta()
-
+            If _Spielbetrieb_PositionHistory <> INI.Spielbetrieb_PositionHistory Then
+                updateSpielfeld = True
+                doRendering = True
+                _Spielbetrieb_PositionHistory = INI.Spielbetrieb_PositionHistory
+                SetRendertimerIntervall(setWorking:=True)
             End If
 
-            SetRendertimerIntervall()
-            Dim doRendering As Boolean = False
-            Dim aktRenderingChanged As Boolean = SFD.ConsumeRenderingChanged
-
-            If SFD.ResizingIsAktiv Then
-                PaintBackbuffer(e.Graphics, rectOutput)
-                Exit Sub
-            Else
-
-                If somethingMouseDone Then
-                    doRendering = True
-                Else
-                    If _forceUpdate Then
-                        doRendering = True
-                    Else
-                        If rectOutput <> _lastRectOutput Then
-                            updateSpielfeld = True
-                            doRendering = True
-                        Else
-                            If aktRenderingChanged Then
-                                updateSpielfeld = True
-                                doRendering = True
-                            Else
-
-                                If Not SFD.Backbuffer_HasContent Then
-                                    doRendering = True
-                                Else
-                                    If _createScreenShot Then
-                                        doRendering = True
-                                    Else
-                                        If _initialisierungLäuft Then
-                                            doRendering = True
-                                        Else
-                                            If _takteAussetzen > 0 Then
-                                                doRendering = True
-                                            Else
-                                                If _PaintSpielfeld_ShortPause Then
-                                                    doRendering = True
-                                                Else
-                                                    If _BeginnPause Then
-                                                        doRendering = True
-                                                    Else
-                                                        If _ContinuePause Then
-                                                            doRendering = True
-                                                        Else
-                                                            If _EndePause Then
-                                                                doRendering = True
-                                                            Else
-                                                            End If
-                                                        End If
-                                                    End If
-                                                End If
-                                            End If
-                                        End If
-                                    End If
-                                End If
-                            End If
-                        End If
+            If Not doRendering Then
+                If somethingResizeDone Then
+                    'Auswertung des Resizing hat Priorität
+                    If SFD.ResizePolling.ConsumeResizeStarted Then
+                        SFD.ResizingIsAktiv = True
                     End If
-                End If
-
-                If SFD.ToolboxTabPageChanged Then
-                    'Sonst schaltet die Spielfeld/Editor-Umschaltung nicht, wenn die Toolbox auf frmMain steht.
-                    updateSpielfeld = True
+                    If SFD.ResizePolling.ConsumeResizeEnded Then
+                        SFD.ResizingIsAktiv = False
+                    End If
+                ElseIf somethingMouseDone Then
                     doRendering = True
                 End If
 
-                _lastRendering = SFD.AktRendering
-                _lastRectOutput = rectOutput
+                SetRendertimerIntervall()
 
-                If Not doRendering Then
+                If SFD.ResizingIsAktiv Then
                     PaintBackbuffer(e.Graphics, rectOutput)
                     Exit Sub
+                End If
+            End If
 
+            Dim aktRenderingChanged As Boolean = SFD.ConsumeRenderingChanged
+
+            ' If Debug_StopRenderingOnce Then Stop
+
+            If aktRenderingChanged Then
+                updateSpielfeld = True
+                doRendering = True
+            ElseIf SFD.SessionIdentChanged Then
+                updateSpielfeld = True
+                doRendering = True
+            ElseIf rectOutput <> _lastRectOutput Then
+                updateSpielfeld = True
+                doRendering = True
+            ElseIf SFD.ToolboxTabPageChanged Then
+                'Sonst schaltet die Spielfeld/Editor-Umschaltung nicht, wenn die Toolbox auf frmMain steht.
+                updateSpielfeld = True
+                doRendering = True
+            ElseIf _EndePause Then
+                updateSpielfeld = True
+                doRendering = True
+            End If
+
+            If doRendering = False Then
+                If SFD.RenderVersionChanged Then
+                    doRendering = True
+                ElseIf somethingMouseDone Then
+                    doRendering = True
+                ElseIf _forceUpdate Then
+                    doRendering = True
+                ElseIf Not SFD.Backbuffer_HasContent Then
+                    doRendering = True
+                ElseIf _createScreenShot Then
+                    doRendering = True
+                ElseIf _initialisierungLäuft Then
+                    doRendering = True
+                ElseIf _takteAussetzen > 0 Then
+                    doRendering = True
+                ElseIf _PaintSpielfeld_ShortPause Then
+                    doRendering = True
+                ElseIf _BeginnPause Then
+                    doRendering = True
                 ElseIf _ContinuePause Then
-                    If _BeginnPause Then
-                        PaintBackbuffer(e.Graphics, rectOutput)
-                        Exit Sub
-                    End If
+                    doRendering = True
 
-                ElseIf _EndePause Then
+                End If
+            End If
+
+
+            _lastRendering = SFD.AktRendering
+            _lastRectOutput = rectOutput
+
+            If Not doRendering Then
+                PaintBackbuffer(e.Graphics, rectOutput)
+                Exit Sub
+
+            ElseIf _ContinuePause Then
+                If _BeginnPause Then
                     PaintBackbuffer(e.Graphics, rectOutput)
-                    'Hier wird das Update der INI durchgeführt.
-                    _EndePause = False
-                    If _startIniUpdate Then
-                        _startIniUpdate = False
-                        INI.UpDateIni(_raiseIniEvents, _readNewIni)
-                        _raiseIniEvents = IniEvents.None
-                        _readNewIni = False
-                        _forceUpdate = True
-                        _takteAussetzen = 30
-                        Exit Sub
-                    End If
+                    Exit Sub
                 End If
 
-                SFD.RenderingSkipCounter = 0
-                SFD.RenderingDoneCounter += 1
-
-                If aktRenderingChanged Then
-                    frmMain.UpdateSpielfeldEditorWerkbankButtons()
+            ElseIf _EndePause Then
+                PaintBackbuffer(e.Graphics, rectOutput)
+                'Hier wird das Update der INI durchgeführt.
+                _EndePause = False
+                If _startIniUpdate Then
+                    _startIniUpdate = False
+                    INI.UpDateIni(_raiseIniEvents, _readNewIni)
+                    _raiseIniEvents = IniEvents.None
+                    _readNewIni = False
+                    _forceUpdate = True
+                    _takteAussetzen = 15
+                    Exit Sub
                 End If
+            End If
+
+            SFD.RenderingSkipCounter = 0
+            SFD.RenderingDoneCounter += 1
+
+            If aktRenderingChanged Then
+                frmMain.UpdateSpielfeldEditorWerkbankButtons()
             End If
 
 #End Region
@@ -368,10 +382,11 @@ Namespace Spielfeld
                 Select Case SFD.AktRendering
                     Case RenderingEnum.Spielfeld
                         If Not IsNothing(SFD.SpielfeldSpielfeldInfo) Then
-                            If Not IsNothing(SFD.SpielfeldSpielfeldInfo.SteinInfos) Then
+                            If Not IsNothing(SFD.SpielfeldSpielfeldInfo.SteinInfoCol) Then
                                 _initialisierungLäuft = False
                                 updateSpielfeld = False
                                 SpielfeldLayouter.UpdateSpielfeld(rectOutput, aktRenderingChanged)
+                                SpielfeldLayouter.UpdateMouseValues(rectOutput, somethingMouseDone, spielfeldIsUpdated:=True)
                                 DoPaintSpielfeld_Paint(e.Graphics, rectOutput, timeDifferenzFaktor)
                                 Exit Sub
 
@@ -380,10 +395,11 @@ Namespace Spielfeld
 
                     Case RenderingEnum.Werkbank
                         If Not IsNothing(SFD.WerkbankSpielfeldInfo) Then
-                            If Not IsNothing(SFD.WerkbankSpielfeldInfo.SteinInfos) Then
+                            If Not IsNothing(SFD.WerkbankSpielfeldInfo.SteinInfoCol) Then
                                 _initialisierungLäuft = False
                                 updateSpielfeld = False
                                 SpielfeldLayouter.UpdateSpielfeld(rectOutput, aktRenderingChanged)
+                                SpielfeldLayouter.UpdateMouseValues(rectOutput, somethingMouseDone, spielfeldIsUpdated:=True)
                                 DoPaintSpielfeld_Paint(e.Graphics, rectOutput, timeDifferenzFaktor)
                                 Exit Sub
 
@@ -392,10 +408,11 @@ Namespace Spielfeld
 
                     Case RenderingEnum.Editor
                         If Not IsNothing(SFD.SpielfeldSpielfeldInfo) Then
-                            If Not IsNothing(SFD.SpielfeldSpielfeldInfo.SteinInfos) Then
+                            If Not IsNothing(SFD.SpielfeldSpielfeldInfo.SteinInfoCol) Then
                                 _initialisierungLäuft = False
                                 updateSpielfeld = False
                                 SpielfeldLayouter.UpdateSpielfeld(rectOutput, aktRenderingChanged)
+                                SpielfeldLayouter.UpdateMouseValues(rectOutput, somethingMouseDone, spielfeldIsUpdated:=True)
                                 DoPaintSpielfeld_Paint(e.Graphics, rectOutput, timeDifferenzFaktor)
                                 Exit Sub
 
@@ -406,6 +423,7 @@ Namespace Spielfeld
 
             If updateSpielfeld Then
                 SpielfeldLayouter.UpdateSpielfeld(rectOutput, aktRenderingChanged, _forceUpdate)
+                SpielfeldLayouter.UpdateMouseValues(rectOutput, somethingMouseDone, spielfeldIsUpdated:=True)
                 DoPaintSpielfeld_Paint(e.Graphics, rectOutput, timeDifferenzFaktor)
                 _forceUpdate = False
                 updateSpielfeld = False
@@ -413,6 +431,7 @@ Namespace Spielfeld
             End If
 
             If doRendering Then
+                SpielfeldLayouter.UpdateMouseValues(rectOutput, somethingMouseDone, spielfeldIsUpdated:=False)
                 DoPaintSpielfeld_Paint(e.Graphics, rectOutput, timeDifferenzFaktor)
             End If
         End Sub

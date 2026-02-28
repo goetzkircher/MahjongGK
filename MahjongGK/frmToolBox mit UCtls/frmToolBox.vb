@@ -36,7 +36,7 @@ Public Class frmToolBox
 
 
     Public Const MJ_FRMTOOLBOX_WIDTH As Integer = 400
-    Public Const MJ_FRMTOOLBOX_HEIGHT As Integer = 540
+    Public Const MJ_FRMTOOLBOX_HEIGHT As Integer = 580
     Public Const MJ_FRMTOOLBOX_PADDING_LEFT As Integer = 15
     Public Const MJ_FRMTOOLBOX_PADDING_BOTTOM As Integer = 20
     Public Const MJ_FRMTOOLBOX_PANEL_ As Integer = 15
@@ -45,6 +45,8 @@ Public Class frmToolBox
     Private _aktVisibleUserControl As VisibleUserControl
 
     Private _toolboxBinder As OverlayHandleBinder
+
+    Private _aktBasisformEnum As BasisformEnum
 
 #Region "Maps für Enable/Disable"
     Private ReadOnly _mapEditorFile As New Dictionary(Of EditorFileCmd, ToolStripMenuItem)
@@ -86,8 +88,6 @@ Public Class frmToolBox
         BuildEditorMenu()
         BuildWerkbkMenu()
         UpDateSelectedTabIcon()
-        MovePanels(TabPageWerkbank)
-        AktivatePanel(TabPageWerkbank, pnlmoveLinie)
 
         _themer = New Theme.ThemeManager(Me, If(INI.Global_DarkMode, AppTheme.Dark, AppTheme.Light),
                                    useOwnerDrawTabs:=True,        ' auf True, wenn Tabs farbig gezeichnet werden sollen
@@ -323,60 +323,6 @@ Public Class frmToolBox
 
 #Region "Panelhandling"
 
-    ' Helper: filtert alle verschiebbaren Panels auf der TabPage
-    Private Shared Iterator Function MovablePanels(tp As TabPage) As IEnumerable(Of Panel)
-        If tp Is Nothing Then Return
-        For Each p As Panel In tp.Controls.OfType(Of Panel)()
-            ' Name beginnt mit "pnlmove" (case-insensitive)
-            If p.Name.StartsWith("pnlmove", StringComparison.OrdinalIgnoreCase) Then
-                Yield p
-            End If
-        Next
-    End Function
-
-    ' 1) Verschiebt alle "pnlmove*"-Panels nach unten/links und macht sie unsichtbar
-    Private Sub MovePanels(tp As TabPage)
-        If tp Is Nothing Then Exit Sub
-
-        ' DisplayRectangle berücksichtigt das TabPage-Padding
-        Dim dr As Rectangle = tp.DisplayRectangle
-
-        For Each pnl As Panel In MovablePanels(tp)
-            ' Position: links/unten mit Padding
-            Dim x As Integer = dr.Left + MJ_FRMTOOLBOX_PADDING_LEFT
-            Dim y As Integer = dr.Bottom - pnl.Height - MJ_FRMTOOLBOX_PADDING_BOTTOM
-            pnl.Location = New Point(x, y)
-            pnl.Width = dr.Width - 2 * MJ_FRMTOOLBOX_PADDING_LEFT
-
-            ' unten/links „kleben”
-            pnl.Anchor = AnchorStyles.Left Or AnchorStyles.Bottom
-
-            ' erstmal ausblenden
-            pnl.Visible = False
-        Next
-    End Sub
-
-    ' 2) Schaltet genau EIN Panel sichtbar, alle anderen unsichtbar
-    Private Sub AktivatePanel(tp As TabPage, pnl As Panel)
-        If tp Is Nothing OrElse pnl Is Nothing Then Exit Sub
-
-        ' Alle passenden Panels der Seite ausblenden
-        For Each p As Panel In MovablePanels(tp)
-            p.Visible = False
-        Next
-
-        ' Gewünschtes Panel einblenden (auch wenn es nicht "pnlmove*" heißt)
-        pnl.Visible = True
-        pnl.BringToFront()
-
-        ' Optional: an dieselbe Ecke „schnappen“, falls noch nicht positioniert
-        ' (Kommentar entfernen, falls gewünscht)
-        'Dim dr As Rectangle = tp.DisplayRectangle
-        'Dim x As Integer = dr.Left + MJ_FRMTOOLBOX_PADDING_LEFT
-        'Dim y As Integer = dr.Bottom - pnl.Height - MJ_FRMTOOLBOX_PADDING_BOTTOM
-        'pnl.Location = New Point(x, y)
-        'pnl.Anchor = AnchorStyles.Left Or AnchorStyles.Bottom
-    End Sub
 
 
     Private Sub TabControlToolBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles TabControlToolBox.SelectedIndexChanged
@@ -478,45 +424,16 @@ Public Class frmToolBox
         End Select
     End Sub
 
-    ' Werkbank/Basisformen — exakt wie gefordert
+    ' Werkbank/Basisformen 
     Private Sub DoBasisformen(bform As BasisformEnum)
-
 
         txtNameBasisform.Text = bform.ToString
         txtNameBasisformForSaving.Text = INI.ToolBox_NameBasisformForSaving(bform)
 
-        num2UpDnFeldSizeXmax.MinValue = 1
-        num2UpDnFeldSizeYmax.MinValue = 1
-        num2UpDnFeldSizeZmax.MinValue = 1
+        INI.Debug_StopRenderingOnce = True
 
-        num2UpDnFeldSizeXmax.MaxValue = INI.ToolBox_FeldSizeXmax()
-        num2UpDnFeldSizeYmax.MaxValue = INI.ToolBox_FeldSizeYmax()
-        num2UpDnFeldSizeZmax.MaxValue = INI.ToolBox_FeldSizeZmax()
+        UCtlWerkbank1.SetBasisformEnum(bform)
 
-        num2UpDnFeldSizeXmax.Value = INI.ToolBox_FeldSizeX(bform)
-        num2UpDnFeldSizeYmax.Value = INI.ToolBox_FeldSizeY(bform)
-        num2UpDnFeldSizeZmax.Value = INI.ToolBox_FeldSizeZ(bform)
-
-        AktivatePanel(TabPageWerkbank, BasisformEnumToPanel(bform))
-
-        Select Case bform
-            Case BasisformEnum.Linie
-                ' TODO
-            Case BasisformEnum.Winkel
-                ' TODO
-            Case BasisformEnum.UForm
-                ' TODO
-            Case BasisformEnum.Rechteck
-                ' TODO
-            Case BasisformEnum.Kreis
-                ' TODO
-            Case BasisformEnum.Pyramide
-                ' TODO
-            Case BasisformEnum.Kegel
-                ' TODO
-            Case BasisformEnum.Zufall
-                ' TODO
-        End Select
     End Sub
 
     ' Platzhalter
@@ -538,41 +455,9 @@ Public Class frmToolBox
         End Select
     End Sub
 
-
-
 #End Region
 
 #Region "Helfer"
-
-    Private Function BasisformEnumToPanel(basisform As BasisformEnum) As Panel
-
-        Select Case basisform
-            Case BasisformEnum.Kegel
-                Return pnlmoveKegel
-            Case BasisformEnum.Kreis
-                Return pnlmoveKreis
-            Case BasisformEnum.Linie
-                Return pnlmoveLinie
-            Case BasisformEnum.Pyramide
-                Return pnlmovePyramide
-            Case BasisformEnum.Rechteck
-                Return pnlmoveRechteck
-            Case BasisformEnum.UForm
-                Return pnlmoveUForm
-            Case BasisformEnum.Winkel
-                Return pnlmoveWinkel
-            Case BasisformEnum.Zufall
-                Return pnlmoveZufall
-            Case Else
-                If Debugger.IsAttached Then
-                    Throw New Exception("Programmierfehler")
-                Else
-                    Return pnlmovePyramide
-                End If
-
-        End Select
-
-    End Function
 
     Private Sub frmToolBox_Closing(sender As Object, e As CancelEventArgs) Handles Me.Closing
 
@@ -580,7 +465,13 @@ Public Class frmToolBox
 
     End Sub
 
+
+
+
 #End Region
+
 #End Region
+
+
 
 End Class

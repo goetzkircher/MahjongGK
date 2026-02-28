@@ -112,4 +112,19 @@ Public Class Werkstück
             Return _resultOK
         End Get
     End Property
+
+    Public ReadOnly Property WerkstückSize As Triple
+        Get
+            If IsNothing(_arrFB) Then
+                Return New Triple
+            Else
+                Dim x As Integer = (_arrFB.GetUpperBound(0) - 1) \ 2
+                Dim y As Integer = (_arrFB.GetUpperBound(1) - 1) \ 2
+                Dim z As Integer = _arrFB.GetUpperBound(2) + 1
+                Return New Triple(x, y, z)
+            End If
+        End Get
+    End Property
+
+
 End Class
