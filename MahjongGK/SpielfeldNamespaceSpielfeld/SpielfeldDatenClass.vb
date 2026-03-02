@@ -278,32 +278,6 @@ Namespace Spielfeld
         Private _sessionIdentWerkbank As String = "irgendwas"
         '
         ''' <summary>
-        ''' Gibt True zurück, wenn sich die Renderversion geändert hat.
-        ''' Es werden immer beide Möglichkeiten geprüft (SpielfeldSpielfeldInfo und WerkbankSpielfeldInfo)
-        ''' Da unbekannt ist, auf welchen der beiden Möglichkeiten sich die Frage beziegt, da ein Wechsel
-        ''' der Anzeige möglich ist.
-        ''' </summary>
-        ''' <returns></returns>
-        Public ReadOnly Property RenderVersionChanged As Boolean
-            Get
-                Dim result As Boolean
-                If Not IsNothing(SpielfeldSpielfeldInfo) Then
-                    If _renderversionSpielfeld <> SpielfeldSpielfeldInfo.SteinInfoCol.RenderVersion Then
-                        _renderversionSpielfeld = SpielfeldSpielfeldInfo.SteinInfoCol.RenderVersion
-                        result = True
-                    End If
-                End If
-                If Not IsNothing(WerkbankSpielfeldInfo) Then
-                    If _renderversionWerkbank <> WerkbankSpielfeldInfo.SteinInfoCol.RenderVersion Then
-                        _renderversionWerkbank = WerkbankSpielfeldInfo.SteinInfoCol.RenderVersion
-                        result = True
-                    End If
-                End If
-                Return result
-            End Get
-        End Property
-        '
-        ''' <summary>
         ''' Analog RenderVersionChanged
         ''' </summary>
         ''' <returns></returns>

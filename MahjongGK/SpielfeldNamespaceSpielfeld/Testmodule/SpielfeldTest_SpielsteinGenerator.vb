@@ -24,7 +24,7 @@ Public Module SpielfeldTest_SpielsteinGenerator
     Private Sub Test_StoneSet_Mode()
         Debug.WriteLine(vbCrLf & "--- StoneSet-Modus ---")
 
-        Dim gen As New SpielsteinGenerator(visibleAreaMaxLength:=30, generatorMode:=GeneratorModi.StoneSet_144)
+        Dim gen As New SpielsteinGenerator(generatorMode:=GeneratorModus.StoneSet_144)
         ' Test: Vorrat initial gefüllt?
         Debug.WriteLine($"Init Vorrat.Count = {gen.Vorrat.Count}")
 
@@ -58,7 +58,7 @@ Public Module SpielfeldTest_SpielsteinGenerator
     Private Sub Test_StoneStream_Mode()
         Debug.WriteLine(vbCrLf & "--- StoneStream-Modus ---")
 
-        Dim gen As New SpielsteinGenerator(visibleAreaMaxLength:=30, generatorMode:=GeneratorModi.StoneStream_Base144_Continuous)
+        Dim gen As New SpielsteinGenerator(generatorMode:=GeneratorModus.StoneStream_Base144_Continuous)
         Dim startCount As Integer = gen.Vorrat.Count
         Debug.WriteLine($"Init Vorrat.Count = {startCount}")
 
@@ -88,7 +88,7 @@ Public Module SpielfeldTest_SpielsteinGenerator
     Private Sub Test_Shuffle_And_Insert()
         Debug.WriteLine(vbCrLf & "--- Shuffle & Insert ---")
 
-        Dim gen As New SpielsteinGenerator(visibleAreaMaxLength:=20, generatorMode:=GeneratorModi.StoneStream_Base152_Continuous) With {
+        Dim gen As New SpielsteinGenerator(generatorMode:=GeneratorModus.StoneStream_Base152_Continuous) With {
             .VorratNoSortAreaEndIndex = 5
         }
 
@@ -110,7 +110,7 @@ Public Module SpielfeldTest_SpielsteinGenerator
     Private Sub Test_StrohwitwenLogik()
         Debug.WriteLine(vbCrLf & "--- Strohwitwen ---")
 
-        Dim gen As New SpielsteinGenerator(visibleAreaMaxLength:=30, generatorMode:=GeneratorModi.StoneStream_Base152_Continuous)
+        Dim gen As New SpielsteinGenerator(generatorMode:=GeneratorModus.StoneStream_Base152_Continuous)
         ' Künstlich ein paar Steine duplizieren/entfernen, um ungerade Häufigkeit zu erzwingen
         ' Wir nehmen einige Normal-Steine und löschen ihren Partner
         ' (Vereinfachung: wir erzwingen garantiert ungerade Counts)
@@ -132,15 +132,15 @@ Public Module SpielfeldTest_SpielsteinGenerator
 
     Private Sub Test_Statistik()
 
-        Debug.WriteLine(vbCrLf & "--- Statistik GeneratorModi.StoneSet ---")
-        Dim gen As New SpielsteinGenerator(visibleAreaMaxLength:=30, generatorMode:=GeneratorModi.StoneSet_144)
+        Debug.WriteLine(vbCrLf & "--- Statistik GeneratorModus.StoneSet ---")
+        Dim gen As New SpielsteinGenerator(generatorMode:=GeneratorModus.StoneSet_144)
         'gen.Vorrat.Clear()
         'gen.VorratNachschubschwelle = 100 ' klein halten, damit Refill greift
         'gen.VorratMaxUBound = 400
 
         gen.DebugPrintStatistic()
-        Debug.WriteLine(vbCrLf & "--- Statistik GeneratorModi.StoneStream ---")
-        gen = New SpielsteinGenerator(visibleAreaMaxLength:=30, generatorMode:=GeneratorModi.StoneStream_Base152_Continuous)
+        Debug.WriteLine(vbCrLf & "--- Statistik GeneratorModus.StoneStream ---")
+        gen = New SpielsteinGenerator(generatorMode:=GeneratorModus.StoneStream_Base152_Continuous)
         Debug.WriteLine($"Nach erstem Refill (StoneStream) Count={gen.Vorrat.Count}")
         For pass As Integer = 1 To 10
             gen.DebugPrintStatistic()

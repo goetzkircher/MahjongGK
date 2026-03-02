@@ -253,7 +253,6 @@
     <Compile Include="INI\IniCleanup.vb" />
     <Compile Include="INI\IniCommentReader.vb" />
     <Compile Include="INI\IniChangedEventArgs.vb" />
-    <Compile Include="SpielfeldKlassen\SteinInfoCollection.vb" />
     <Compile Include="SpielfeldNamespaceSpielfeld\HScrollRenderer.vb" />
     <Compile Include="SpielfeldNamespaceSpielfeld\Rendermodule\RenderingHelper.vb" />
     <Compile Include="SpielfeldNamespaceSpielfeld\Rendermodule\RenderingStartScreen.vb" />

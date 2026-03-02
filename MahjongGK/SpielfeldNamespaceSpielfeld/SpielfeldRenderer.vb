@@ -176,7 +176,7 @@ Namespace Spielfeld
                             'als bearbeitet markieren
                             .ToggleToggleFlag(x, y, z)
                             '
-                            aktSteinInfo = .SteinInfoCol(.GetIndexStein(x, y, z))
+                            aktSteinInfo = .SteinInfos(.GetIndexStein(x, y, z))
 
                             With aktSteinInfo
                                 If .AnimShowAnimated Then

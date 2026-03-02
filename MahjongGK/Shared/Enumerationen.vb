@@ -283,7 +283,8 @@ End Enum
 '                                                                            isBase152 As Boolean,
 '                                                                            count As Integer)
 
-Public Enum GeneratorModi
+Public Enum GeneratorModus
+    None = -1
     StoneStream_Base144_Continuous = 0
     StoneStream_Base152_Continuous = 4
     StoneStream_Base144_Low = 1

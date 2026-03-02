@@ -7,7 +7,7 @@ Imports System.Xml.Serialization
 
 ' ──────────────────────────────────────────────────────────────────────────────
 ' FBCodec2x2
-' Serialisiert dein arrFB (Integer(,,)) nur über "Anker" je Stein:
+' Serialisiert den arrFB (Integer(,,)) nur über "Anker" je Stein:
 ' - Ankerzelle (oben-links) enthält (Index+1)*1000  (keine Flags)
 ' - Weitere Zellen im 2×2-Block:
 '       rechts       : FLAG_XOffset

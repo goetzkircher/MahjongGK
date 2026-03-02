@@ -137,7 +137,11 @@ Public Class Triple
     End Sub
 
     Public Function IsEqual(triple As Triple) As Boolean
-        Return x = triple.x AndAlso y = triple.y AndAlso z = triple.z
+        If IsNothing(triple) Then
+            Return False
+        Else
+            Return x = triple.x AndAlso y = triple.y AndAlso z = triple.z
+        End If
     End Function
 
     Public Overrides Function ToString() As String

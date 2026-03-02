@@ -35,6 +35,9 @@ Public Class RectangleX
     ''' <summary>Abstände innen (Padding) – Standard ist 0 auf allen Seiten.</summary>
     Public Property Padding As PaddingValues
 
+    Private _contentRect As Rectangle
+    Private _contentRectDirty As Boolean = True
+
 #End Region
 
 #Region "Konstruktoren"
@@ -106,6 +109,7 @@ Public Class RectangleX
         End Get
         Set(ByVal value As Integer)
             _x = value
+            _contentRectDirty = True
         End Set
     End Property
 
@@ -115,6 +119,7 @@ Public Class RectangleX
         End Get
         Set(ByVal value As Integer)
             _y = value
+            _contentRectDirty = True
         End Set
     End Property
 
@@ -124,6 +129,7 @@ Public Class RectangleX
         End Get
         Set(ByVal value As Integer)
             _x = value
+            _contentRectDirty = True
         End Set
     End Property
 
@@ -133,6 +139,8 @@ Public Class RectangleX
         End Get
         Set(ByVal value As Integer)
             _y = value
+            _contentRect = Rectangle.Empty
+            _contentRectDirty = True
         End Set
     End Property
 
@@ -142,6 +150,7 @@ Public Class RectangleX
         End Get
         Set(ByVal value As Integer)
             _w = value
+            _contentRectDirty = True
         End Set
     End Property
 
@@ -151,6 +160,7 @@ Public Class RectangleX
         End Get
         Set(ByVal value As Integer)
             _h = value
+            _contentRectDirty = True
         End Set
     End Property
 
@@ -160,6 +170,7 @@ Public Class RectangleX
         End Get
         Set(ByVal value As Integer)
             _w = value - _x
+            _contentRectDirty = True
         End Set
     End Property
 
@@ -169,6 +180,7 @@ Public Class RectangleX
         End Get
         Set(ByVal value As Integer)
             _h = value - _y
+            _contentRectDirty = True
         End Set
     End Property
 
@@ -179,6 +191,7 @@ Public Class RectangleX
         Set(ByVal value As Point)
             _x = value.X
             _y = value.Y
+            _contentRectDirty = True
         End Set
     End Property
 
@@ -189,6 +202,7 @@ Public Class RectangleX
         Set(ByVal value As Size)
             _w = value.Width
             _h = value.Height
+            _contentRectDirty = True
         End Set
     End Property
 
@@ -281,6 +295,13 @@ Public Class RectangleX
         End Get
     End Property
 
+    Public Function Contains(point As Point) As Boolean
+        If _contentRectDirty Then
+            _contentRect = ContentRect
+            _contentRectDirty = False
+        End If
+        Return _contentRect.Contains(point)
+    End Function
 
 #End Region
 
@@ -290,80 +311,98 @@ Public Class RectangleX
 
     Public Sub IncX(Optional ByVal n As Integer = 1)
         _x += n
+        _contentRectDirty = True
     End Sub
 
     Public Sub DecX(Optional ByVal n As Integer = 1)
         _x -= n
+        _contentRectDirty = True
     End Sub
 
     Public Sub IncLeft(Optional ByVal n As Integer = 1)
         _x += n
         _w = Math.Max(0, _w - n)
+        _contentRectDirty = True
     End Sub
 
     Public Sub DecLeft(Optional ByVal n As Integer = 1)
         _x -= n
         _w += n
+        _contentRectDirty = True
     End Sub
 
     Public Sub IncY(Optional ByVal n As Integer = 1)
         _y += n
+        _contentRectDirty = True
     End Sub
 
     Public Sub DecY(Optional ByVal n As Integer = 1)
         _y -= n
+        _contentRectDirty = True
     End Sub
 
     Public Sub IncTop(Optional ByVal n As Integer = 1)
         _y += n
         _h = Math.Max(0, _h - n)
+        _contentRectDirty = True
     End Sub
 
     Public Sub DecTop(Optional ByVal n As Integer = 1)
         _y -= n
         _h += n
+        _contentRectDirty = True
     End Sub
 
     Public Sub IncRight(Optional ByVal n As Integer = 1)
         _w += n
+        _contentRectDirty = True
     End Sub
 
     Public Sub DecRight(Optional ByVal n As Integer = 1)
         _w = Math.Max(0, _w - n)
+        _contentRectDirty = True
     End Sub
 
     Public Sub IncBottom(Optional ByVal n As Integer = 1)
         _h += n
+        _contentRectDirty = True
     End Sub
 
     Public Sub DecBottom(Optional ByVal n As Integer = 1)
         _h = Math.Max(0, _h - n)
+        _contentRectDirty = True
     End Sub
 
     Public Sub MoveDown(Optional ByVal n As Integer = 1)
         _y += n
+        _contentRectDirty = True
     End Sub
     Public Sub MoveRight(Optional ByVal n As Integer = 1)
         _x += n
+        _contentRectDirty = True
     End Sub
 
     Public Sub MoveUp(Optional ByVal n As Integer = 1)
         _y -= n
+        _contentRectDirty = True
     End Sub
     Public Sub MoveLeft(Optional ByVal n As Integer = 1)
         _x -= n
+        _contentRectDirty = True
     End Sub
 
     Public Sub ShrinkAll(Optional n As Integer = 1)
         _x += n : _y += n
         _w = Math.Max(0, _w - 2 * n)
         _h = Math.Max(0, _h - 2 * n)
+        _contentRectDirty = True
     End Sub
 
     Public Sub GrowAll(Optional n As Integer = 1)
         _x -= n : _y -= n
         _w += 2 * n
         _h += 2 * n
+        _contentRectDirty = True
     End Sub
 
 #End Region
@@ -392,11 +431,14 @@ Public Class RectangleX
 
     Public ReadOnly Property ContentRect As Rectangle
         Get
-            Dim cx As Integer = _x + Padding.Left
-            Dim cy As Integer = _y + Padding.Top
-            Dim cw As Integer = Math.Max(0, _w - (Padding.Left + Padding.Right))
-            Dim ch As Integer = Math.Max(0, _h - (Padding.Top + Padding.Bottom))
-            Return New Rectangle(cx, cy, cw, ch)
+            If _contentRect.IsEmpty Then
+                Dim cx As Integer = _x + Padding.Left
+                Dim cy As Integer = _y + Padding.Top
+                Dim cw As Integer = Math.Max(0, _w - (Padding.Left + Padding.Right))
+                Dim ch As Integer = Math.Max(0, _h - (Padding.Top + Padding.Bottom))
+                _contentRect = New Rectangle(cx, cy, cw, ch)
+            End If
+            Return _contentRect
         End Get
     End Property
 
@@ -405,6 +447,7 @@ Public Class RectangleX
     End Function
 
 #End Region
+
 
 #Region "Ableitungen – bestehende Rectangle / RectangleX"
 

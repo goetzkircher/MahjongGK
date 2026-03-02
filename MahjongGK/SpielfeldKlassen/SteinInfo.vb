@@ -138,6 +138,10 @@ Public Class SteinInfo
 
     <XmlIgnore>
     Private _AnimLoops As Single
+
+    <XmlIgnore>
+    Public Property IsDirty As Boolean
+
     Sub New()
 
     End Sub
@@ -152,18 +156,9 @@ Public Class SteinInfo
         Me.tmpDebug = tmpDebug
     End Sub
     '
-    ''' <summary>
-    ''' Wird vom Container gesetzt. Jede relevante Änderung an SteinInfo ruft dann MarkDirty().
-    ''' </summary>
-    Friend Sub SetDirtyNotifier(notifier As Action)
-        _notifyDirty = notifier
-    End Sub
 
     Private Sub MarkDirty()
-        Dim n As Action = _notifyDirty
-        If n IsNot Nothing Then
-            n.Invoke()
-        End If
+        IsDirty = True
     End Sub
 
     Private Sub Pos3D_Changed(sender As Triple)
@@ -300,21 +295,10 @@ Public Class SteinInfo
             Return _pos3D
         End Get
         Set(value As Triple)
-            If Object.ReferenceEquals(_pos3D, value) Then Return
-
-            ' vom alten Triple abmelden
-            If _pos3D IsNot Nothing Then
-                RemoveHandler _pos3D.Changed, AddressOf Pos3D_Changed
+            If Not value?.IsEqual(_pos3D) Then
+                _pos3D = value
+                MarkDirty()
             End If
-
-            _pos3D = value
-
-            ' am neuen Triple anmelden
-            If _pos3D IsNot Nothing Then
-                AddHandler _pos3D.Changed, AddressOf Pos3D_Changed
-            End If
-
-            MarkDirty()
         End Set
     End Property
     '
@@ -614,10 +598,6 @@ Public Class SteinInfo
         End If
 
         ' Falls später weitere Referenztypen hinzukommen, hier analog tief kopieren.
-
-        ' Notifier nicht kopieren weil der Clone später vom Container neu 
-        ' "owned" werden muss (sonst meldet er in den falschen Owner).
-        c.SetDirtyNotifier(Nothing)
 
         Return c
 

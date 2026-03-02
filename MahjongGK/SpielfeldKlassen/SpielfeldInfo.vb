@@ -131,7 +131,7 @@ Public Class SpielfeldInfo
         End With
 
         ReDim arrFB(xUBnd, yUBnd, zUBnd)
-        SteinInfoCol = New SteinInfoCollection
+        SteinInfos = New List(Of SteinInfo)
 
     End Sub
 
@@ -386,8 +386,10 @@ Public Class SpielfeldInfo
         End Get
     End Property
 
-    Public Property Generator As SpielsteinGenerator
-
+    <XmlIgnore>
+    Public Property Generator As SpielsteinGenerator = Nothing
+    Public Property GeneratorValuesForXml As SpielsteinGeneratorValues = Nothing
+    '
     <XmlIgnore> '3D-Arrays können nicht serialisiert werden.
     Public Property arrFB As Integer(,,)
 
@@ -407,7 +409,7 @@ Public Class SpielfeldInfo
         End Set
     End Property
 
-    Public Property SteinInfoCol As SteinInfoCollection = Nothing
+    Public Property SteinInfos As List(Of SteinInfo) = Nothing
 
     Public Property SteinChanged As Boolean
 
@@ -471,7 +473,7 @@ Public Class SpielfeldInfo
     ''' <returns></returns>
     Public ReadOnly Property IsPlayable As Boolean
         Get
-            If IsNothing(SteinInfoCol) OrElse SteinInfoCol.Count = 0 Then
+            If IsNothing(SteinInfos) OrElse SteinInfos.Count = 0 Then
                 Return False
             End If
 
@@ -479,7 +481,7 @@ Public Class SpielfeldInfo
             Dim foundWerkstattStein As Boolean
 
 
-            For Each stein As SteinInfo In SteinInfoCol
+            For Each stein As SteinInfo In SteinInfos
                 arrKlickGruppeCount(stein.KlickGruppe) += 1
                 If stein.IsWerkbankStein Then
                     foundWerkstattStein = True
@@ -508,8 +510,8 @@ Public Class SpielfeldInfo
     Public ReadOnly Property IsEmpty As Boolean
         Get
             'If INI.Debug_StopRendering Then Stop
-            If IsNothing(SteinInfoCol) Then Return True
-            If SteinInfoCol.Count = 0 Then Return True
+            If IsNothing(SteinInfos) Then Return True
+            If SteinInfos.Count = 0 Then Return True
             If xMax = 0 Then Return True
             If yMax = 0 Then Return True
             Return False
@@ -622,7 +624,7 @@ Public Class SpielfeldInfo
         'Index in SteinInfos. Grund: werden später Steine im Editor entfernt, verschieben sich die
         'Indexnummern in SteinInfos und da muss arrFB aktualisert werden. Dazu braucht man den
         '"alten" steinInfoIndex, eben diesen steinInfoIndex.
-        Dim newSteinInfo As New SteinInfo(steinInfoIndex:=SteinInfoCol.Count, steinIndex, steinPos3D, tmpDebug)
+        Dim newSteinInfo As New SteinInfo(steinInfoIndex:=SteinInfos.Count, steinIndex, steinPos3D, tmpDebug)
 
         If Not steinPos3D.IsInsideSpielfeldBounds(arrFB) Then
             'Falsche Positionsangabe.
@@ -667,10 +669,10 @@ Public Class SpielfeldInfo
         'Hier ist jetzt die Normal -Routine
         '
         'SteinInfos.Count ist der Index, den der Stein in SteinInfos haben wird.
-        CopySteinIndexToSpielfeldPos3DAndSetOffsetXY(steinPos3D, SteinInfoIndex:=SteinInfoCol.Count)
+        CopySteinIndexToSpielfeldPos3DAndSetOffsetXY(steinPos3D, SteinInfoIndex:=SteinInfos.Count)
         '() nicht trennen, der Index muss stimmen. Späterer Zugriff über
         'Dim aktSteininfo As SteinInfo = SteinInfos(indexSteinInfo)
-        SteinInfoCol.Add(newSteinInfo)
+        SteinInfos.Add(newSteinInfo)
 
         Return True
 
@@ -690,7 +692,7 @@ Public Class SpielfeldInfo
         Dim siDc As SteinInfo = wsSteinInfo.DeepCopy
 
         With siDc
-            .SteinInfoIndex = SteinInfoCol.Count
+            .SteinInfoIndex = SteinInfos.Count
             .Postion3D = steinPos3D
         End With
 
@@ -738,10 +740,10 @@ Public Class SpielfeldInfo
         'Hier ist jetzt die Normal -Routine
         '
         'SteinInfos.Count ist der Index, den der Stein in SteinInfos haben wird.
-        CopySteinIndexToSpielfeldPos3DAndSetOffsetXY(steinPos3D, SteinInfoIndex:=SteinInfoCol.Count)
+        CopySteinIndexToSpielfeldPos3DAndSetOffsetXY(steinPos3D, SteinInfoIndex:=SteinInfos.Count)
         '() nicht trennen, der Index muss stimmen. Späterer Zugriff über
         'Dim aktSteininfo As SteinInfo = SteinInfos(indexSteinInfo)
-        SteinInfoCol.Add(siDc)
+        SteinInfos.Add(siDc)
 
         Return True
 
@@ -1626,9 +1628,9 @@ Public Class SpielfeldInfo
         Dim steineVorrat As New List(Of SteinIndexEnum)
         Dim steineSpielfeld As New List(Of SteinIndexEnum)
 
-        If SteinInfoCol IsNot Nothing AndAlso SteinInfoCol.Count > 0 Then
+        If SteinInfos IsNot Nothing AndAlso SteinInfos.Count > 0 Then
             'Steine einsammeln
-            For Each item As SteinInfo In SteinInfoCol
+            For Each item As SteinInfo In SteinInfos
                 steineSpielfeld.Add(item.SteinIndex)
             Next
         End If
@@ -1784,7 +1786,12 @@ Public Class SpielfeldInfo
     End Sub
     Public Sub Save(fullpath As String)
         ' Defensive: Null-Propagation falls SteinInfos Nothing ist
-        SteinInfo_Count = If(SteinInfoCol IsNot Nothing, SteinInfoCol.Count, 0)
+        SteinInfo_Count = If(SteinInfos IsNot Nothing, SteinInfos.Count, 0)
+        '
+        If Not IsNothing(Generator) Then
+            GeneratorValuesForXml = New SpielsteinGeneratorValues
+            GeneratorValuesForXml.CopySpielsteinGenerator_To_SpielsteinGeneratorValues(Generator)
+        End If
 
         Dim ser As New XmlSerializer(GetType(SpielfeldInfo)) ' explizit, nicht Me.GetType()
         Dim settings As New XmlWriterSettings With {

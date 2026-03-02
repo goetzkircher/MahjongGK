@@ -179,6 +179,24 @@ Namespace Spielfeld
             ElseIf SFD.AktRendering = RenderingEnum.Editor Then
                 SFD.AktLayout = Layout.EditorWithHeader
 
+                'Initialisierung den Spielsteingenerators
+                With SFD.AktSpielfeldInfo
+                    If IsNothing(.Generator) Then
+                        If IsNothing(.GeneratorValuesForXml) Then
+                            'TODO so umbauen, daß der Default nur genommen wird, wenn nichts Anderes festgelegt wurde
+                            If INI.SpielsteinGenerator_GeneratorModusDefault = GeneratorModus.None Then
+                                .Generator = New SpielsteinGenerator(INI.SpielsteinGenerator_GeneratorModusDefault)
+                            Else
+                                .Generator = New SpielsteinGenerator(INI.SpielsteinGenerator_GeneratorModusDefault)
+                            End If
+                        Else
+                            .Generator = New SpielsteinGenerator
+                            'Das sind die bisherigen Werte, die beim Speichern von Spielfeldinfo gespeichert werden.
+                            .GeneratorValuesForXml.CopySpielsteinGeneratorValues_To_SpielsteinGenerator(.Generator)
+                        End If
+                    End If
+                End With
+
             ElseIf SFD.AktRendering = RenderingEnum.Werkbank Then
                 SFD.AktLayout = Layout.WerkbankWithHeader
             Else ' SFD.AktRendering = RenderingEnum.None Then
@@ -618,6 +636,23 @@ Namespace Spielfeld
                 Exit Sub
             End If
 
+            'If Not IsNothing(SFD.rxStockScrollbar) Then
+            If SFD.rxStockScrollbar?.Contains(SFD.MousePolling.MousePos()) Then
+                With SFD.MousePolling
+                    SFD.HScrollStock.HandleMouseMove(.MousePos.X, .MousePos.Y, SFD.rxStockScrollbar.ContentRect)
+                    If .LeftMouseChanged Then
+                        If .LeftMousePressed Then
+                            SFD.HScrollStock.HandleMouseDown(.MousePos.X, .MousePos.Y, SFD.rxStockScrollbar.ContentRect)
+                        Else
+                            SFD.HScrollStock.HandleMouseUp()
+                        End If
+                    End If
+                End With
+            Else
+                SFD.HScrollStock?.HandleMouseUp()
+            End If
+
+            'End If
             '  Dim mpos As Point = 
 
             If Not IsNothing(SFD.HScrollStock) Then

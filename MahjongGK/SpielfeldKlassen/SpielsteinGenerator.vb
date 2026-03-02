@@ -119,11 +119,11 @@ Namespace Spielfeld
         Sub New()
 
         End Sub
-        Sub New(visibleAreaMaxLength As Integer, generatorMode As GeneratorModi)
+        Sub New(generatorMode As GeneratorModus)
 
             Dim genmod As (isStoneSet As Boolean, isBase152 As Boolean, count As Integer) = GetValueFromGeneratorModi(generatorMode)
 
-            DoSubNew(visibleAreaMaxLength, generatorMode, genmod.count + 1, genmod.isBase152)
+            DoSubNew(generatorMode, genmod.count + 1, genmod.isBase152)
 
         End Sub
 
@@ -135,19 +135,16 @@ Namespace Spielfeld
 
         ''End Sub
 
-        Private Sub DoSubNew(visibleAreaMaxLength As Integer,
-                             generatorModus As GeneratorModi,
+        Private Sub DoSubNew(generatorModus As GeneratorModus,
                              halfSteinsetsCount As Integer,
                              stoneSet152SteineErzeugen As Boolean)
 
-            Me.VisibleAreaMaxIndex = visibleAreaMaxLength - 1 'je nach Bildschirm 20 bis 40 Steine
-            VisibleAreaAktIndex = visibleAreaMaxLength 'der volle Bereich ist sichtbar
             _GeneratorModus = generatorModus
             Me.HalfSteinsetsCount = halfSteinsetsCount
             Me.StoneSet152SteineErzeugen = stoneSet152SteineErzeugen
-            VorratNoSortAreaEndIndex = INI.Editor_VorratNoSortAreaEndIndexDefault 'Default = 10
-            VorratMaxUBound = INI.Editor_VorratMaxUBoundDefault 'Default = MJ_STEINE_MAXCOUNT
-            VorratNachschubschwelle = INI.Editor_VorratNachschubschwelleDefault ' Default = 100
+            VorratNoSortAreaEndIndex = INI.SpielsteinGenerator_VorratNoSortAreaEndIndexDefault 'Default = 10
+            VorratMaxUBound = INI.SpielsteinGenerator_VorratMaxUBoundDefault 'Default = MJ_STEINE_MAXCOUNT
+            VorratNachschubschwelle = INI.SpielsteinGenerator_VorratNachschubschwelleDefault ' Default = 100
             CheckAndRefillVorrat()
         End Sub
         '
@@ -187,7 +184,7 @@ Namespace Spielfeld
         ''' <returns></returns>
         Public Property GeneratorVersion As Integer = 1
         '
-        Private _GeneratorModus As GeneratorModi
+        Private _GeneratorModus As GeneratorModus
         ''' <summary>
         ''' Im GeneratorModi.StoneStream gibt es einen endlosen Strom an Steinen, die aber in Portionen erzeugt
         ''' werden. Die Portionsgröße ergibt sich aus der aktuellen Anzahl von Steinen in der Vorrat und
@@ -196,18 +193,17 @@ Namespace Spielfeld
         ''' Der GeneratorModus eines Spiellayoutes kann nicht mehr geändert werden.
         ''' </summary>
         ''' <returns></returns>
-        Public ReadOnly Property GeneratorModus As GeneratorModi
+        Public ReadOnly Property GeneratorModus As GeneratorModus
             Get
                 Return _GeneratorModus
             End Get
         End Property
 
-        <XmlElement("GeneratorModus")>
-        Public Property GeneratorModus_ForXmlOnly As GeneratorModi
+        Public Property GeneratorModusForXml As GeneratorModus
             Get
                 Return _GeneratorModus
             End Get
-            Set(value As GeneratorModi)
+            Set(value As GeneratorModus)
                 _GeneratorModus = value
             End Set
         End Property
@@ -266,8 +262,7 @@ Namespace Spielfeld
             End Set
         End Property
         '
-        <XmlElement("VorratStopNachschub")>
-        Public Property VorratStopNachschub_ForXmlOnly As Boolean
+        Public Property VorratStopNachschubXmlOnly As Boolean
             Get
                 Return _VorratStopNachschub
             End Get
@@ -290,18 +285,6 @@ Namespace Spielfeld
         ''' </summary>
         ''' <returns></returns>
         Public Property VorratNoSortAreaEndIndex As Integer
-        '
-        ''' <summary>
-        ''' Bis zu diesem Index der Vorrsatskiste sind die Steine maximal sichtbar.
-        ''' </summary>
-        ''' <returns></returns>
-        Public Property VisibleAreaMaxIndex As Integer
-        '
-        ''' <summary>
-        ''' Bis zu diesem Index der Vorrsatskiste sind die Steine aktuell sichtbar.
-        ''' </summary>
-        ''' <returns></returns>
-        Public Property VisibleAreaAktIndex As Integer '-1 = nichts wird angezeigt.
         '
         ''' <summary>
         ''' Erstellt eine echte tiefe Kopie von SteinInfo.
@@ -723,7 +706,7 @@ Namespace Spielfeld
         ''' <returns></returns>
         Public Shared Function GetGeneratorModi(isStoneSet As Boolean,
                                          isBase152 As Boolean,
-                                         count As Integer) As GeneratorModi
+                                         count As Integer) As GeneratorModus
 
             If count < 0 OrElse count > 3 Then
                 Throw New ArgumentOutOfRangeException(NameOf(count), "count muss 0–3 sein.")
@@ -740,7 +723,7 @@ Namespace Spielfeld
             ' Bits 1..0: Count
             value = value Or (count And &H3)
 
-            Return CType(value, GeneratorModi)
+            Return CType(value, GeneratorModus)
 
         End Function
 
@@ -749,7 +732,7 @@ Namespace Spielfeld
         ''' </summary>
         ''' <param name="genmod"></param>
         ''' <returns></returns>
-        Public Shared Function GetValueFromGeneratorModi(genmod As GeneratorModi) As (isStoneSet As Boolean,
+        Public Shared Function GetValueFromGeneratorModi(genmod As GeneratorModus) As (isStoneSet As Boolean,
                                                                                 isBase152 As Boolean,
                                                                                 count As Integer)
             Dim value As Integer = CInt(genmod)
@@ -779,7 +762,7 @@ Namespace Spielfeld
             Public Sub New(k As Double)
                 Me.K = k
 
-                Dim iniSeed As Integer = INI.Editor_SteinGeneratorDebugMode
+                Dim iniSeed As Integer = INI.SpielsteinGenerator_DebugMode
 
                 If iniSeed = 0 Then
                     ' Normalbetrieb: EINMAL echten Zufall nehmen
@@ -799,7 +782,7 @@ Namespace Spielfeld
             End Sub
 
             ' Verhältnis Normal : (Flower+Season) in PACKS => 17 : 1
-            Public Property RatioNormalToSpecial As Double = INI.Editor_VerhältnisNormalsteineZuSondersteine
+            Public Property RatioNormalToSpecial As Double = INI.SpielsteinGenerator_VerhältnisNormalsteineZuSondersteine
             ' Aufteilung des Special-Anteils: 50:50
             Public Property SpecialSplitFlower As Double = 0.5
             ' Sanfter Regler
@@ -845,7 +828,7 @@ Namespace Spielfeld
 
             Public Sub New(ByVal setsCount As Integer, ByVal stoneSet152 As Boolean)
 
-                Dim iniSeed As Integer = INI.Editor_SteinGeneratorDebugMode
+                Dim iniSeed As Integer = INI.SpielsteinGenerator_DebugMode
 
                 If iniSeed = 0 Then
                     _rndShuffleInPlace = New Random(Guid.NewGuid().GetHashCode())

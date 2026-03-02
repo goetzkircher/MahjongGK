@@ -98,5 +98,95 @@ Namespace Spielfeld
         ''        g.SmoothingMode = oldSmoothing
         ''        g.PixelOffsetMode = oldPixel
         ''    End Sub
+
+        ''' <summary>
+        ''' Fehlende Werte werden aus der INI bezogen.
+        ''' (INI.Editor_Message...)
+        ''' </summary>
+        ''' <param name="gfx"></param>
+        ''' <param name="msg"></param>
+        ''' <param name="rect"></param>
+        Public Sub WriteMessageCentered(
+            gfx As Graphics,
+            msg As String,
+            rect As Rectangle)
+            WriteMessageCentered(gfx, msg, INI.Editor_MessageFont, INI.Editor_MessageAlpha, INI.Editor_MessageGray, rect)
+        End Sub
+        ''' <summary>
+        ''' Schriftfarbe ist Schwarz, alpha und gray beziehen sich auf den Untergrund
+        ''' </summary>
+        ''' <param name="gfx"></param>
+        ''' <param name="msg"></param>
+        ''' <param name="fnt"></param>
+        ''' <param name="alpha"></param>
+        ''' <param name="gray"></param>
+        ''' <param name="rect"></param>
+        Public Sub WriteMessageCentered(
+            gfx As Graphics,
+            msg As String,
+            fnt As Font,
+            alpha As Integer,
+            gray As Integer,
+            rect As Rectangle)
+
+            If gfx Is Nothing Then Throw New ArgumentNullException(NameOf(gfx))
+            If fnt Is Nothing Then Throw New ArgumentNullException(NameOf(fnt))
+            If msg Is Nothing Then msg = String.Empty
+
+            If alpha < 0 OrElse alpha > 255 Then Throw New ArgumentOutOfRangeException(NameOf(alpha))
+            If gray < 0 OrElse gray > 255 Then Throw New ArgumentOutOfRangeException(NameOf(gray))
+
+            Dim backgroundColor As Color = Color.FromArgb(alpha, gray, gray, gray)
+            Dim fontColor As Color = Color.FromArgb(255, Color.Black)
+
+            ' Hintergrund
+            Using bgBrush As New SolidBrush(backgroundColor)
+                gfx.FillRectangle(bgBrush, rect)
+            End Using
+
+            ' Zentrierformat
+            Using sf As New StringFormat()
+                sf.Alignment = StringAlignment.Center
+                sf.LineAlignment = StringAlignment.Center
+                sf.FormatFlags = StringFormatFlags.NoWrap
+
+                Using textBrush As New SolidBrush(fontColor)
+                    gfx.TextRenderingHint = Drawing.Text.TextRenderingHint.ClearTypeGridFit
+                    gfx.DrawString(msg, fnt, textBrush, rect, sf)
+                End Using
+            End Using
+
+        End Sub
+
+        Public Sub WriteMessageCentered(
+            gfx As Graphics,
+            msg As String,
+            fnt As Font,
+            fntColor As Color,
+            bgColor As Color,
+            rect As Rectangle)
+
+            If gfx Is Nothing Then Throw New ArgumentNullException(NameOf(gfx))
+            If fnt Is Nothing Then Throw New ArgumentNullException(NameOf(fnt))
+            If msg Is Nothing Then msg = String.Empty
+
+            ' Hintergrund
+            Using bgBrush As New SolidBrush(bgColor)
+                gfx.FillRectangle(bgBrush, rect)
+            End Using
+
+            ' Zentrierformat
+            Using sf As New StringFormat()
+                sf.Alignment = StringAlignment.Center
+                sf.LineAlignment = StringAlignment.Center
+                sf.FormatFlags = StringFormatFlags.NoWrap
+
+                Using textBrush As New SolidBrush(fntColor)
+                    gfx.TextRenderingHint = Drawing.Text.TextRenderingHint.ClearTypeGridFit
+                    gfx.DrawString(msg, fnt, textBrush, rect, sf)
+                End Using
+            End Using
+
+        End Sub
     End Module
 End Namespace

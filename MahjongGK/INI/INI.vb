@@ -863,9 +863,6 @@ Public Module INI
         End Set
     End Property
 
-
-
-
 #End Region
 
 #Region "Editor"
@@ -900,7 +897,40 @@ Public Module INI
         End Set
     End Property
 
-    Public Property Editor_VerhältnisNormalsteineZuSondersteine As Double
+    Public Property Editor_MessageFont As Font
+        Get
+            Dim [Default] As New Font("Arial", 10.0F, FontStyle.Regular)
+            Dim comment As String = Nothing
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As Font)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+        End Set
+    End Property
+
+    Public Property Editor_MessageAlpha As Integer
+        Get
+            Dim [Default] As Integer = 128
+            Dim comment As String = "Der Alpha-Wert des Untergrundes der Message. Default 128"
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As Integer)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+        End Set
+    End Property
+
+    Public Property Editor_MessageGray As Integer
+        Get
+            Dim [Default] As Integer = 200
+            Dim comment As String = "Der Grau-Wert des Untergrundes der Message. Default: 200"
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As Integer)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+        End Set
+    End Property
+
+    Public Property SpielsteinGenerator_VerhältnisNormalsteineZuSondersteine As Double
         Get
             Dim [Default] As Double = 17
             Dim comment As String = "Sondersteine sind die 4 Blumen und die 4 Jahreszeiten." &
@@ -916,7 +946,7 @@ Public Module INI
 
 
 
-    Public Property Editor_VorratNoSortAreaEndIndexDefault As Integer
+    Public Property SpielsteinGenerator_VorratNoSortAreaEndIndexDefault As Integer
         Get
             Dim [Default] As Integer = 9
             Dim comment As String = "Im Editor läßt sich die Vorratskiste jederzeit neu mischen. Davon ausgenommen sind die Steine bis zum" &
@@ -934,21 +964,21 @@ Public Module INI
     ' eENUM ist der Name der Enumeration (Kommt vier mal vor)
     ' eENUM.DEFAULT eben der Default (kommt einmal vor)
     '
-    Public Property Editor_GeneratorModusDefault As GeneratorModi
+    Public Property SpielsteinGenerator_GeneratorModusDefault As GeneratorModus
         Get
-            Dim [Default] As String = GeneratorModi.StoneSet_144.ToString
+            Dim [Default] As String = GeneratorModus.StoneSet_144.ToString
             Dim comment As String = Nothing
             Dim zRetVal As String = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-            Dim aRetVal As GeneratorModi = CType(System.Enum.Parse(aRetVal.GetType(), zRetVal), GeneratorModi)
+            Dim aRetVal As GeneratorModus = CType(System.Enum.Parse(aRetVal.GetType(), zRetVal), GeneratorModus)
             Return aRetVal
         End Get
-        Set(value As GeneratorModi)
+        Set(value As GeneratorModus)
             BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
         End Set
     End Property
 
 
-    Public Property Editor_VorratMaxUBoundDefault As Integer
+    Public Property SpielsteinGenerator_VorratMaxUBoundDefault As Integer
         Get
             Dim [Default] As Integer = MJ_STEINE_VORRATMAXDEFAULT
             Dim comment As String = "Die Anzahl der Steine in der Vorratskiste die ""pro Portion"" erzeugt werden. Satz1: " & MJ_STEINE_VORRATMAXDEFAULT.ToString
@@ -961,7 +991,7 @@ Public Module INI
         End Set
     End Property
 
-    Public Property Editor_VorratNachschubschwelleDefault As Integer
+    Public Property SpielsteinGenerator_VorratNachschubschwelleDefault As Integer
         Get
             Dim [Default] As Integer = MJ_STEINE_VORRATNACHSCHUBSCHWELLEDEFAULT
             Dim comment As String = "Unterschreitet die Anzahl der Steine in der Vorratskiste diesen Wert, wird Nachschub erzeugt. Satz1: " & MJ_STEINE_VORRATNACHSCHUBSCHWELLEDEFAULT.ToString
@@ -973,7 +1003,7 @@ Public Module INI
         End Set
     End Property
 
-    Public Property Editor_SteinGeneratorDebugMode As Integer
+    Public Property SpielsteinGenerator_DebugMode As Integer
         Get
             Dim [Default] As Integer = 0
             Dim comment As String = "Mit einer bliebigen Zahl <> 0 erzeugt der SteinGenerator immer wieder die gleichen Steinfolgen." &

@@ -226,9 +226,7 @@ Namespace Spielfeld
 
 #Region "Mausaktionen und Größenänderung der Form auswerten und Rendern ggf verkürzen."
 
-
-
-            Dim somethingMouseDone As Boolean = SFD.MousePolling.PeekPoll()
+            Dim somethingMouseDone As Boolean = SFD.MousePolling.Poll
 
             Debug.Print("somethingMouseDone " & somethingMouseDone.ToString)
             Dim somethingResizeDone As Boolean = SFD.ResizePolling.Poll
@@ -250,6 +248,8 @@ Namespace Spielfeld
             If Not doRendering Then
                 If somethingResizeDone Then
                     'Auswertung des Resizing hat Priorität
+                    '(Bei Größenänderung braucht das MousePolling nicht ausgewertet zu werden
+                    'da die Maus beschäftigt ist)
                     If SFD.ResizePolling.ConsumeResizeStarted Then
                         SFD.ResizingIsAktiv = True
                     End If
@@ -260,7 +260,7 @@ Namespace Spielfeld
                     doRendering = True
                 End If
 
-                SetRendertimerIntervall()
+                SetRendertimerIntervall(somethingMouseDone)
 
                 If SFD.ResizingIsAktiv Then
                     PaintBackbuffer(e.Graphics, rectOutput)
@@ -291,9 +291,7 @@ Namespace Spielfeld
             End If
 
             If doRendering = False Then
-                If SFD.RenderVersionChanged Then
-                    doRendering = True
-                ElseIf somethingMouseDone Then
+                If somethingMouseDone Then
                     doRendering = True
                 ElseIf _forceUpdate Then
                     doRendering = True
@@ -382,7 +380,7 @@ Namespace Spielfeld
                 Select Case SFD.AktRendering
                     Case RenderingEnum.Spielfeld
                         If Not IsNothing(SFD.SpielfeldSpielfeldInfo) Then
-                            If Not IsNothing(SFD.SpielfeldSpielfeldInfo.SteinInfoCol) Then
+                            If Not IsNothing(SFD.SpielfeldSpielfeldInfo.SteinInfos) Then
                                 _initialisierungLäuft = False
                                 updateSpielfeld = False
                                 SpielfeldLayouter.UpdateSpielfeld(rectOutput, aktRenderingChanged)
@@ -395,7 +393,7 @@ Namespace Spielfeld
 
                     Case RenderingEnum.Werkbank
                         If Not IsNothing(SFD.WerkbankSpielfeldInfo) Then
-                            If Not IsNothing(SFD.WerkbankSpielfeldInfo.SteinInfoCol) Then
+                            If Not IsNothing(SFD.WerkbankSpielfeldInfo.SteinInfos) Then
                                 _initialisierungLäuft = False
                                 updateSpielfeld = False
                                 SpielfeldLayouter.UpdateSpielfeld(rectOutput, aktRenderingChanged)
@@ -408,7 +406,7 @@ Namespace Spielfeld
 
                     Case RenderingEnum.Editor
                         If Not IsNothing(SFD.SpielfeldSpielfeldInfo) Then
-                            If Not IsNothing(SFD.SpielfeldSpielfeldInfo.SteinInfoCol) Then
+                            If Not IsNothing(SFD.SpielfeldSpielfeldInfo.SteinInfos) Then
                                 _initialisierungLäuft = False
                                 updateSpielfeld = False
                                 SpielfeldLayouter.UpdateSpielfeld(rectOutput, aktRenderingChanged)
@@ -461,8 +459,6 @@ Namespace Spielfeld
                 PaintEventGfx.DrawImageUnscaledAndClipped(SFD.StartscreenBackgroundImageCache.GetBitmap(rectOutput.Size), rectOutput)
             End If
         End Sub
-
-
 
     End Module
 

@@ -29,7 +29,6 @@ Option Strict On
 #Disable Warning IDE1006
 
 '
-Imports System.Xml.Serialization
 Imports MahjongGK.Spielfeld
 
 
@@ -47,8 +46,7 @@ Public Class SpielsteinGeneratorValues
     Public Property SchemaVersion As Integer = 1
     Public Property GeneratorVersion As Integer = 1
 
-    <XmlElement("GeneratorModus")>
-    Public Property GeneratorModus_ForXmlOnly As GeneratorModi
+    Public Property GeneratorModusForXml As GeneratorModus
     Public Property HalfSteinsetsCount As Integer
     Public Property StoneSet152SteineErzeugen As Boolean
     Public Property Vorrat As List(Of SteinIndexEnum)
@@ -56,49 +54,42 @@ Public Class SpielsteinGeneratorValues
     Public Property VorratNachschubschwelle As Integer
     Public Property VorratStopNachschub As Boolean
     '
-    <XmlElement("VorratStopNachschub")>
-    Public Property VorratStopNachschub_ForXmlOnly As Boolean
+    Public Property VorratStopNachschubXmlOnly As Boolean
     Public Property VorratSelectedIndex As Integer = -1 'Kein Stein ausgewählt
     Public Property VorratNoSortAreaEndIndex As Integer
-    Public Property VisibleAreaMaxIndex As Integer
-    Public Property VisibleAreaAktIndex As Integer
 
-    Public Sub CopySpielsteinGerneratorValues_To_SpielsteinGenerator(gen As SpielsteinGenerator)
+    Public Sub CopySpielsteinGeneratorValues_To_SpielsteinGenerator(gen As SpielsteinGenerator)
 
         With gen
             SchemaVersion = .SchemaVersion
             GeneratorVersion = .GeneratorVersion
-            GeneratorModus_ForXmlOnly = .GeneratorModus_ForXmlOnly
+            GeneratorModusForXml = .GeneratorModusForXml
             HalfSteinsetsCount = .HalfSteinsetsCount
             StoneSet152SteineErzeugen = .StoneSet152SteineErzeugen
             Vorrat = .Vorrat
             VorratMaxUBound = .VorratMaxUBound
             VorratNachschubschwelle = .VorratNachschubschwelle
             VorratStopNachschub = .VorratStopNachschub
-            VorratStopNachschub_ForXmlOnly = .VorratStopNachschub_ForXmlOnly
+            VorratStopNachschubXmlOnly = .VorratStopNachschubXmlOnly
             VorratSelectedIndex = .VorratSelectedIndex
             VorratNoSortAreaEndIndex = .VorratNoSortAreaEndIndex
-            VisibleAreaMaxIndex = .VisibleAreaMaxIndex
-            VisibleAreaAktIndex = .VisibleAreaAktIndex
         End With
 
     End Sub
-    Public Sub CopySpielsteinGernerator_To_SpielsteinGeneratorValues(gen As SpielsteinGenerator)
+    Public Sub CopySpielsteinGenerator_To_SpielsteinGeneratorValues(gen As SpielsteinGenerator)
         With gen
             SchemaVersion = .SchemaVersion
             GeneratorVersion = .GeneratorVersion
-            GeneratorModus_ForXmlOnly = .GeneratorModus_ForXmlOnly
+            GeneratorModusForXml = .GeneratorModusForXml
             HalfSteinsetsCount = .HalfSteinsetsCount
             StoneSet152SteineErzeugen = .StoneSet152SteineErzeugen
             Vorrat = .Vorrat
             VorratMaxUBound = .VorratMaxUBound
             VorratNachschubschwelle = .VorratNachschubschwelle
             VorratStopNachschub = .VorratStopNachschub
-            VorratStopNachschub_ForXmlOnly = .VorratStopNachschub_ForXmlOnly
+            VorratStopNachschubXmlOnly = .VorratStopNachschubXmlOnly
             VorratSelectedIndex = .VorratSelectedIndex
             VorratNoSortAreaEndIndex = .VorratNoSortAreaEndIndex
-            VisibleAreaMaxIndex = .VisibleAreaMaxIndex
-            VisibleAreaAktIndex = .VisibleAreaAktIndex
         End With
     End Sub
 
