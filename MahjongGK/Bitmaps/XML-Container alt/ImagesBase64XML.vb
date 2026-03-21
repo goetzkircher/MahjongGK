@@ -9,7 +9,7 @@
 '#                                                                         #
 '#   This program is free software: you can redistribute it and/or modify  #
 '#   it under the terms of the GNU General Public License as published by  #
-'#   the Free Software Foundation, either version 3 of the License, or     #
+'#   the Free Software Fundament, either version 3 of the License, or     #
 '#   at your option any later version.                                     #
 '#                                                                         #
 '#   This program is distributed in the hope that it will be useful,       #
@@ -34,9 +34,7 @@ Imports System.Xml.Serialization
 #Disable Warning IDE0079
 #Disable Warning IDE1006
 
-Namespace Spielfeld
-
-#Const INSERT_STEIN_INDEX_ENUM = True
+Namespace Images
 
     Public Class ImagesBase64XML
 
@@ -146,25 +144,6 @@ Namespace Spielfeld
                                 End Using
                             End If
 
-#If INSERT_STEIN_INDEX_ENUM Then
-                            If IfRunningInIDE_InsertStoneIndex Then
-
-                                ' String in rechte obere Ecke zeichnen
-                                Dim text As String = String.Format("{0:00}/{1:00}", idxSteinStatus, idxStein)
-                                Dim fontSize As Single = 8.0F ' Kleinere Schriftgröße
-                                Using font As New Font("Arial", fontSize, FontStyle.Regular, GraphicsUnit.Pixel)
-                                    Dim textSize As SizeF = gfx.MeasureString(text, font)
-
-                                    ' Position: rechts oben, 1 Pixel Abstand oben und rechts
-                                    Dim textX As Single = width - textSize.Width - 1
-                                    Dim textY As Single = 1 ' 1 Pixel Abstand zum oberen Rand
-
-                                    Using brush As New SolidBrush(Color.Black)
-                                        gfx.DrawString(text, font, brush, textX, textY)
-                                    End Using
-                                End Using
-                            End If
-#End If
 
                         End Using
                     Next
@@ -210,27 +189,6 @@ Namespace Spielfeld
                     '    InsertErrorGrafik(_ScaledBitmaps(idxStein))
                     'End If
 
-#If INSERT_STEIN_INDEX_ENUM Then
-
-                    If IfRunningInIDE_InsertStoneIndex Then
-                        Using gfx As Graphics = Graphics.FromImage(_ScaledBitmaps(idxStein))
-                            ' String in rechte obere Ecke zeichnen
-                            Dim text As String = String.Format("{0:00}/{1:00}", idxSteinStatus, idxStein)
-                            Dim fontSize As Single = 8.0F ' Kleinere Schriftgröße
-                            Using font As New Font("Arial", fontSize, FontStyle.Regular, GraphicsUnit.Pixel)
-                                Dim textSize As SizeF = gfx.MeasureString(text, font)
-
-                                ' Position: rechts oben, 1 Pixel Abstand oben und rechts
-                                Dim textX As Single = width - textSize.Width - 1
-                                Dim textY As Single = 1 ' 1 Pixel Abstand zum oberen Rand
-
-                                Using brush As New SolidBrush(Color.Black)
-                                    gfx.DrawString(text, font, brush, textX, textY)
-                                End Using
-                            End Using
-                        End Using
-                    End If
-#End If
 
                 End If
             Next

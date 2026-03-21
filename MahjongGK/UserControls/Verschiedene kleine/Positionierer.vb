@@ -247,7 +247,6 @@ Public Class Positionierer
         ' (6,6)
         ' (0,6)
 
-        Dim x As Integer, y As Integer
 
         Dim width As Integer = CELL * 6
         Dim height As Integer = CELL * 6

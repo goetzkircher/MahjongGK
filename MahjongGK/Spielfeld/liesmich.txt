@@ -1,0 +1,229 @@
+﻿Klassenname	 Property-Name
+SFDaten      SFDat
+SFInfo  	 SFInf
+SFCurrent    SFCur
+SFRuntime    SFRun
+SFLayout     SFLay
+SFEditor     SFEdi
+SFRender     SFRen
+SFUI         SFUI
+
+
+''' <summary> der Public Class SFDaten 
+''' Zentrale Wurzelklasse für den gesamten globalen Laufzeitkontext des Spielfeldsystems. 
+''' 
+''' SFDat hält keine eigentlichen persistenten Spielfelddaten, sondern die zur Laufzeit 
+''' benötigten globalen Zustände und Teilobjekte, über die das System koordiniert wird. 
+''' Dazu gehören insbesondere: 
+''' 
+''' - die aktuell aktiven bzw. sichtbaren Spielfelder, 
+''' - globale Layout- und Anzeigebereiche, 
+''' - globale Renderressourcen wie Backbuffer und Graphics, 
+''' - editorbezogene Bedienzustände, 
+''' - UI-Zustände und globale Laufzeitflags. 
+''' 
+''' SFDat ist damit die zentrale Zugriffsstelle für den nicht persistenten 
+''' Anwendungszustand des Spielfeldbereichs. 
+''' 
+''' Wichtig: 
+''' Fachliche Spielfeldinhalte gehören nicht nach SFDat, sondern in SFInf. 
+''' Laufzeitwerte, die zu genau einem konkreten Spielfeld gehören, gehören 
+''' bevorzugt in SFRun. 
+''' </summary>
+ 
+ 
+ <summary> der Public Class SFInfo 
+ ''' Beschreibt ein konkretes Spielfeld mit allen fachlichen und persistenten Daten. 
+ ''' 
+ ''' SFInf ist die eigentliche Modellklasse des Spielfelds. Sie enthält alle Informationen, 
+ ''' die das Spielfeld inhaltlich ausmachen und typischerweise gespeichert oder geladen werden. 
+ ''' Dazu gehören insbesondere: 
+ ''' 
+ ''' - Name, Identitäten, Modus und Versionsangaben, 
+ ''' - Spielfeldgrenzen und Dimensionen, 
+ ''' - die 3D-Feldbeschreibung (arrFB), 
+ ''' - die Liste der enthaltenen Steininformationen, 
+ ''' - Generator- und Hintergrunddaten, 
+ ''' - Spielfeldlogik wie Platzprüfung, Einfügen, Entfernen, Suchen und Validieren. 
+ ''' 
+ ''' Zusätzlich besitzt SFInf mit SFRun einen laufzeitabhängigen Unterblock 
+ ''' für nicht persistente, aber feldbezogene Daten. 
+ ''' 
+ ''' SFInf beschreibt also das Spielfeld selbst: 
+ ''' was es ist, was es enthält und wie seine Spielfeldlogik funktioniert. 
+ ''' 
+ </summary> 
+
+ 
+ <summary>  der Public Class SFCurrent 
+ ''' Hält die aktuell ausgewählten, aktiven oder referenzierten Spielfeldinstanzen. 
+ ''' 
+ ''' SFCur bündelt, welche Spielfelder im Moment im Anwendungskontext relevant sind. 
+ ''' Dazu gehören typischerweise: 
+ ''' 
+ ''' - das aktuell aktive bzw. sichtbare Spielfeld, 
+ ''' - das eigentliche Spiel-Spielfeld, 
+ ''' - das Werkbank-Spielfeld, 
+ ''' - zugehörige Identifikations- und Vergleichswerte, 
+ ''' - ggf. Session- oder Renderbezüge zwischen mehreren Spielfeldinstanzen. 
+ ''' 
+ ''' SFCur enthält selbst keine Spielfeldlogik, sondern verwaltet nur die Referenzen 
+ ''' auf die aktuell beteiligten SFInf-Instanzen. 
+ ''' 
+ ''' Zweck dieser Klasse ist es, den globalen Auswahl- und Umschaltzustand 
+ ''' zwischen mehreren Spielfeldern klar von Render-, Layout- und Editorzuständen zu trennen. 
+ ''' </summary> 
+ 
+ 
+ 
+ <summary> der Public Class SFRuntime 
+ ''' Hält den nicht persistenten, laufzeitabhängigen Zustand eines konkreten Spielfelds. 
+ ''' 
+ ''' SFRun enthält alle Werte, die logisch zu genau einem bestimmten Spielfeld gehören, 
+ ''' aber nicht mit gespeichert werden sollen. Dazu zählen insbesondere: 
+ ''' 
+ ''' - aktuelle Steinmaße dieses Spielfelds, 
+ ''' - berechnete 3D-Offsets, 
+ ''' - laufzeitabhängige Such- und Sortierindizes, 
+ ''' - Dirty-Flags und Rebuild-Marker, 
+ ''' - feldbezogene Werte, die beim nächsten Rendern oder Aktualisieren ausgewertet werden, 
+ ''' - weitere Caches oder Hilfsdaten, die nur für dieses konkrete Spielfeld gelten. 
+ ''' 
+ ''' SFRun ist damit die Brücke zwischen Fachmodell und Darstellung: 
+ ''' Die eigentlichen Spielfelddaten bleiben in SFInf, 
+ ''' die daraus abgeleiteten Laufzeitwerte liegen in SFRun. 
+ ''' 
+ ''' Faustregel: 
+ ''' Gehört ein Wert zu genau diesem einen Spielfeld, aber nicht ins XML, 
+ ''' dann ist SFRun meist der richtige Ort. 
+ ''' </summary> 
+ 
+ 
+ <summary> der Public Class SFLayout
+ ''' Hält die globalen Layout- und Flächeninformationen des Spielfeldbereichs. 
+ ''' 
+ ''' SFLay beschreibt, wie der verfügbare Anzeigebereich aktuell räumlich aufgeteilt ist. 
+ ''' Dazu gehören typischerweise: 
+ ''' 
+ ''' - der gesamte Ausgabebereich, 
+ ''' - Header-, Content- und Hintergrundbereiche, 
+ ''' - Vorratsbereich und dessen Scrollbar/Markierung, 
+ ''' - History-Bereiche, 
+ ''' - der verfügbare und der tatsächlich genutzte Spielfeldbereich, 
+ ''' - die aktuell verwendete Layout-Variante. 
+ ''' 
+ ''' SFLay enthält keine Spielfeldlogik und keine eigentlichen Renderressourcen,
+ ''' sondern nur geometrische und organisatorische Informationen über die Aufteilung 
+ ''' der sichtbaren Flächen. 
+ ''' 
+ ''' Diese Klasse beschreibt also nicht das Spielfeld selbst, 
+ ''' sondern den äußeren Rahmen, in dem es angezeigt wird. 
+ ''' </summary> 
+ 
+ 
+ ''' <summary> der Public Class SFEditor
+ ''' Hält alle editorbezogenen Laufzeit- und Bedienzustände. 
+ ''' 
+ ''' SFEdi bündelt die Daten, die ausschließlich oder überwiegend im Editorbetrieb 
+ ''' benötigt werden. Dazu gehören insbesondere: 
+ ''' 
+ ''' - Werte des Steinvorrats, 
+ ''' - Ghost-/Drag-&amp;-Drop-Daten, 
+ ''' - Flug- und Mausankerzustände, 
+ ''' - editorbezogene Zwischenzustände, 
+ ''' - ausstehende Platzierungsaktionen, 
+ ''' - weitere Hilfsdaten für die Bearbeitung des Spielfelds. 
+ ''' 
+ ''' SFEdi enthält keine eigentlichen persistenten Spielfelddaten, 
+ ''' sondern ausschließlich editorbezogene Interaktionszustände. 
+ ''' 
+ ''' Zweck dieser Klasse ist die klare Trennung zwischen: 
+ ''' - dem fachlichen Spielfeldmodell, 
+ ''' - dem globalen UI-/Renderzustand 
+ ''' - und den temporären Zuständen des Editorbetriebs. 
+ ''' 
+ </summary> 
+
+ 
+ <summary> der Public Class SFRender
+ ''' Hält die globalen Renderressourcen und renderbezogenen Laufzeitwerte. 
+ ''' 
+ ''' SFRen bündelt alles, was für die tatsächliche Ausgabe und das Rendering 
+ ''' global benötigt wird. Dazu gehören insbesondere: 
+ ''' 
+ ''' - Backbuffer und Graphics, 
+ ''' - Kennzeichen, ob der Backbuffer bereits Inhalt hat, 
+ ''' - globale Renderzähler und Aktivitätsflags, 
+ ''' - Startscreen- und ähnliche Bildcaches, 
+ ''' - globale Hilfsobjekte zur Renderdiagnose oder Debug-Ausgabe. 
+ ''' 
+ ''' SFRen enthält nur die globalen Renderressourcen selbst, 
+ ''' nicht aber feldbezogene Rendermetriken wie Steinbreiten oder 3D-Offsets, 
+ ''' sofern diese zu genau einem konkreten Spielfeld gehören. 
+ ''' Solche Werte gehören bevorzugt nach SFRun. 
+ ''' 
+ ''' Diese Klasse beschreibt also die technische Renderumgebung, 
+ ''' nicht das fachliche Spielfeldmodell. 
+ ''' </summary> 
+
+ 
+ <summary> Public Class SFUI
+ ''' Hält globale UI-, Bedien- und Sichtbarkeitszustände des Spielfeldsystems. 
+ ''' 
+ ''' SFUI bündelt alle nicht fachlichen Zustände, die zur Benutzeroberfläche 
+ ''' und zur Interaktion mit dem Spielfeldbereich gehören. Dazu zählen insbesondere: 
+ ''' 
+ ''' - welches UserControl aktuell sichtbar oder aktiv ist, 
+ ''' - Sichtbarkeitszustände von Toolbox oder Zusatzbereichen, 
+ ''' - UI-bezogene Statuswechsel, 
+ ''' - Formular- und Control-Referenzen, 
+ ''' - Scrollbar-Renderer oder vergleichbare UI-Hilfsobjekte, 
+ ''' - weitere globale Zustände der Bedienoberfläche. 
+ ''' 
+ ''' SFUI enthält keine Spielfeldlogik und keine eigentlichen Spielfelddaten. 
+ ''' Zweck der Klasse ist, die Benutzeroberfläche klar vom Fachmodell,
+ ''' vom Layout und vom Renderkern zu trennen. 
+ ''' 
+ ''' Alles, was der Benutzeroberfläche dient, aber nicht das Spielfeld selbst beschreibt, 
+ ''' ist typischerweise ein Kandidat für SFUI. 
+ ''' </summary>
+ 
+
+MahjongGK/Spielfeld/Basis/FBCodec2x2
+MahjongGK/Spielfeld/Basis/SFConstants
+MahjongGK/Spielfeld/Basis/SFEnums
+MahjongGK/Spielfeld/Container/RectangleX/DebugLabelPlacer
+MahjongGK/Spielfeld/Container/RectangleX/PaddingValues
+MahjongGK/Spielfeld/Container/RectangleX/RectangleX
+MahjongGK/Spielfeld/Container/RectangleX/RectangleXDebugBinder
+MahjongGK/Spielfeld/Container/Triple/Triple
+MahjongGK/Spielfeld/Container/Triple/Triple
+MahjongGK/Spielfeld/Basis/Bounds3D
+MahjongGK/Spielfeld/Daten/SFDaten
+MahjongGK/Spielfeld/Daten/SFInfo
+MahjongGK/Spielfeld/Daten/SpielsteinGenerator
+MahjongGK/Spielfeld/Daten/SpielsteinGeneratorValuesForXml
+MahjongGK/Spielfeld/Daten/SteinInfo
+MahjongGK/Spielfeld/Editor/SFEditor
+MahjongGK/Spielfeld/Helfermodule/SpielfeldHelper
+MahjongGK/Spielfeld/Layout/SFLayout
+MahjongGK/Spielfeld/Main/SFMain
+MahjongGK/Spielfeld/Render/HScrollRenderer
+MahjongGK/Spielfeld/Render/RenderHelper
+MahjongGK/Spielfeld/Render/RenderingStartScreen
+MahjongGK/Spielfeld/Render/RenderingTaktgeber
+MahjongGK/Spielfeld/Render/SFRender
+MahjongGK/Spielfeld/Render/SFRenderManager
+MahjongGK/Spielfeld/Render/SpielfeldAnimator
+MahjongGK/Spielfeld/Render/UCtlSpielfeld
+MahjongGK/Spielfeld/Runtime/MouseAnkerVerschiebung
+MahjongGK/Spielfeld/Runtime/SFCurrent
+MahjongGK/Spielfeld/Runtime/SFMouseRuntime
+MahjongGK/Spielfeld/Runtime/SFRuntime
+MahjongGK/Spielfeld/Runtime/SFStockState
+MahjongGK/Spielfeld/Runtime/SteinFlugValues
+MahjongGK/Spielfeld/UI/Form/ResizeActivityPoller
+MahjongGK/Spielfeld/UI/Mouse/MouseInputPoller
+MahjongGK/Spielfeld/UI/Mouse/MousePollerHandleBinder
+MahjongGK/Spielfeld/UI/Mouse/MousePollerHandleBinder
+MahjongGK/Spielfeld/UI/SFUIFace

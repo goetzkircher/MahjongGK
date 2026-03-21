@@ -8,7 +8,7 @@
 '#                                                                         #
 '#   This program is free software: you can redistribute it and/or modify  #
 '#   it under the terms of the GNU General Public License as published by  #
-'#   the Free Software Foundation, either version 3 of the License, or     #
+'#   the Free Software Fundament, either version 3 of the License, or     #
 '#   at your option any later version.                                     #
 '#                                                                         #
 '#   This program is distributed in the hope that it will be useful,       #
@@ -66,8 +66,8 @@ Public NotInheritable Class MessageBoxFormatiert
     Private Const MIN_CLIENT_W As Integer = 360
     Private Const MIN_CLIENT_H As Integer = 160
 
-    Private Const MEASURE_FUDGE_W As Integer = 16
-    Private Const MEASURE_FUDGE_H As Integer = 6
+    Public Const MEASURE_FUDGE_W As Integer = 16
+    Public Const MEASURE_FUDGE_H As Integer = 6
     '
 
     Private Enum SnapMode
@@ -266,7 +266,7 @@ Public NotInheritable Class MessageBoxFormatiert
 
             ' Harte Obergrenze für die RTB-Breite vorbereiten (innen):
             If dlg._widthHintPx > 0 AndAlso dlg._flowMode Then
-                dlg._rtbWidthCapPx = dlg._widthHintPx + SystemInformation.VerticalScrollBarWidth + dlg.MEASURE_FUDGE_W
+                dlg._rtbWidthCapPx = dlg._widthHintPx + SystemInformation.VerticalScrollBarWidth + MessageBoxFormatiert.MEASURE_FUDGE_W
             Else
                 dlg._rtbWidthCapPx = 0
             End If

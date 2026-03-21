@@ -12,7 +12,7 @@ Option Strict On
 '#                                                                         #
 '#   This program is free software: you can redistribute it and/or modify  #
 '#   it under the terms of the GNU General Public License as published by  #
-'#   the Free Software Foundation, either version 3 of the License, or     #
+'#   the Free Software Fundament, either version 3 of the License, or     #
 '#   at your option any later version.                                     #
 '#                                                                         #
 '#   This program is distributed in the hope that it will be useful,       #
@@ -88,7 +88,7 @@ Namespace Umfeld
                         For idxY As Integer = .yMin To .yMax
                             Dim tplQuestion As New Triple(idxX, idxY, idxZ)
                             Dim steinPos3D As Triple = wb.IsValidePlace(tplQuestion)
-                            If steinPos3D.Valide = ValidePlaceEnum.Yes Then
+                            If steinPos3D.Valide = ValidePlace.Yes Then
                                 'Stein mit zufälliger SteinIndexEnum setzen.
                                 wb.AddSteinToSpielfeld(CType(_rnd.Next(1, 43), SteinIndexEnum), steinPos3D)
                             End If
@@ -97,7 +97,7 @@ Namespace Umfeld
                 Next
             End With
 
-            Dim result As (steinInfos As List(Of SteinInfo), arrFB As Integer(,,)) = wb.ResultAsSteinInfosArrFB
+            Dim result As (steinInfos As List(Of Spielfeld.SteinInfo), arrFB As Integer(,,)) = wb.ResultAsSteinInfosArrFB
 
             Return wb.ResultAsWerkstück(demoMode)
 
@@ -108,12 +108,15 @@ Namespace Umfeld
             Dim wb As New Werkbank(bausteinSize)
 
             With wb
-                For idxZ As Integer = .zMin To .zMax
+                For idxZ As Integer = .zMin To .zMin + 1
                     For idxX As Integer = .xMin To .xMax Step 2
                         For idxY As Integer = .yMin To .yMax Step 2
+                            If idxZ = 1 And idxX > 4 Then
+                                Continue For
+                            End If
                             Dim tplQuestion As New Triple(idxX, idxY, idxZ)
                             Dim steinPos3D As Triple = wb.IsValidePlace(tplQuestion)
-                            If steinPos3D.Valide = ValidePlaceEnum.Yes Then
+                            If steinPos3D.Valide = ValidePlace.Yes Then
                                 wb.AddSteinToSpielfeld(CType(_rnd.Next(1, 43), SteinIndexEnum), steinPos3D)
                             End If
                         Next
@@ -121,7 +124,7 @@ Namespace Umfeld
                 Next
             End With
 
-            Dim result As (steinInfos As List(Of SteinInfo), arrFB As Integer(,,)) = wb.ResultAsSteinInfosArrFB
+            Dim result As (steinInfos As List(Of Spielfeld.SteinInfo), arrFB As Integer(,,)) = wb.ResultAsSteinInfosArrFB
 
             Return wb.ResultAsWerkstück(demoMode)
 
@@ -140,7 +143,7 @@ Namespace Umfeld
                         For idxY As Integer = .yMin + idxZ * mulY To .yMax - idxZ * mulY Step 2
                             Dim tplQuestion As New Triple(idxX, idxY, idxZ)
                             Dim tplAnswer As Triple = wb.IsValidePlace(tplQuestion)
-                            If tplAnswer.Valide = ValidePlaceEnum.Yes Then
+                            If tplAnswer.Valide = ValidePlace.Yes Then
                                 wb.AddSteinToSpielfeld(CType(_rnd.Next(1, 43), SteinIndexEnum), tplAnswer)
                             End If
                         Next
@@ -148,7 +151,7 @@ Namespace Umfeld
                 Next
             End With
 
-            Dim result As (steinInfos As List(Of SteinInfo), arrFB As Integer(,,)) = wb.ResultAsSteinInfosArrFB
+            Dim result As (steinInfos As List(Of Spielfeld.SteinInfo), arrFB As Integer(,,)) = wb.ResultAsSteinInfosArrFB
 
             Return wb.ResultAsWerkstück(demoMode)
 
@@ -185,7 +188,7 @@ Namespace Umfeld
                                 Dim tplQuestion As New Triple(idxX, idxY, idxZ)
                                 Dim tplAnswer As Triple = wb.IsValidePlace(tplQuestion)
 
-                                If tplAnswer.Valide = ValidePlaceEnum.Yes Then
+                                If tplAnswer.Valide = ValidePlace.Yes Then
                                     'Das ist hier nur eine Sicherheitsgurt.
                                     '(Schützt vor Programmierfehlern, die sichtbar werden, weil der Stein dann fehlt.)
                                     wb.AddSteinToSpielfeld(CType(_rnd.Next(1, 43), SteinIndexEnum), tplAnswer)
@@ -196,7 +199,7 @@ Namespace Umfeld
                 Next
             End With
 
-            Dim result As (steinInfos As List(Of SteinInfo), arrFB As Integer(,,)) = wb.ResultAsSteinInfosArrFB
+            Dim result As (steinInfos As List(Of Spielfeld.SteinInfo), arrFB As Integer(,,)) = wb.ResultAsSteinInfosArrFB
 
             Return wb.ResultAsWerkstück(demoMode)
 

@@ -31,7 +31,7 @@ Imports System.IO
 #Disable Warning IDE0079
 #Disable Warning IDE1006
 
-Namespace Spielfeld
+Namespace Images
 
     Public Module BitmapContainer
 

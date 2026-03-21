@@ -27,9 +27,9 @@ Partial Class UctlToolboxHintergrund
         Me.TabControlToolboxHGrd = New System.Windows.Forms.TabControl()
         Me.TabPageAktSpiel = New System.Windows.Forms.TabPage()
         Me.gbxAktSpiel = New System.Windows.Forms.GroupBox()
+        Me.GroupBox1 = New System.Windows.Forms.GroupBox()
         Me.chkToolboxHGrdEditorShowFraming = New System.Windows.Forms.CheckBox()
         Me.GroupBox3 = New System.Windows.Forms.GroupBox()
-        Me.ButtonTooltip1 = New MahjongGK.ButtonTooltip()
         Me.lblToolboxHGrdSplFldColor = New System.Windows.Forms.Label()
         Me.btnToolboxHGrdSplFldColorClear = New System.Windows.Forms.Button()
         Me.btnToolboxHGrdSplFldColor = New System.Windows.Forms.Button()
@@ -38,11 +38,9 @@ Partial Class UctlToolboxHintergrund
         Me.picToolboxHGrdSplFld = New System.Windows.Forms.PictureBox()
         Me.btnToolboxHGrdSplFldBitmapClear = New System.Windows.Forms.Button()
         Me.btnToolboxHGrdSplFldBitmapName = New System.Windows.Forms.Button()
-        Me.btnInfoAktSpiel = New MahjongGK.ButtonInfo()
         Me.TabPageFallback = New System.Windows.Forms.TabPage()
         Me.gbxFallback = New System.Windows.Forms.GroupBox()
         Me.GroupBox2 = New System.Windows.Forms.GroupBox()
-        Me.ButtonTooltip2 = New MahjongGK.ButtonTooltip()
         Me.lblToolboxHGrdSplFldColorFallback = New System.Windows.Forms.Label()
         Me.btnToolboxHGrdSplFldColorClearFallback = New System.Windows.Forms.Button()
         Me.btnToolboxHGrdSplFldColorFallback = New System.Windows.Forms.Button()
@@ -51,12 +49,17 @@ Partial Class UctlToolboxHintergrund
         Me.lblToolboxHGrdSplFldRenderModeFallback = New System.Windows.Forms.Label()
         Me.btnToolboxHGrdSplFldBitmapClearFallback = New System.Windows.Forms.Button()
         Me.btnToolboxHGrdSplFldBitmapNameFallback = New System.Windows.Forms.Button()
+        Me.chkDrawRenderRect = New System.Windows.Forms.CheckBox()
+        Me.btnInfoAktSpiel = New MahjongGK.ButtonInfo()
+        Me.ButtonTooltip1 = New MahjongGK.ButtonTooltip()
+        Me.ButtonTooltip2 = New MahjongGK.ButtonTooltip()
         Me.ButtonInfo1 = New MahjongGK.ButtonInfo()
-        Me.GroupBox1 = New System.Windows.Forms.GroupBox()
+        Me.Label1 = New System.Windows.Forms.Label()
         Me.GroupBox9.SuspendLayout()
         Me.TabControlToolboxHGrd.SuspendLayout()
         Me.TabPageAktSpiel.SuspendLayout()
         Me.gbxAktSpiel.SuspendLayout()
+        Me.GroupBox1.SuspendLayout()
         Me.GroupBox3.SuspendLayout()
         Me.GroupBox4.SuspendLayout()
         CType(Me.picToolboxHGrdSplFld, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -65,7 +68,6 @@ Partial Class UctlToolboxHintergrund
         Me.GroupBox2.SuspendLayout()
         Me.GroupBox5.SuspendLayout()
         CType(Me.picToolboxHGrdSplFldFallback, System.ComponentModel.ISupportInitialize).BeginInit()
-        Me.GroupBox1.SuspendLayout()
         Me.SuspendLayout()
         '
         'GroupBox9
@@ -104,6 +106,7 @@ Partial Class UctlToolboxHintergrund
         '
         'gbxAktSpiel
         '
+        Me.gbxAktSpiel.Controls.Add(Me.chkDrawRenderRect)
         Me.gbxAktSpiel.Controls.Add(Me.GroupBox1)
         Me.gbxAktSpiel.Controls.Add(Me.GroupBox3)
         Me.gbxAktSpiel.Controls.Add(Me.GroupBox4)
@@ -116,6 +119,16 @@ Partial Class UctlToolboxHintergrund
         Me.gbxAktSpiel.TabStop = False
         Me.gbxAktSpiel.Text = "Aktuell geladenes Spiel"
         '
+        'GroupBox1
+        '
+        Me.GroupBox1.Controls.Add(Me.chkToolboxHGrdEditorShowFraming)
+        Me.GroupBox1.Controls.Add(Me.btnInfoAktSpiel)
+        Me.GroupBox1.Location = New System.Drawing.Point(191, 151)
+        Me.GroupBox1.Name = "GroupBox1"
+        Me.GroupBox1.Size = New System.Drawing.Size(129, 74)
+        Me.GroupBox1.TabIndex = 7
+        Me.GroupBox1.TabStop = False
+        '
         'chkToolboxHGrdEditorShowFraming
         '
         Me.chkToolboxHGrdEditorShowFraming.AutoSize = True
@@ -123,7 +136,7 @@ Partial Class UctlToolboxHintergrund
         Me.chkToolboxHGrdEditorShowFraming.Name = "chkToolboxHGrdEditorShowFraming"
         Me.chkToolboxHGrdEditorShowFraming.Size = New System.Drawing.Size(123, 30)
         Me.chkToolboxHGrdEditorShowFraming.TabIndex = 6
-        Me.chkToolboxHGrdEditorShowFraming.Text = "Spielfeldumrahmung" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "anzeigen (nur Editor)"
+        Me.chkToolboxHGrdEditorShowFraming.Text = "Spielfeldumrahmung" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "anzeigen (nur Edit)"
         Me.chkToolboxHGrdEditorShowFraming.UseVisualStyleBackColor = True
         '
         'GroupBox3
@@ -138,24 +151,6 @@ Partial Class UctlToolboxHintergrund
         Me.GroupBox3.TabIndex = 4
         Me.GroupBox3.TabStop = False
         Me.GroupBox3.Text = "Farben"
-        '
-        'ButtonTooltip1
-        '
-        Me.ButtonTooltip1.AccessibleDescription = "Zeigt einen Hinweis-Tooltip."
-        Me.ButtonTooltip1.AccessibleName = "Info"
-        Me.ButtonTooltip1.BackColor = System.Drawing.SystemColors.Control
-        Me.ButtonTooltip1.Cursor = System.Windows.Forms.Cursors.Default
-        Me.ButtonTooltip1.DarkMode = False
-        Me.ButtonTooltip1.InfoHeader = "Info"
-        Me.ButtonTooltip1.InfoText = "Gedrückte Strg-Taste = benannte Farben"
-        Me.ButtonTooltip1.Location = New System.Drawing.Point(89, 93)
-        Me.ButtonTooltip1.MinimumSize = New System.Drawing.Size(16, 16)
-        Me.ButtonTooltip1.Name = "ButtonTooltip1"
-        Me.ButtonTooltip1.ShowOnFocus = False
-        Me.ButtonTooltip1.Size = New System.Drawing.Size(26, 26)
-        Me.ButtonTooltip1.TabIndex = 12
-        Me.ButtonTooltip1.TabStop = False
-        Me.ButtonTooltip1.Text = "ButtonTooltip1"
         '
         'lblToolboxHGrdSplFldColor
         '
@@ -184,7 +179,7 @@ Partial Class UctlToolboxHintergrund
         Me.btnToolboxHGrdSplFldColor.Name = "btnToolboxHGrdSplFldColor"
         Me.btnToolboxHGrdSplFldColor.Size = New System.Drawing.Size(69, 23)
         Me.btnToolboxHGrdSplFldColor.TabIndex = 6
-        Me.btnToolboxHGrdSplFldColor.Text = "Spielfeld"
+        Me.btnToolboxHGrdSplFldColor.Text = "Spiel"
         Me.btnToolboxHGrdSplFldColor.UseVisualStyleBackColor = True
         '
         'GroupBox4
@@ -233,26 +228,8 @@ Partial Class UctlToolboxHintergrund
         Me.btnToolboxHGrdSplFldBitmapName.Name = "btnToolboxHGrdSplFldBitmapName"
         Me.btnToolboxHGrdSplFldBitmapName.Size = New System.Drawing.Size(104, 23)
         Me.btnToolboxHGrdSplFldBitmapName.TabIndex = 2
-        Me.btnToolboxHGrdSplFldBitmapName.Text = "Spielfeld"
+        Me.btnToolboxHGrdSplFldBitmapName.Text = "Spiel"
         Me.btnToolboxHGrdSplFldBitmapName.UseVisualStyleBackColor = True
-        '
-        'btnInfoAktSpiel
-        '
-        Me.btnInfoAktSpiel.AccessibleDescription = "Zeigt Informationen."
-        Me.btnInfoAktSpiel.AccessibleName = "Info"
-        Me.btnInfoAktSpiel.AutoSquare = True
-        Me.btnInfoAktSpiel.BackColor = System.Drawing.SystemColors.Control
-        Me.btnInfoAktSpiel.Cursor = System.Windows.Forms.Cursors.Hand
-        Me.btnInfoAktSpiel.DarkMode = True
-        Me.btnInfoAktSpiel.InfoHeader = "Info"
-        Me.btnInfoAktSpiel.InfoText = resources.GetString("btnInfoAktSpiel.InfoText")
-        Me.btnInfoAktSpiel.Location = New System.Drawing.Point(89, 43)
-        Me.btnInfoAktSpiel.MinimumSize = New System.Drawing.Size(16, 16)
-        Me.btnInfoAktSpiel.Name = "btnInfoAktSpiel"
-        Me.btnInfoAktSpiel.Size = New System.Drawing.Size(26, 26)
-        Me.btnInfoAktSpiel.TabIndex = 2
-        Me.btnInfoAktSpiel.TabStop = False
-        Me.btnInfoAktSpiel.Text = "ButtonInfo2"
         '
         'TabPageFallback
         '
@@ -280,34 +257,17 @@ Partial Class UctlToolboxHintergrund
         '
         'GroupBox2
         '
+        Me.GroupBox2.Controls.Add(Me.Label1)
         Me.GroupBox2.Controls.Add(Me.ButtonTooltip2)
         Me.GroupBox2.Controls.Add(Me.lblToolboxHGrdSplFldColorFallback)
         Me.GroupBox2.Controls.Add(Me.btnToolboxHGrdSplFldColorClearFallback)
         Me.GroupBox2.Controls.Add(Me.btnToolboxHGrdSplFldColorFallback)
         Me.GroupBox2.Location = New System.Drawing.Point(191, 19)
         Me.GroupBox2.Name = "GroupBox2"
-        Me.GroupBox2.Size = New System.Drawing.Size(129, 255)
+        Me.GroupBox2.Size = New System.Drawing.Size(129, 229)
         Me.GroupBox2.TabIndex = 4
         Me.GroupBox2.TabStop = False
         Me.GroupBox2.Text = "Farben"
-        '
-        'ButtonTooltip2
-        '
-        Me.ButtonTooltip2.AccessibleDescription = "Zeigt einen Hinweis-Tooltip."
-        Me.ButtonTooltip2.AccessibleName = "Info"
-        Me.ButtonTooltip2.BackColor = System.Drawing.SystemColors.Control
-        Me.ButtonTooltip2.Cursor = System.Windows.Forms.Cursors.Default
-        Me.ButtonTooltip2.DarkMode = False
-        Me.ButtonTooltip2.InfoHeader = "Info"
-        Me.ButtonTooltip2.InfoText = "Gedrückte Strg-Taste = benannte Farben"
-        Me.ButtonTooltip2.Location = New System.Drawing.Point(89, 93)
-        Me.ButtonTooltip2.MinimumSize = New System.Drawing.Size(16, 16)
-        Me.ButtonTooltip2.Name = "ButtonTooltip2"
-        Me.ButtonTooltip2.ShowOnFocus = False
-        Me.ButtonTooltip2.Size = New System.Drawing.Size(26, 26)
-        Me.ButtonTooltip2.TabIndex = 13
-        Me.ButtonTooltip2.TabStop = False
-        Me.ButtonTooltip2.Text = "ButtonTooltip2"
         '
         'lblToolboxHGrdSplFldColorFallback
         '
@@ -336,7 +296,7 @@ Partial Class UctlToolboxHintergrund
         Me.btnToolboxHGrdSplFldColorFallback.Name = "btnToolboxHGrdSplFldColorFallback"
         Me.btnToolboxHGrdSplFldColorFallback.Size = New System.Drawing.Size(69, 23)
         Me.btnToolboxHGrdSplFldColorFallback.TabIndex = 6
-        Me.btnToolboxHGrdSplFldColorFallback.Text = "Spielfeld"
+        Me.btnToolboxHGrdSplFldColorFallback.Text = "Spiel"
         Me.btnToolboxHGrdSplFldColorFallback.UseVisualStyleBackColor = True
         '
         'GroupBox5
@@ -385,8 +345,72 @@ Partial Class UctlToolboxHintergrund
         Me.btnToolboxHGrdSplFldBitmapNameFallback.Name = "btnToolboxHGrdSplFldBitmapNameFallback"
         Me.btnToolboxHGrdSplFldBitmapNameFallback.Size = New System.Drawing.Size(104, 23)
         Me.btnToolboxHGrdSplFldBitmapNameFallback.TabIndex = 2
-        Me.btnToolboxHGrdSplFldBitmapNameFallback.Text = "Spielfeld"
+        Me.btnToolboxHGrdSplFldBitmapNameFallback.Text = "Spiel"
         Me.btnToolboxHGrdSplFldBitmapNameFallback.UseVisualStyleBackColor = True
+        '
+        'chkDrawRenderRect
+        '
+        Me.chkDrawRenderRect.AutoSize = True
+        Me.chkDrawRenderRect.Location = New System.Drawing.Point(9, 234)
+        Me.chkDrawRenderRect.Name = "chkDrawRenderRect"
+        Me.chkDrawRenderRect.Size = New System.Drawing.Size(308, 17)
+        Me.chkDrawRenderRect.TabIndex = 8
+        Me.chkDrawRenderRect.Text = "Nur IDE: Generell nur Aufteilung anzeigen (Alle RectangleX)"
+        Me.chkDrawRenderRect.UseVisualStyleBackColor = True
+        '
+        'btnInfoAktSpiel
+        '
+        Me.btnInfoAktSpiel.AccessibleDescription = "Zeigt Informationen."
+        Me.btnInfoAktSpiel.AccessibleName = "Info"
+        Me.btnInfoAktSpiel.AutoSquare = True
+        Me.btnInfoAktSpiel.BackColor = System.Drawing.SystemColors.Control
+        Me.btnInfoAktSpiel.Cursor = System.Windows.Forms.Cursors.Hand
+        Me.btnInfoAktSpiel.DarkMode = True
+        Me.btnInfoAktSpiel.InfoHeader = "Info"
+        Me.btnInfoAktSpiel.InfoText = resources.GetString("btnInfoAktSpiel.InfoText")
+        Me.btnInfoAktSpiel.Location = New System.Drawing.Point(89, 43)
+        Me.btnInfoAktSpiel.MinimumSize = New System.Drawing.Size(16, 16)
+        Me.btnInfoAktSpiel.Name = "btnInfoAktSpiel"
+        Me.btnInfoAktSpiel.Size = New System.Drawing.Size(26, 26)
+        Me.btnInfoAktSpiel.TabIndex = 2
+        Me.btnInfoAktSpiel.TabStop = False
+        Me.btnInfoAktSpiel.Text = "ButtonInfo2"
+        '
+        'ButtonTooltip1
+        '
+        Me.ButtonTooltip1.AccessibleDescription = "Zeigt einen Hinweis-Tooltip."
+        Me.ButtonTooltip1.AccessibleName = "Info"
+        Me.ButtonTooltip1.BackColor = System.Drawing.SystemColors.Control
+        Me.ButtonTooltip1.Cursor = System.Windows.Forms.Cursors.Default
+        Me.ButtonTooltip1.DarkMode = False
+        Me.ButtonTooltip1.InfoHeader = "Info"
+        Me.ButtonTooltip1.InfoText = "Gedrückte Strg-Taste = benannte Farben"
+        Me.ButtonTooltip1.Location = New System.Drawing.Point(89, 93)
+        Me.ButtonTooltip1.MinimumSize = New System.Drawing.Size(16, 16)
+        Me.ButtonTooltip1.Name = "ButtonTooltip1"
+        Me.ButtonTooltip1.ShowOnFocus = False
+        Me.ButtonTooltip1.Size = New System.Drawing.Size(26, 26)
+        Me.ButtonTooltip1.TabIndex = 12
+        Me.ButtonTooltip1.TabStop = False
+        Me.ButtonTooltip1.Text = "ButtonTooltip1"
+        '
+        'ButtonTooltip2
+        '
+        Me.ButtonTooltip2.AccessibleDescription = "Zeigt einen Hinweis-Tooltip."
+        Me.ButtonTooltip2.AccessibleName = "Info"
+        Me.ButtonTooltip2.BackColor = System.Drawing.SystemColors.Control
+        Me.ButtonTooltip2.Cursor = System.Windows.Forms.Cursors.Default
+        Me.ButtonTooltip2.DarkMode = False
+        Me.ButtonTooltip2.InfoHeader = "Info"
+        Me.ButtonTooltip2.InfoText = "Gedrückte Strg-Taste = benannte Farben"
+        Me.ButtonTooltip2.Location = New System.Drawing.Point(89, 93)
+        Me.ButtonTooltip2.MinimumSize = New System.Drawing.Size(16, 16)
+        Me.ButtonTooltip2.Name = "ButtonTooltip2"
+        Me.ButtonTooltip2.ShowOnFocus = False
+        Me.ButtonTooltip2.Size = New System.Drawing.Size(26, 26)
+        Me.ButtonTooltip2.TabIndex = 13
+        Me.ButtonTooltip2.TabStop = False
+        Me.ButtonTooltip2.Text = "ButtonTooltip2"
         '
         'ButtonInfo1
         '
@@ -406,15 +430,14 @@ Partial Class UctlToolboxHintergrund
         Me.ButtonInfo1.TabStop = False
         Me.ButtonInfo1.Text = "ButtonInfo2"
         '
-        'GroupBox1
+        'Label1
         '
-        Me.GroupBox1.Controls.Add(Me.chkToolboxHGrdEditorShowFraming)
-        Me.GroupBox1.Controls.Add(Me.btnInfoAktSpiel)
-        Me.GroupBox1.Location = New System.Drawing.Point(191, 151)
-        Me.GroupBox1.Name = "GroupBox1"
-        Me.GroupBox1.Size = New System.Drawing.Size(129, 74)
-        Me.GroupBox1.TabIndex = 7
-        Me.GroupBox1.TabStop = False
+        Me.Label1.AutoSize = True
+        Me.Label1.Location = New System.Drawing.Point(6, 157)
+        Me.Label1.Name = "Label1"
+        Me.Label1.Size = New System.Drawing.Size(87, 26)
+        Me.Label1.TabIndex = 14
+        Me.Label1.Text = "Auch HGrdFarbe" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "der Werkbank"
         '
         'UctlToolboxHintergrund
         '
@@ -429,6 +452,9 @@ Partial Class UctlToolboxHintergrund
         Me.TabControlToolboxHGrd.ResumeLayout(False)
         Me.TabPageAktSpiel.ResumeLayout(False)
         Me.gbxAktSpiel.ResumeLayout(False)
+        Me.gbxAktSpiel.PerformLayout()
+        Me.GroupBox1.ResumeLayout(False)
+        Me.GroupBox1.PerformLayout()
         Me.GroupBox3.ResumeLayout(False)
         Me.GroupBox4.ResumeLayout(False)
         Me.GroupBox4.PerformLayout()
@@ -436,11 +462,10 @@ Partial Class UctlToolboxHintergrund
         Me.TabPageFallback.ResumeLayout(False)
         Me.gbxFallback.ResumeLayout(False)
         Me.GroupBox2.ResumeLayout(False)
+        Me.GroupBox2.PerformLayout()
         Me.GroupBox5.ResumeLayout(False)
         Me.GroupBox5.PerformLayout()
         CType(Me.picToolboxHGrdSplFldFallback, System.ComponentModel.ISupportInitialize).EndInit()
-        Me.GroupBox1.ResumeLayout(False)
-        Me.GroupBox1.PerformLayout()
         Me.ResumeLayout(False)
 
     End Sub
@@ -475,4 +500,6 @@ Partial Class UctlToolboxHintergrund
     Friend WithEvents ButtonTooltip1 As ButtonTooltip
     Friend WithEvents ButtonTooltip2 As ButtonTooltip
     Friend WithEvents GroupBox1 As GroupBox
+    Friend WithEvents chkDrawRenderRect As CheckBox
+    Friend WithEvents Label1 As Label
 End Class

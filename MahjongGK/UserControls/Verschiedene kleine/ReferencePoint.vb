@@ -137,7 +137,7 @@ Public Class ReferencePoint
     End Sub
 
     Private Sub ReferencePoint_Paint(sender As Object, e As PaintEventArgs) Handles Me.Paint
-        Dim x As Integer, y As Integer
+        ' Dim x As Integer, y As Integer
 
         Dim width As Integer = CELL * 2
         Dim height As Integer = CELL * 2

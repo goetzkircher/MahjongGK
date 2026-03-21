@@ -46,7 +46,7 @@
   </compatibility>
 
   <!-- Gibt an, dass die Anwendung mit DPI-Werten kompatibel ist und von Windows nicht automatisch auf höhere
-       DPI-Werte skaliert wird. WPF-Anwendungen (Windows Presentation Foundation) sind automatisch mit DPI-Werten kompatibel, eine Aktivierung 
+       DPI-Werte skaliert wird. WPF-Anwendungen (Windows Presentation Fundament) sind automatisch mit DPI-Werten kompatibel, eine Aktivierung 
        ist nicht erforderlich. Für Windows Forms-Anwendungen für .NET Framework 4.6, die diese Einstellung aktivieren, muss 
        auch die Einstellung "'EnableWindowsFormsHighDpiAutoResizing" in der Datei "app.config" auf TRUE festgelegt werden. 
        

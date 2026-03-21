@@ -12,7 +12,7 @@ Option Strict On
 '#                                                                         #
 '#   This program is free software: you can redistribute it and/or modify  #
 '#   it under the terms of the GNU General Public License as published by  #
-'#   the Free Software Foundation, either version 3 of the License, or     #
+'#   the Free Software Fundament, either version 3 of the License, or     #
 '#   at your option any later version.                                     #
 '#                                                                         #
 '#   This program is distributed in the hope that it will be useful,       #
@@ -26,6 +26,7 @@ Option Strict On
 '
 
 Imports System.Drawing.Imaging
+Imports MahjongGK.Spielfeld
 
 #Disable Warning IDE0079
 #Disable Warning IDE1006
@@ -43,37 +44,6 @@ Public Class frmMain
 
 #Region "Einstiegspunkt und Tests während der Programmentwicklung"
 
-    ''' <summary>
-    ''' Hier ist der Einstieg ins Spiel
-    ''' </summary>
-    ''' <param name="startRenderingWithOrToggleTo"></param>
-    Public Sub InitialisierungSpielfeldEditorAndWerkbank(startRenderingWithOrToggleTo As RenderingEnum)
-
-        If Not _initialisierungSpielfeldEditorAndWerkbankIsDone Then
-
-            'Die Steine Laden
-            Spielfeld.SGM.PreloadSteinSatz(SteinSatz.Satz1)
-
-
-            'Hier werden die Anfangs-Spiele/Editor/Werkbanksdaten zugewiesen
-            Spielfeld.TestDaten_Spielfeld_Methodenaufruf_zum_Debuggen()
-
-            _initialisierungSpielfeldEditorAndWerkbankIsDone = True
-        End If
-        Select Case startRenderingWithOrToggleTo
-            Case RenderingEnum.Spielfeld
-                AktVisibleUserControl = VisibleUserControl.Spielfeld
-                Spielfeld.SFD.AktRendering = RenderingEnum.Spielfeld
-
-            Case RenderingEnum.Editor
-                AktVisibleUserControl = VisibleUserControl.Spielfeld
-                Spielfeld.SFD.AktRendering = RenderingEnum.Editor
-            Case RenderingEnum.Werkbank
-                AktVisibleUserControl = VisibleUserControl.Spielfeld
-                Spielfeld.SFD.AktRendering = RenderingEnum.Werkbank
-            Case Else
-        End Select
-    End Sub
 
     '######################################################################################################
 
@@ -96,7 +66,23 @@ Public Class frmMain
     End Sub
 
     Private Sub Go()
-        Spielfeld.EnsureSpielfeldInfoAreAvailable(startRenderingWithOrToggleTo:=RenderingEnum.Spielfeld)
+
+        AktVisibleUserControl = VisibleUserControl.Spielfeld
+
+
+        Dim newSpielfeldInfo As New SFInfo(New Triple(6, 5, 4))
+
+        Dim wbsSF As Werkstück = Umfeld.Werkstück_Pyramide(New Triple(5, 4, 3), True, True, demoMode:=True) ', True, True)
+        'Dim wbsSF As Werkstück = Umfeld.Werkstück_Rechteck(New Triple(5, 6, 10), demoMode:=True) ', True, True)
+
+        newSpielfeldInfo.AddWerkstückToSpielfeld(wbsSF, New Triple(1, 1, 0))
+
+        SFMain.CreateSpielfeld(newSpielfeldInfo)
+
+        'startet die Anzeige
+        SFMain.RenderMode = RenderMode.Edit
+
+
     End Sub
 
     Private Sub Parkplatz()
@@ -145,7 +131,6 @@ Public Class frmMain
     Private VisibleUserControls As New List(Of Control)
     Private _isRefreshing As Boolean 'bezieht sich auf das ToolStrip nach Änderungen in der Ini
     Private ReadOnly _cbToolTip As New ToolTip()
-    Private _initialisierungSpielfeldEditorAndWerkbankIsDone As Boolean
     Private _frmToolBox As frmToolBox = Nothing
     Private _themer As Theme.ThemeManager
 
@@ -270,8 +255,11 @@ Public Class frmMain
         End If
         '
         'Die INI ist bereits initialisiert, das passiert beim allererstem Zugriff auf einen Wert automatisch.
-        'hier geht es um um eine Reinitialisierung mit Werten der IniEvents.
+        'hier geht es um eine Reinitialisierung mit Werten der IniEvents.
         INI.Initialisierung(update:=True, raiseIniEventsDefault:=IniEvents.OnChangeValue)
+
+        'Die Steine Laden
+        Images.SGM.PreloadSteinSatz(INI.Rendering_PreloadSteinsatz)
 
 
         '' Obsolet durch 1) Startup-Bounds bestimmen  Me.EnsureLocationVisibleOnAnyScreen()
@@ -303,7 +291,8 @@ Public Class frmMain
     End Sub
 
     Private Sub frmMain_FormClosing(sender As Object, e As FormClosingEventArgs) Handles Me.FormClosing
-        Spielfeld.SFD.MousePolling.Dispose()
+        ''TODO SFD-Anpassung
+        ''  Spielfeld.SFD.MousePolling.Dispose() 
     End Sub
 
     Private Sub frmMain_ResizeEnd(sender As Object, e As EventArgs) Handles Me.ResizeEnd, Me.Closing
@@ -396,9 +385,6 @@ Public Class frmMain
             ' Panel in die Mitte
             PanelFrmMainUGrd.BringToFront()
 
-            'Ein eventuell noch laufendes Spielfeld abschalten
-            Spielfeld.PaintSpielfeld_DeInitialisierung()
-
             'den Namen des bisherigen sichern, um das bisherige von überall her
             'wieder Rückstellen zu können (z.B. aus UICtlAboutMahjongGK heraus)
             INI.Global_LastVisibleUserControl = _aktVisibleUserControlValue
@@ -431,11 +417,8 @@ Public Class frmMain
 
             RefreshMenuStates()
 
-            'Erläuterung siehe PaintLimiterErläuterung.txt
-            If value = VisibleUserControl.Spielfeld Then
 
-                Spielfeld.PaintSpielfeld_Initialisierung(VisibleUserControls(value), value)
-            End If
+            Spielfeld.SFMain.SetVisibleUserControl(VisibleUserControls(value), value)
 
             ResumeLayout(True)
 
@@ -489,18 +472,18 @@ Public Class frmMain
                                                        Return AktVisibleUserControl <> VisibleUserControl.Spielfeld
                                                    End Function))
 
-        mnuSpiel.DropDownItems.Add(CreateMenuItem("Spielfeld wählen",
+        mnuSpiel.DropDownItems.Add(CreateMenuItem("Spiel wählen",
                                                   Sub() ChangeVisibleControl(VisibleUserControl.SpielfeldWählen),
                                                   Function() As Boolean
                                                       Return AktVisibleUserControl <> VisibleUserControl.SpielfeldWählen
                                                   End Function))
 
-        mnuSpiel.DropDownItems.Add(CreateMenuItem("Spielfeld zufällig wählen", Sub() SelectRandomSpielfeld()))
+        mnuSpiel.DropDownItems.Add(CreateMenuItem("Spiel zufällig wählen", Sub() SelectRandomSpielfeld()))
 
 
-        Dim mnuEditor As New ToolStripMenuItem("Editor")
+        Dim mnuEditor As New ToolStripMenuItem("Edit")
 
-        Dim editorItem As ToolStripMenuItem = CreateMenuItem("Editor",
+        Dim editorItem As ToolStripMenuItem = CreateMenuItem("Edit",
                                                          Sub() ChangeVisibleControl(VisibleUserControl.Spielfeld),
                                                          Function() As Boolean
                                                              Return AktVisibleUserControl <> VisibleUserControl.Spielfeld
@@ -606,7 +589,7 @@ Public Class frmMain
     End Sub
 
     Private Sub SelectRandomSpielfeld()
-        MessageBox.Show("Zufälliges Spielfeld wählen")
+        MessageBox.Show("Zufälliges Spiel wählen")
     End Sub
 
 #End Region
@@ -752,13 +735,11 @@ Public Class frmMain
         ' =======================
         If INI.Editor_UsingEditorAllowed Then
             ToolStripExMain.Items.Add(MkBtnImg("grpEditor_player", Theme.GetResBmp(AppGrafikName.Spieler.ToString), Sub() DoSpielfeld(),
-            If(INI.Sonstiges_ShowToolTips, "Ruft das Spiel auf.", Nothing)))
+                If(INI.Sonstiges_ShowToolTips, "Ruft das Spiel auf.", Nothing)))
             ToolStripExMain.Items.Add(MkBtnImg("grpEditor_editor", Theme.GetResBmp(AppGrafikName.Editor.ToString), Sub() DoEditor(),
-            If(INI.Sonstiges_ShowToolTips, "Ruft den Editor auf.", Nothing)))
-            ToolStripExMain.Items.Add(MkBtnImg("grpEditor_werkbank", Theme.GetResBmp(AppGrafikName.Werkbank.ToString), Sub() DoWerkbank(),
-            If(INI.Sonstiges_ShowToolTips, "Ruft die Werkbank auf.", Nothing)))
+                If(INI.Sonstiges_ShowToolTips, "Ruft den Edit auf.", Nothing)))
             ToolStripExMain.Items.Add(MkBtnImg("grpEditor_toolbox", Theme.GetResBmp(AppGrafikName.Werkzeug.ToString), Sub() DoToolBox(),
-            If(INI.Sonstiges_ShowToolTips, "Ruft die Werkzeugkiste auf.", Nothing)))
+                If(INI.Sonstiges_ShowToolTips, "Ruft die Werkzeugkiste auf.", Nothing)))
             ToolStripExMain.Items.Add(New ToolStripSeparator())
 
             ' Enabled-Zustand abhängig von UsingEditor
@@ -789,7 +770,7 @@ Public Class frmMain
         ' =======================
 
         ToolStripExMain.Items.Add(MkBtnImgRight("act_screenshot", Theme.GetResBmp(AppGrafikName.Screenshot.ToString), Sub() DoTakeScreenShot(),
-        If(INI.Sonstiges_ShowToolTips, "Erzeugt einen ScreenShot vom Spiel/Editor/Werkbank.", Nothing)))
+        If(INI.Sonstiges_ShowToolTips, "Erzeugt einen ScreenShot vom Spiel/Edit/Werkbank.", Nothing)))
 
         ToolStripExMain.Items.Add(MkBtnImgRight("act_statistik", Theme.GetResBmp(AppGrafikName.Statistik.ToString), Sub() DoStatistik(),
             If(INI.Sonstiges_ShowToolTips, "Statistische Daten zum Spiel", Nothing)))
@@ -843,7 +824,7 @@ Public Class frmMain
             If(INI.Sonstiges_ShowToolTips, "Arbeitet wieder vorwärts, solange das noch möglich ist", Nothing)))
 
         ToolStripExMain.Items.Add(MkBtnImgRight("act_undo", Theme.GetResBmp(AppGrafikName.Undo.ToString), Sub() DoUndo(),
-            If(INI.Sonstiges_ShowToolTips, "Setzt das letzte Steinpaar wieder auf das Spielfeld", Nothing)))
+            If(INI.Sonstiges_ShowToolTips, "Setzt das letzte Steinpaar wieder auf das Spiel", Nothing)))
 
         ToolStripExMain.Items.Add(MkSepRight())
 
@@ -1108,48 +1089,43 @@ Public Class frmMain
 #Region "ToolStrip unten Event-Verarbeitung"
 
     Public Sub DoSpielfeld()
-        If Spielfeld.SFD.AktRendering = RenderingEnum.None Then
+        'TODO SFD - Anpassung
+        If SFMain.RenderMode = RenderMode.NoDataLoaded Then
             MsgBox("Kein Spiel geladen", MsgBoxStyle.Information)
         Else
-            Spielfeld.SFD.AktRendering = RenderingEnum.Spielfeld
+            SFMain.RenderMode = RenderMode.Spiel
         End If
-        UpdateSpielfeldEditorWerkbankButtons()
+        UpdateSpielfeldEditorButtons()
     End Sub
 
     Private Sub DoEditor()
-        If Spielfeld.SFD.AktRendering = RenderingEnum.None Then
+        ''TODO SFD-Anpassung
+        If SFMain.RenderMode = RenderMode.NoDataLoaded Then
             MsgBox("Kein Spiel geladen", MsgBoxStyle.Information)
         Else
-            Spielfeld.SFD.AktRendering = RenderingEnum.Editor
+            SFMain.RenderMode = RenderMode.Spiel
         End If
-        UpdateSpielfeldEditorWerkbankButtons()
+        UpdateSpielfeldEditorButtons()
     End Sub
 
-    Private Sub DoWerkbank()
-        If Spielfeld.SFD.AktRendering = RenderingEnum.None Then
-            MsgBox("Kein Spiel geladen", MsgBoxStyle.Information)
-        Else
-            Spielfeld.SFD.AktRendering = RenderingEnum.Werkbank
-        End If
-        UpdateSpielfeldEditorWerkbankButtons()
-    End Sub
 
     Private Sub DoToolBox()
-
-        If Spielfeld.SFD.AktRendering = RenderingEnum.None Then
-            MsgBox("Kein Spiel geladen", MsgBoxStyle.Information)
-        Else
-            ShowOrHideToolboxAndUpdateToolboxButton()
-        End If
+        ''TODO SFD-Anpassung
+        ''If Spielfeld.SFD.AktRendering = RenderingEnum.None Then
+        ''    MsgBox("Kein Spiel geladen", MsgBoxStyle.Information)
+        ''Else
+        ''    ShowOrHideToolboxAndUpdateToolboxButton()
+        ''End If
     End Sub
 
     Private Sub DoTakeScreenShot()
-        If Spielfeld.SFD.AktRendering = RenderingEnum.None Then
-            MsgBox("Kein Spiel geladen", MsgBoxStyle.Information)
-        Else
-            Spielfeld.PaintSpielfeld_CreateScreenShot()
-            MsgBox("Screnshot erzeugt.", MsgBoxStyle.Information)
-        End If
+        ''TODO SFD-Anpassung
+        ''If Spielfeld.SFD.AktRendering = RenderingEnum.None Then
+        ''    MsgBox("Kein Spiel geladen", MsgBoxStyle.Information)
+        ''Else
+        ''    Spielfeld.PaintSpielfeld_CreateScreenShot()
+        ''    MsgBox("Screnshot erzeugt.", MsgBoxStyle.Information)
+        ''End If
     End Sub
 
     Private Sub DoTipEinzel()
@@ -1192,7 +1168,7 @@ Public Class frmMain
 
 
 
-    Public Sub UpdateSpielfeldEditorWerkbankButtons()
+    Public Sub UpdateSpielfeldEditorButtons()
 
         If Not INI.Editor_UsingEditorAllowed Then
             Exit Sub
@@ -1206,28 +1182,19 @@ Public Class frmMain
         End If
 
         Dim btnEditor As ToolStripButton = TryCast(ToolStripExMain.Items("grpEditor_editor"), ToolStripButton)
-        Dim btnWerkbank As ToolStripButton = TryCast(ToolStripExMain.Items("grpEditor_werkbank"), ToolStripButton)
-
-        Select Case Spielfeld.SFD.AktRendering
-            Case RenderingEnum.None
+        'TODO SFD-Anpassung
+        Select Case Spielfeld.SFMain.RenderMode
+            Case RenderMode.NoDataLoaded, RenderMode.Paused
                 btnPlayer.Image = Theme.GetResBmp(AppGrafikName.Spieler.ToString)
                 btnEditor.Image = Theme.GetResBmp(AppGrafikName.Editor.ToString)
-                btnWerkbank.Image = Theme.GetResBmp(AppGrafikName.Werkbank.ToString)
 
-            Case RenderingEnum.Editor
+            Case RenderMode.Edit
                 btnPlayer.Image = Theme.GetResBmp(AppGrafikName.Spieler.ToString)
                 btnEditor.Image = Theme.GetResBmp(AppGrafikName.EditorAktiv.ToString)
-                btnWerkbank.Image = Theme.GetResBmp(AppGrafikName.Werkbank.ToString)
 
-            Case RenderingEnum.Spielfeld
+            Case RenderMode.Spiel
                 btnPlayer.Image = Theme.GetResBmp(AppGrafikName.SpielerAktiv.ToString)
                 btnEditor.Image = Theme.GetResBmp(AppGrafikName.Editor.ToString)
-                btnWerkbank.Image = Theme.GetResBmp(AppGrafikName.Werkbank.ToString)
-
-            Case RenderingEnum.Werkbank
-                btnPlayer.Image = Theme.GetResBmp(AppGrafikName.Spieler.ToString)
-                btnEditor.Image = Theme.GetResBmp(AppGrafikName.Editor.ToString)
-                btnWerkbank.Image = Theme.GetResBmp(AppGrafikName.WerkbankAktiv.ToString)
         End Select
 
     End Sub
@@ -1240,7 +1207,7 @@ Public Class frmMain
         End If
 
         ''Sicherstellen, daß Daten für Spielfeld/Editor/Werkbank geladen sind.
-        'Spielfeld.EnsureSpielfeldInfoAreAvailable(startRenderingWithOrToggleTo:=RenderingEnum.Editor)
+        'Spielfeld.EnsureSpielfeldInfoAreAvailable(startRenderingWithOrToggleTo:=AktRenderMode.Edit)
 
         ' 2) Button sicher ermitteln
         Dim btnToolBox As ToolStripButton = Nothing
@@ -1249,55 +1216,55 @@ Public Class frmMain
             item = ToolStripExMain.Items("grpEditor_toolbox")
             btnToolBox = TryCast(item, ToolStripButton)
         End If
+        ''TODO SFD-Anpassung
+        ''If Not Spielfeld.SFD.ToolboxIsVisible Then
 
-        If Not Spielfeld.SFD.ToolboxIsVisible Then
+        ''    If btnToolBox IsNot Nothing Then
+        ''        btnToolBox.Image = Theme.GetResBmp(AppGrafikName.WerkzeugAktiv.ToString)
+        ''        btnToolBox.Checked = True
+        ''    End If
 
-            If btnToolBox IsNot Nothing Then
-                btnToolBox.Image = Theme.GetResBmp(AppGrafikName.WerkzeugAktiv.ToString)
-                btnToolBox.Checked = True
-            End If
+        ''    ' 3) Instanz sicherstellen
+        ''    If _frmToolBox Is Nothing OrElse _frmToolBox.IsDisposed Then
+        ''        _frmToolBox = New frmToolBox() With {
+        ''        .ShowInTaskbar = False,
+        ''        .TopMost = False   ' Relativ zu Owner statt absolut
+        ''        }
 
-            ' 3) Instanz sicherstellen
-            If _frmToolBox Is Nothing OrElse _frmToolBox.IsDisposed Then
-                _frmToolBox = New frmToolBox() With {
-                .ShowInTaskbar = False,
-                .TopMost = False   ' Relativ zu Owner statt absolut
-                }
+        ''        ' Empfehlung in frmToolBox:
+        ''        ' Private Sub frmToolBox_FormClosing(...) Handles Me.FormClosing
+        ''        '   If e.CloseReason = UserClosing Then e.Cancel = True : Me.Hide()
+        ''        ' End Sub
+        ''    End If
 
-                ' Empfehlung in frmToolBox:
-                ' Private Sub frmToolBox_FormClosing(...) Handles Me.FormClosing
-                '   If e.CloseReason = UserClosing Then e.Cancel = True : Me.Hide()
-                ' End Sub
-            End If
+        ''    Try
+        ''        ' 4) Als Owned-Form von frmMain anzeigen → bleibt über frmMain, aber nicht über anderen Apps
+        ''        _frmToolBox.Show(Me)       ' Owner setzen
+        ''        _frmToolBox.BringToFront() ' sicher nach vorne holen
+        ''        ' Optional:
+        ''        ' _frmToolBox.Activate()
 
-            Try
-                ' 4) Als Owned-Form von frmMain anzeigen → bleibt über frmMain, aber nicht über anderen Apps
-                _frmToolBox.Show(Me)       ' Owner setzen
-                _frmToolBox.BringToFront() ' sicher nach vorne holen
-                ' Optional:
-                ' _frmToolBox.Activate()
-
-                ' 5) Maus-Overlay registrieren (falls noch nicht geschehen)
-                'sonst wird die Toolbox von der Maus abgefangen und Spielfeld bekommt keine Mausbewegungen mehr,
-                'wenn ein Stein unter der Toolbox hindurch gezogen wird.
-                ' Spielfeld.SFD.MousePolling.RegisterOverlay(_frmToolBox.Handle) 'ist jetzt in frmToolBox
-            Catch ex As Exception
-                'ist bereits aktiv
-            End Try
+        ''        ' 5) Maus-Overlay registrieren (falls noch nicht geschehen)
+        ''        'sonst wird die Toolbox von der Maus abgefangen und Spielfeld bekommt keine Mausbewegungen mehr,
+        ''        'wenn ein Stein unter der Toolbox hindurch gezogen wird.
+        ''        ' Spielfeld.SFD.MousePolling.RegisterOverlay(_frmToolBox.Handle) 'ist jetzt in frmToolBox
+        ''    Catch ex As Exception
+        ''        'ist bereits aktiv
+        ''    End Try
 
 
-        Else
-            If btnToolBox IsNot Nothing Then
-                btnToolBox.Image = Theme.GetResBmp(AppGrafikName.Werkzeug.ToString)
-                btnToolBox.Checked = False
-            End If
+        ''Else
+        ''    If btnToolBox IsNot Nothing Then
+        ''        btnToolBox.Image = Theme.GetResBmp(AppGrafikName.Werkzeug.ToString)
+        ''        btnToolBox.Checked = False
+        ''    End If
 
-            If _frmToolBox IsNot Nothing AndAlso Not _frmToolBox.IsDisposed Then
-                _frmToolBox.Hide()
-            End If
-        End If
+        ''    If _frmToolBox IsNot Nothing AndAlso Not _frmToolBox.IsDisposed Then
+        ''        _frmToolBox.Hide()
+        ''    End If
+        ''End If
 
-        Spielfeld.SFD.ToolboxIsVisible = Not Spielfeld.SFD.ToolboxIsVisible
+        ''xxx Spielfeld.SFD.ToolboxIsVisible = Not Spielfeld.SFD.ToolboxIsVisible
 
     End Sub
 

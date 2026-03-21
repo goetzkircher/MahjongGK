@@ -1,6 +1,6 @@
 ﻿
 
-Namespace Spielfeld
+Namespace Images
     Module SteinGrafikManagerModul
 
         ' Singleton, einfacher programmweiter Zugriff

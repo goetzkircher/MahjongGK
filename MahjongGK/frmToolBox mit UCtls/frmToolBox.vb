@@ -8,7 +8,7 @@
 '#                                                                         #
 '#   This program is free software: you can redistribute it and/or modify  #
 '#   it under the terms of the GNU General Public License as published by  #
-'#   the Free Software Foundation, either version 3 of the License, or     #
+'#   the Free Software Fundament, either version 3 of the License, or     #
 '#   at your option any later version.                                     #
 '#                                                                         #
 '#   This program is distributed in the hope that it will be useful,       #
@@ -44,7 +44,7 @@ Public Class frmToolBox
     Private _themer As Theme.ThemeManager
     Private _aktVisibleUserControl As VisibleUserControl
 
-    Private _toolboxBinder As OverlayHandleBinder
+    Private _toolboxBinder As MousePollerHandleBinder
 
     Private _aktBasisformEnum As BasisformEnum
 
@@ -81,12 +81,11 @@ Public Class frmToolBox
         Me.Height = MJ_FRMTOOLBOX_HEIGHT
 
 
-        TabControlToolBox.SelectedTab = TabPageWerkbank
+        'TabControlToolBox.SelectedTab = TabPageWerkbank
         ' lblImageSpieler.Image = MjGfx_HGrdEinfügenGrün(32)
 
         Me.EnsureLocationVisibleOnAnyScreen()
         BuildEditorMenu()
-        BuildWerkbkMenu()
         UpDateSelectedTabIcon()
 
         _themer = New Theme.ThemeManager(Me, If(INI.Global_DarkMode, AppTheme.Dark, AppTheme.Light),
@@ -97,9 +96,8 @@ Public Class frmToolBox
 
         MjMix.DisableAllTabStops(Me)
 
-        DoBasisformen(ToolBox_AktBasisform)
-
-        _toolboxBinder = New OverlayHandleBinder(Spielfeld.SFD.MousePolling, Me)
+        ''TODO SFD-Anpassung
+        ''_toolboxBinder = New MousePollerHandleBinder(Spielfeld.SFD.MousePolling, Me)
 
     End Sub
 
@@ -168,73 +166,6 @@ Public Class frmToolBox
     End Sub
 #End Region
 
-#Region "Builder – WERKBANK"
-    Private Sub BuildWerkbkMenu()
-
-        MenuStrip_Werkbk.SuspendLayout()
-        MenuStrip_Werkbk.Items.Clear()
-        _mapWerkbkFile.Clear()
-        _mapBasisform.Clear()
-        _mapPlatzWerkbk.Clear()
-
-        ' Datei
-        Dim mDatei As New ToolStripMenuItem("Datei")
-        For Each cmd As WerkbkFileCmd In [Enum].GetValues(GetType(WerkbkFileCmd))
-#Disable Warning IDE0017 ' Initialisierung von Objekten vereinfachen
-            Dim tsmi As New ToolStripMenuItem(CaptionFromEnumName(cmd.ToString())) With {
-                .Name = "tsmiWerkBk_" & cmd.ToString(),
-                .Tag = cmd,
-                .ShowShortcutKeys = False
-            }
-#Enable Warning IDE0017 ' Initialisierung von Objekten vereinfachen
-            ' Icon: "WerkbkFileCmd_<Wert>"
-            tsmi.Image = GetEnumIcon(GetType(WerkbkFileCmd).Name, cmd.ToString())
-            AddHandler tsmi.Click, AddressOf OnWerkbkFileClick
-            mDatei.DropDownItems.Add(tsmi)
-            _mapWerkbkFile(cmd) = tsmi
-        Next
-        MenuStrip_Werkbk.Items.Add(mDatei)
-
-        ' Basisformen
-        Dim mBasis As New ToolStripMenuItem("Basisformen")
-        For Each b As BasisformEnum In [Enum].GetValues(GetType(BasisformEnum))
-#Disable Warning IDE0017 ' Initialisierung von Objekten vereinfachen
-            Dim tsmi As New ToolStripMenuItem(CaptionFromEnumName(b.ToString())) With {
-                .Name = "tsmiWerkBk_Basisform_" & b.ToString(),
-                .Tag = b,
-                .ShowShortcutKeys = False
-            }
-#Enable Warning IDE0017 ' Initialisierung von Objekten vereinfachen
-            ' Icon: "Basisform_<Wert>"
-            tsmi.Image = GetEnumIcon(GetType(BasisformEnum).Name, b.ToString())
-            AddHandler tsmi.Click, AddressOf OnBasisformClick
-            mBasis.DropDownItems.Add(tsmi)
-            _mapBasisform(b) = tsmi
-        Next
-        MenuStrip_Werkbk.Items.Add(mBasis)
-
-        ' PlatzhalterWerkbank
-        Dim mPlatz As New ToolStripMenuItem("PlatzhalterWerkbank")
-        For Each it As PlatzhalterWerkbank In [Enum].GetValues(GetType(PlatzhalterWerkbank))
-#Disable Warning IDE0017 ' Initialisierung von Objekten vereinfachen
-            Dim tsmi As New ToolStripMenuItem(CaptionFromEnumName(it.ToString())) With {
-                .Name = "tsmiWerkBk_" & it.ToString(),
-                .Tag = it,
-                .ShowShortcutKeys = False
-            }
-#Enable Warning IDE0017 ' Initialisierung von Objekten vereinfachen
-            ' Icon: "PlatzhalterWerkbank_<Wert>"
-            tsmi.Image = GetEnumIcon(GetType(PlatzhalterWerkbank).Name, it.ToString())
-            AddHandler tsmi.Click, AddressOf OnPlatzhalterWerkbkClick
-            mPlatz.DropDownItems.Add(tsmi)
-            _mapPlatzWerkbk(it) = tsmi
-        Next
-        MenuStrip_Werkbk.Items.Add(mPlatz)
-
-        MenuStrip_Werkbk.ResumeLayout()
-    End Sub
-#End Region
-
 #Region "Icon-Lader"
     ''' <summary>
     ''' Lädt optional ein Icon aus My.Resources via Schlüssel "EnumName_Wert".
@@ -250,18 +181,6 @@ Public Class frmToolBox
     Private Sub OnEditorFileClick(sender As Object, e As EventArgs)
         Dim cmd As EditorFileCmd = CType(DirectCast(sender, ToolStripMenuItem).Tag, EditorFileCmd)
         DoEditorFile(cmd)
-    End Sub
-
-    ' Werkbank/Datei
-    Private Sub OnWerkbkFileClick(sender As Object, e As EventArgs)
-        Dim cmd As WerkbkFileCmd = CType(DirectCast(sender, ToolStripMenuItem).Tag, WerkbkFileCmd)
-        DoWerkbkFile(cmd)
-    End Sub
-
-    ' Werkbank/Basisformen
-    Private Sub OnBasisformClick(sender As Object, e As EventArgs)
-        Dim b As BasisformEnum = CType(DirectCast(sender, ToolStripMenuItem).Tag, BasisformEnum)
-        DoBasisformen(b)
     End Sub
 
     ' Platzhalter
@@ -326,31 +245,23 @@ Public Class frmToolBox
 
 
     Private Sub TabControlToolBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles TabControlToolBox.SelectedIndexChanged
+        ''TODO SFD-Anpassung
+        ''If TabControlToolBox.SelectedTab Is TabPageSpieler Then
+        ''    Spielfeld.SFD.ToolboxTabPageChanged = True
+        ''    Spielfeld.SFD.AktRendering = AktRenderMode.Spiel
 
-        If TabControlToolBox.SelectedTab Is TabPageSpieler Then
-            Spielfeld.SFD.ToolboxTabPageChanged = True
-            Spielfeld.SFD.AktRendering = RenderingEnum.Spielfeld
+        ''ElseIf TabControlToolBox.SelectedTab Is TabPageEditor Then
+        ''    Spielfeld.SFD.ToolboxTabPageChanged = True
+        ''    Spielfeld.SFD.AktRendering = AktRenderMode.Edit
 
-        ElseIf TabControlToolBox.SelectedTab Is TabPageEditor Then
-            Spielfeld.SFD.ToolboxTabPageChanged = True
-            Spielfeld.SFD.AktRendering = RenderingEnum.Editor
+        ''ElseIf TabControlToolBox.SelectedTab Is TabPageHintergrund Then
+        ''    UctlToolboxHintergrund1.InitialisierungAndUpdate()
 
-        ElseIf TabControlToolBox.SelectedTab Is TabPagePositionierer Then
-            Spielfeld.SFD.ToolboxTabPageChanged = True
-            Spielfeld.SFD.AktRendering = RenderingEnum.Editor
-
-        ElseIf TabControlToolBox.SelectedTab Is TabPageWerkbank Then
-            Spielfeld.SFD.ToolboxTabPageChanged = True
-            Spielfeld.SFD.AktRendering = RenderingEnum.Werkbank
-
-        ElseIf TabControlToolBox.SelectedTab Is TabPageHintergrund Then
-            UctlToolboxHintergrund1.InitialisierungAndUpdate()
-
-        Else
-            If Debugger.IsAttached Then
-                Stop 'Programmierfehler: hinzugefügte TabPag auch hier hinzufügen.
-            End If
-        End If
+        ''Else
+        ''    If Debugger.IsAttached Then
+        ''        Stop 'Programmierfehler: hinzugefügte TabPag auch hier hinzufügen.
+        ''    End If
+        ''End If
 
         UpDateSelectedTabIcon()
 
@@ -410,31 +321,6 @@ Public Class frmToolBox
         End Select
     End Sub
 
-    ' Werkbank/Datei
-    Private Sub DoWerkbkFile(cmd As WerkbkFileCmd)
-        Select Case cmd
-            Case WerkbkFileCmd.LadenInterne
-                ' TODO
-            Case WerkbkFileCmd.LadenEigene
-                ' TODO
-            Case WerkbkFileCmd.Speichern
-                ' TODO
-            Case WerkbkFileCmd.Speichern_unter
-                ' TODO
-        End Select
-    End Sub
-
-    ' Werkbank/Basisformen 
-    Private Sub DoBasisformen(bform As BasisformEnum)
-
-        txtNameBasisform.Text = bform.ToString
-        txtNameBasisformForSaving.Text = INI.ToolBox_NameBasisformForSaving(bform)
-
-        INI.Debug_StopRenderingOnce = True
-
-        UCtlWerkbank1.SetBasisformEnum(bform)
-
-    End Sub
 
     ' Platzhalter
     Private Sub DoPlatzhalterEditor(item As PlatzhalterEditor)
@@ -465,6 +351,9 @@ Public Class frmToolBox
 
     End Sub
 
+    Private Sub UctlToolboxHintergrund1_Load(sender As Object, e As EventArgs) Handles UctlToolboxHintergrund1.Load
+
+    End Sub
 
 
 

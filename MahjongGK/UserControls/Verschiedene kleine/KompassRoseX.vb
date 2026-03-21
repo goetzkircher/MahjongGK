@@ -6,6 +6,28 @@ Option Strict On
 Imports System.ComponentModel
 Imports System.Drawing.Drawing2D
 
+
+Public Enum KompassXEnum
+    None
+    N
+    NNO
+    NO
+    NOO
+    O
+    SOO
+    SO
+    SS0
+    S
+    SSW
+    SW
+    SWW
+    W
+    NWW
+    NW
+    NNW
+End Enum
+
+
 ' ──────────────────────────────────────────────────────────────────────────────
 '  KompassRoseX
 '  • Rechteckiges UserControl, das 16 Himmelsrichtungen + Center als Dots zeigt

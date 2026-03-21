@@ -8,7 +8,7 @@
 '#                                                                         #
 '#   This program is free software: you can redistribute it and/or modify  #
 '#   it under the terms of the GNU General Public License as published by  #
-'#   the Free Software Foundation, either version 3 of the License, or     #
+'#   the Free Software Fundament, either version 3 of the License, or     #
 '#   at your option any later version.                                     #
 '#                                                                         #
 '#   This program is distributed in the hope that it will be useful,       #
@@ -38,14 +38,14 @@ Public Class Werkstück
 
     End Sub
 
-    Sub New(SteinInfos As List(Of SteinInfo), arrFB(,,) As Integer)
+    Sub New(SteinInfos As List(Of Spielfeld.SteinInfo), arrFB(,,) As Integer)
         _SteinInfos = SteinInfos
         _arrFB = arrFB
     End Sub
 
-    Private _SteinInfos As List(Of SteinInfo) = Nothing
+    Private _SteinInfos As List(Of Spielfeld.SteinInfo) = Nothing
 
-    Public ReadOnly Property SteinInfos As List(Of SteinInfo)
+    Public ReadOnly Property SteinInfos As List(Of Spielfeld.SteinInfo)
         Get
             Return _SteinInfos
         End Get
@@ -69,7 +69,7 @@ Public Class Werkstück
         End Get
     End Property
 
-    Public ReadOnly Property ResultSteinInfosArrFB() As (steinInfos As List(Of SteinInfo), arrFB As Integer(,,))
+    Public ReadOnly Property ResultSteinInfosArrFB() As (steinInfos As List(Of Spielfeld.SteinInfo), arrFB As Integer(,,))
         Get
             Return (SteinInfos, ArrFB)
         End Get

@@ -7,7 +7,7 @@ Imports System.IO
 Imports System.IO.Compression
 Imports System.Xml.Serialization
 
-Namespace Spielfeld
+Namespace Images
 
     Public Class SteinGrafikManagerClass
 
@@ -61,7 +61,6 @@ Namespace Spielfeld
 
         Private ReadOnly _rcSpielfeld As New RenderCache()
         Private ReadOnly _rcEditor As New RenderCache()
-        Private ReadOnly _rcWerkbank As New RenderCache()
 
         Private Shared ReadOnly SteinStatusCount As Integer = [Enum].GetValues(GetType(SteinStatus)).Length
         Private Shared ReadOnly SteinIndexCount As Integer = [Enum].GetValues(GetType(SteinIndexEnum)).Length
@@ -157,27 +156,10 @@ Namespace Spielfeld
         ''' Liefert (zeitkritisch) die Bitmap gemäß Regeln.
         ''' Regeln:
         ''' 1) keine Vorerzeugung: Größenabhängige Bitmaps nur on-demand.
-        ''' 2) Nothing, wenn (aktRendering=None) ODER (sichtbar=None) ODER (showGhost=False und status=Unsichtbar).
-        ''' 3) sichtbar=Only3DArea → status = Normal.
-        ''' 4) Größenwechsel je RenderingEnum → Cache dieser Gruppe leeren.
+        ''' 2) Größenwechsel je RenderingEnum → Cache dieser Gruppe leeren.
         ''' </summary>
-        Public Function GetStein(aktRendering As RenderingEnum,
-                             status As SteinStatus,
-                             index As SteinIndexEnum,
-                             size As Size,
-                             sichtbar As SichtbarResult,
-                             showGhost As Boolean) As Bitmap
+        Public Function GetStein(index As SteinIndexEnum, status As SteinStatus, size As Size, aktRendering As AktRenderMode) As Bitmap
 
-            ' Regel 2 – Ausschlussfälle
-            If aktRendering = RenderingEnum.None Then Return Nothing
-            If sichtbar = SichtbarResult.None Then Return Nothing
-            If showGhost = False AndAlso status = SteinStatus.I00Unsichtbar Then Return Nothing
-
-            ' Sichtbar=Only3DArea → das Symbol wird später ohnehin übermalt.
-            ' => Wir reduzieren die Variantenvielfalt und nehmen IMMER Punkt01.
-            If sichtbar = SichtbarResult.Only3DArea Then
-                index = SteinIndexEnum.Punkt01
-            End If
 
             ' Muss ein Satz geladen sein.
             If _pack Is Nothing Then
@@ -245,7 +227,6 @@ Namespace Spielfeld
         Private Sub ClearAllCaches()
             _rcSpielfeld.Clear()
             _rcEditor.Clear()
-            _rcWerkbank.Clear()
 
             ' Basis-Bitmaps entsorgen
             For Each kvp As KeyValuePair(Of String, Bitmap) In _baseCache
@@ -258,11 +239,10 @@ Namespace Spielfeld
             Return status.ToString() & "|" & index.ToString()
         End Function
 
-        Private Function SelectRenderCache(r As RenderingEnum) As RenderCache
+        Private Function SelectRenderCache(r As AktRenderMode) As RenderCache
             Select Case r
-                Case RenderingEnum.Spielfeld : Return _rcSpielfeld
-                Case RenderingEnum.Editor : Return _rcEditor
-                Case RenderingEnum.Werkbank : Return _rcWerkbank
+                Case AktRenderMode.Spiel : Return _rcSpielfeld
+                Case AktRenderMode.Edit : Return _rcEditor
                 Case Else : Return Nothing
             End Select
         End Function

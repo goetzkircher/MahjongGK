@@ -111,7 +111,7 @@ Public Class FrmIniEditor
 
     Public Sub New()
 
-        Me.Text = "INI Editor"
+        Me.Text = "INI Edit"
         Me.StartPosition = FormStartPosition.CenterScreen
         Me.Icon = My.Resources.MahjongGK
         Me.KeyPreview = True
@@ -427,11 +427,12 @@ Public Class FrmIniEditor
         If _isDirty Then
             Try
                 Dim fullpath As String
-                If Spielfeld.SFD.AktRendering = RenderingEnum.None OrElse reset = True Then
-                    fullpath = _iniFullLoadPath
-                Else
-                    fullpath = _iniFullSavePath
-                End If
+                ''TODO SFD-Anpassung
+                ''If Spielfeld.SFD.AktRendering = RenderingEnum.None OrElse reset = True Then
+                ''    fullpath = _iniFullLoadPath
+                ''Else
+                ''    fullpath = _iniFullSavePath
+                ''End If
                 Directory.CreateDirectory(Path.GetDirectoryName(fullpath))
                 Using sw As New StreamWriter(fullpath, append:=False, encoding:=New UTF8Encoding(encoderShouldEmitUTF8Identifier:=True))
                     sw.Write(_rtb.Text)
@@ -449,7 +450,7 @@ Public Class FrmIniEditor
     Private Sub Frm_FormClosing(sender As Object, e As FormClosingEventArgs)
         If _isDirty Then
             _IniFileChanged = True
-            Dim ans As DialogResult = MessageBox.Show(Me, "Änderungen speichern?", "INI Editor",
+            Dim ans As DialogResult = MessageBox.Show(Me, "Änderungen speichern?", "INI Edit",
                                       MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question)
             If ans = DialogResult.Cancel Then
                 e.Cancel = True

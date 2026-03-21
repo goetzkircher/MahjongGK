@@ -8,7 +8,7 @@
 '#                                                                         #
 '#   This program is free software: you can redistribute it and/or modify  #
 '#   it under the terms of the GNU General Public License as published by  #
-'#   the Free Software Foundation, either version 3 of the License, or     #
+'#   the Free Software Fundament, either version 3 of the License, or     #
 '#   at your option any later version.                                     #
 '#                                                                         #
 '#   This program is distributed in the hope that it will be useful,       #
@@ -877,19 +877,19 @@ Public Class frmGfxCompiler
         sb.AppendLine()
 
         ' Auswahl-Helfer
-        sb.AppendLine("    Private Function PickBestEntryForSize(candidates As IEnumerable(Of GfxEntry), w As Integer, h As Integer) As GfxEntry")
-        sb.AppendLine("        Dim svg As GfxEntry = candidates.FirstOrDefault(Function(e) String.Equals(e.Kind, ""svg"", StringComparison.OrdinalIgnoreCase))")
+        sb.AppendLine("    Private Function PickBestEntryForSize(Kandidats As IEnumerable(Of GfxEntry), w As Integer, h As Integer) As GfxEntry")
+        sb.AppendLine("        Dim svg As GfxEntry = Kandidats.FirstOrDefault(Function(e) String.Equals(e.Kind, ""svg"", StringComparison.OrdinalIgnoreCase))")
         sb.AppendLine("        If svg IsNot Nothing Then Return svg")
-        sb.AppendLine("        Return PickBestPngByIntrinsicSize(candidates, w, h)")
+        sb.AppendLine("        Return PickBestPngByIntrinsicSize(Kandidats, w, h)")
         sb.AppendLine("    End Function")
         sb.AppendLine()
 
         ' PNG-Auswahl nach echten Maßen
-        sb.AppendLine("    Private Function PickBestPngByIntrinsicSize(candidates As IEnumerable(Of GfxEntry), desiredW As Integer, desiredH As Integer) As GfxEntry")
+        sb.AppendLine("    Private Function PickBestPngByIntrinsicSize(Kandidats As IEnumerable(Of GfxEntry), desiredW As Integer, desiredH As Integer) As GfxEntry")
         sb.AppendLine("        Dim best As GfxEntry = Nothing")
         sb.AppendLine("        Dim bestScore As Integer = Integer.MaxValue")
         sb.AppendLine("        Dim bestIsDownscale As Boolean = False")
-        sb.AppendLine("        For Each e As GfxEntry In candidates")
+        sb.AppendLine("        For Each e As GfxEntry In Kandidats")
         sb.AppendLine("            If Not String.Equals(e.Kind, ""png"", StringComparison.OrdinalIgnoreCase) Then Continue For")
         sb.AppendLine("            Dim sz As Size = GetPngSize(e)")
         sb.AppendLine("            If sz.Width <= 0 OrElse sz.Height <= 0 Then Continue For")
@@ -911,7 +911,7 @@ Public Class frmGfxCompiler
         sb.AppendLine("            End If")
         sb.AppendLine("        Next")
         sb.AppendLine("        If best Is Nothing Then")
-        sb.AppendLine("            best = candidates.FirstOrDefault(Function(x) String.Equals(x.Kind, ""png"", StringComparison.OrdinalIgnoreCase))")
+        sb.AppendLine("            best = Kandidats.FirstOrDefault(Function(x) String.Equals(x.Kind, ""png"", StringComparison.OrdinalIgnoreCase))")
         sb.AppendLine("        End If")
         sb.AppendLine("        Return best")
         sb.AppendLine("    End Function")

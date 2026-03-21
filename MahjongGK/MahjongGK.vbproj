@@ -152,10 +152,15 @@
     <Compile Include="Bitmaps Eigene Ressourcen\Verwaltung\SteinGrafikManagerClass.vb" />
     <Compile Include="Bitmaps Eigene Ressourcen\Verwaltung\SteinGrafikManagerModul.vb" />
     <Compile Include="Bitmaps Eigene Ressourcen\Verwaltung\SteinPack.vb" />
-    <Compile Include="Container\RectangleX\PaddingValues.vb" />
-    <Compile Include="Container\RectangleX\RectangleX.vb" />
-    <Compile Include="Container\RectangleX\RectangleXDebugBinder.vb" />
-    <Compile Include="Container\RectangleX\DebugLabelPlacer.vb" />
+    <Compile Include="INI\IniEnumerationen.vb" />
+    <Compile Include="Shared\SonstGlobalEnums.vb" />
+    <Compile Include="Spielfeld\Basis\Constants\BitmaskConst.vb" />
+    <Compile Include="Spielfeld\Basis\Constants\ZeichenConst.vb" />
+    <Compile Include="Spielfeld\Container\RectangleX\PaddingValues.vb" />
+    <Compile Include="Spielfeld\Container\RectangleX\RectangleX.vb" />
+    <Compile Include="Spielfeld\Container\RectangleX\Debug\RectangleXDebugBinder.vb" />
+    <Compile Include="Spielfeld\Container\RectangleX\Debug\DebugLabelPlacer.vb" />
+    <Compile Include="Spielfeld\Container\Triple\TripleX.vb" />
     <Compile Include="Controls erweiterte\ButtonInfo.vb">
       <SubType>Component</SubType>
     </Compile>
@@ -172,6 +177,9 @@
     <Compile Include="Formulare\ColorPickerNamedColors.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Formulare\frmSteinStackInfo.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="frmMain\frmSplash.Designer.vb">
       <DependentUpon>frmSplash.vb</DependentUpon>
     </Compile>
@@ -184,17 +192,13 @@
     <Compile Include="frmToolBox mit UCtls\UctlToolboxHintergrund.vb">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="frmToolBox mit UCtls\UCtlWerkbank.Designer.vb">
-      <DependentUpon>UCtlWerkbank.vb</DependentUpon>
-    </Compile>
-    <Compile Include="frmToolBox mit UCtls\UCtlWerkbank.vb">
-      <SubType>UserControl</SubType>
-    </Compile>
     <Compile Include="Hilfsmodule\GfxHelfer.vb" />
-    <Compile Include="Polling\FormRezise\ResizeActivityPoller.vb" />
-    <Compile Include="Polling\Mouse\MouseInputPoller.vb" />
-    <Compile Include="Polling\Mouse\OverlayBinderGroup.vb" />
-    <Compile Include="Polling\Mouse\OverlayHandleBinder.vb" />
+    <Compile Include="Spielfeld\Main\SFMain.vb" />
+    <Compile Include="Spielfeld\Render\SFRenderManager.vb" />
+    <Compile Include="Spielfeld\UI\Form\ResizeActivityPoller.vb" />
+    <Compile Include="Spielfeld\UI\Mouse\MouseInputPoller.vb" />
+    <Compile Include="Spielfeld\UI\Mouse\MousePollerHandleBinderGroup.vb" />
+    <Compile Include="Spielfeld\UI\Mouse\MousePollerHandleBinder.vb" />
     <Compile Include="Bitmaps\PhotographyVerwaltung\BackgroundSingleImageCache.vb" />
     <Compile Include="Formulare\BackgroundSelector.vb">
       <SubType>Form</SubType>
@@ -253,22 +257,35 @@
     <Compile Include="INI\IniCleanup.vb" />
     <Compile Include="INI\IniCommentReader.vb" />
     <Compile Include="INI\IniChangedEventArgs.vb" />
-    <Compile Include="SpielfeldNamespaceSpielfeld\HScrollRenderer.vb" />
-    <Compile Include="SpielfeldNamespaceSpielfeld\Rendermodule\RenderingHelper.vb" />
-    <Compile Include="SpielfeldNamespaceSpielfeld\Rendermodule\RenderingStartScreen.vb" />
-    <Compile Include="SpielfeldNamespaceSpielfeld\SpielfeldDatenModul.vb" />
-    <Compile Include="SpielfeldNamespaceSpielfeld\SpielfeldMainManager.vb" />
+    <Compile Include="Spielfeld\Basis\Constants\MahjongConst.vb" />
+    <Compile Include="Spielfeld\Runtime\SFCurrent.vb" />
+    <Compile Include="Spielfeld\Editor\SFEditor.vb" />
+    <Compile Include="Spielfeld\Basis\Enums\SFEnums.vb" />
+    <Compile Include="Spielfeld\Daten\SFInfo.vb" />
+    <Compile Include="Spielfeld\Basis\SFInterfaces.vb" />
+    <Compile Include="Spielfeld\Layout\SFLayout.vb" />
+    <Compile Include="Spielfeld\Render\SFRender.vb" />
+    <Compile Include="Spielfeld\Runtime\SFRuntime.vb" />
+    <Compile Include="Spielfeld\Container\Structuren\Structuren.vb" />
+    <Compile Include="Spielfeld\UI\SFUIFace.vb" />
+    <Compile Include="Spielfeld\Runtime\SFStockState.vb" />
+    <Compile Include="Spielfeld\Render\HScrollRenderer.vb" />
+    <Compile Include="Spielfeld\Runtime\MouseAnkerVerschiebung.vb" />
+    <Compile Include="Spielfeld\Render\RenderHelper.vb" />
+    <Compile Include="Spielfeld\Render\RenderingStartScreen.vb" />
     <Compile Include="DebughelferNamespaceMjDebug\DebugBitmaps.vb" />
     <Compile Include="Shared\DebugStep.vb" />
     <Compile Include="Formulare\MessageBoxFormatiert.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="SpielfeldKlassen\FBCodec2x2.vb" />
-    <Compile Include="SpielfeldKlassen\Statistik.vb" />
+    <Compile Include="Spielfeld\Daten\Codec\FBCodec2x2.vb" />
+    <Compile Include="Spielfeld unbenutzt\Statistik.vb" />
     <Compile Include="INI\INI.vb" />
     <Compile Include="INI\IniManager.vb" />
-    <Compile Include="SpielfeldKlassen\SpielfeldSteineAustauscher.vb" />
-    <Compile Include="SpielfeldKlassen\SpielsteinGeneratorValues.vb" />
+    <Compile Include="Spielfeld unbenutzt\SpielfeldSteineAustauscher.vb" />
+    <Compile Include="Spielfeld\Daten\Generator\SpielsteinGeneratorValuesForXml.vb" />
+    <Compile Include="Spielfeld\Runtime\SFMouseRuntime.vb" />
+    <Compile Include="Spielfeld\Runtime\SteinFlugValues.vb" />
     <Compile Include="Temporär zlv\frmWebPTest.vb">
       <SubType>Form</SubType>
     </Compile>
@@ -313,12 +330,10 @@
     <Compile Include="Werken %28Bausteine erzeugen%29\Werkbank.vb" />
     <Compile Include="Werken %28Bausteine erzeugen%29\WerkbankHelfer.vb" />
     <Compile Include="Werken %28Bausteine erzeugen%29\Werkstück.vb" />
-    <Compile Include="SpielfeldNamespaceSpielfeld\SpielfeldRenderingManager.vb" />
-    <Compile Include="SpielfeldNamespaceSpielfeld\RenderingTaktgeber.vb" />
+    <Compile Include="Spielfeld\Render\RenderingTaktgeber.vb" />
     <Compile Include="Werken %28Bausteine erzeugen%29\Werkstücke.vb" />
-    <Compile Include="Shared\Konstanten.vb" />
-    <Compile Include="SpielfeldKlassen\SteinInfo.vb" />
-    <Compile Include="Container\Triple\Triple.vb" />
+    <Compile Include="Spielfeld\Daten\SteinInfo.vb" />
+    <Compile Include="Spielfeld\Container\Triple\Triple.vb" />
     <Compile Include="DebughelferNamespaceMjDebug\DebugAusgabeArray3D.vb" />
     <Compile Include="DebughelferNamespaceMjDebug\ConsoleHelper.vb" />
     <Compile Include="DebughelferNamespaceMjDebug\DebugTxtOutputForm.vb">
@@ -351,28 +366,23 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="SpielfeldNamespaceSpielfeld\DigitHelper.vb" />
-    <Compile Include="SpielfeldNamespaceSpielfeld\SpielfeldAnimator.vb" />
-    <Compile Include="Shared\Enumerationen.vb" />
-    <Compile Include="SpielfeldNamespaceSpielfeld\SpielfeldHelper.vb" />
+    <Compile Include="Spielfeld\Render\SpielfeldAnimator.vb" />
+    <Compile Include="Spielfeld\Helfermodule\SpielfeldHelper.vb" />
     <Compile Include="Shared\Helper.vb" />
-    <Compile Include="SpielfeldNamespaceSpielfeld\SpielfeldRenderer.vb" />
-    <Compile Include="SpielfeldNamespaceSpielfeld\SpielfeldDatenClass.vb" />
-    <Compile Include="SpielfeldNamespaceSpielfeld\SpielfeldLayouter.vb" />
-    <Compile Include="SpielfeldKlassen\SpielsteinGenerator.vb" />
-    <Compile Include="SpielfeldNamespaceSpielfeld\Testdaten.vb" />
-    <Compile Include="SpielfeldKlassen\SpielfeldInfo.vb" />
-    <Compile Include="SpielfeldNamespaceSpielfeld\Testmodule\SpielfeldTest_SpielsteinGenerator.vb" />
+    <Compile Include="Spielfeld\Daten\SFDaten.vb" />
+    <Compile Include="Spielfeld\Daten\Generator\SpielsteinGenerator.vb" />
+    <Compile Include="Spielfeld unbenutzt\Testdaten.vb" />
+    <Compile Include="Spielfeld unbenutzt\SpielfeldTest_SpielsteinGenerator.vb" />
     <Compile Include="UserControls\Einstellungen\UctlEinstellungen.Designer.vb">
       <DependentUpon>UctlEinstellungen.vb</DependentUpon>
     </Compile>
     <Compile Include="UserControls\Einstellungen\UctlEinstellungen.vb">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="UserControls\Spielfeld\UCtlSpielfeld.Designer.vb">
+    <Compile Include="Spielfeld\UI\Controls\UCtlSpielfeld.Designer.vb">
       <DependentUpon>UCtlSpielfeld.vb</DependentUpon>
     </Compile>
-    <Compile Include="UserControls\Spielfeld\UCtlSpielfeld.vb">
+    <Compile Include="Spielfeld\UI\Controls\UCtlSpielfeld.vb">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Werken %28Bausteine erzeugen%29\WerkstückLayout.vb" />
@@ -390,9 +400,6 @@
     <EmbeddedResource Include="frmToolBox mit UCtls\UctlToolboxHintergrund.resx">
       <DependentUpon>UctlToolboxHintergrund.vb</DependentUpon>
       <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="frmToolBox mit UCtls\UCtlWerkbank.resx">
-      <DependentUpon>UCtlWerkbank.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="INI\FrmIniEditor.resx">
       <DependentUpon>FrmIniEditor.vb</DependentUpon>
@@ -414,7 +421,7 @@
       <DependentUpon>UctlEinstellungen.vb</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="UserControls\Spielfeld\UCtlSpielfeld.resx">
+    <EmbeddedResource Include="Spielfeld\UI\Controls\UCtlSpielfeld.resx">
       <DependentUpon>UCtlSpielfeld.vb</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
@@ -487,11 +494,9 @@
     <Content Include="Bitmaps Eigene Ressourcen\liesmich2.txt" />
     <Content Include="Hilfsmodule\Bitmaps.txt" />
     <Content Include="MahjongGK.ico" />
-    <Content Include="SpielfeldNamespaceSpielfeld\liesmich.txt" />
-    <Content Include="SpielfeldNamespaceSpielfeld\Nicht verwenderter Code.txt" />
-    <Content Include="SpielfeldNamespaceSpielfeld\RenderingTaktgeber.txt" />
-    <Content Include="SpielfeldNamespaceSpielfeld\SpielfeldLayouter.txt" />
-    <Content Include="SpielfeldNamespaceSpielfeld\_Variablennamen %28Auszug%29.txt" />
+    <Content Include="Spielfeld\liesmich.txt" />
+    <Content Include="Spielfeld\Daten\Feldbeschreiber arrFB.txt" />
+    <Content Include="Spielfeld\Render\RenderingTaktgeber.txt" />
     <None Include="Resources\CompassN.png" />
     <None Include="Resources\Dummy16q.png" />
     <None Include="Resources\Dummy24q.png" />
@@ -501,7 +506,6 @@
     <Content Include="runtimes\win-x64\native\Magick.Native-Q8-x64.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="SpielfeldKlassen\SpielfeldInfo.txt" />
     <Content Include="Thirdparty\liesmich.txt" />
     <Content Include="Thirdparty\Magick\LICENSE.txt" />
     <None Include="Thirdparty\Magick\Magick.Native-Q8-x64.dll">
@@ -618,6 +622,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Comparer\" />
+    <Folder Include="Container\" />
     <Folder Include="Hilfsklassen\" />
   </ItemGroup>
   <ItemGroup>

@@ -150,7 +150,7 @@ Namespace MahjongGKSymbolFactory
             txtSection.Text = "Preset.Classic"
             btnBrowseIni.Text = "…"
             btnLoad.Text = "Load INI"
-            btnSave.Text = "Save INI"
+            btnSave.Text = "SaveLastUsedSpielfeld INI"
 
             AddHandler btnBrowseIni.Click, AddressOf OnBrowseIni
             AddHandler btnLoad.Click, AddressOf OnLoadIni

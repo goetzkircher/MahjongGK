@@ -8,7 +8,7 @@
 '#                                                                         #
 '#   This program is free software: you can redistribute it and/or modify  #
 '#   it under the terms of the GNU General Public License as published by  #
-'#   the Free Software Foundation, either version 3 of the License, or     #
+'#   the Free Software Fundament, either version 3 of the License, or     #
 '#   at your option any later version.                                     #
 '#                                                                         #
 '#   This program is distributed in the hope that it will be useful,       #
@@ -107,54 +107,54 @@ Namespace MjDebug
         '=== Textbox-Ausgabe ===
         Private dbgTxtForm As DebugTxtOutputForm = Nothing
 
-        Public Sub Print3DArrayToTxtOutputForm(AktSpielfeldInfo As SpielfeldInfo, Optional highlightXyz As Triple = Nothing)
-            If Not Debugger.IsAttached Then Return
+        'Public Sub Print3DArrayToTxtOutputForm(AktSpielfeldInfo As SFInfo, Optional highlightXyz As Triple = Nothing)
+        '    If Not Debugger.IsAttached Then Return
 
-            If dbgTxtForm Is Nothing OrElse dbgTxtForm.IsDisposed Then
-                dbgTxtForm = New DebugTxtOutputForm()
-                dbgTxtForm.Show()
-            End If
+        '    If dbgTxtForm Is Nothing OrElse dbgTxtForm.IsDisposed Then
+        '        dbgTxtForm = New DebugTxtOutputForm()
+        '        dbgTxtForm.Show()
+        '    End If
 
-            Dim sb As New System.Text.StringBuilder()
-            With Spielfeld.SFD.AktSpielfeldInfo
-                For z As Integer = 0 To .arrFB.GetLength(2) - 1
-                    sb.AppendLine($"=== Ebene Z = {z} ===")
+        '    Dim sb As New System.Text.StringBuilder()
+        '    With Spielfeld.SFD.AktSpielfeldInfo
+        '        For z As Integer = 0 To .arrFB.GetLength(2) - 1
+        '            sb.AppendLine($"=== Ebene Z = {z} ===")
 
-                    sb.Append("Y\X".PadLeft(7))
-                    For x As Integer = 0 To .arrFB.GetLength(0) - 1
-                        sb.Append(Col(x))
-                    Next
-                    sb.AppendLine()
-                    sb.AppendLine(New String("-"c, 6 + .arrFB.GetLength(0) * SPALTENBREITE))
+        '            sb.Append("Y\X".PadLeft(7))
+        '            For x As Integer = 0 To .arrFB.GetLength(0) - 1
+        '                sb.Append(Col(x))
+        '            Next
+        '            sb.AppendLine()
+        '            sb.AppendLine(New String("-"c, 6 + .arrFB.GetLength(0) * SPALTENBREITE))
 
-                    For y As Integer = 0 To .arrFB.GetLength(1) - 1
-                        sb.Append($"   {y,2} |")
-                        For x As Integer = 0 To .arrFB.GetLength(0) - 1
-                            Dim isHighlight As Boolean = highlightXyz IsNot Nothing AndAlso highlightXyz.Contains(x, y, z)
+        '            For y As Integer = 0 To .arrFB.GetLength(1) - 1
+        '                sb.Append($"   {y,2} |")
+        '                For x As Integer = 0 To .arrFB.GetLength(0) - 1
+        '                    Dim isHighlight As Boolean = highlightXyz IsNot Nothing AndAlso highlightXyz.IsEqual(x, y, z)
 
-                            Dim fb As Integer = .arrFB(x, y, z)
-                            If fb >= 100 Then
-                                'Hier in diesem Feld sind die Flags (derzeit, Programmversion 0) immer 0
-                                'der Index steht hier mit 100 multipliziert.
-                                'deshalb zum sichtbar machen den SteinIndex addieren.
-                                fb += .SteinInfos((fb \ 1000) - 1).SteinIndex
-                            End If
+        '                    Dim fb As Integer = .arrFB(x, y, z)
+        '                    If fb >= 100 Then
+        '                        'Hier in diesem Feld sind die Flags (derzeit, Programmversion 0) immer 0
+        '                        'der Index steht hier mit 100 multipliziert.
+        '                        'deshalb zum sichtbar machen den SteinIndex addieren.
+        '                        fb += .SteinInfos((fb \ 1000) - 1).SteinIndex
+        '                    End If
 
-                            If isHighlight Then
-                                sb.Append(ColBracket(fb))
-                            Else
-                                sb.Append(Col(fb))
-                            End If
-                        Next
-                        sb.AppendLine()
-                    Next
-                    sb.AppendLine()
-                Next
-            End With
-            dbgTxtForm.SetText(sb.ToString())
-            dbgTxtForm.BringToFront()
-            dbgTxtForm.Focus()
-        End Sub
+        '                    If isHighlight Then
+        '                        sb.Append(ColBracket(fb))
+        '                    Else
+        '                        sb.Append(Col(fb))
+        '                    End If
+        '                Next
+        '                sb.AppendLine()
+        '            Next
+        '            sb.AppendLine()
+        '        Next
+        '    End With
+        '    dbgTxtForm.SetText(sb.ToString())
+        '    dbgTxtForm.BringToFront()
+        '    dbgTxtForm.Focus()
+        'End Sub
 
         '=== Konsolen-Ausgabe ===
         Public Sub Print3DArrayToConsole(arr As Integer(,,))

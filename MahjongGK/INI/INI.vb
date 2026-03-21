@@ -8,7 +8,7 @@
 '#                                                                         #
 '#   This program is free software: you can redistribute it and/or modify  #
 '#   it under the terms of the GNU General Public License as published by  #
-'#   the Free Software Foundation, either version 3 of the License, or     #
+'#   the Free Software Fundament, either version 3 of the License, or     #
 '#   at your option any later version.                                     #
 '#                                                                         #
 '#   This program is distributed in the hope that it will be useful,       #
@@ -21,6 +21,7 @@
 '
 Imports System.Globalization
 Imports System.Reflection
+Imports MahjongGK.Spielfeld
 
 Public Module INI
 
@@ -732,7 +733,7 @@ Public Module INI
                                     "~Sorgfältig arbeiten! Bei Fehlern arbeitet das Programm unvorhersehbar. Nicht bei laufendem Programm ändern." &
                                     "~Sie können diese Ini-Datei einfach löschen. Sie wird dann mit Satz1-Werten neu erzeugt." &
                                     "~Hinweis an Programmierer: Läuft das Programm in der IDE, ist im Hauptformular ganz links unten ein Button ""INI""." &
-                                    "~Mit diesem Editor können Sie während der Laufzeit die INI ändern. Ein Teil der Änderungen bedürfen dennoch einen Neustart."
+                                    "~Mit diesem Edit können Sie während der Laufzeit die INI ändern. Ein Teil der Änderungen bedürfen dennoch einen Neustart."
 
             Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
         End Get
@@ -808,6 +809,7 @@ Public Module INI
         Set(value As Boolean)
             BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
             _Global_DarkMode = Nothing
+            _Rendering_ConsumeDoRendering = True
         End Set
     End Property
 
@@ -876,7 +878,7 @@ Public Module INI
     Public Property Editor_UsingEditorAllowed As Boolean
         Get
             Dim [Default] As Boolean = True
-            Dim comment As String = "Mit False läßt sich der Editor komplett abschalten. Satz1: True"
+            Dim comment As String = "Mit False läßt sich der Edit komplett abschalten. Satz1: True"
             Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
         End Get
         Set(value As Boolean)
@@ -904,6 +906,7 @@ Public Module INI
             Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
         End Get
         Set(value As Font)
+            _Rendering_ConsumeDoRendering = True
             BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
         End Set
     End Property
@@ -912,10 +915,16 @@ Public Module INI
         Get
             Dim [Default] As Integer = 128
             Dim comment As String = "Der Alpha-Wert des Untergrundes der Message. Default 128"
-            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            Dim value As Integer = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+
+            If value > 255 Then Return 255
+            If value < 0 Then Return 0
+            Return value
+
         End Get
         Set(value As Integer)
             BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+            _Rendering_ConsumeDoRendering = True
         End Set
     End Property
 
@@ -923,12 +932,175 @@ Public Module INI
         Get
             Dim [Default] As Integer = 200
             Dim comment As String = "Der Grau-Wert des Untergrundes der Message. Default: 200"
-            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            Dim value As Integer = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            If value > 255 Then Return 255
+            If value < 0 Then Return 0
+            Return value
         End Get
         Set(value As Integer)
             BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+            _Rendering_ConsumeDoRendering = True
         End Set
     End Property
+
+
+    Private _Editor_SortSpacerWidthPercent As Integer?
+    Public Property Editor_SortSpacerWidthPercent As Integer
+        Get
+            If Not _Editor_SortSpacerWidthPercent.HasValue Then
+                Dim [Default] As Integer = 10
+                Dim comment As String = "Breite des Zwischenraumes in Prozent der Spielsteinbreite im Steinvorrat ab welchem Stein neu gemischt wird."
+                _Editor_SortSpacerWidthPercent = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+                'muss hier das .Value dahinter?
+                If _Editor_SortSpacerWidthPercent < 0 Then _Editor_SortSpacerWidthPercent = 0
+                If _Editor_SortSpacerWidthPercent > 100 Then _Editor_SortSpacerWidthPercent = 100
+            End If
+            Return _Editor_SortSpacerWidthPercent.Value
+        End Get
+        Set(value As Integer)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+            _Editor_SortSpacerWidthPercent = Nothing
+        End Set
+    End Property
+
+    Private _Editor_SpaceFramesToOpenOrClose As Integer?
+    Public Property Editor_SpaceFramesToOpenOrClose As Integer
+        Get
+            If Not _Editor_SpaceFramesToOpenOrClose.HasValue Then
+                Dim [Default] As Integer = 10
+                Dim comment As String = "Anzahl der Frames um die Lücke für einen Stein zu öffnen oder zu schließen. Default = 10"
+                _Editor_SpaceFramesToOpenOrClose = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+                'muss hier das .Value dahinter?
+                If _Editor_SpaceFramesToOpenOrClose < 0 Then _Editor_SpaceFramesToOpenOrClose = 0
+                If _Editor_SpaceFramesToOpenOrClose > 100 Then _Editor_SpaceFramesToOpenOrClose = 100
+            End If
+            Return _Editor_SpaceFramesToOpenOrClose.Value
+        End Get
+        Set(value As Integer)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+            _Editor_SpaceFramesToOpenOrClose = Nothing
+        End Set
+    End Property
+
+
+    Private _Editor_HScrollbarColor As Color
+    Public Property Editor_HScrollbarColor As Color
+        Get
+            If _Editor_HScrollbarColor.IsEmpty Then
+                Dim [Default] As Color = IniManager.CvtHexStringToColor("FFFCFCDF")
+                Dim comment As String = "Default: ""FFFCFCDF"" (ergibt intensive Cremefarbe)"
+                _Editor_HScrollbarColor = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            End If
+            Return _Editor_HScrollbarColor
+        End Get
+        Set(value As Color)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+            _Editor_HScrollbarColor = Color.Empty
+            _Rendering_ConsumeDoRendering = True
+        End Set
+    End Property
+    '
+    Private _Editor_GhostBitmap_Alpha As Single?
+    Public Property Editor_GhostBitmap_Alpha As Single
+        Get
+            If Not _Editor_GhostBitmap_Alpha.HasValue Then
+                Dim [Default] As Single = 0.5F
+                Dim comment As String = "Beim Drag-Drop der Steine bleibt eine ""Geisterbitmap"" am ursprünglichem Ort. Hier der Alpha-Wert. Default: 0.5F "
+                _Editor_GhostBitmap_Alpha = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            End If
+            Return _Editor_GhostBitmap_Alpha.Value
+        End Get
+        Set(value As Single)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+            _Editor_GhostBitmap_Alpha = Nothing
+            _Rendering_ConsumeDoRendering = True
+        End Set
+    End Property
+    '
+    Private _Editor_GhostBitmap_BrightnessFactor As Single?
+    Public Property Editor_GhostBitmap_BrightnessFactor As Single
+        Get
+            If Not _Editor_GhostBitmap_BrightnessFactor.HasValue Then
+                Dim [Default] As Single = 0.7F
+                Dim comment As String = "Die Helligkeit der Geistergrafik. Default: 0.7F"
+                _Editor_GhostBitmap_BrightnessFactor = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            End If
+            Return _Editor_GhostBitmap_BrightnessFactor.Value
+        End Get
+        Set(value As Single)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+            _Editor_GhostBitmap_BrightnessFactor = Nothing
+            _Rendering_ConsumeDoRendering = True
+        End Set
+    End Property
+    '
+    Private _Editor_ShowGrid As Boolean?
+    Public Property Editor_ShowGrid As Boolean
+        Get
+            If IsNothing(_Editor_ShowGrid) Then
+                Dim [Default] As Boolean = True
+                Dim comment As String = Nothing
+                _Editor_ShowGrid = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            End If
+            Return CBool(_Editor_ShowGrid)
+        End Get
+        Set(value As Boolean)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+            _Editor_ShowGrid = Nothing
+        End Set
+    End Property
+
+    Private _Editor_GridColorOutside As Color
+    Public Property Editor_GridColorOutside As Color
+        Get
+            If _Editor_GridColorOutside.IsEmpty Then
+                Dim [Default] As Color = Color.Black 'IniManager.CvtHexStringToColor("FFFCFCDF")
+                Dim comment As String = ""
+                _Editor_GridColorOutside = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            End If
+            Return _Editor_GridColorOutside
+        End Get
+        Set(value As Color)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+            _Editor_GridColorOutside = Color.Empty
+            _Rendering_ConsumeDoRendering = True
+        End Set
+    End Property
+
+    Private _Editor_GridColorInside As Color
+    Public Property Editor_GridColorInside As Color
+        Get
+            If _Editor_GridColorInside.IsEmpty Then
+                Dim [Default] As Color = Color.Gray 'IniManager.CvtHexStringToColor("FFFCFCDF")
+                Dim comment As String = ""
+                _Editor_GridColorInside = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            End If
+            Return _Editor_GridColorInside
+        End Get
+        Set(value As Color)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+            _Editor_GridColorInside = Color.Empty
+            _Rendering_ConsumeDoRendering = True
+        End Set
+    End Property
+
+
+    Private _Editor_ShowFrmSteinStackInfo As Boolean?
+    Public Property Editor_ShowFrmSteinStackInfo As Boolean
+        Get
+            If IsNothing(_Editor_ShowFrmSteinStackInfo) Then
+                Dim [Default] As Boolean = True
+                Dim comment As String = "Das kleine Formular im Edit, das an die Maus gekoppelt ist."
+                _Editor_ShowFrmSteinStackInfo = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            End If
+            Return CBool(_Editor_ShowFrmSteinStackInfo)
+        End Get
+        Set(value As Boolean)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+            _Editor_ShowFrmSteinStackInfo = Nothing
+        End Set
+    End Property
+
 
     Public Property SpielsteinGenerator_VerhältnisNormalsteineZuSondersteine As Double
         Get
@@ -944,12 +1116,10 @@ Public Module INI
         End Set
     End Property
 
-
-
     Public Property SpielsteinGenerator_VorratNoSortAreaEndIndexDefault As Integer
         Get
             Dim [Default] As Integer = 9
-            Dim comment As String = "Im Editor läßt sich die Vorratskiste jederzeit neu mischen. Davon ausgenommen sind die Steine bis zum" &
+            Dim comment As String = "Im Edit läßt sich die Vorratskiste jederzeit neu mischen. Davon ausgenommen sind die Steine bis zum" &
                                     "~hier angegebenem Index. Satz1: 9 (=10 Steine), abschalten mit -1"
             'Rückgabe 
             Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
@@ -1065,7 +1235,7 @@ Public Module INI
         Get
             If Not _Spielbetrieb_PositionHistory.HasValue Then
                 Dim [Default] As Integer = 1
-                Dim comment As String = "0 = ohne sichtbare History, 1 = links vom Spielfeld, 2 = rechts vom Spielfeld. Default:  = 1"
+                Dim comment As String = "0 = ohne sichtbare History, 1 = links vom Spiel, 2 = rechts vom Spiel. Default:  = 1"
                 _Spielbetrieb_PositionHistory = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
             End If
             Return _Spielbetrieb_PositionHistory.Value
@@ -1378,27 +1548,6 @@ Public Module INI
     ''' Gibt außerhalb der IDE immer False zurück
     ''' </summary>
     ''' <returns></returns>
-    Public Property IfRunningInIDE_InsertStoneIndex As Boolean
-        Get
-            If IsNothing(_IfRunningInIDE_InsertStoneIndex) Then
-                Dim [Default] As Boolean = False
-                Dim comment As String = Nothing
-                _IfRunningInIDE_InsertStoneIndex = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-            End If
-
-            'muss hier stehen, sonst wird der Wert nicht initialisiert und kann in der INI manuell nicht geändert werden.
-            If Not Debugger.IsAttached() Then
-                Return False
-            End If
-
-            Return CBool(_IfRunningInIDE_InsertStoneIndex)
-        End Get
-        Set(value As Boolean)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
-            _IfRunningInIDE_InsertStoneIndex = Nothing
-        End Set
-    End Property
-
     Public Property IfRunningInIDE_ShowErrorMsgInsteadOfException As Boolean
         Get
             Dim [Default] As Boolean = False
@@ -1689,9 +1838,9 @@ Public Module INI
     Public Property ToolBox_FeldSizeXmax() As Integer
         Get
             Dim [Default] As Integer = 30
-            Dim comment As String = $"Maximale Anzahl der Steine nebeneinander. Gültig: 1 bis {MJ_STEINE_MAXX_SIDEBYSIDE}, Satz1 = 30"
+            Dim comment As String = $"Maximale Anzahl der Steine nebeneinander. Gültig: 1 bis {MJ_STEINE_MAXX}, Satz1 = 30"
             Dim value As Integer = ToolBoxIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-            Return Math.Max(1, Math.Min(MJ_STEINE_MAXX_SIDEBYSIDE, value))
+            Return Math.Max(1, Math.Min(MJ_STEINE_MAXX, value))
         End Get
         Set(value As Integer)
             ToolBoxIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
@@ -1700,9 +1849,9 @@ Public Module INI
     Public Property ToolBox_FeldSizeYmax() As Integer
         Get
             Dim [Default] As Integer = 15
-            Dim comment As String = $"Maximale Anzahl der Steine übereinander. Gültig: 1 bis {MJ_STEINE_MAXY_OVERANOTHER}, Satz1 = 15"
+            Dim comment As String = $"Maximale Anzahl der Steine übereinander. Gültig: 1 bis {MJ_STEINE_MAXY}, Satz1 = 15"
             Dim value As Integer = ToolBoxIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-            Return Math.Max(1, Math.Min(MJ_STEINE_MAXY_OVERANOTHER, value))
+            Return Math.Max(1, Math.Min(MJ_STEINE_MAXY, value))
         End Get
         Set(value As Integer)
             ToolBoxIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
@@ -1711,9 +1860,9 @@ Public Module INI
     Public Property ToolBox_FeldSizeZmax() As Integer
         Get
             Dim [Default] As Integer = 10
-            Dim comment As String = $"Maximale Anzahl der Steine aufeinander. Gültig: 1 bis {MJ_STEINE_MAXZ_LAYER}, Satz1 = 10"
+            Dim comment As String = $"Maximale Anzahl der Steine aufeinander. Gültig: 1 bis {MJ_STEINE_MAXZ}, Satz1 = 10"
             Dim value As Integer = ToolBoxIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-            Return Math.Max(1, Math.Min(MJ_STEINE_MAXZ_LAYER, value))
+            Return Math.Max(1, Math.Min(MJ_STEINE_MAXZ, value))
         End Get
         Set(value As Integer)
             ToolBoxIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
@@ -1727,7 +1876,7 @@ Public Module INI
                 comment = "Die jeweiligen aktuellen Werte der Basisformen in der Toolbox. Satz1 für X = 10, Y = 10, Z = 5"
             End If
             Dim value As Integer = ToolBoxIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), [Default], comment)
-            Return Math.Max(1, Math.Min(MJ_STEINE_MAXX_SIDEBYSIDE, value))
+            Return Math.Max(1, Math.Min(MJ_STEINE_MAXX, value))
         End Get
         Set(value As Integer)
             ToolBoxIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), value.ToString)
@@ -1738,7 +1887,7 @@ Public Module INI
             Dim [Default] As Integer = 10
             Dim comment As String = Nothing
             Dim value As Integer = ToolBoxIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), [Default], comment)
-            Return Math.Max(1, Math.Min(MJ_STEINE_MAXX_SIDEBYSIDE, value))
+            Return Math.Max(1, Math.Min(MJ_STEINE_MAXX, value))
         End Get
         Set(value As Integer)
             ToolBoxIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), value.ToString)
@@ -1749,7 +1898,7 @@ Public Module INI
             Dim [Default] As Integer = 5
             Dim comment As String = Nothing
             Dim value As Integer = ToolBoxIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), [Default], comment)
-            Return Math.Max(1, Math.Min(MJ_STEINE_MAXZ_LAYER, value))
+            Return Math.Max(1, Math.Min(MJ_STEINE_MAXZ, value))
         End Get
         Set(value As Integer)
             ToolBoxIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), value.ToString)
@@ -1781,7 +1930,7 @@ Public Module INI
                 comment = "Die jeweiligen aktuellen Werte der Basisformen in der Toolbox. Satz1 für X = 10, Y = 10, Z = 5"
             End If
             Dim value As Integer = ToolBoxIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), [Default], comment)
-            Return Math.Max(1, Math.Min(MJ_STEINE_MAXX_SIDEBYSIDE, value))
+            Return Math.Max(1, Math.Min(MJ_STEINE_MAXX, value))
         End Get
         Set(value As Integer)
             ToolBoxIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), value.ToString)
@@ -1810,7 +1959,7 @@ Public Module INI
             End Select
             Dim comment As String = Nothing
             Dim value As Integer = ToolBoxIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), [Default], comment)
-            Return Math.Max(1, Math.Min(MJ_STEINE_MAXX_SIDEBYSIDE, value))
+            Return Math.Max(1, Math.Min(MJ_STEINE_MAXX, value))
         End Get
         Set(value As Integer)
             ToolBoxIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), value.ToString)
@@ -1840,7 +1989,7 @@ Public Module INI
 
             Dim comment As String = Nothing
             Dim value As Integer = ToolBoxIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), [Default], comment)
-            Return Math.Max(1, Math.Min(MJ_STEINE_MAXZ_LAYER, value))
+            Return Math.Max(1, Math.Min(MJ_STEINE_MAXZ, value))
         End Get
         Set(value As Integer)
             ToolBoxIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name, bform.ToString), value.ToString)
@@ -2043,10 +2192,26 @@ Public Module INI
         End Get
     End Property
 
+    Public Property Rendering_PreloadSteinsatz As SteinSatz
+        Get
+            Dim [Default] As String = SteinSatz.Satz1.ToString
+            Dim comment As String = "Der Steinsatz, der beim Programmstart geladen wird."
+            Dim zRetVal As String = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            Dim result As SteinSatz
+            If Not [Enum].TryParse(Of SteinSatz)(zRetVal, True, result) Then
+                result = SteinSatz.Satz1
+            End If
+            Return result
+        End Get
+        Set(value As SteinSatz)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+        End Set
+    End Property
+
     Public Property Rendering_OrgGrafikSteinsatz As SteinSatz
         Get
             Dim [Default] As String = SteinSatz.None.ToString
-            Dim comment As String = Nothing
+            Dim comment As String = "Wird vom Programm verwaltet. Der aktuell geladene Steinsatz."
             Dim zRetVal As String = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
             Dim result As SteinSatz
             If Not [Enum].TryParse(Of SteinSatz)(zRetVal, True, result) Then
@@ -2064,7 +2229,7 @@ Public Module INI
         Get
             If Not _Rendering_OrgGrafikSizeWidth.HasValue Then
                 Dim [Default] As Integer = -1
-                Dim comment As String = "Finger weg, wird vom Programm verwaltet."
+                Dim comment As String = "Wird vom Programm verwaltet. Breite vom aktuell geladenen Steinsatz."
                 _Rendering_OrgGrafikSizeWidth = Rendering.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
                 _Rendering_OrgGrafikSizeWidth = Math.Max(60, Math.Min(600, _Rendering_OrgGrafikSizeWidth.Value))
             End If
@@ -2081,7 +2246,7 @@ Public Module INI
         Get
             If Not _Rendering_OrgGrafikSizeHeight.HasValue Then
                 Dim [Default] As Integer = -1
-                Dim comment As String = "Finger weg, wird vom Programm verwaltet."
+                Dim comment As String = "Wird vom Programm verwaltet. Höhe vom aktuell geladenen Steinsatz."
                 _Rendering_OrgGrafikSizeHeight = Rendering.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
                 _Rendering_OrgGrafikSizeHeight = Math.Max(60, Math.Min(600, _Rendering_OrgGrafikSizeHeight.Value))
             End If
@@ -2119,7 +2284,7 @@ Public Module INI
         Get
             If Not _Rendering_OrgGrafikReferenceSizeHeight.HasValue Then
                 Dim [Default] As Integer = 252
-                Dim comment As String = Nothing
+                Dim comment As String = "Wie vor, die Höhe."
                 _Rendering_OrgGrafikReferenceSizeHeight = Rendering.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
                 _Rendering_OrgGrafikReferenceSizeHeight = Math.Max(60, Math.Min(600, _Rendering_OrgGrafikReferenceSizeHeight.Value))
             End If
@@ -2315,6 +2480,30 @@ Public Module INI
         End Set
     End Property
 
+    Private _Rendering_ConsumeDoRendering As Boolean = True
+    '
+    ''' <summary>
+    ''' Kann von überall heraus aufgerufen werden. Wird bei der Abfrage ob
+    ''' neu gerendert werden soll oder die bisherige Bitmap geblittet werden soll.
+    ''' </summary>
+    Public Sub Rendering_SetConsumeDoRendering()
+        _Rendering_ConsumeDoRendering = True
+    End Sub
+    '
+    ''' <summary>
+    ''' Kann von überallheraus True gese
+    ''' </summary>
+    ''' <returns></returns>
+    Public ReadOnly Property Rendering_ConsumeDoRendering As Boolean
+        Get
+            If _Rendering_ConsumeDoRendering Then
+                _Rendering_ConsumeDoRendering = False
+                Return True
+            Else
+                Return False
+            End If
+        End Get
+    End Property
 
     Private _Rendering_BackgroundColorDarkMode As Color
     Public Property Rendering_BackgroundColorDarkMode As Color
@@ -2329,6 +2518,7 @@ Public Module INI
         Set(value As Color)
             Rendering.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
             _Rendering_BackgroundColorDarkMode = Color.Empty
+            _Rendering_ConsumeDoRendering = True
         End Set
     End Property
 
@@ -2345,6 +2535,7 @@ Public Module INI
         Set(value As Color)
             Rendering.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
             _Rendering_BackgroundColorLightMode = Color.Empty
+            _Rendering_ConsumeDoRendering = True
         End Set
     End Property
     '
@@ -2362,7 +2553,77 @@ Public Module INI
         End Get
     End Property
     '
+    Private _Rendering_MouseOverSteinRahmenColor As Color
+    Public Property Rendering_MouseOverSteinRahmenColor As Color
+        Get
+            If _Rendering_MouseOverSteinRahmenColor.IsEmpty Then
+                Dim [Default] As Color = IniManager.CvtHexStringToColor("FF9EDFA3")
+                Dim comment As String = ""
+                _Rendering_MouseOverSteinRahmenColor = Rendering.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            End If
+            Return _Rendering_MouseOverSteinRahmenColor
+        End Get
+        Set(value As Color)
+            Rendering.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+            _Rendering_MouseOverSteinRahmenColor = Color.Empty
+            _Rendering_ConsumeDoRendering = True
+        End Set
+    End Property
+
+    Private _Rendering_SelectedSteinRahmenColor As Color
+    Public Property Rendering_SelectedSteinRahmenColor As Color
+        Get
+            If _Rendering_SelectedSteinRahmenColor.IsEmpty Then
+                Dim [Default] As Color = IniManager.CvtHexStringToColor("FF3FA35C")
+                Dim comment As String = ""
+                _Rendering_SelectedSteinRahmenColor = Rendering.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            End If
+            Return _Rendering_SelectedSteinRahmenColor
+        End Get
+        Set(value As Color)
+            Rendering.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+            _Rendering_SelectedSteinRahmenColor = Color.Empty
+            _Rendering_ConsumeDoRendering = True
+        End Set
+    End Property
+
+    Private _Rendering_PlaceableSteinRahmenColor As Color
+    Public Property Rendering_PlaceableSteinRahmenColor As Color
+        Get
+            If _Rendering_PlaceableSteinRahmenColor.IsEmpty Then
+                Dim [Default] As Color = IniManager.CvtHexStringToColor("FF1F5F3A")
+                Dim comment As String = ""
+                _Rendering_PlaceableSteinRahmenColor = Rendering.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            End If
+            Return _Rendering_PlaceableSteinRahmenColor
+        End Get
+        Set(value As Color)
+            Rendering.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+            _Rendering_PlaceableSteinRahmenColor = Color.Empty
+            _Rendering_ConsumeDoRendering = True
+        End Set
+    End Property
+
     '
+    Private _Rendering_SteinFlugGeschwindigkeit As Double?
+    Public Property Rendering_SteinFlugGeschwindigkeit As Double
+        Get
+            If Not _Rendering_SteinFlugGeschwindigkeit.HasValue Then
+                Dim [Default] As Double = 36
+                Dim comment As String = "Die Anzahl der Pixel je Frame, die der Stein weiterkommt. Default: 36"
+                _Rendering_SteinFlugGeschwindigkeit = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            End If
+            Return _Rendering_SteinFlugGeschwindigkeit.Value
+        End Get
+        Set(value As Double)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+            _Rendering_SteinFlugGeschwindigkeit = Nothing
+        End Set
+    End Property
+    '
+
+
+
     Private _Rendering_StartscreenBitmapNameLightMode As String = Nothing
     Private _Rendering_StartscreenBitmapNameLightMode_Loaded As Boolean = False
 
@@ -2440,8 +2701,8 @@ Public Module INI
                 Return False
             End If
             If IsNothing(_Rendering_DrawRenderRect) Then
-                Dim [Default] As Boolean = Debugger.IsAttached
-                Dim comment As String = "Für die Programmentwicklung zur Kontrolle. Nur innerhalb der IDE verwendbar."
+                Dim [Default] As Boolean = False ' Debugger.IsAttached
+                Dim comment As String = "Für die Programmentwicklung zur Kontrolle der Lage der rxRectangle. Nur innerhalb der IDE verwendbar."
                 _Rendering_DrawRenderRect = Rendering.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
             End If
             Return CBool(_Rendering_DrawRenderRect)
@@ -2449,22 +2710,7 @@ Public Module INI
         Set(value As Boolean)
             Rendering.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
             _Rendering_DrawRenderRect = Nothing
-        End Set
-    End Property
-
-    Private _Rendering_RenderRectColor As Color
-    Public Property Rendering_RenderRectColor As Color
-        Get
-            If _Rendering_RenderRectColor.IsEmpty Then
-                Dim [Default] As Color = Color.Red
-                Dim comment As String = Nothing
-                _Rendering_RenderRectColor = Rendering.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-            End If
-            Return _Rendering_RenderRectColor
-        End Get
-        Set(value As Color)
-            Rendering.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
-            _Rendering_RenderRectColor = Color.Empty
+            _Rendering_ConsumeDoRendering = True
         End Set
     End Property
 
@@ -2485,6 +2731,7 @@ Public Module INI
         Set(value As Integer)
             BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
             _Rendering_HeaderHeight = Nothing
+            _Rendering_ConsumeDoRendering = True
         End Set
     End Property
     '
@@ -2513,7 +2760,7 @@ Public Module INI
         Get
             If IsNothing(_Rendering_DrawRenderingSkipDoneMarker) Then
                 Dim [Default] As Boolean = Debugger.IsAttached
-                Dim comment As String = "Zeichnet rechts unten im Spielfeld ein Feld ein, an dem erkennbar ist, ob neu gerendert wurde. Default: Debugger.IsAttached"
+                Dim comment As String = "Zeichnet rechts unten im Spiel ein Feld ein, an dem erkennbar ist, ob neu gerendert wurde. Default: Debugger.IsAttached"
                 _Rendering_DrawRenderingSkipDoneMarker = Rendering.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
             End If
             Return CBool(_Rendering_DrawRenderingSkipDoneMarker)
@@ -2521,8 +2768,30 @@ Public Module INI
         Set(value As Boolean)
             Rendering.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
             _Rendering_DrawRenderingSkipDoneMarker = Nothing
+            _Rendering_ConsumeDoRendering = True
         End Set
     End Property
+
+    Private _Rendering_AnimationsCounter As Integer
+    Public ReadOnly Property Rendering_AnimationsCounterCheckAndDec As Integer
+        Get
+            If _Rendering_AnimationsCounter >= 0 Then
+                _Rendering_AnimationsCounter -= 1
+            End If
+            Return _Rendering_AnimationsCounter + 1
+        End Get
+
+    End Property
+    '
+    ''' <summary>
+    ''' Anzahl der Animationsschritte einer Animation. Im Zweifelsfall mehr Schritte als
+    ''' notwendig angeben.
+    ''' Diese Anzahl an Renderungen wird mit Sicherheit ausgeführt.
+    ''' </summary>
+    ''' <param name="animationsSteps"></param>
+    Public Sub Rendering_AnimationsCounterAddSteps(animationsSteps As Integer)
+        _Rendering_AnimationsCounter += animationsSteps
+    End Sub
 
 
 #End Region
@@ -2536,19 +2805,16 @@ Public Module INI
     ''' </summary>
     Public Sub IniEditieren()
 
-        Spielfeld.PaintSpielfeld_BeginPause()
+        Dim sicRendermode As RenderMode = SFMain.RenderMode
+        SFMain.RenderMode = RenderMode.Paused
 
         Using frm As New FrmIniEditor()
 
             frm.ShowDialog()
 
-            If frm.IniFileChanged Then
-                Spielfeld.PaintSpielfeld_EndPause(startIniUpdate:=True, raiseIniEvents:=IniEvents.OnUpdate)
-            Else
-                Spielfeld.PaintSpielfeld_EndPause(startIniUpdate:=False)
-            End If
-
         End Using
+
+        SFMain.RenderMode = sicRendermode
 
     End Sub
 

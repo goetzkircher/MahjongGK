@@ -182,7 +182,7 @@ Public NotInheritable Class UICtlAboutMahjongGK
     Private Sub InitializeAboutTab()
         PrepareReadOnlyBox(_aboutText)
         _aboutText.Text =
-"MahjongGK ist ein Open-Source-Projekt für ein Mahjong-Solitär-Spiel mit eigenem leistungsstarkem Editor, Renderer und umfangreicher Anpassbarkeit." & Environment.NewLine &
+"MahjongGK ist ein Open-Source-Projekt für ein Mahjong-Solitär-Spiel mit eigenem leistungsstarkem Edit, Renderer und umfangreicher Anpassbarkeit." & Environment.NewLine &
 "Entwickelt in VB.NET (.NET Framework 4.8.1) mit Fokus auf saubere Architektur, flexible Erweiterbarkeit und klare Trennung von Daten, Logik und Darstellung." & Environment.NewLine & Environment.NewLine &
 "Dieses Programm wurde nach bestem Wissen und Gewissen entwickelt. Die Nutzung erfolgt auf eigene Verantwortung; eine Haftung für Schäden jedweder Art ist ausgeschlossen." & Environment.NewLine & Environment.NewLine &
 "Über den Entwickler:" & Environment.NewLine &

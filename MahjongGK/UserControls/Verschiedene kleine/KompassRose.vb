@@ -5,6 +5,18 @@ Option Strict On
 
 Imports System.ComponentModel
 
+Public Enum KompassEnum
+    None
+    N
+    NO
+    O
+    SO
+    S
+    SW
+    W
+    NW
+End Enum
+
 '
 ''' <summary>
 ''' KompassRose-UserControl mit Hover-Effekt.

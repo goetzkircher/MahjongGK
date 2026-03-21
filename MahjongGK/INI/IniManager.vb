@@ -37,6 +37,12 @@ Imports System.Globalization
 Imports System.IO
 Imports System.Text
 Imports System.Threading
+Public Enum IniEvents
+    None
+    OnChangeValue
+    OnWriteValue
+    OnUpdate
+End Enum
 
 Public Class IniManager
     Implements IDisposable
@@ -1059,7 +1065,7 @@ Public Class IniManager
                 Dim xi As Integer = Integer.Parse(p(0).Trim())
                 Dim yi As Integer = Integer.Parse(p(1).Trim())
                 Dim zi As Integer = Integer.Parse(p(2).Trim())
-                Dim v As ValidePlaceEnum = CType(Integer.Parse(p(3).Trim()), ValidePlaceEnum)
+                Dim v As ValidePlace = CType(Integer.Parse(p(3).Trim()), ValidePlace)
                 Return New Triple(xi, yi, zi, v)
             End If
         Catch

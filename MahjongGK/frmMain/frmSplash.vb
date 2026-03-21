@@ -12,7 +12,7 @@ Option Strict On
 '#                                                                         #
 '#   This program is free software: you can redistribute it and/or modify  #
 '#   it under the terms of the GNU General Public License as published by  #
-'#   the Free Software Foundation, either version 3 of the License, or     #
+'#   the Free Software Fundament, either version 3 of the License, or     #
 '#   at your option any later version.                                     #
 '#                                                                         #
 '#   This program is distributed in the hope that it will be useful,       #
@@ -35,7 +35,11 @@ Public Class frmSplash
     'Weitere Infos im BackgroundZipManager.
 
     Private Sub frmSplash_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        Me.BackgroundImage = MahjongGK_Splash_573x274()
+        'Größenanpassung notwendig, wenn der Bildschirm über
+        'Windows/system/Bildschirm/Skalierung skaliert wurde.
+        Dim bmp As Bitmap = CType(MahjongGK_Splash_573x274(), Bitmap)
+        MjGDI.ShrinkBitmap(bmp, Me.Width, Me.Height)
+        Me.BackgroundImage = bmp
         Me.TopMost = True
     End Sub
 
@@ -128,8 +132,6 @@ Public Class frmSplash
     Protected Overrides Sub OnPaint(ByVal e As PaintEventArgs)
         MyBase.OnPaint(e)
 
-        ' Falls du bereits Hintergrund/Silhouetten zeichnest, passt:
-        ' → Den Loader einfach danach rendern.
         RenderLoader(e.Graphics)
         RenderStatusText(e.Graphics)
     End Sub

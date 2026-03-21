@@ -9,6 +9,84 @@ Namespace MjGDI
     Public Module GdiHelfer
 
         ''' <summary>
+        ''' Erzeugt eine neue Bitmap mit geändertem Alpha-Wert. 
+        ''' Die Originale Bitmap bleibt unverändert. 
+        ''' </summary>
+        ''' <param name="source"></param>
+        ''' <param name="alpha"></param>
+        ''' <returns></returns>
+        Public Function CreateAlphaBitmap(source As Bitmap, alpha As Single) As Bitmap
+
+            Dim result As New Bitmap(source.Width, source.Height, PixelFormat.Format32bppArgb)
+
+            Using gfx As Graphics = Graphics.FromImage(result)
+                Using ia As New ImageAttributes()
+
+                    Dim cm As New ColorMatrix(New Single()() {
+                    New Single() {1.0F, 0.0F, 0.0F, 0.0F, 0.0F},
+                    New Single() {0.0F, 1.0F, 0.0F, 0.0F, 0.0F},
+                    New Single() {0.0F, 0.0F, 1.0F, 0.0F, 0.0F},
+                    New Single() {0.0F, 0.0F, 0.0F, alpha, 0.0F},
+                    New Single() {0.0F, 0.0F, 0.0F, 0.0F, 1.0F}
+                })
+
+                    ia.SetColorMatrix(cm)
+
+                    gfx.DrawImage(
+                    source,
+                    New Rectangle(0, 0, result.Width, result.Height),
+                    0,
+                    0,
+                    source.Width,
+                    source.Height,
+                    GraphicsUnit.Pixel,
+                    ia)
+
+                End Using
+            End Using
+
+            Return result
+
+        End Function
+        '
+        Public Function CreateGhostBitmap(source As Bitmap,
+                                  alpha As Single,
+                                  brightnessFactor As Single) As Bitmap
+
+            Dim result As New Bitmap(source.Width, source.Height, PixelFormat.Format32bppArgb)
+
+            Using gfx As Graphics = Graphics.FromImage(result)
+                Using ia As New ImageAttributes()
+
+                    Dim cm As New ColorMatrix(New Single()() {
+                New Single() {brightnessFactor, 0.0F, 0.0F, 0.0F, 0.0F},
+                New Single() {0.0F, brightnessFactor, 0.0F, 0.0F, 0.0F},
+                New Single() {0.0F, 0.0F, brightnessFactor, 0.0F, 0.0F},
+                New Single() {0.0F, 0.0F, 0.0F, alpha, 0.0F},
+                New Single() {0.0F, 0.0F, 0.0F, 0.0F, 1.0F}
+            })
+
+                    ia.SetColorMatrix(cm)
+
+                    gfx.DrawImage(
+                source,
+                New Rectangle(0, 0, result.Width, result.Height),
+                0,
+                0,
+                source.Width,
+                source.Height,
+                GraphicsUnit.Pixel,
+                ia)
+
+                End Using
+            End Using
+
+            Return result
+
+        End Function
+
+
+        ''' <summary>
         ''' Erzeugt eine neue aufgehellte Bitmap-Kopie (additiver Offset auf RGB).
         ''' amount: wird aus der INI bezogen. Original bleibt unverändert.
         ''' </summary>
@@ -153,6 +231,34 @@ Namespace MjGDI
             Return dst
         End Function
 
+        ''' <summary>
+        ''' Erstellt eine schnelle Kopie einer Bitmap über LockBits und Speicherblockkopie.
+        ''' </summary>
+        Public Function CloneBitmapFast(bmpSrc As Bitmap) As Bitmap
+
+            Dim rect As New Rectangle(0, 0, bmpSrc.Width, bmpSrc.Height)
+
+            Dim bmpDst As New Bitmap(bmpSrc.Width, bmpSrc.Height, bmpSrc.PixelFormat)
+
+            Dim bmdSrc As BitmapData =
+            bmpSrc.LockBits(rect, ImageLockMode.ReadOnly, bmpSrc.PixelFormat)
+
+            Dim bmdDst As BitmapData =
+            bmpDst.LockBits(rect, ImageLockMode.WriteOnly, bmpSrc.PixelFormat)
+
+            Dim bytes As Integer = Math.Abs(bmdSrc.Stride) * bmpSrc.Height
+
+            Dim buffer(bytes - 1) As Byte
+
+            Marshal.Copy(bmdSrc.Scan0, buffer, 0, bytes)
+            Marshal.Copy(buffer, 0, bmdDst.Scan0, bytes)
+
+            bmpSrc.UnlockBits(bmdSrc)
+            bmpDst.UnlockBits(bmdDst)
+
+            Return bmpDst
+
+        End Function
         ' ============================================================================
         '  Utils.ImageTools
         '  ───────────────────────────────────────────────────────────────────────────

@@ -117,32 +117,29 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <metadata name="MenuStrip_Editor.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>161, 17</value>
-  </metadata>
-  <metadata name="ToolTipToolBox.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>17, 17</value>
-  </metadata>
-  <data name="lblInfi1.ToolTip" xml:space="preserve">
-    <value>Die Zusammenstellung der Symbole ist nicht zum Spielen
-geeignet, da das Programm hier weder auf Paarbildung,
-noch auf irgendwelche Regeln der Verteilung achtet.
-Die eigentliche Vergabe der Steine geschieht beim Einbau
-in das Spielfeld mit dem Positionierer.</value>
-  </data>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-  <data name="lblToolboxWerkbank.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+  <data name="lblToolboxSpieler.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
-        iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAALGPC/xhBQAAAPhJREFUWEft
-        lS0SwjAQhVcikUhkZY/WG7AoJEdAVvYoSCQSiUTCZNLMNi+hzU8zIPLNPJO3u9ls0wlRpRIKU0tM70Dt
-        MT0fd5N5rU5o4dC4aEILh8YtcqSDM9Z0dVh+GbdInqKYnj4XaSJiCpJ0RisaplPcYZiauIQA5EANWi5M
-        rzH4hlYyqpau+UTLRbrdoZUM03ZSd4O2wNR7x880jOtXa92HitGxF1g3DfTWuoUElZUXNXIMLCfP57Vf
-        uw5kxvrweKj7GKty0DP1W9zebgBZ4w5oL7GBtagN/HsD8gaoC1RGpv6XN0ECymoW/cupX6mEBtyuUvk5
-        H7kmoTw8eIwjAAAAAElFTkSuQmCC
+        iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAALGPC/xhBQAAAR5JREFUWEft
+        li0SwjAQRj9ZiUQiuRkWh2SrOAYSyREqOQKSI1QiYdICs/ttk7Yw/M3kzcTw0k3YbpMFMpmfRTCDoIJg
+        w+qBYNeMGCXWtxgzVmkEcwguahx5CvkL6+YZO2fOU+K0u44v4DfoF/D+YHySNnXxDQTG+hBzFIKTCjBh
+        jRIL5ZesIZgqf2Kd+RP6vl9B0VkfGv46BmOruKvIauXPrFFiZWKMoj3h7GfEsOdMeB8/MR2CrQtgfUg9
+        L1DQHPZb43vRD4d0MvYV1Kyb1xb7A4MZUoR9PF2Ema9jLyNfC7bIus6JifK+n0jyjus41Vk5QvPAAazX
+        V+192Cx5XxmfxHc8PoW8APNSSxZoN9HXlIYTc88/P3i6Kc1kPsgV59P2wn97W/EAAAAASUVORK5CYII=
 </value>
   </data>
-  <metadata name="MenuStrip_Werkbk.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>316, 17</value>
+  <data name="lblToolboxEditor.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAALGPC/xhBQAAARtJREFUWEft
+        lC0SwjAQhZ9EIiuRPQISyQ2wOCwO2a1CInsEjoCsRCKRSCQSCRPSdMP2b9omRdBvJjPtvm1ekt0UGBnp
+        A+H1GT/jfxdAWOfmPNYyzQ+EsMTcjFCmu4fNrlbsOlw5yowIk9K4F4xRjE0eU88DLiCxynAB4Wy9JzLd
+        D4S7ZWrGQ6b5Qd8CVfMFCCkIJxDmWWwm091DuGU7Tq2YKcP5K9cLfOS8W30CAzRhjFWlES9sKSV3sMlR
+        SlkveG7Gqt0rCNNavTcxokYDo8fYSak/PHkkpRzCvnGRnWjzrzd56htnqKbTkz6lVEDl6Nxio3aGj38l
+        pQJ1V7UThKD1hFyGQErd0JMdZLgSc2OcQdjKUCN1t2VkxOINR52m1W4sVVQAAAAASUVORK5CYII=
+</value>
+  </data>
+  <metadata name="MenuStrip_Editor.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>161, 17</value>
   </metadata>
   <metadata name="ImageListToolBox.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>479, 17</value>
@@ -152,7 +149,7 @@ in das Spielfeld mit dem Positionierer.</value>
         AAEAAAD/////AQAAAAAAAAAMAgAAAFdTeXN0ZW0uV2luZG93cy5Gb3JtcywgVmVyc2lvbj00LjAuMC4w
         LCBDdWx0dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPWI3N2E1YzU2MTkzNGUwODkFAQAAACZTeXN0
         ZW0uV2luZG93cy5Gb3Jtcy5JbWFnZUxpc3RTdHJlYW1lcgEAAAAERGF0YQcCAgAAAAkDAAAADwMAAAD2
-        DAAAAk1TRnQBSQFMAgEBCAEAATgBAgE4AQIBEAEAARABAAT/AQkBAAj/AUIBTQE2AQQGAAE2AQQCAAEo
+        DAAAAk1TRnQBSQFMAgEBCAEAAVABAgFQAQIBEAEAARABAAT/AQkBAAj/AUIBTQE2AQQGAAE2AQQCAAEo
         AwABQAMAATADAAEBAQABCAYAAQwYAAGAAgABgAMAAoABAAGAAwABgAEAAYABAAKAAgADwAEAAcAB3AHA
         AQAB8AHKAaYBAAEzBQABMwEAATMBAAEzAQACMwIAAxYBAAMcAQADIgEAAykBAANVAQADTQEAA0IBAAM5
         AQABgAF8Af8BAAJQAf8BAAGTAQAB1gEAAf8B7AHMAQABxgHWAe8BAAHWAucBAAGQAakBrQIAAf8BMwMA
@@ -210,88 +207,9 @@ in das Spielfeld mit dem Positionierer.</value>
         AUcB/gE/Af4BPwT/Af4BfwH+AX8Q/ws=
 </value>
   </data>
-  <data name="lblToolboxSpieler.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAALGPC/xhBQAAAR5JREFUWEft
-        li0SwjAQRj9ZiUQiuRkWh2SrOAYSyREqOQKSI1QiYdICs/ttk7Yw/M3kzcTw0k3YbpMFMpmfRTCDoIJg
-        w+qBYNeMGCXWtxgzVmkEcwguahx5CvkL6+YZO2fOU+K0u44v4DfoF/D+YHySNnXxDQTG+hBzFIKTCjBh
-        jRIL5ZesIZgqf2Kd+RP6vl9B0VkfGv46BmOruKvIauXPrFFiZWKMoj3h7GfEsOdMeB8/MR2CrQtgfUg9
-        L1DQHPZb43vRD4d0MvYV1Kyb1xb7A4MZUoR9PF2Ema9jLyNfC7bIus6JifK+n0jyjus41Vk5QvPAAazX
-        V+192Cx5XxmfxHc8PoW8APNSSxZoN9HXlIYTc88/P3i6Kc1kPsgV59P2wn97W/EAAAAASUVORK5CYII=
-</value>
-  </data>
-  <data name="lblToolboxEditor.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAALGPC/xhBQAAARtJREFUWEft
-        lC0SwjAQhZ9EIiuRPQISyQ2wOCwO2a1CInsEjoCsRCKRSCQSCRPSdMP2b9omRdBvJjPtvm1ekt0UGBnp
-        A+H1GT/jfxdAWOfmPNYyzQ+EsMTcjFCmu4fNrlbsOlw5yowIk9K4F4xRjE0eU88DLiCxynAB4Wy9JzLd
-        D4S7ZWrGQ6b5Qd8CVfMFCCkIJxDmWWwm091DuGU7Tq2YKcP5K9cLfOS8W30CAzRhjFWlES9sKSV3sMlR
-        SlkveG7Gqt0rCNNavTcxokYDo8fYSak/PHkkpRzCvnGRnWjzrzd56htnqKbTkz6lVEDl6Nxio3aGj38l
-        pQJ1V7UThKD1hFyGQErd0JMdZLgSc2OcQdjKUCN1t2VkxOINR52m1W4sVVQAAAAASUVORK5CYII=
-</value>
-  </data>
-  <metadata name="MenuStrip_Editor.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>161, 17</value>
+  <metadata name="ToolTipToolBox.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 17</value>
   </metadata>
-  <data name="positioniererBtnUndoStep.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAHlJREFUOE/t
-        kSEOgDAQBJE8BckTRiJx8BOeVYlEIiuRSJ6AhDQ50WxLqCVhkjO7t5trWlU/WYAW2FQvwsIXMKr3ShQ+
-        ACcz6X4C0FjBLuEZOIOnmYSopMt4ocSpnmAlPqMPRVc8ASxFvwP0mVntabXuJ9iiji8Kf48bPsRCwNHJ
-        8joAAAAASUVORK5CYII=
-</value>
-  </data>
-  <data name="positioniererBtnReDoStep.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAHJJREFUOE/t
-        0DEKwlAQhOGUOY5H+EpLj2Dn0SxTWuYIlpYeIUdQHmwCWR64tuIP0wyzw7DD8KcE7jhkvwyOeJVLcMGU
-        9CyVRKjp+wJcsXT808fjRoTOHb/2RDwwZ78Mxlhxi9k75XyXKGlL1mduytkf4Q0Ya0KhEPB9QwAAAABJ
-        RU5ErkJggg==
-</value>
-  </data>
-  <data name="positioniererBtnUnDoEinbau.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAHlJREFUOE/t
-        kSEOgDAQBJE8BckTRiJx8BOeVYlEIiuRSJ6AhDQ50WxLqCVhkjO7t5trWlU/WYAW2FQvwsIXMKr3ShQ+
-        ACcz6X4C0FjBLuEZOIOnmYSopMt4ocSpnmAlPqMPRVc8ASxFvwP0mVntabXuJ9iiji8Kf48bPsRCwNHJ
-        8joAAAAASUVORK5CYII=
-</value>
-  </data>
-  <data name="positioniererBtnAbbrechen.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAALNJREFUOE+1
-        UzEOhDAMY2S8Z9zIyOiRZ7DxlHsCz+UUFCPXpRU66SxVCnHiJmkYhn8CwAxgcn8XkQDgaJy+GIA9A9cb
-        bkvu49yJLDcCXs4RAMaMmZ0LMohN7EW4wJH2SruAOiOZIkzWWysBlm8+ilQlV76GAG8u2kmufBEOR76v
-        srUdFbiS1WlD1J5PkbSbQ+Qzjs4R8oz3CxVLkgG9RdqdKwDgLcPzUy9QC1lu/BfPk37BF/sWf0WWF6SG
-        AAAAAElFTkSuQmCC
-</value>
-  </data>
-  <data name="positioniererBtnÜbernehmen.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAFJJREFUOE9j
-        YBgFJAEHBwcOdDGiAUizg4PDfwcHh+nocgSBg4ODAFTzfHQ5DIDuTFI1L4cqBhtCkmYYQDJEgmTNMIBk
-        COmaYcDBwSEdXWwUYAcAjXMh72b4odgAAAAASUVORK5CYII=
-</value>
-  </data>
-  <data name="positioniererBtnEinbau.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAFNJREFUOE9j
-        YBgFcODg4PAfXYwkQMgAkLyDg0M9ujgcEGGAAl5DYAY4ODhUODg4rMeBj+M0hEgD9kMNKEDXT4wXBHBq
-        BgEiDPiOUzMIEDJgFOAGAPPnOBJozb1JAAAAAElFTkSuQmCC
-</value>
-  </data>
-  <data name="lblToolboxPositionierer.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAALGPC/xhBQAAAZFJREFUWEft
-        litQAzEQhldWViKRyEpkJRKJxGFxyO6pSiQSiUQikZXISiSyshImOe52978kl+QOVL+ZnbnJPvO4bIhO
-        1MB0jkN/C9M7MX1HpaENuswD09sgWVrWGKIeG/gYDc50D7avaFJOzazsNm1RnQ/Tpwq0RHUSpkfle4Hq
-        cZgWKsAVqj3tuXBbcosqD9O+j1EM08ev8xFVHqaD2Z6G7tDEIzaFv6s4XqPKo5PnFfqCqjRjSzcsIHzi
-        3faMxQoy5uSWVJIfUN2j7bJxp7bYKUFVrCqnAExndbFkeRcwvoT7QcuzsW3t174/FPcICfqkxuS/Tkns
-        lyyioYc+oIxtBslCMhsSVJbWzQ4TWolf2Uwrv33Z2BnjWdiqLdkR06XRh5BYBUXo2U3FFVlchG1KO1QX
-        4xpbRRFyneb+Tq6H6NWLS3YR+kkWblCa/AL26BrHXkD2jdC27/HZ2MIKkneEipC3g5MbdOmZnLzDFvGl
-        vsMvI4c9zBOSdwyv5fjMO9rWPEPyDjmYK1T9H3hDnpjAD1CvXnLbLxiXAAAAAElFTkSuQmCC
-</value>
-  </data>
   <metadata name="$this.TrayHeight" type="System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>86</value>
   </metadata>
