@@ -642,7 +642,7 @@ Public Class RectangleX
 
     End Sub
 
-    Public Sub DrawImageBuffered(bgc As BackgroundSingleImageCache,
+    Public Sub DrawImageBuffered(bgc As Images.BackgroundSingleImageCache,
                                  usePadding As Boolean,
                                  Optional backgroundColor As Color? = Nothing)
 

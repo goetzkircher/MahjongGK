@@ -80,9 +80,9 @@ Namespace Images
 
             If satz = SteinSatz.None Then
                 _currentSatz = satz
-                Rendering_OrgGrafikSteinsatz = satz
-                Rendering_OrgGrafikSizeWidth = -1
-                Rendering_OrgGrafikSizeHeight = -1
+                Images_OrgGrafikSteinsatz = satz
+                Images_OrgGrafikSizeWidth = -1
+                Images_OrgGrafikSizeHeight = -1
                 ' Alle Caches leeren
                 _pack = Nothing
                 _baseCache.Clear()
@@ -111,9 +111,9 @@ Namespace Images
                 End If
 
                 _currentSatz = satz
-                Rendering_OrgGrafikSteinsatz = satz
-                Rendering_OrgGrafikSizeWidth = _pack.RefWidth
-                Rendering_OrgGrafikSizeHeight = _pack.RefHeight
+                Images_OrgGrafikSteinsatz = satz
+                Images_OrgGrafikSizeWidth = _pack.RefWidth
+                Images_OrgGrafikSizeHeight = _pack.RefHeight
 
                 ' Alle Caches leeren
                 ClearAllCaches()

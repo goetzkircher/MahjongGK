@@ -64,7 +64,7 @@ Public Class UCtlSpielfeld
     <DebuggerStepThrough>
     Protected Overrides Sub OnPaint(e As PaintEventArgs)
 
-        If MjMix.IsInDesigner(Me) Then
+        If Helfer.IsInDesigner(Me) Then
             ' Im Designer NICHTS mehr rendern, nur optional füllen
             e.Graphics.Clear(SystemColors.Control)
             Return

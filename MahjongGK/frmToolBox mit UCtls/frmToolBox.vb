@@ -29,7 +29,7 @@ Option Strict On
 
 
 Imports System.ComponentModel
-Imports MahjongGK.MjMix
+Imports MahjongGK.Helfer
 
 
 Public Class frmToolBox
@@ -94,7 +94,7 @@ Public Class frmToolBox
         _themer.RegisterToolTip(ToolTipToolBox)
         _themer.RegisterImageList(ImageListToolBox)
 
-        MjMix.DisableAllTabStops(Me)
+        Helfer.DisableAllTabStops(Me)
 
         ''TODO SFD-Anpassung
         ''_toolboxBinder = New MousePollerHandleBinder(Spielfeld.SFD.MousePolling, Me)

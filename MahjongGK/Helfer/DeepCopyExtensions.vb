@@ -6,7 +6,7 @@ Imports System.Reflection
 Imports System.Runtime.CompilerServices
 Imports System.Runtime.Serialization
 
-Namespace MjMix
+Namespace Helfer
 
     ' --- Attribute, um einzelne Members zu steuern ---
     <AttributeUsage(AttributeTargets.Field Or AttributeTargets.Property)>

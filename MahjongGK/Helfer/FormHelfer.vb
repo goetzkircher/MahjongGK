@@ -1,7 +1,7 @@
 ﻿Imports System.ComponentModel
 Imports System.Reflection
 
-Namespace MjMix
+Namespace Helfer
     Public Module FormHelfer
         '
         ''' <summary>

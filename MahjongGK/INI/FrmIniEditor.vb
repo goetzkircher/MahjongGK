@@ -426,7 +426,7 @@ Public Class FrmIniEditor
 
         If _isDirty Then
             Try
-                Dim fullpath As String
+                Dim fullpath As String = Nothing
                 ''TODO SFD-Anpassung
                 ''If Spielfeld.SFD.AktRendering = RenderingEnum.None OrElse reset = True Then
                 ''    fullpath = _iniFullLoadPath

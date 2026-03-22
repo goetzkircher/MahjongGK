@@ -13,8 +13,8 @@ Namespace Spielfeld
     ''' </summary>
     Public Module RenderingStartScreen
 
-        Public ReadOnly Property StartscreenBackgroundImageCache As BackgroundSingleImageCache =
-            New BackgroundSingleImageCache(Rendering_StartscreenBitmapFullpath, BackgroundImageRenderMode.Stretch)
+        Public ReadOnly Property StartscreenBackgroundImageCache As Images.BackgroundSingleImageCache =
+            New Images.BackgroundSingleImageCache(Rendering_StartscreenBitmapFullpath, Images.BackgroundImageRenderMode.Stretch)
 
         Public Property StartscreenBackgroundImage As Bitmap = Nothing
 

@@ -51,10 +51,10 @@ Namespace Spielfeld
 
             If surfaceW <= 100 OrElse surfaceH <= 100 Then Exit Sub
 
-            Dim w As Integer = 130               ' Markergröße
+            Dim w As Integer = 100               ' Markergröße
             Dim h As Integer = 20
             Dim x As Integer = surfaceW - w - 10
-            Dim y As Integer = surfaceH - h - 10
+            Dim y As Integer = 10 'surfaceH - h - 10
 
             Dim r As New Rectangle(x, y, w, h)
 
@@ -84,17 +84,17 @@ Namespace Spielfeld
                     End If
                 End If
                 'TODO SFD-Anpassung abgechaltet
-                ' g.DrawString(_sfd.AktRendering.ToString & " - " & srcText & " - " & counter.ToString, fnt, Brushes.Black, r.X + 4, r.Y + 2)
+                g.DrawString(SFMain.RenderMode.ToString & " - " & srcText & " - " & counter.ToString, fnt, Brushes.Black, r.X + 4, r.Y + 2)
 
             End Using
 
             g.SmoothingMode = oldSmoothing
             g.PixelOffsetMode = oldPixel
+
         End Sub
 
         ''    Public Sub DrawRuntimeOnly_AktRendering(g As Graphics, surfaceW As Integer, surfaceH As Integer)
         ''        If surfaceW <= 100 OrElse surfaceH <= 100 Then Exit Sub
-
 
         ''        Dim w As Integer = 75               ' Markergröße
         ''        Dim h As Integer = 20
@@ -245,7 +245,6 @@ Namespace Spielfeld
             Return Nothing
 
         End Function
-
 
         ''' <summary>
         ''' Erstellt wahlweise eine Kopie der Stein-Bitmap und zeichnet darauf die
@@ -470,6 +469,169 @@ Namespace Spielfeld
             End Using
 
             Return bmpOut
+
+        End Function
+
+        Public Function DrawOverlay_Außenrahmen3D(ByVal bmpSrc As Bitmap,
+                                           ByVal rahmenbreite As Integer,
+                                           ByVal rahmenColor As Color,
+                                           ByVal copyBitmap As Boolean) As Bitmap
+
+            If bmpSrc Is Nothing Then
+                Return Nothing
+            End If
+
+            If rahmenbreite <= 0 Then
+                If copyBitmap Then
+                    Return CType(bmpSrc.Clone(), Bitmap)
+                Else
+                    Return bmpSrc
+                End If
+            End If
+
+            Dim bmpDst As Bitmap
+
+            If copyBitmap Then
+                bmpDst = CType(bmpSrc.Clone(), Bitmap)
+            Else
+                bmpDst = bmpSrc
+            End If
+
+            Dim w As Integer = bmpDst.Width
+            Dim h As Integer = bmpDst.Height
+
+            If w <= 1 OrElse h <= 1 Then
+                Return bmpDst
+            End If
+
+            Dim radius As Integer = 4
+            Dim maxRadius As Integer = Math.Min(w, h) \ 2
+
+            If radius > maxRadius Then radius = maxRadius
+            If radius < 1 Then radius = 1
+
+            Dim colorLight As Color = rahmenColor
+            Dim colorDark As Color = BlendWith(rahmenColor, Color.Black, 0.35F)
+
+            Using gfx As Graphics = Graphics.FromImage(bmpDst)
+
+                gfx.SmoothingMode = Drawing2D.SmoothingMode.AntiAlias
+                gfx.PixelOffsetMode = Drawing2D.PixelOffsetMode.HighQuality
+
+                Using pathFull As Drawing2D.GraphicsPath = CreateRoundedRectanglePath(0, 0, w - 1, h - 1, radius)
+                    Using penBase As Pen = New Pen(colorLight, rahmenbreite)
+                        penBase.Alignment = Drawing2D.PenAlignment.Inset
+                        penBase.LineJoin = Drawing2D.LineJoin.Round
+                        gfx.DrawPath(penBase, pathFull)
+                    End Using
+                End Using
+
+                Using penDark As Pen = New Pen(colorDark, rahmenbreite)
+                    penDark.Alignment = Drawing2D.PenAlignment.Inset
+                    penDark.StartCap = Drawing2D.LineCap.Round
+                    penDark.EndCap = Drawing2D.LineCap.Round
+                    penDark.LineJoin = Drawing2D.LineJoin.Round
+
+                    Dim half As Single = CSng(rahmenbreite) / 2.0F
+                    Dim r As Single = radius
+
+                    gfx.DrawLine(
+                        penDark,
+                        w - 1 - r, half,
+                        w - 1 - half, r)
+
+                    gfx.DrawLine(
+                        penDark,
+                        w - 1 - half, r,
+                        w - 1 - half, h - 1 - r)
+
+                    gfx.DrawLine(
+                        penDark,
+                        w - 1 - r, h - 1 - half,
+                        r, h - 1 - half)
+
+                    gfx.DrawArc(
+                        penDark,
+                        w - 1 - 2 * r,
+                        h - 1 - 2 * r,
+                        2 * r,
+                        2 * r,
+                        0,
+                        90)
+
+                End Using
+
+            End Using
+
+            Return bmpDst
+
+        End Function
+
+        ''' <summary>
+        ''' Mischt zwei Farben.
+        ''' amount = 0 ergibt colorA, amount = 1 ergibt colorB.
+        ''' </summary>
+        Private Function BlendWith(ByVal colorA As Color,
+                                      ByVal colorB As Color,
+                                      ByVal amount As Single) As Color
+
+            If amount <= 0.0F Then
+                Return colorA
+            End If
+
+            If amount >= 1.0F Then
+                Return colorB
+            End If
+
+            Dim r As Integer = CInt(CSng(colorA.R) + (CSng(colorB.R) - CSng(colorA.R)) * amount)
+            Dim g As Integer = CInt(CSng(colorA.G) + (CSng(colorB.G) - CSng(colorA.G)) * amount)
+            Dim b As Integer = CInt(CSng(colorA.B) + (CSng(colorB.B) - CSng(colorA.B)) * amount)
+
+            Return Color.FromArgb(colorA.A, ClampByte(r), ClampByte(g), ClampByte(b))
+
+        End Function
+        Private Function CreateRoundedRectanglePath(ByVal x As Integer,
+                                                    ByVal y As Integer,
+                                                    ByVal width As Integer,
+                                                    ByVal height As Integer,
+                                                    ByVal radius As Integer) As Drawing2D.GraphicsPath
+
+            Dim path As Drawing2D.GraphicsPath = New Drawing2D.GraphicsPath()
+
+            If radius <= 0 Then
+                path.AddRectangle(New Rectangle(x, y, width, height))
+                path.CloseFigure()
+                Return path
+            End If
+
+            Dim d As Integer = radius * 2
+
+            If d > width Then d = width
+            If d > height Then d = height
+
+            path.AddArc(x, y, d, d, 180, 90)
+            path.AddArc(x + width - d, y, d, d, 270, 90)
+            path.AddArc(x + width - d, y + height - d, d, d, 0, 90)
+            path.AddArc(x, y + height - d, d, d, 90, 90)
+            path.CloseFigure()
+
+            Return path
+
+        End Function
+        ''' <summary>
+        ''' Begrenzt einen Integer auf den Byte-Bereich.
+        ''' </summary>
+        Private Function ClampByte(ByVal value As Integer) As Integer
+
+            If value < 0 Then
+                Return 0
+            End If
+
+            If value > 255 Then
+                Return 255
+            End If
+
+            Return value
 
         End Function
     End Module

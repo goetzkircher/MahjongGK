@@ -1,0 +1,184 @@
+﻿Option Compare Text
+Option Explicit On
+Option Infer Off
+Option Strict On
+Imports System.Drawing.Imaging
+
+Namespace Spielfeld
+
+    Public Module BitmapFingerprintModul
+        '
+        ''' <summary>
+        ''' Kompakte Signatur einer Bitmap zur groben Änderungsprüfung.
+        ''' </summary>
+        Public Structure BitmapFingerprint
+
+            Public Width As Integer
+            Public Height As Integer
+            Public PixelFormatValue As Integer
+            Public SampleHash As Integer
+
+            Public Overrides Function Equals(ByVal obj As Object) As Boolean
+
+                If Not TypeOf obj Is BitmapFingerprint Then
+                    Return False
+                End If
+
+                Dim other As BitmapFingerprint = DirectCast(obj, BitmapFingerprint)
+
+                Return Width = other.Width AndAlso
+               Height = other.Height AndAlso
+               PixelFormatValue = other.PixelFormatValue AndAlso
+               SampleHash = other.SampleHash
+
+            End Function
+
+            Public Overrides Function GetHashCode() As Integer
+
+                Dim h As Integer = Width
+                h = (h * 397) Xor Height
+                h = (h * 397) Xor PixelFormatValue
+                h = (h * 397) Xor SampleHash
+                Return h
+
+            End Function
+
+            Public Shared Operator =(ByVal a As BitmapFingerprint,
+                             ByVal b As BitmapFingerprint) As Boolean
+                Return a.Equals(b)
+            End Operator
+
+            Public Shared Operator <>(ByVal a As BitmapFingerprint,
+                              ByVal b As BitmapFingerprint) As Boolean
+                Return Not a.Equals(b)
+            End Operator
+
+        End Structure
+
+        Public Function CreateBitmapFingerprint(ByVal bmpSrc As Bitmap) As BitmapFingerprint
+
+            Dim fp As BitmapFingerprint
+
+            If bmpSrc Is Nothing Then
+                fp.Width = 0
+                fp.Height = 0
+                fp.PixelFormatValue = 0
+                fp.SampleHash = 0
+                Return fp
+            End If
+
+            fp.Width = bmpSrc.Width
+            fp.Height = bmpSrc.Height
+            fp.PixelFormatValue = CInt(bmpSrc.PixelFormat)
+
+            Dim bmp As Bitmap = bmpSrc
+
+            If bmp.PixelFormat <> PixelFormat.Format32bppArgb Then
+                bmp = New Bitmap(bmpSrc.Width, bmpSrc.Height, PixelFormat.Format32bppArgb)
+                Using g As Graphics = Graphics.FromImage(bmp)
+                    g.DrawImage(bmpSrc, 0, 0, bmpSrc.Width, bmpSrc.Height)
+                End Using
+            End If
+
+            Dim rect As Rectangle = New Rectangle(0, 0, bmp.Width, bmp.Height)
+            Dim data As BitmapData = bmp.LockBits(rect, ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb)
+
+            Try
+                Dim hash As Integer = 17
+                Dim stride As Integer = data.Stride
+                Dim basePtr As IntPtr = data.Scan0
+
+                ' 5x5 Stützpunkte gleichmäßig über die Bitmap verteilt
+                Const gridX As Integer = 5
+                Const gridY As Integer = 5
+
+                Dim maxX As Integer = Math.Max(0, bmp.Width - 1)
+                Dim maxY As Integer = Math.Max(0, bmp.Height - 1)
+
+                For gy As Integer = 0 To gridY - 1
+                    Dim y As Integer
+                    If gridY = 1 Then
+                        y = maxY \ 2
+                    Else
+                        y = CInt((CDbl(gy) / CDbl(gridY - 1)) * maxY)
+                    End If
+
+                    For gx As Integer = 0 To gridX - 1
+                        Dim x As Integer
+                        If gridX = 1 Then
+                            x = maxX \ 2
+                        Else
+                            x = CInt((CDbl(gx) / CDbl(gridX - 1)) * maxX)
+                        End If
+
+                        Dim p As Integer = y * stride + x * 4
+
+                        Dim bb As Integer = CInt(Runtime.InteropServices.Marshal.ReadByte(basePtr, p + 0))
+                        Dim gg As Integer = CInt(Runtime.InteropServices.Marshal.ReadByte(basePtr, p + 1))
+                        Dim rr As Integer = CInt(Runtime.InteropServices.Marshal.ReadByte(basePtr, p + 2))
+                        Dim aa As Integer = CInt(Runtime.InteropServices.Marshal.ReadByte(basePtr, p + 3))
+
+                        Dim argb As Integer = (aa << 24) Or (rr << 16) Or (gg << 8) Or bb
+
+                        hash = (hash * 31) Xor argb
+                    Next
+                Next
+
+                ' Zusatzprobe aus dem Zentrum, etwas gröber gemittelt
+                Dim cx As Integer = bmp.Width \ 2
+                Dim cy As Integer = bmp.Height \ 2
+
+                Dim sumR As Integer = 0
+                Dim sumG As Integer = 0
+                Dim sumB As Integer = 0
+                Dim sumA As Integer = 0
+                Dim count As Integer = 0
+
+                For oy As Integer = -1 To 1
+                    Dim y As Integer = cy + oy
+                    If y < 0 OrElse y >= bmp.Height Then
+                        Continue For
+                    End If
+
+                    For ox As Integer = -1 To 1
+                        Dim x As Integer = cx + ox
+                        If x < 0 OrElse x >= bmp.Width Then
+                            Continue For
+                        End If
+
+                        Dim p As Integer = y * stride + x * 4
+
+                        sumB += CInt(Runtime.InteropServices.Marshal.ReadByte(basePtr, p + 0))
+                        sumG += CInt(Runtime.InteropServices.Marshal.ReadByte(basePtr, p + 1))
+                        sumR += CInt(Runtime.InteropServices.Marshal.ReadByte(basePtr, p + 2))
+                        sumA += CInt(Runtime.InteropServices.Marshal.ReadByte(basePtr, p + 3))
+                        count += 1
+                    Next
+                Next
+
+                If count > 0 Then
+                    Dim avgB As Integer = sumB \ count
+                    Dim avgG As Integer = sumG \ count
+                    Dim avgR As Integer = sumR \ count
+                    Dim avgA As Integer = sumA \ count
+
+                    Dim avgArgb As Integer = (avgA << 24) Or (avgR << 16) Or (avgG << 8) Or avgB
+                    hash = (hash * 31) Xor avgArgb
+                End If
+
+                fp.SampleHash = hash
+                Return fp
+
+            Finally
+                bmp.UnlockBits(data)
+
+                If Not Object.ReferenceEquals(bmp, bmpSrc) Then
+                    bmp.Dispose()
+                End If
+            End Try
+
+        End Function
+
+    End Module
+
+End Namespace

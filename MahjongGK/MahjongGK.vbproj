@@ -152,6 +152,7 @@
     <Compile Include="Bitmaps Eigene Ressourcen\Verwaltung\SteinGrafikManagerClass.vb" />
     <Compile Include="Bitmaps Eigene Ressourcen\Verwaltung\SteinGrafikManagerModul.vb" />
     <Compile Include="Bitmaps Eigene Ressourcen\Verwaltung\SteinPack.vb" />
+    <Compile Include="Bitmaps\MahjongSymbolFactory\Einzelne Symbole\UndoRedoBitmapFactory.vb" />
     <Compile Include="INI\IniEnumerationen.vb" />
     <Compile Include="Shared\SonstGlobalEnums.vb" />
     <Compile Include="Spielfeld\Basis\Constants\BitmaskConst.vb" />
@@ -192,9 +193,13 @@
     <Compile Include="frmToolBox mit UCtls\UctlToolboxHintergrund.vb">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Hilfsmodule\GfxHelfer.vb" />
+    <Compile Include="Helfer\GfxHelfer.vb" />
+    <Compile Include="Spielfeld\Helfermodule\BitmapFingerprint.vb" />
+    <Compile Include="Spielfeld\Helferklassen\OverlayColorPalette.vb" />
     <Compile Include="Spielfeld\Main\SFMain.vb" />
     <Compile Include="Spielfeld\Render\SFRenderManager.vb" />
+    <Compile Include="Spielfeld\Runtime\Aircraft.vb" />
+    <Compile Include="Spielfeld\Runtime\SFAircrafts.vb" />
     <Compile Include="Spielfeld\UI\Form\ResizeActivityPoller.vb" />
     <Compile Include="Spielfeld\UI\Mouse\MouseInputPoller.vb" />
     <Compile Include="Spielfeld\UI\Mouse\MousePollerHandleBinderGroup.vb" />
@@ -244,13 +249,13 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="frmToolBox mit UCtls\PlacementSameGrid.vb" />
-    <Compile Include="Hilfsmodule\DeepCopyExtensions.vb" />
-    <Compile Include="Hilfsmodule\FormHelfer.vb" />
-    <Compile Include="Hilfsmodule\KompassDotFactory.vb" />
+    <Compile Include="Helfer\DeepCopyExtensions.vb" />
+    <Compile Include="Helfer\FormHelfer.vb" />
+    <Compile Include="UserControls\Verschiedene kleine\KompassDotFactory.vb" />
     <Compile Include="INI\FrmIniEditor.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Hilfsmodule\GdiHelfer.vb" />
+    <Compile Include="Helfer\GdiHelfer.vb" />
     <Compile Include="INI\FrmIniResetConfirm.vb">
       <SubType>Form</SubType>
     </Compile>
@@ -366,9 +371,9 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Spielfeld\Render\SpielfeldAnimator.vb" />
+    <Compile Include="Spielfeld\Render\SteinflugAnimator.vb" />
     <Compile Include="Spielfeld\Helfermodule\SpielfeldHelper.vb" />
-    <Compile Include="Shared\Helper.vb" />
+    <Compile Include="Helfer\HelferAllgemein.vb" />
     <Compile Include="Spielfeld\Daten\SFDaten.vb" />
     <Compile Include="Spielfeld\Daten\Generator\SpielsteinGenerator.vb" />
     <Compile Include="Spielfeld unbenutzt\Testdaten.vb" />
@@ -492,7 +497,7 @@
     </Content>
     <Content Include="Bitmaps Eigene Ressourcen\liesmich1.txt" />
     <Content Include="Bitmaps Eigene Ressourcen\liesmich2.txt" />
-    <Content Include="Hilfsmodule\Bitmaps.txt" />
+    <Content Include="Helfer\Bitmaps.txt" />
     <Content Include="MahjongGK.ico" />
     <Content Include="Spielfeld\liesmich.txt" />
     <Content Include="Spielfeld\Daten\Feldbeschreiber arrFB.txt" />

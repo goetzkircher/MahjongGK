@@ -104,12 +104,13 @@ Namespace Spielfeld
 
         Private _ghostIdx As Integer = -1
         Private _selectedStockSteinIdx As Integer = -1
-        Private _selectedSteinIndex As SteinIndexEnum
-        Private _bmpGhost As Bitmap = Nothing
-        Private _bmpSelected As Bitmap = Nothing
-        Private _bmpPlaceable As Bitmap = Nothing
+        Private _moveSelectedSteinIndex As SteinIndexEnum
+        Private _moveBmpGhost As Bitmap = Nothing
+        Private _moveBmpSelected As Bitmap = Nothing
+        Private _moveBmpPlaceable As Bitmap = Nothing
         Private _selectedMouseAnkerPos As Point
         Private _hasSelectedMouseAnkerPos As Boolean
+
         '
         ''' <summary>
         ''' Keine automatische Rückstellung.
@@ -161,25 +162,25 @@ Namespace Spielfeld
         ''' Nothing, wenn kein Ghost gegeben
         ''' </summary>
         ''' <returns></returns>
-        Public ReadOnly Property BmpGhost As Bitmap
+        Public ReadOnly Property MoveBmpGhost As Bitmap
             Get
-                Return _bmpGhost
+                Return _moveBmpGhost
             End Get
         End Property
-        Public ReadOnly Property BmpSelected As Bitmap
+        Public ReadOnly Property MoveBmpSelected As Bitmap
             Get
-                Return _bmpSelected
+                Return _moveBmpSelected
             End Get
         End Property
-        Public ReadOnly Property BmpPlaceable As Bitmap
+        Public ReadOnly Property MoveBmpPlaceable As Bitmap
             Get
-                Return _bmpPlaceable
+                Return _moveBmpPlaceable
             End Get
         End Property
 
-        Public ReadOnly Property SelectedSteinIndex As SteinIndexEnum
+        Public ReadOnly Property MoveSelectedSteinIndex As SteinIndexEnum
             Get
-                Return _selectedSteinIndex
+                Return _moveSelectedSteinIndex
             End Get
         End Property
 
@@ -192,9 +193,9 @@ Namespace Spielfeld
         Public Function GetIdxSelectedStockItemAndSetGhostValuesAndBitmaps(mousePos As Point) As Integer
 
             _hasSelectedMouseAnkerPos = False
-            _bmpGhost?.Dispose() : _bmpGhost = Nothing
-            _bmpPlaceable?.Dispose() : _bmpPlaceable = Nothing
-            _bmpSelected?.Dispose() : _bmpSelected = Nothing
+            _moveBmpGhost?.Dispose() : _moveBmpGhost = Nothing
+            _moveBmpPlaceable?.Dispose() : _moveBmpPlaceable = Nothing
+            _moveBmpSelected?.Dispose() : _moveBmpSelected = Nothing
             _ghostIdx = -1
 
             If IsEmpty Then
@@ -217,11 +218,11 @@ Namespace Spielfeld
                     _hasSelectedMouseAnkerPos = True
                     _ghostIdx = aktIdx
                     _selectedStockSteinIdx = aktIdx
-                    _selectedSteinIndex = _sfd.SFInf.Generator.Stock(_ghostIdx)
-                    Dim bmp As Bitmap = Images.SGM.GetStein(_selectedSteinIndex, SteinStatus.I01Normal, _sfd.SFLay.steinSize, _sfd.SFRun.AktRenderMode)
-                    _bmpGhost = MjGDI.CreateGhostBitmap(bmp, INI.Editor_GhostBitmap_Alpha, INI.Editor_GhostBitmap_BrightnessFactor)
-                    _bmpPlaceable = DrawOverlay(bmp, OverlayType.RahmenSteinPlaceable, copyBitmap:=True)
-                    _bmpSelected = DrawOverlay(bmp, OverlayType.RahmenSteinSelected, copyBitmap:=True)
+                    _moveSelectedSteinIndex = _sfd.SFInf.Generator.Stock(_ghostIdx)
+                    Dim bmp As Bitmap = Images.SGM.GetStein(_moveSelectedSteinIndex, SteinStatus.I01Normal, _sfd.SFLay.steinSize, _sfd.SFRun.AktRenderMode)
+                    _moveBmpGhost = MjGDI.CreateGhostBitmap(bmp, INI.Editor_GhostBitmap_Alpha, INI.Editor_GhostBitmap_BrightnessFactor)
+                    _moveBmpPlaceable = DrawOverlay(bmp, OverlayType.RahmenSteinPlaceable, copyBitmap:=True)
+                    _moveBmpSelected = DrawOverlay(bmp, OverlayType.RahmenSteinSelected, copyBitmap:=True)
                     Return aktIdx
                 Else
                     aktXMin += _sfd.SFLay.steinWidth
@@ -238,7 +239,12 @@ Namespace Spielfeld
         Public Sub ClearAndSetStartvalues()
 
         End Sub
-        Public Sub StartRemoveStockSpaceFromGhost()
+        Public Sub StartRemoveFromStock(removeSteinInfoIndex As Integer, removeAtStockIndex As Integer)
+
+            INI.Rendering_AnimationsCounterAddSteps(777)
+
+        End Sub
+        Public Sub StartInsertSteinToStock(insertSteinInfoIndex As Integer, insertAtStockIndex As Integer)
 
             INI.Rendering_AnimationsCounterAddSteps(777)
 

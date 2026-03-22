@@ -168,8 +168,8 @@ Namespace Images
                 If idxStein = 1 AndAlso idxSteinStatus = 1 Then 'die Erste der normalen Grafiken
                     '                                            (idxSteinStatus = 0 sind generierte Grafiken
                     '                                            und idxStein = 0 ist die Fehlergrafik)
-                    INI.Rendering_OrgGrafikSizeWidth = img.Width
-                    INI.Rendering_OrgGrafikSizeHeight = img.Height
+                    INI.Images_OrgGrafikSizeWidth = img.Width
+                    INI.Images_OrgGrafikSizeHeight = img.Height
                 End If
 
 

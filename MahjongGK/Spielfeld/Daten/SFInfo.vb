@@ -141,7 +141,6 @@ Namespace Spielfeld
 
         End Sub
 
-
 #End Region
 
 #Region "Persistente Kerndaten"
@@ -151,7 +150,7 @@ Namespace Spielfeld
         Public Name As String
 
         <XmlElement(ElementName:="PersistentIdent")>
-        Public _persistentIdent As String = MjMix.NewIdent
+        Public _persistentIdent As String = Helfer.NewIdent
         '
         ''' <summary>
         ''' Eindeutige Identifikation (persistent).
@@ -268,7 +267,6 @@ Namespace Spielfeld
                 Return _zMaxSteine
             End Get
         End Property
-
 
         '
         ''' <summary>
@@ -428,12 +426,12 @@ Namespace Spielfeld
         Private _hgrdEditorBitmapIsUserGrafik As Boolean
 
         Private _hgrdSplFldRenderModeIsInit As Boolean
-        Private _toolbox_HGrdSplFldRenderMode As BackgroundImageRenderMode
-        Private _hgrdSplFldRenderMode As BackgroundImageRenderMode
+        Private _toolbox_HGrdSplFldRenderMode As Images.BackgroundImageRenderMode
+        Private _hgrdSplFldRenderMode As Images.BackgroundImageRenderMode
 
         Private _hgrdEditorRenderModeIsInit As Boolean
-        Private _toolbox_HGrdEditorRenderMode As BackgroundImageRenderMode
-        Private _hgrdEditorRenderMode As BackgroundImageRenderMode
+        Private _toolbox_HGrdEditorRenderMode As Images.BackgroundImageRenderMode
+        Private _hgrdEditorRenderMode As Images.BackgroundImageRenderMode
 
         Private _hgrdEditorShowFramingIsInit As Boolean
         Private _toolbox_hgrdEditorShowFraming As Boolean
@@ -560,23 +558,23 @@ Namespace Spielfeld
             End Get
         End Property
 
-        Public Property Toolbox_HGrdSplFldRenderMode As BackgroundImageRenderMode
+        Public Property Toolbox_HGrdSplFldRenderMode As Images.BackgroundImageRenderMode
             Get
                 Return _toolbox_HGrdSplFldRenderMode
             End Get
-            Set(value As BackgroundImageRenderMode)
+            Set(value As Images.BackgroundImageRenderMode)
                 _toolbox_HGrdSplFldRenderMode = value
                 _hgrdSplFldRenderModeIsInit = False
                 INI.Rendering_SetConsumeDoRendering()
             End Set
         End Property
 
-        Public ReadOnly Property HGrdSplFldRenderMode As BackgroundImageRenderMode
+        Public ReadOnly Property HGrdSplFldRenderMode As Images.BackgroundImageRenderMode
             Get
                 If _hgrdSplFldRenderModeIsInit Then
                     Return _hgrdSplFldRenderMode
                 Else
-                    If _toolbox_HGrdSplFldRenderMode = BackgroundImageRenderMode.None Then
+                    If _toolbox_HGrdSplFldRenderMode = Images.BackgroundImageRenderMode.None Then
                         _hgrdSplFldRenderMode = INI.Toolbox_HGrdSplFldRenderModeFallback
                         INI.Rendering_SetConsumeDoRendering()
                     Else
@@ -596,12 +594,12 @@ Namespace Spielfeld
         Private _lastResult As Boolean
 
         <XmlIgnore>
-        Public Property BitmapUGrdSingleImgCache As BackgroundSingleImageCache = Nothing
+        Public Property BitmapUGrdSingleImgCache As Images.BackgroundSingleImageCache = Nothing
 
         Public ReadOnly Property HasBitmapUGrd As Boolean
             Get
                 Dim fullpath As String
-                Dim hgrdRenderMode As BackgroundImageRenderMode
+                Dim hgrdRenderMode As Images.BackgroundImageRenderMode
 
                 If String.IsNullOrEmpty(HGrdSplFldBitmapName) Then
                     Return False
@@ -617,7 +615,7 @@ Namespace Spielfeld
                     End If
                     _lastFullpath = String.Copy(fullpath)
                     If File.Exists(fullpath) Then
-                        BitmapUGrdSingleImgCache = New BackgroundSingleImageCache()
+                        BitmapUGrdSingleImgCache = New Images.BackgroundSingleImageCache()
                         BitmapUGrdSingleImgCache.Load(AppDataFullPath(AppDataSubDir.Hintergrundgrafiken, HGrdSplFldBitmapName), hgrdRenderMode)
                         _lastResult = True
                         Return True
@@ -636,6 +634,9 @@ Namespace Spielfeld
             Return BitmapUGrdSingleImgCache.GetBitmap(size)
         End Function
 
+        Public Function GetBitmapUGrdDominantColor() As Color
+            Return BitmapUGrdSingleImgCache.BackgroundDominantColor
+        End Function
 #End Region
 
 #Region "Zustand / Status"
@@ -655,7 +656,6 @@ Namespace Spielfeld
 
                 Dim arrKlickGruppeCount(MJ_STEININDEX_MAX) As Integer
                 Dim foundWerkstattStein As Boolean
-
 
                 For Each stein As SteinInfo In SteinInfos
                     arrKlickGruppeCount(stein.KlickGruppe) += 1
@@ -724,12 +724,9 @@ Namespace Spielfeld
         End Function
         '
 
-
 #End Region
 
 #Region "Spielfeld - Add / Insert / Remove"
-
-
 
         ''' <summary>
         ''' Setzt einen Stein auf das Spielfeld und Added einen Stein mit Basisinformationen
@@ -816,7 +813,6 @@ Namespace Spielfeld
                 .Pos3D = steinPos3D
             End With
 
-
             If Not steinPos3D.IsInsideSpielfeldBounds(arrFB) Then
                 'Falsche Positionsangabe.
                 'Kein Throw Nex Exception, sondern Anzeige auf dem Spielfeld
@@ -868,7 +864,6 @@ Namespace Spielfeld
             Return True
 
         End Function
-
 
         '
         ''' <summary>
@@ -989,7 +984,6 @@ Namespace Spielfeld
 #End Region
 
 #Region "Platzprüfung / Feldlogik"
-
 
         ''' <summary>
         ''' Wie ValidePlace, nur wird ein von der Werkstatt 
@@ -1122,7 +1116,6 @@ Namespace Spielfeld
         End Function
         '
 
-
         ''' <summary>
         ''' Prüft, ob der Stein auf der Grundfläche, oder vollständig 
         ''' auf anderen Steinen stehen würde.
@@ -1206,7 +1199,6 @@ Namespace Spielfeld
             Return True
 
         End Function
-
 
         ''' <summary>
         ''' Incrementiert die X- und Y-Koordinaten des Triple in die vorgegebene (Himmels-) Richtung.
@@ -1373,7 +1365,6 @@ Namespace Spielfeld
 
 #Region "Positionshilfen"
 
-
         ''' <summary>
         ''' Gibt die die Koordinaten der Spielfeldmitte in einem Triple zurück.
         ''' Brauchbar um den den ersten Stein zu verlegen
@@ -1491,11 +1482,9 @@ Namespace Spielfeld
 
         End Function
 
-
 #End Region
 
 #Region "FB - Lesen"
-
 
         ' Kopiervorlagen der Funktionen und Methoden dieser Region als InlineCode
         '
@@ -1625,7 +1614,6 @@ Namespace Spielfeld
 
         End Function
 
-
         Public Function GetQuadrant(x As Integer, y As Integer, z As Integer) As Quadrant
 
             ''Dim fb As Integer = arrFB(x, y, z)
@@ -1660,7 +1648,6 @@ Namespace Spielfeld
             Return CType(1 << idx, Quadrant)
 
         End Function
-
 
         Public Shared Function GetOffsetX(fb As Integer) As Integer
             Return If((fb And FLAG_XOffset) <> 0, 1, 0)
@@ -1876,7 +1863,6 @@ Namespace Spielfeld
 
         End Sub
 
-
         Public Shared Sub SetIndexStein(ByRef fb As Integer, value As Integer)
             ' Wert ab vierten Dezimalstelle setzen (ab Tausenderstelle)
             ' Flags in den unteren Bits behalten
@@ -1907,7 +1893,6 @@ Namespace Spielfeld
         Public Shared Sub ToggleToggleFlag(ByRef fb As Integer)
             fb = fb Xor FLAG_ToggleFlag
         End Sub
-
 
 #End Region
 
@@ -1997,7 +1982,6 @@ Namespace Spielfeld
 #End Region
 
 #Region "HitTest / Kandidaten / Mauslogik"
-
 
         '
         ''' <summary>
@@ -2146,7 +2130,6 @@ Namespace Spielfeld
             Dim ssi As New List(Of TripleX)
 
             Dim Kandidat As TripleX = FindTopSteinAtPoint(mousePos)
-
 
             If Kandidat.IsValideYes Then
                 For idxZ As Integer = Kandidat.z To 0 Step -1
@@ -2333,7 +2316,6 @@ Namespace Spielfeld
 
         End Function
 
-
 #End Region
 
 #Region "Statistik"
@@ -2425,7 +2407,6 @@ Namespace Spielfeld
 
         End Sub
 
-
         ''' <summary>
         ''' Erstellt ein neues arrFB mit größeren Dimensionen und kopiert
         ''' die bisherigen Werte hinein.
@@ -2488,7 +2469,6 @@ Namespace Spielfeld
 #End Region
 
 #Region "Load / Save"
-
 
         Public Shared Function OpenWithDialog(sub1Dir As AppDataSubDir, sub2Dir As AppDataSubSubDir, sub3Dir As String, filename As String) As SFInfo
             Dim fullpath As String = Path.Combine(INI.AppDataDirectory(sub1Dir, sub2Dir, sub3Dir), filename)
@@ -2616,8 +2596,6 @@ Namespace Spielfeld
             End Try
         End Sub
 #End Region
-
-
 
     End Class
 End Namespace

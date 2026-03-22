@@ -48,6 +48,14 @@ Namespace Spielfeld
         ''' Hiermit wird gesteuert ob und was gerendert wird.
         ''' In SFLay gibt es Public ReadOnly Property AktRenderMode As AktRenderMode
         ''' Innerhalb aller Render-Funktionen ist diese Propery zu verwenden.
+        ''' 
+        ''' HINWEIS:
+        ''' Wenn SFDat Nothing ist, knallt es. Nicht hier abfangen, sondern beim Aufrufer,
+        ''' damit RenderMode nicht außer Takt kommt.
+        ''' Abfangfrage über:
+        ''' If SFMain.SFDatHasData Then
+        ''' oder
+        ''' If SFMain.SFDatHasNoData Then
         ''' </summary>
         ''' <returns></returns>
         Public Property RenderMode As RenderMode
@@ -60,6 +68,7 @@ Namespace Spielfeld
 
                 If value = RenderMode.Edit OrElse value = RenderMode.Spiel Then
                     If _visibleUserControlEnum <> VisibleUserControl.Spielfeld Then
+                        'Wenn es knallt Hinweis lesen
                         SFDat.SFRenMan.RenderTimer.Stop()
                         If Debugger.IsAttached Then
                             Throw New Exception("Programmierfehler: RenderMode.Edit OrElse RenderMode.Spiel angefordert ohne gültiges VisibleUserControl")
@@ -69,7 +78,8 @@ Namespace Spielfeld
                 End If
 
                 Select Case value
-                    Case RenderMode.NoDataLoaded 'oder RenderMode.EndOfSpiel
+                        'Wenn es knallt Hinweis lesen
+                    Case RenderMode.NoDataLoaded 'Synonym: RenderMode.EndOfSpiel
                         'bewußte Umstellung ==> immer speichern 
                         If Not IsNothing(SFDat) Then
                             SFDat.SFInf.SaveLastUsedSpielfeld()
@@ -249,9 +259,16 @@ Namespace Spielfeld
             End If
             _RenderMode = RenderMode.NoDataLoaded
         End Sub
+        '
+        ''' <summary>
+        ''' Disposed alles Notwendige in allen SF-Klassen und Abhängigen.
+        ''' </summary>
+        Public Sub Dispose()
 
-
-
+            SFDat?.Dispose()
+            SFDat?.SFLay?.Dispose()
+            SFDat?.SFAir?.Dispose()
+        End Sub
 
     End Module
 End Namespace

@@ -31,13 +31,13 @@ Option Strict On
 Imports System.Runtime.CompilerServices
 Imports System.Xml
 
-Namespace MjMix
+Namespace Helfer
     '
     ''' <summary>
     ''' Hier sind Helfer-Funktionen angesiedelt, die programmweit
     ''' aufgerufen werden können.
     ''' </summary>
-    Public Module Helper
+    Public Module HelferAllgemein
         '
         Private _IsRunningInIDE As Boolean?
         ''' <summary>
@@ -88,7 +88,6 @@ Namespace MjMix
                 Dim appname As String = System.Reflection.Assembly.GetExecutingAssembly().GetName.Name
                 manifestPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) & "\Visual Studio Setups\" & appname & "\" & appname & ".application"
             End If
-
 
             If IO.File.Exists(manifestPath) Then
                 Dim doc As New XmlDocument()
@@ -176,7 +175,6 @@ Namespace MjMix
             If grabH < 24 Then grabH = 24 ' Sicherheitsuntergrenze
             frm.EnsureLocationVisibleOnAnyScreen(grabWidth:=40, grabHeight:=grabH)
         End Sub
-
 
         ''' <summary>
         ''' Erzeugt eine neue Ident. Kollision praktisch ausgeschlossen.

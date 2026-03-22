@@ -71,6 +71,7 @@ Namespace Spielfeld
             SFRenMan = New SFRenderManager(Me)
             SFUI = New SFUIFace(Me)
             SFMouse = New SFMouseRuntime(Me)
+            SFAir = New SFAircrafts(Me)
         End Sub
 
         Public Sub New(spielfeldinfo As SFInfo)
@@ -84,6 +85,8 @@ Namespace Spielfeld
             SFRenMan = New SFRenderManager(Me)
             SFUI = New SFUIFace(Me)
             SFMouse = New SFMouseRuntime(Me)
+            SFAir = New SFAircrafts(Me)
+
         End Sub
 
 
@@ -102,6 +105,7 @@ Namespace Spielfeld
         Public ReadOnly Property SFUI As SFUIFace
         '
         Public ReadOnly Property SFMouse As SFMouseRuntime
+        Public ReadOnly Property SFAir As SFAircrafts
 #End Region
 
 

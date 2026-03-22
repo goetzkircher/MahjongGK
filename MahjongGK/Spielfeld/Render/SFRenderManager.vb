@@ -47,7 +47,6 @@ Namespace Spielfeld
 
         Public RenderTakt As New RenderingTaktgeber()
 
-
         Private _lastRectOutput As New Rectangle
 
         Private _initialisierungLäuft As Boolean
@@ -63,7 +62,6 @@ Namespace Spielfeld
             _createScreenShot = True
         End Sub
 
-
         ' „Wecker“ (10–15ms ist gut),  = 1 ergibt einen etwas stabileren Takt von 15 ms,
         ' hat aber Auswirkung auf alle Timer und kostet mehr Energie.
         ' Werte über 30 verlangsamen die Geschwindigkeit, was zu einer Vergröberung
@@ -74,7 +72,6 @@ Namespace Spielfeld
 
         '  <DebuggerStepThrough>
         Private Sub RenderTimer_Tick(sender As Object, e As EventArgs) Handles RenderTimer.Tick
-
 
             'Bedingungen, unter denen nicht gerendert werden soll.
 
@@ -93,7 +90,6 @@ Namespace Spielfeld
                 vuctl.Height = 0 Then
                 Exit Sub
             End If
-
 
             ' Der eigentliche Takt kommt hier von der Stopwatch im Scheduler:
             If RenderTakt.TryNextFrame() Then
@@ -160,7 +156,6 @@ Namespace Spielfeld
                 PaintStartScreen(e.Graphics, rectOutput)
                 Exit Sub
             End If
-
 
             If _takteAussetzen > 0 Then
                 'Nötig, wenn die INI im laufendem Betrieb geändert wird, (was nur wärend der Programmentwicklung
@@ -264,7 +259,6 @@ Namespace Spielfeld
                 End If
             End If
 
-
             _lastRectOutput = rectOutput
 
             If Not doRendering Then
@@ -275,10 +269,7 @@ Namespace Spielfeld
             _sfd.SFRun.RenderingSkipCounter = 0
             _sfd.SFRun.RenderingDoneCounter += 1
 
-
 #End Region
-
-
 
             If _createScreenShot Then
                 'Ich gehe davon aus, daß der Backpuffer Inhalt hat, denn es ist sehr unwahrscheinlich,
@@ -310,7 +301,7 @@ Namespace Spielfeld
                         updateSpielfeld = False
                         _sfd.SFLay.UpdateSpielfeldLayout(rectOutput, aktRenderModeChanged)
                         _sfd.SFMouse.UpdateMouseValues(rectOutput, somethingMouseDone, spielfeldIsUpdated:=True)
-                        _sfd.SFRen.RenderRouter(e.Graphics, rectOutput, timeDifferenzFaktor)
+                        _sfd.SFRen.RenderVerteiler(e.Graphics, rectOutput, timeDifferenzFaktor)
                         Exit Sub
 
                     Case AktRenderMode.Edit
@@ -318,7 +309,7 @@ Namespace Spielfeld
                         updateSpielfeld = False
                         _sfd.SFLay.UpdateSpielfeldLayout(rectOutput, aktRenderModeChanged)
                         _sfd.SFMouse.UpdateMouseValues(rectOutput, somethingMouseDone, spielfeldIsUpdated:=True)
-                        _sfd.SFRen.RenderRouter(e.Graphics, rectOutput, timeDifferenzFaktor)
+                        _sfd.SFRen.RenderVerteiler(e.Graphics, rectOutput, timeDifferenzFaktor)
                         Exit Sub
 
                 End Select
@@ -327,7 +318,7 @@ Namespace Spielfeld
             If updateSpielfeld Then
                 _sfd.SFLay.UpdateSpielfeldLayout(rectOutput, aktRenderModeChanged, _forceUpdate)
                 _sfd.SFMouse.UpdateMouseValues(rectOutput, somethingMouseDone, spielfeldIsUpdated:=True)
-                _sfd.SFRen.RenderRouter(e.Graphics, rectOutput, timeDifferenzFaktor)
+                _sfd.SFRen.RenderVerteiler(e.Graphics, rectOutput, timeDifferenzFaktor)
                 _forceUpdate = False
                 updateSpielfeld = False
                 Exit Sub
@@ -335,7 +326,7 @@ Namespace Spielfeld
 
             If doRendering Then
                 _sfd.SFMouse.UpdateMouseValues(rectOutput, somethingMouseDone, spielfeldIsUpdated:=False)
-                _sfd.SFRen.RenderRouter(e.Graphics, rectOutput, timeDifferenzFaktor)
+                _sfd.SFRen.RenderVerteiler(e.Graphics, rectOutput, timeDifferenzFaktor)
             End If
         End Sub
 
@@ -364,7 +355,6 @@ Namespace Spielfeld
                 PaintEventGfx.DrawImageUnscaledAndClipped(RenderingStartScreen.StartscreenBackgroundImageCache.GetBitmap(rectOutput.Size), rectOutput)
             End If
         End Sub
-
 
     End Class
 End Namespace

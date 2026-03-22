@@ -44,14 +44,12 @@ Public Class frmMain
 
 #Region "Einstiegspunkt und Tests während der Programmentwicklung"
 
-
     '######################################################################################################
 
     Private Sub Test1(value As Boolean)
 
         Dim c As New ColorPickerHSB
         c.ShowDialog()
-
 
         'Using frm As New FrmBackgroundSelector("C:\Users\goetz\Downloads\Vivaldi")
         '    frm.ShowDialog()
@@ -69,7 +67,6 @@ Public Class frmMain
 
         AktVisibleUserControl = VisibleUserControl.Spielfeld
 
-
         Dim newSpielfeldInfo As New SFInfo(New Triple(6, 5, 4))
 
         Dim wbsSF As Werkstück = Umfeld.Werkstück_Pyramide(New Triple(5, 4, 3), True, True, demoMode:=True) ', True, True)
@@ -81,7 +78,6 @@ Public Class frmMain
 
         'startet die Anzeige
         SFMain.RenderMode = RenderMode.Edit
-
 
     End Sub
 
@@ -190,10 +186,10 @@ Public Class frmMain
         If My.Application.IsNetworkDeployed = True Then
             Me.Text &= " " & My.Application.Deployment.CurrentVersion.ToString
         Else
-            Me.Text &= " " & MjMix.ReadClickOnceVersionFromManifest()
+            Me.Text &= " " & Helfer.ReadClickOnceVersionFromManifest()
         End If
         'stellt ggf "[IDE]" der Titelzeile voran.
-        MjMix.IsRunningInIDE(Me)
+        Helfer.IsRunningInIDE(Me)
 
         'Prüfung, ob die Form auf den Bildschirm passt und ggf Anpassung. 
         Dim wa As Rectangle = Screen.FromControl(Me).WorkingArea
@@ -211,7 +207,6 @@ Public Class frmMain
         _themer = New Theme.ThemeManager(Me, If(INI.Global_DarkMode, AppTheme.Dark, AppTheme.Light),
                                    useOwnerDrawTabs:=False,        ' auf True, wenn Tabs farbig gezeichnet werden sollen
                                    customizeProgressBar:=True, brightenAmount:=0)
-
 
         '
         'Die UserControls müssen in der Reihenfolge der Enumeration VisibleUserControl
@@ -259,8 +254,7 @@ Public Class frmMain
         INI.Initialisierung(update:=True, raiseIniEventsDefault:=IniEvents.OnChangeValue)
 
         'Die Steine Laden
-        Images.SGM.PreloadSteinSatz(INI.Rendering_PreloadSteinsatz)
-
+        Images.SGM.PreloadSteinSatz(INI.Images_PreloadSteinsatz)
 
         '' Obsolet durch 1) Startup-Bounds bestimmen  Me.EnsureLocationVisibleOnAnyScreen()
 
@@ -275,24 +269,23 @@ Public Class frmMain
 
         _splash.SetStatusText("")
         ' --- Splash bleibt noch 1 Sekunde stehen ---
-        Dim killer As New Timer() With {.Interval = 1000}
-        AddHandler killer.Tick,
+        Dim splashkiller As New Timer() With {.Interval = 1000}
+        AddHandler splashkiller.Tick,
             Sub(s2, e2)
-                killer.Stop()
-                killer.Dispose()
+                splashkiller.Stop()
+                splashkiller.Dispose()
                 If _splash IsNot Nothing Then
                     _splash.Close()
                     _splash.Dispose()
                     _splash = Nothing
                 End If
             End Sub
-        killer.Start()
+        splashkiller.Start()
 
     End Sub
 
     Private Sub frmMain_FormClosing(sender As Object, e As FormClosingEventArgs) Handles Me.FormClosing
-        ''TODO SFD-Anpassung
-        ''  Spielfeld.SFD.MousePolling.Dispose() 
+        Spielfeld.SFMain.Dispose()
     End Sub
 
     Private Sub frmMain_ResizeEnd(sender As Object, e As EventArgs) Handles Me.ResizeEnd, Me.Closing
@@ -340,7 +333,6 @@ Public Class frmMain
     ' --- Properties, Felder, Enums ---
     Private menuEnableBindings As New List(Of Tuple(Of ToolStripMenuItem, Func(Of Boolean)))
     Private menuVisibleBindings As New List(Of Tuple(Of ToolStripMenuItem, Func(Of Boolean)))
-
 
     Private Sub ChangeVisibleControl(ctrl As VisibleUserControl)
         AktVisibleUserControl = ctrl
@@ -417,7 +409,6 @@ Public Class frmMain
 
             RefreshMenuStates()
 
-
             Spielfeld.SFMain.SetVisibleUserControl(VisibleUserControls(value), value)
 
             ResumeLayout(True)
@@ -480,7 +471,6 @@ Public Class frmMain
 
         mnuSpiel.DropDownItems.Add(CreateMenuItem("Spiel zufällig wählen", Sub() SelectRandomSpielfeld()))
 
-
         Dim mnuEditor As New ToolStripMenuItem("Edit")
 
         Dim editorItem As ToolStripMenuItem = CreateMenuItem("Edit",
@@ -488,8 +478,6 @@ Public Class frmMain
                                                          Function() As Boolean
                                                              Return AktVisibleUserControl <> VisibleUserControl.Spielfeld
                                                          End Function)
-
-
 
         ' Hier wird geprüft, ob der Editor verwendet werden darf
         menuVisibleBindings.Add(New Tuple(Of ToolStripMenuItem, Func(Of Boolean))(
@@ -595,7 +583,6 @@ Public Class frmMain
 #End Region
 
 #Region "ToolStrip unten Initialisierung"
-
 
     ' --- Aufruf z. B. im Load-Event:
     ' Private Sub frmMain_Load(...) Handles MyBase.Load
@@ -762,8 +749,6 @@ Public Class frmMain
         ToolStripExMain.Items.Add(MkLbl("stat_pairs", "Paare: 00"))
         ToolStripExMain.Items.Add(New ToolStripSeparator())
 
-
-
         ' =======================
         ' Rechte Gruppe (Alignment = Right)
         ' Einfüge-Reihenfolge = von rechts nach links
@@ -783,7 +768,6 @@ Public Class frmMain
         ToolStripExMain.Items.Add(MkBtnImgTextRight("act_tip1", Theme.GetResBmp(AppGrafikName.Tip.ToString), "",
             Sub() DoTipEinzel(),
             If(INI.Sonstiges_ShowToolTips, "Schalter: Zeigt permanent wählbare Steine an.", Nothing)))
-
 
         Dim chkWinds As ToolStripButton = MkToggleImgRight("opt_winds_onegrp",
             Theme.GetResBmp(AppGrafikName.WindsChecked.ToString), Theme.GetResBmp(AppGrafikName.WindsUnChecked.ToString),
@@ -813,7 +797,6 @@ Public Class frmMain
                 End Sub,
                 If(INI.Sonstiges_ShowToolTips, "Tip: Zeigt alle wählbaren Steine an.", Nothing))
         ToolStripExMain.Items.Add(chkSel)
-
 
         ToolStripExMain.Items.Add(MkSepRight())
 
@@ -933,7 +916,6 @@ Public Class frmMain
         End Using
         Return bmp
     End Function
-
 
     ''' <summary>
     ''' Zieht nach INI-Änderungen die UI-Zustände im ToolStrip nach:
@@ -1108,7 +1090,6 @@ Public Class frmMain
         UpdateSpielfeldEditorButtons()
     End Sub
 
-
     Private Sub DoToolBox()
         ''TODO SFD-Anpassung
         ''If Spielfeld.SFD.AktRendering = RenderingEnum.None Then
@@ -1165,9 +1146,6 @@ Public Class frmMain
         If lblSize IsNot Nothing Then lblSize.Text = $"Feldgröße: {maxSteine.x }/{maxSteine.y}/{maxSteine.z }"
     End Sub
 
-
-
-
     Public Sub UpdateSpielfeldEditorButtons()
 
         If Not INI.Editor_UsingEditorAllowed Then
@@ -1200,7 +1178,6 @@ Public Class frmMain
     End Sub
 
     Public Sub ShowOrHideToolboxAndUpdateToolboxButton()
-
 
         If Not INI.Editor_UsingEditorAllowed Then
             Exit Sub
@@ -1252,7 +1229,6 @@ Public Class frmMain
         ''        'ist bereits aktiv
         ''    End Try
 
-
         ''Else
         ''    If btnToolBox IsNot Nothing Then
         ''        btnToolBox.Image = Theme.GetResBmp(AppGrafikName.Werkzeug.ToString)
@@ -1269,6 +1245,5 @@ Public Class frmMain
     End Sub
 
 #End Region
-
 
 End Class

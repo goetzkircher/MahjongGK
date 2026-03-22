@@ -89,22 +89,22 @@ Public Class BackgroundSelector
     End Property
 
     ' NEU: Ausgewählter Render-Modus (statt CheckBox-Logik)
-    Public Property SelectedMode As BackgroundImageRenderMode
+    Public Property SelectedMode As Images.BackgroundImageRenderMode
         Get
-            If radPreserve.Checked Then Return BackgroundImageRenderMode.PreserveOrgSize
-            If radCoverCrop.Checked Then Return BackgroundImageRenderMode.CoverCrop
-            If radStretch.Checked Then Return BackgroundImageRenderMode.Stretch
-            Return BackgroundImageRenderMode.FitInside
+            If radPreserve.Checked Then Return Images.BackgroundImageRenderMode.PreserveOrgSize
+            If radCoverCrop.Checked Then Return Images.BackgroundImageRenderMode.CoverCrop
+            If radStretch.Checked Then Return Images.BackgroundImageRenderMode.Stretch
+            Return Images.BackgroundImageRenderMode.FitInside
         End Get
-        Set(value As BackgroundImageRenderMode)
+        Set(value As Images.BackgroundImageRenderMode)
             Select Case value
-                Case BackgroundImageRenderMode.PreserveOrgSize
+                Case Images.BackgroundImageRenderMode.PreserveOrgSize
                     radPreserve.Checked = True
-                Case BackgroundImageRenderMode.CoverCrop
+                Case Images.BackgroundImageRenderMode.CoverCrop
                     radCoverCrop.Checked = True
-                Case BackgroundImageRenderMode.FitInside
+                Case Images.BackgroundImageRenderMode.FitInside
                     radFitInside.Checked = True
-                Case Else ' BackgroundImageRenderMode.Stretch und BackgroundImageRenderMode.None
+                Case Else ' Images.BackgroundImageRenderMode.Stretch und Images.BackgroundImageRenderMode.None
                     radStretch.Checked = True
             End Select
         End Set

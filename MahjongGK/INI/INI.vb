@@ -91,8 +91,6 @@ Public Module INI
     Public ReadOnly ToolBoxIni As IniManager
     Public ReadOnly Rendering As IniManager
 
-
-
     Sub New()
         'Instanzen für verschiedene INIs hier anlegen
         BasisIni = New IniManager("Basis.ini")
@@ -101,7 +99,6 @@ Public Module INI
 
         'Spieler1Ini = New IniManager("Spieler1.ini")
         'Spieler2Ini = New IniManager("Spieler2.ini")
-
 
         IniCleanup.RemoveObsoleteIniKeys()
 
@@ -124,7 +121,6 @@ Public Module INI
         End If
 
         AllIniManagersSetRaiseIniEvents(raiseIniEventsDefault)
-
 
         'Irgendwelcher weiterer Code ist hier nicht notwendig.
         'Sub New() wird aufgerufen, sobald der erste Zugriff auf INI erfolgt.
@@ -187,7 +183,6 @@ Public Module INI
     '    OnWriteValue
     '    OnUpdate
     'End Enum
-
 
     '
     'WICHTIG:
@@ -772,7 +767,6 @@ Public Module INI
     Public Property Debug_StopRendering As Boolean
 #End Region
 
-
 #Region "Global"
 
     Public Property Global_UseSystemDarkMode As Boolean
@@ -943,7 +937,6 @@ Public Module INI
         End Set
     End Property
 
-
     Private _Editor_SortSpacerWidthPercent As Integer?
     Public Property Editor_SortSpacerWidthPercent As Integer
         Get
@@ -981,7 +974,6 @@ Public Module INI
             _Editor_SpaceFramesToOpenOrClose = Nothing
         End Set
     End Property
-
 
     Private _Editor_HScrollbarColor As Color
     Public Property Editor_HScrollbarColor As Color
@@ -1084,7 +1076,6 @@ Public Module INI
         End Set
     End Property
 
-
     Private _Editor_ShowFrmSteinStackInfo As Boolean?
     Public Property Editor_ShowFrmSteinStackInfo As Boolean
         Get
@@ -1100,7 +1091,6 @@ Public Module INI
             _Editor_ShowFrmSteinStackInfo = Nothing
         End Set
     End Property
-
 
     Public Property SpielsteinGenerator_VerhältnisNormalsteineZuSondersteine As Double
         Get
@@ -1129,7 +1119,6 @@ Public Module INI
         End Set
     End Property
 
-
     ' Die eENUM durch den Namen der Enumeration ersetzten.
     ' eENUM ist der Name der Enumeration (Kommt vier mal vor)
     ' eENUM.DEFAULT eben der Default (kommt einmal vor)
@@ -1146,7 +1135,6 @@ Public Module INI
             BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
         End Set
     End Property
-
 
     Public Property SpielsteinGenerator_VorratMaxUBoundDefault As Integer
         Get
@@ -1190,7 +1178,6 @@ Public Module INI
 
 #Region "Spielbetrieb"
 
-
     ''' <summary>
     ''' Gibt an, ob das Spiel automatisch gespeichert werden soll.
     ''' </summary>
@@ -1206,7 +1193,6 @@ Public Module INI
             BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
         End Set
     End Property
-
 
     Public Property Spielbetrieb_WindsAreInOneClickGroup As Boolean
         Get
@@ -1246,7 +1232,21 @@ Public Module INI
         End Set
     End Property
 
-
+    Private _Spielbetrieb_UseUnDoReDoSpielfeld As Boolean?
+    Public Property Spielbetrieb_UseUnDoReDoSpielfeld As Boolean
+        Get
+            If IsNothing(_Spielbetrieb_UseUnDoReDoSpielfeld) Then
+                Dim [Default] As Boolean = True
+                Dim comment As String = "Die Buttons auf dem Spielfeld einschalten"
+                _Spielbetrieb_UseUnDoReDoSpielfeld = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            End If
+            Return CBool(_Spielbetrieb_UseUnDoReDoSpielfeld)
+        End Get
+        Set(value As Boolean)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+            _Spielbetrieb_UseUnDoReDoSpielfeld = Nothing
+        End Set
+    End Property
 
 #End Region
 
@@ -1268,7 +1268,6 @@ Public Module INI
             _BackGroundImage_MaxDistortionRatio = Nothing
         End Set
     End Property
-
 
     Private _BackGroundImage_ColorSampleStep As Integer?
     Public Property BackGroundImage_ColorSampleStep As Integer
@@ -1464,7 +1463,6 @@ Public Module INI
                                     AppDataFullPath(AppDataSubDir.Diverses, AppDataSubSubDir.Diverses_ScreenShots) &
                                     "~Sind dort mehr als hier angegeben, werden die Ältesten beim nächsten ScreenShot gelöscht. Satz1 = 20"
 
-
             Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
         End Get
         Set(value As Integer)
@@ -1513,7 +1511,6 @@ Public Module INI
     End Property
 
 #End Region
-
 
 #Region "IfRunningInIDE_... Properties"
 
@@ -1720,7 +1717,6 @@ Public Module INI
         End Set
     End Property
 
-
     Public Property GfxCompiler_GhostShadowRightFaktor As Double
         Get
             Dim [Default] As Double = 0.05
@@ -1763,7 +1759,6 @@ Public Module INI
         End Set
     End Property
 
-
 #End Region
 
 #End Region
@@ -1797,7 +1792,6 @@ Public Module INI
     End Property
 
 #End Region
-
 
 #Region "Toolbox"
     '
@@ -1996,7 +1990,6 @@ Public Module INI
         End Set
     End Property
 
-
     Public Property ToolBox_NameBasisformForSaving(bform As BasisformEnum) As String
         Get
             Dim [Default] As String = bform.ToString & "_1"
@@ -2042,8 +2035,13 @@ Public Module INI
 
     Public Property Toolbox_HGrdSplFldBitmapNameFallback As String
         Get
-            Dim [Default] As String = "wallpaperInv-2070678.jpg"
-            Dim comment As String = Nothing
+            'Return "Himalaya_647135.jpg"
+            'Return "water-2175237.jpg"
+            Return "Pond_5771499.jpg"
+            'Dim [Default] As String = "wallpaperInv-2070678.jpg" 'Soll
+            Dim [Default] As String = "water-2175237.jpg"
+            ' Dim [Default] As String = "Himalaya_647135.jpg"
+            Dim comment As String = "Default: wallpaperInv-2070678.jpg"
             Return ToolBoxIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
         End Get
         Set(value As String)
@@ -2062,22 +2060,21 @@ Public Module INI
         End Set
     End Property
 
-    Public Property Toolbox_HGrdSplFldRenderModeFallback As BackgroundImageRenderMode
+    Public Property Toolbox_HGrdSplFldRenderModeFallback As Images.BackgroundImageRenderMode
         Get
-            Dim [Default] As String = BackgroundImageRenderMode.None.ToString
+            Dim [Default] As String = Images.BackgroundImageRenderMode.None.ToString
             Dim comment As String = Nothing
             Dim zRetVal As String = ToolBoxIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-            Dim result As BackgroundImageRenderMode
-            If Not [Enum].TryParse(Of BackgroundImageRenderMode)(zRetVal, True, result) Then
-                result = BackgroundImageRenderMode.Stretch
+            Dim result As Images.BackgroundImageRenderMode
+            If Not [Enum].TryParse(Of Images.BackgroundImageRenderMode)(zRetVal, True, result) Then
+                result = Images.BackgroundImageRenderMode.Stretch
             End If
             Return result
         End Get
-        Set(value As BackgroundImageRenderMode)
+        Set(value As Images.BackgroundImageRenderMode)
             ToolBoxIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
         End Set
     End Property
-
 
 #End Region
 
@@ -2085,6 +2082,146 @@ Public Module INI
 
 #Region "Rendering.ini"
 
+    Public Property Images_PreloadSteinsatz As SteinSatz
+        Get
+            Dim [Default] As String = SteinSatz.Satz1.ToString
+            Dim comment As String = "Der Steinsatz, der beim Programmstart geladen wird."
+            Dim zRetVal As String = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            Dim result As SteinSatz
+            If Not [Enum].TryParse(Of SteinSatz)(zRetVal, True, result) Then
+                result = SteinSatz.Satz1
+            End If
+            Return result
+        End Get
+        Set(value As SteinSatz)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+        End Set
+    End Property
+
+    Public Property Images_OrgGrafikSteinsatz As SteinSatz
+        Get
+            Dim [Default] As String = SteinSatz.None.ToString
+            Dim comment As String = "Wird vom Programm verwaltet. Der aktuell geladene Steinsatz."
+            Dim zRetVal As String = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            Dim result As SteinSatz
+            If Not [Enum].TryParse(Of SteinSatz)(zRetVal, True, result) Then
+                result = SteinSatz.None
+            End If
+            Return result
+        End Get
+        Set(value As SteinSatz)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+        End Set
+    End Property
+
+    Private _ImagesOrgGrafikSizeWidth As Integer?
+    Public Property Images_OrgGrafikSizeWidth As Integer
+        Get
+            If Not _ImagesOrgGrafikSizeWidth.HasValue Then
+                Dim [Default] As Integer = -1
+                Dim comment As String = "Wird vom Programm verwaltet. Breite vom aktuell geladenen Steinsatz."
+                _ImagesOrgGrafikSizeWidth = Rendering.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+                _ImagesOrgGrafikSizeWidth = Math.Max(60, Math.Min(600, _ImagesOrgGrafikSizeWidth.Value))
+            End If
+            Return _ImagesOrgGrafikSizeWidth.Value
+        End Get
+        Set(value As Integer)
+            Rendering.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+            _ImagesOrgGrafikSizeWidth = Nothing
+        End Set
+    End Property
+
+    Private _ImagesOrgGrafikSizeHeight As Integer?
+    Public Property Images_OrgGrafikSizeHeight As Integer
+        Get
+            If Not _ImagesOrgGrafikSizeHeight.HasValue Then
+                Dim [Default] As Integer = -1
+                Dim comment As String = "Wird vom Programm verwaltet. Höhe vom aktuell geladenen Steinsatz."
+                _ImagesOrgGrafikSizeHeight = Rendering.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+                _ImagesOrgGrafikSizeHeight = Math.Max(60, Math.Min(600, _ImagesOrgGrafikSizeHeight.Value))
+            End If
+            Return _ImagesOrgGrafikSizeHeight.Value
+        End Get
+        Set(value As Integer)
+            Rendering.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+            _ImagesOrgGrafikSizeHeight = Nothing
+        End Set
+    End Property
+
+    Private _ImagesOrgGrafikReferenceSizeWidth As Integer?
+    Public Property Images_OrgGrafikReferenceSizeWidth As Integer
+        Get
+            If Not _ImagesOrgGrafikReferenceSizeWidth.HasValue Then
+                Dim [Default] As Integer = 198
+                Dim comment As String = "Die Originalgröße der Grafiken bezieht das Programm aus den Grafiken selber. Die Referenzgröße bestimmt" &
+                                        "~die maximale Größe der verwendeten Steine und das Seitenverhältniss. Satz1 Breite: 198, Höhe: 252." &
+                                        $"~Ist einer der Werte kleiner {MJ_GRAFIK_SRC_MIN_WIDTH_OR_HEIGHT}, werden die OrgGrafikSize-Werte genommen. Gültige Werte 0 bis {MJ_GRAFIK_SRC_MAX_WIDTH_OR_HEIGHT} Pixel." &
+                                        "~Das Seitenverhältnis ist von 1:2 bis 2:1 begrenzt."
+
+                _ImagesOrgGrafikReferenceSizeWidth = Rendering.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+                _ImagesOrgGrafikReferenceSizeWidth = Math.Max(60, Math.Min(600, _ImagesOrgGrafikReferenceSizeWidth.Value))
+            End If
+            Return _ImagesOrgGrafikReferenceSizeWidth.Value
+        End Get
+        Set(value As Integer)
+            Rendering.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+            _ImagesOrgGrafikReferenceSizeWidth = Nothing
+        End Set
+    End Property
+
+    Private _ImagesOrgGrafikReferenceSizeHeight As Integer?
+    Public Property Images_OrgGrafikReferenceSizeHeight As Integer
+        Get
+            If Not _ImagesOrgGrafikReferenceSizeHeight.HasValue Then
+                Dim [Default] As Integer = 252
+                Dim comment As String = "Wie vor, die Höhe."
+                _ImagesOrgGrafikReferenceSizeHeight = Rendering.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+                _ImagesOrgGrafikReferenceSizeHeight = Math.Max(60, Math.Min(600, _ImagesOrgGrafikReferenceSizeHeight.Value))
+            End If
+            Return _ImagesOrgGrafikReferenceSizeHeight.Value
+        End Get
+        Set(value As Integer)
+            Rendering.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+            _ImagesOrgGrafikReferenceSizeHeight = Nothing
+        End Set
+    End Property
+
+    Private _ImagesUseGrafikOrgSize As Boolean?
+    Public Property Images_UseGrafikOrgSize As Boolean
+        Get
+            If IsNothing(_ImagesUseGrafikOrgSize) Then
+                Dim [Default] As Boolean = False
+                Dim comment As String = "Wenn dieses Flag auf True steht, wird die maximale Größe und das Seitenverhältniss aus den Original-" &
+                                        "~Abmessungen der Grafiken bezogen. Satz1: False"
+                _ImagesUseGrafikOrgSize = Rendering.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            End If
+            Return CBool(_ImagesUseGrafikOrgSize)
+        End Get
+        Set(value As Boolean)
+            Rendering.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+            _ImagesUseGrafikOrgSize = Nothing
+        End Set
+    End Property
+
+    Public ReadOnly Property Images_OrgGrafikUsedSizeWidth As Integer
+        Get
+            If Images_UseGrafikOrgSize Then
+                Return Images_OrgGrafikSizeWidth
+            Else
+                Return Images_OrgGrafikReferenceSizeWidth
+            End If
+        End Get
+    End Property
+
+    Public ReadOnly Property Images_OrgGrafikUsedSizeHeight As Integer
+        Get
+            If Images_UseGrafikOrgSize Then
+                Return Images_OrgGrafikSizeHeight
+            Else
+                Return Images_OrgGrafikReferenceSizeHeight
+            End If
+        End Get
+    End Property
     '  Public Enum TileSetInUse
 
     Public Property Rendering_TileSetInUse As TileSetInUse
@@ -2192,148 +2329,6 @@ Public Module INI
         End Get
     End Property
 
-    Public Property Rendering_PreloadSteinsatz As SteinSatz
-        Get
-            Dim [Default] As String = SteinSatz.Satz1.ToString
-            Dim comment As String = "Der Steinsatz, der beim Programmstart geladen wird."
-            Dim zRetVal As String = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-            Dim result As SteinSatz
-            If Not [Enum].TryParse(Of SteinSatz)(zRetVal, True, result) Then
-                result = SteinSatz.Satz1
-            End If
-            Return result
-        End Get
-        Set(value As SteinSatz)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
-        End Set
-    End Property
-
-    Public Property Rendering_OrgGrafikSteinsatz As SteinSatz
-        Get
-            Dim [Default] As String = SteinSatz.None.ToString
-            Dim comment As String = "Wird vom Programm verwaltet. Der aktuell geladene Steinsatz."
-            Dim zRetVal As String = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-            Dim result As SteinSatz
-            If Not [Enum].TryParse(Of SteinSatz)(zRetVal, True, result) Then
-                result = SteinSatz.None
-            End If
-            Return result
-        End Get
-        Set(value As SteinSatz)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
-        End Set
-    End Property
-
-    Private _Rendering_OrgGrafikSizeWidth As Integer?
-    Public Property Rendering_OrgGrafikSizeWidth As Integer
-        Get
-            If Not _Rendering_OrgGrafikSizeWidth.HasValue Then
-                Dim [Default] As Integer = -1
-                Dim comment As String = "Wird vom Programm verwaltet. Breite vom aktuell geladenen Steinsatz."
-                _Rendering_OrgGrafikSizeWidth = Rendering.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-                _Rendering_OrgGrafikSizeWidth = Math.Max(60, Math.Min(600, _Rendering_OrgGrafikSizeWidth.Value))
-            End If
-            Return _Rendering_OrgGrafikSizeWidth.Value
-        End Get
-        Set(value As Integer)
-            Rendering.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
-            _Rendering_OrgGrafikSizeWidth = Nothing
-        End Set
-    End Property
-
-    Private _Rendering_OrgGrafikSizeHeight As Integer?
-    Public Property Rendering_OrgGrafikSizeHeight As Integer
-        Get
-            If Not _Rendering_OrgGrafikSizeHeight.HasValue Then
-                Dim [Default] As Integer = -1
-                Dim comment As String = "Wird vom Programm verwaltet. Höhe vom aktuell geladenen Steinsatz."
-                _Rendering_OrgGrafikSizeHeight = Rendering.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-                _Rendering_OrgGrafikSizeHeight = Math.Max(60, Math.Min(600, _Rendering_OrgGrafikSizeHeight.Value))
-            End If
-            Return _Rendering_OrgGrafikSizeHeight.Value
-        End Get
-        Set(value As Integer)
-            Rendering.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
-            _Rendering_OrgGrafikSizeHeight = Nothing
-        End Set
-    End Property
-
-    Private _Rendering_OrgGrafikReferenceSizeWidth As Integer?
-    Public Property Rendering_OrgGrafikReferenceSizeWidth As Integer
-        Get
-            If Not _Rendering_OrgGrafikReferenceSizeWidth.HasValue Then
-                Dim [Default] As Integer = 198
-                Dim comment As String = "Die Originalgröße der Grafiken bezieht das Programm aus den Grafiken selber. Die Referenzgröße bestimmt" &
-                                        "~die maximale Größe der verwendeten Steine und das Seitenverhältniss. Satz1 Breite: 198, Höhe: 252." &
-                                        $"~Ist einer der Werte kleiner {MJ_GRAFIK_SRC_MIN_WIDTH_OR_HEIGHT}, werden die OrgGrafikSize-Werte genommen. Gültige Werte 0 bis {MJ_GRAFIK_SRC_MAX_WIDTH_OR_HEIGHT} Pixel." &
-                                        "~Das Seitenverhältnis ist von 1:2 bis 2:1 begrenzt."
-
-                _Rendering_OrgGrafikReferenceSizeWidth = Rendering.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-                _Rendering_OrgGrafikReferenceSizeWidth = Math.Max(60, Math.Min(600, _Rendering_OrgGrafikReferenceSizeWidth.Value))
-            End If
-            Return _Rendering_OrgGrafikReferenceSizeWidth.Value
-        End Get
-        Set(value As Integer)
-            Rendering.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
-            _Rendering_OrgGrafikReferenceSizeWidth = Nothing
-        End Set
-    End Property
-
-    Private _Rendering_OrgGrafikReferenceSizeHeight As Integer?
-    Public Property Rendering_OrgGrafikReferenceSizeHeight As Integer
-        Get
-            If Not _Rendering_OrgGrafikReferenceSizeHeight.HasValue Then
-                Dim [Default] As Integer = 252
-                Dim comment As String = "Wie vor, die Höhe."
-                _Rendering_OrgGrafikReferenceSizeHeight = Rendering.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-                _Rendering_OrgGrafikReferenceSizeHeight = Math.Max(60, Math.Min(600, _Rendering_OrgGrafikReferenceSizeHeight.Value))
-            End If
-            Return _Rendering_OrgGrafikReferenceSizeHeight.Value
-        End Get
-        Set(value As Integer)
-            Rendering.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
-            _Rendering_OrgGrafikReferenceSizeHeight = Nothing
-        End Set
-    End Property
-
-    Private _Rendering_UseGrafikOrgSize As Boolean?
-    Public Property Rendering_UseGrafikOrgSize As Boolean
-        Get
-            If IsNothing(_Rendering_UseGrafikOrgSize) Then
-                Dim [Default] As Boolean = False
-                Dim comment As String = "Wenn dieses Flag auf True steht, wird die maximale Größe und das Seitenverhältniss aus den Original-" &
-                                        "~Abmessungen der Grafiken bezogen. Satz1: False"
-                _Rendering_UseGrafikOrgSize = Rendering.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-            End If
-            Return CBool(_Rendering_UseGrafikOrgSize)
-        End Get
-        Set(value As Boolean)
-            Rendering.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
-            _Rendering_UseGrafikOrgSize = Nothing
-        End Set
-    End Property
-
-    Public ReadOnly Property Rendering_OrgGrafikUsedSizeWidth As Integer
-        Get
-            If Rendering_UseGrafikOrgSize Then
-                Return Rendering_OrgGrafikSizeWidth
-            Else
-                Return Rendering_OrgGrafikReferenceSizeWidth
-            End If
-        End Get
-    End Property
-
-    Public ReadOnly Property Rendering_OrgGrafikUsedSizeHeight As Integer
-        Get
-            If Rendering_UseGrafikOrgSize Then
-                Return Rendering_OrgGrafikSizeHeight
-            Else
-                Return Rendering_OrgGrafikReferenceSizeHeight
-            End If
-        End Get
-    End Property
-
-
     Private _Rendering_Offset3DMaxX As Integer?
     Public Property Rendering_Offset3DMaxX As Integer
         Get
@@ -2352,7 +2347,6 @@ Public Module INI
             _Rendering_Offset3DMaxX = Nothing
         End Set
     End Property
-
 
     Private _Rendering_Offset3DMaxY As Integer?
     Public Property Rendering_Offset3DMaxY As Integer
@@ -2389,7 +2383,6 @@ Public Module INI
         End Set
     End Property
 
-
     Private _Rendering_Offset3DMinPerLayerY As Integer?
     Public Property Rendering_Offset3DMinPerLayerY As Integer
         Get
@@ -2411,7 +2404,7 @@ Public Module INI
     Public ReadOnly Property Rendering_Offset3DFaktorAbsolutX As Double
         Get
             Try
-                Return Math.Abs(Rendering_Offset3DMaxX / 10 / Rendering_OrgGrafikUsedSizeWidth)
+                Return Math.Abs(Rendering_Offset3DMaxX / 10 / Images_OrgGrafikUsedSizeWidth)
             Catch ex As Exception
                 Return 30 / 10 / 198
             End Try
@@ -2420,7 +2413,7 @@ Public Module INI
     Public ReadOnly Property Rendering_Offset3DFaktorAbsolutY As Double
         Get
             Try
-                Return Math.Abs(Rendering_Offset3DMaxY / 10 / Rendering_OrgGrafikUsedSizeHeight)
+                Return Math.Abs(Rendering_Offset3DMaxY / 10 / Images_OrgGrafikUsedSizeHeight)
             Catch ex As Exception
                 Return 30 / 10 / 252
             End Try
@@ -2622,8 +2615,6 @@ Public Module INI
     End Property
     '
 
-
-
     Private _Rendering_StartscreenBitmapNameLightMode As String = Nothing
     Private _Rendering_StartscreenBitmapNameLightMode_Loaded As Boolean = False
 
@@ -2693,15 +2684,16 @@ Public Module INI
         End Get
     End Property
 
-
     Private _Rendering_DrawRenderRect As Boolean?
     Public Property Rendering_DrawRenderRect As Boolean
         Get
-            If Not Debugger.IsAttached Then
+            If Debugger.IsAttached Then
+                Return False
+            Else
                 Return False
             End If
             If IsNothing(_Rendering_DrawRenderRect) Then
-                Dim [Default] As Boolean = False ' Debugger.IsAttached
+                Dim [Default] As Boolean = True ' Debugger.IsAttached
                 Dim comment As String = "Für die Programmentwicklung zur Kontrolle der Lage der rxRectangle. Nur innerhalb der IDE verwendbar."
                 _Rendering_DrawRenderRect = Rendering.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
             End If
@@ -2713,8 +2705,6 @@ Public Module INI
             _Rendering_ConsumeDoRendering = True
         End Set
     End Property
-
-
 
     '
     'für zeitkritische Abfragen
@@ -2754,7 +2744,6 @@ Public Module INI
         End Set
     End Property
 
-
     Private _Rendering_DrawRenderingSkipDoneMarker As Boolean?
     Public Property Rendering_DrawRenderingSkipDoneMarker As Boolean
         Get
@@ -2793,9 +2782,7 @@ Public Module INI
         _Rendering_AnimationsCounter += animationsSteps
     End Sub
 
-
 #End Region
-
 
 #Region "Ini Editieren"
 
@@ -2806,18 +2793,18 @@ Public Module INI
     Public Sub IniEditieren()
 
         Dim sicRendermode As RenderMode = SFMain.RenderMode
-        SFMain.RenderMode = RenderMode.Paused
-
+        If SFMain.SFDatHasData Then
+            SFMain.RenderMode = RenderMode.Paused
+        End If
         Using frm As New FrmIniEditor()
 
             frm.ShowDialog()
 
         End Using
-
-        SFMain.RenderMode = sicRendermode
-
+        If SFMain.SFDatHasData Then
+            SFMain.RenderMode = sicRendermode
+        End If
     End Sub
-
 
 #End Region
 
@@ -2871,7 +2858,6 @@ Public Module INI
                                      Optional subsubdir As AppDataSubSubDir = Nothing,
                                      Optional sub3Dir As String = Nothing) As String
 
-
         Return BasisIni.AppDataDirectory(subdir, subsubdir, sub3Dir)
 
     End Function
@@ -2920,7 +2906,6 @@ Public Module INI
                                     Optional timestamp As AppDataTimeStamp = AppDataTimeStamp.None,
                                     Optional maxFiles As Integer = Integer.MaxValue) As String
         '
-
 
         Return BasisIni.AppDataFullPath(If(subdir <> AppDataSubDir.None, subdir.ToString, String.Empty),
             String.Empty,
@@ -3053,7 +3038,6 @@ Public Module INI
 
     End Function
 
-
 #End Region
 
 #Region "Interne Verwaltung"
@@ -3103,7 +3087,6 @@ Public Module INI
 #End Region
 
 #Region "Initialisierung"
-
 
     ''' <summary>
     ''' Schaltet InitialisierungAktiv für alle IniManager um.
@@ -3180,7 +3163,6 @@ Public Module INI
             Next
         End Set
     End Property
-
 
 #Region "Initialisierung der Default-Werte"
 
@@ -3566,7 +3548,6 @@ Public Module INI
         RaiseAllIniEvents()
     End Sub
 
-
     ''' <summary>
     ''' Liefert alle öffentlichen, statischen, parameterlosen INI-Properties aus diesem Modul,
     ''' die sowohl get als auch set besitzen und mindestens einen Unterstrich "_" im Namen haben.
@@ -3724,7 +3705,6 @@ Public Module INI
             Next
             lists.Add(objs)
         Next
-
 
         ' kartesisches Produkt
         Dim idxCount As Integer = lists.Count

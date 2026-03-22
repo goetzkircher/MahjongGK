@@ -48,7 +48,7 @@ Public Class UctlToolboxHintergrund
 
     Private Sub CopyIniToControl()
         'TODO SFD-Anpassung
-        '''
+        '' '
         ''With lblToolboxHGrdSplFldColor
         ''    If Spielfeld.SFD.SpielfeldSpielfeldInfo.Toolbox_HGrdSplFldColor = Color.Empty Then
         ''        .ForeColor = SystemColors.GrayText
@@ -59,7 +59,7 @@ Public Class UctlToolboxHintergrund
         ''        .BackColor = Spielfeld.SFD.SpielfeldSpielfeldInfo.Toolbox_HGrdSplFldColor
         ''    End If
         ''End With
-        '''
+        '' '
         ''With lblToolboxHGrdSplFldColorFallback
         ''    If INI.Toolbox_HGrdSplFldColorFallback = Color.Empty Then
         ''        .ForeColor = SystemColors.GrayText
@@ -255,18 +255,18 @@ Public Class UctlToolboxHintergrund
 
     End Function
 
-    Private Function GetTextFromBirm(birm As BackgroundImageRenderMode) As String
+    Private Function GetTextFromBirm(birm As Images.BackgroundImageRenderMode) As String
 
         Select Case birm
-            Case BackgroundImageRenderMode.CoverCrop
+            Case Images.BackgroundImageRenderMode.CoverCrop
                 Return "Modus: Ausschneiden (Cover)"
-            Case BackgroundImageRenderMode.FitInside
+            Case Images.BackgroundImageRenderMode.FitInside
                 Return "Modus: Proportionen beibehalten"
-            Case BackgroundImageRenderMode.None
+            Case Images.BackgroundImageRenderMode.None
                 Return "Modus: Nicht ausgewählt"
-            Case BackgroundImageRenderMode.PreserveOrgSize
+            Case Images.BackgroundImageRenderMode.PreserveOrgSize
                 Return "Modus: Originalgröße behalten"
-            Case BackgroundImageRenderMode.Stretch
+            Case Images.BackgroundImageRenderMode.Stretch
                 Return "Modus: Dehnen/Strecken"
             Case Else
                 If Debugger.IsAttached Then

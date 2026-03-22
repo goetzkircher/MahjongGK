@@ -1105,6 +1105,124 @@ Namespace MjGDI
             End Using
             Return bmp
         End Function
+        ' Dominante Farbe (unverändert)
+        Public Function ComputeDominantColor(bmpSrc As Bitmap) As Color
+            If bmpSrc Is Nothing Then Return Color.Black
+
+            ' Für LockBits ggf. in 32bpp ARGB konvertieren
+            Dim bmp As Bitmap = bmpSrc
+            If bmp.PixelFormat <> PixelFormat.Format32bppArgb Then
+                bmp = New Bitmap(bmpSrc.Width, bmpSrc.Height, PixelFormat.Format32bppArgb)
+                Using g As Graphics = Graphics.FromImage(bmp)
+                    g.DrawImage(bmpSrc, 0, 0, bmpSrc.Width, bmpSrc.Height)
+                End Using
+            End If
+
+            Const stepXY As Integer = 4
+            Const Q As Integer = 16 ' 4 Bit pro Kanal
+
+            Dim counts(Q - 1, Q - 1, Q - 1) As Double
+            Dim sumR(Q - 1, Q - 1, Q - 1) As Double
+            Dim sumG(Q - 1, Q - 1, Q - 1) As Double
+            Dim sumB(Q - 1, Q - 1, Q - 1) As Double
+
+            Dim rect As New Rectangle(0, 0, bmp.Width, bmp.Height)
+            Dim data As BitmapData = bmp.LockBits(rect, ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb)
+
+            Try
+                Dim stride As Integer = data.Stride
+                Dim basePtr As IntPtr = data.Scan0
+
+                For y As Integer = 0 To bmp.Height - 1 Step stepXY
+                    Dim row As Integer = y * stride
+                    For x As Integer = 0 To bmp.Width - 1 Step stepXY
+                        Dim p As Integer = row + x * 4
+                        Dim bb As Byte = System.Runtime.InteropServices.Marshal.ReadByte(basePtr, p + 0)
+                        Dim gg As Byte = System.Runtime.InteropServices.Marshal.ReadByte(basePtr, p + 1)
+                        Dim rr As Byte = System.Runtime.InteropServices.Marshal.ReadByte(basePtr, p + 2)
+                        Dim aa As Byte = System.Runtime.InteropServices.Marshal.ReadByte(basePtr, p + 3)
+                        If aa < 16 Then Continue For
+
+                        ' H/S/V zur Gewichtung
+                        Dim h As Double, s As Double, v As Double
+                        RgbToHsv(CInt(rr), CInt(gg), CInt(bb), h, s, v)
+
+                        ' leichte Bevorzugung von gesättigt/hell
+                        Dim sat As Double = 0.3 + 0.7 * s
+                        Dim lum As Double = 0.6 + 0.4 * v
+                        Dim w As Double = (aa / 255.0) * sat * lum
+                        If w <= 0 Then Continue For
+
+                        Dim ri As Integer = rr >> 4
+                        Dim gi As Integer = gg >> 4
+                        Dim bi As Integer = bb >> 4
+                        counts(ri, gi, bi) += w
+                        sumR(ri, gi, bi) += rr * w
+                        sumG(ri, gi, bi) += gg * w
+                        sumB(ri, gi, bi) += bb * w
+                    Next
+                Next
+
+                ' Dominantes Bin suchen
+                Dim br As Integer = 0, bg As Integer = 0, bbMax As Integer = 0
+                Dim best As Double = -1.0R
+                For ri As Integer = 0 To Q - 1
+                    For gi As Integer = 0 To Q - 1
+                        For bi As Integer = 0 To Q - 1
+                            If counts(ri, gi, bi) > best Then
+                                best = counts(ri, gi, bi)
+                                br = ri : bg = gi : bbMax = bi
+                            End If
+                        Next
+                    Next
+                Next
+                If best <= 0 Then Return Color.Black
+
+                Dim mr As Integer = CInt(Math.Round(sumR(br, bg, bbMax) / best))
+                Dim mg As Integer = CInt(Math.Round(sumG(br, bg, bbMax) / best))
+                Dim mb As Integer = CInt(Math.Round(sumB(br, bg, bbMax) / best))
+
+                Return Color.FromArgb(255,
+                              Math.Max(0, Math.Min(255, mr)),
+                              Math.Max(0, Math.Min(255, mg)),
+                              Math.Max(0, Math.Min(255, mb)))
+            Finally
+                bmp.UnlockBits(data)
+                If Not Object.ReferenceEquals(bmp, bmpSrc) Then bmp.Dispose()
+            End Try
+        End Function
+
+        ' RGB → HSV; h in [0..360], s/v in [0..1]
+        Public Sub RgbToHsv(r As Integer, g As Integer, b As Integer,
+                            ByRef h As Double, ByRef s As Double, ByRef v As Double)
+
+            Dim rf As Double = Math.Max(0, Math.Min(255, r)) / 255.0
+            Dim gf As Double = Math.Max(0, Math.Min(255, g)) / 255.0
+            Dim bf As Double = Math.Max(0, Math.Min(255, b)) / 255.0
+
+            Dim maxV As Double = Math.Max(rf, Math.Max(gf, bf))
+            Dim minV As Double = Math.Min(rf, Math.Min(gf, bf))
+            v = maxV
+
+            Dim d As Double = maxV - minV
+            s = If(maxV <= 0.0, 0.0, d / maxV)
+
+            If d = 0.0 Then
+                h = 0.0
+                Return
+            End If
+
+            If maxV = rf Then
+                h = 60.0 * (((gf - bf) / d) Mod 6.0)
+            ElseIf maxV = gf Then
+                h = 60.0 * (((bf - rf) / d) + 2.0)
+            Else
+                h = 60.0 * (((rf - gf) / d) + 4.0)
+            End If
+
+            If h < 0.0 Then h += 360.0
+        End Sub
+
 
     End Module
 

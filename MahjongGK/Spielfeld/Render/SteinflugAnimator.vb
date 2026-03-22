@@ -47,7 +47,7 @@ Namespace Spielfeld
     ''' 
     ''' Hier sind alle Funktionen zur Animation angesiedelt einschließlich deren Verwaltung.
     ''' </summary>
-    Public Module SpielfeldAnimator
+    Public Module SteinflugAnimator
 
         'Grundregeln aller Funktionen:
         'bmp ist das Original.
@@ -59,7 +59,7 @@ Namespace Spielfeld
 
         'Animations-Set (12 Stück)
 
-        Public Enum AnimationType
+        Public Enum AirplaneAnimation
             None = 0
             ScaleDown = 1
             ScaleUp = 2
@@ -75,20 +75,20 @@ Namespace Spielfeld
             RotatePulse = 12
         End Enum
 
-        Public Function RunAnimation(animType As AnimationType, bmp As Bitmap, aktStep As Integer, maxStep As Integer) As Bitmap
+        Public Function RunAnimation(animType As AirplaneAnimation, bmp As Bitmap, aktStep As Integer, maxStep As Integer) As Bitmap
             Select Case animType
-                Case AnimationType.ScaleDown : Return Animation_ScaleDown(bmp, aktStep, maxStep)
-                Case AnimationType.ScaleUp : Return Animation_ScaleUp(bmp, aktStep, maxStep)
-                Case AnimationType.Rotate : Return Animation_Rotate(bmp, aktStep, maxStep)
-                Case AnimationType.RotateShrink : Return Animation_RotateShrink(bmp, aktStep, maxStep)
-                Case AnimationType.FlipX : Return Animation_FlipX(bmp, aktStep, maxStep)
-                Case AnimationType.FlipY : Return Animation_FlipY(bmp, aktStep, maxStep)
-                Case AnimationType.FlipShrink : Return Animation_FlipShrink(bmp, aktStep, maxStep)
-                Case AnimationType.Pulse : Return Animation_Pulse(bmp, aktStep, maxStep)
-                Case AnimationType.SlideLeft : Return Animation_SlideLeft(bmp, aktStep, maxStep)
-                Case AnimationType.SlideUp : Return Animation_SlideUp(bmp, aktStep, maxStep)
-                Case AnimationType.ScaleSlide : Return Animation_ScaleSlide(bmp, aktStep, maxStep)
-                Case AnimationType.RotatePulse : Return Animation_RotatePulse(bmp, aktStep, maxStep)
+                Case AirplaneAnimation.ScaleDown : Return Animation_ScaleDown(bmp, aktStep, maxStep)
+                Case AirplaneAnimation.ScaleUp : Return Animation_ScaleUp(bmp, aktStep, maxStep)
+                Case AirplaneAnimation.Rotate : Return Animation_Rotate(bmp, aktStep, maxStep)
+                Case AirplaneAnimation.RotateShrink : Return Animation_RotateShrink(bmp, aktStep, maxStep)
+                Case AirplaneAnimation.FlipX : Return Animation_FlipX(bmp, aktStep, maxStep)
+                Case AirplaneAnimation.FlipY : Return Animation_FlipY(bmp, aktStep, maxStep)
+                Case AirplaneAnimation.FlipShrink : Return Animation_FlipShrink(bmp, aktStep, maxStep)
+                Case AirplaneAnimation.Pulse : Return Animation_Pulse(bmp, aktStep, maxStep)
+                Case AirplaneAnimation.SlideLeft : Return Animation_SlideLeft(bmp, aktStep, maxStep)
+                Case AirplaneAnimation.SlideUp : Return Animation_SlideUp(bmp, aktStep, maxStep)
+                Case AirplaneAnimation.ScaleSlide : Return Animation_ScaleSlide(bmp, aktStep, maxStep)
+                Case AirplaneAnimation.RotatePulse : Return Animation_RotatePulse(bmp, aktStep, maxStep)
                 Case Else
                     Return bmp ' keine Animation
             End Select
