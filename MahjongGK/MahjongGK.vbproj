@@ -194,6 +194,7 @@
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Helfer\GfxHelfer.vb" />
+    <Compile Include="Spielfeld\Helferklassen\ArrFBResizeHelper.vb" />
     <Compile Include="Spielfeld\Helfermodule\BitmapFingerprint.vb" />
     <Compile Include="Spielfeld\Helferklassen\OverlayColorPalette.vb" />
     <Compile Include="Spielfeld\Main\SFMain.vb" />

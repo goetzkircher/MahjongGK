@@ -16,8 +16,8 @@ Public Module MahjongConst
 
     'Das ist die Mindestfeldgröße, die für die Funktionen
     'Vorlagen_Pyramide und Vorlagen_Spielfeldaufteilung benötigt werden. 
-    Public Const MJ_STEINE_MINX As Integer = 5
-    Public Const MJ_STEINE_MINY As Integer = 5
+    Public Const MJ_STEINE_MINX As Integer = 1
+    Public Const MJ_STEINE_MINY As Integer = 1
     Public Const MJ_STEINE_MINZ As Integer = 1
 
     'Nach meinen Recherchen nach haben Mahjong-Layouts haben typischerweise
@@ -40,8 +40,6 @@ Public Module MahjongConst
     Public Const MJ_STEINE_VORRATMAXDEFAULT As Integer = 500
     Public Const MJ_STEINE_VORRATNACHSCHUBSCHWELLEDEFAULT As Integer = 250
 
-
-
     ''ergibt bei 30 Steinen nebeneinander 15 Steine übereinander
     'Public Const MJ_STEINE_OVERANOTHER_MAX As Integer =
     '            (MJ_STEINE_SIDEBYSIDE_MAX * MJ_GRAFIK_ORG_WIDTH * MJ_SPIELFELD_MIN_HEIGHT) \
@@ -63,12 +61,10 @@ Public Module MahjongConst
     Public Const MJ_STEINE_SUMMESTEINE152_NORMAL As Integer = 4 * MJ_STEINE_SUMMESTEINE042_NORMAL
     Public Const MJ_STEINE_SUMMESTEINE152_SONDER As Integer = 2 * MJ_STEINE_SUMMESTEINE042_SONDER
 
-
     Public Const MJ_STEIN_VERTEILUNG_FAKTOR_144_NORMAL As Single = MJ_STEINE_SUMMESTEINE144_NORMAL / MJ_STEINE_SUMMESTEINE144_ALLE * 1 / MJ_STEINE_SUMMESTEINE042_NORMAL
     Public Const MJ_STEIN_VERTEILUNG_FAKTOR_144_SONDER As Single = MJ_STEINE_SUMMESTEINE144_SONDER / MJ_STEINE_SUMMESTEINE144_ALLE * 1 / MJ_STEINE_SUMMESTEINE042_SONDER
     Public Const MJ_STEIN_VERTEILUNG_FAKTOR_152_NORMAL As Single = MJ_STEINE_SUMMESTEINE152_NORMAL / MJ_STEINE_SUMMESTEINE152_ALLE * 1 / MJ_STEINE_SUMMESTEINE042_NORMAL
     Public Const MJ_STEIN_VERTEILUNG_FAKTOR_152_SONDER As Single = MJ_STEINE_SUMMESTEINE152_SONDER / MJ_STEINE_SUMMESTEINE152_ALLE * 1 / MJ_STEINE_SUMMESTEINE042_SONDER
-
 
     '
     '
@@ -107,7 +103,5 @@ Public Module MahjongConst
 
     'Public Const MJ_OFFSET3DFAKTOR_MAX_LEFT As Double = MJ_OFFSET3D_MAX_LEFT / MJ_GRAFIK_ORG_WIDTH
     'Public Const MJ_OFFSET3DFAKTOR_MAX_TOP As Double = MJ_OFFSET3D_MAX_TOP / MJ_GRAFIK_ORG_HEIGHT
-
-
 
 End Module

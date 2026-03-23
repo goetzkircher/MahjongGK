@@ -163,7 +163,7 @@ Namespace Spielfeld
                 SFDatDisposeAndSetNothing(saveSpielFeld:=If(SFDat.SFInf.xMax = 0, False, True))
             End If
 
-            If Not SFInfo.CheckSpielsize(spielfeldinfo.SpielSize) Then
+            If Not SFInfo.CheckSpielsize(spielfeldinfo.SpielSizeInSteinen) Then
                 Return False
             End If
 

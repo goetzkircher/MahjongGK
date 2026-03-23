@@ -320,24 +320,45 @@ Namespace Spielfeld
             Dim penI As Pen = GetPenGridInside()
             Dim penO As Pen = GetPenGridOutside()
 
-            _sfd.SFRun.BackBufferGfx.DrawRectangle(penO, _sfd.SFLay.rxStageUsed.BoundsRect)
+            Dim gfx As Graphics = _sfd.SFRun.BackBufferGfx
+            Dim lay As SFLayout = _sfd.SFLay
+            Dim inf As SFInfo = _sfd.SFInf
 
-            Dim xLine As Integer = _sfd.SFLay.rxStageUsed.Left + _sfd.SFLay.offset3DLeftSumme + (_sfd.SFInf.xMin - 1) * _sfd.SFLay.steinWidthHalf
-            Dim yTop As Integer = _sfd.SFLay.rxStageUsed.Top + _sfd.SFLay.offset3DTopSumme
-            Dim yBottom As Integer = _sfd.SFLay.rxStageUsed.Bottom
+            Dim rxStage As Rectangle = lay.rxStageUsed.BoundsRect
 
-            For x As Integer = _sfd.SFInf.xMin To _sfd.SFInf.xMax
-                _sfd.SFRun.BackBufferGfx.DrawLine(penI, xLine, yTop, xLine, yBottom)
-                xLine += _sfd.SFLay.steinWidthHalf
+            Dim leftStage As Integer = lay.rxStageUsed.Left
+            Dim topStage As Integer = lay.rxStageUsed.Top
+            Dim rightStage As Integer = lay.rxStageUsed.Right
+            Dim bottomStage As Integer = lay.rxStageUsed.Bottom
+
+            Dim offsetLeft As Integer = lay.offset3DLeftSumme
+            Dim offsetTop As Integer = lay.offset3DTopSumme
+            Dim steinWidthHalf As Integer = lay.steinWidthHalf
+            Dim steinHeightHalf As Integer = lay.steinHeightHalf
+
+            Dim xMin As Integer = inf.xMin
+            Dim xMax As Integer = inf.xMax
+            Dim yMin As Integer = inf.yMin
+            Dim yMax As Integer = inf.yMax
+
+            gfx.DrawRectangle(penO, rxStage)
+
+            Dim xLine As Integer = leftStage + offsetLeft + (xMin - 1) * steinWidthHalf
+            Dim yTop As Integer = topStage + offsetTop
+            Dim yBottom As Integer = bottomStage
+
+            For x As Integer = xMin To xMax
+                gfx.DrawLine(penI, xLine, yTop, xLine, yBottom)
+                xLine += steinWidthHalf
             Next
 
-            Dim yLine As Integer = _sfd.SFLay.rxStageUsed.Top + _sfd.SFLay.offset3DTopSumme + (_sfd.SFInf.yMin - 1) * _sfd.SFLay.steinHeightHalf
-            Dim xLeft As Integer = _sfd.SFLay.rxStageUsed.Left + _sfd.SFLay.offset3DLeftSumme
-            Dim xRight As Integer = _sfd.SFLay.rxStageUsed.Right
+            Dim yLine As Integer = topStage + offsetTop + (yMin - 1) * steinHeightHalf
+            Dim xLeft As Integer = leftStage + offsetLeft
+            Dim xRight As Integer = rightStage
 
-            For y As Integer = _sfd.SFInf.yMin To _sfd.SFInf.yMax
-                _sfd.SFRun.BackBufferGfx.DrawLine(penI, xLeft, yLine, xRight, yLine)
-                yLine += _sfd.SFLay.steinHeightHalf
+            For y As Integer = yMin To yMax
+                gfx.DrawLine(penI, xLeft, yLine, xRight, yLine)
+                yLine += steinHeightHalf
             Next
 
         End Sub
@@ -348,16 +369,16 @@ Namespace Spielfeld
         Private _penGridOutsideColor As Color
         Private Function GetPenGridInside() As Pen
 
-            Dim clr As Color = INI.Editor_GridColorInside
+            Dim color As Color = SFDat.SFLay.UGrdOverlayColorPalette.ColorNormal   'INI.Editor_GridColorInside
 
-            If IsNothing(_penGridInside) OrElse _penGridInsideColor <> clr Then
+            If IsNothing(_penGridInside) OrElse _penGridInsideColor <> color Then
 
                 If Not IsNothing(_penGridInside) Then
                     _penGridInside.Dispose()
                 End If
 
-                _penGridInside = New Pen(clr, 1)
-                _penGridInsideColor = clr
+                _penGridInside = New Pen(color, 1)
+                _penGridInsideColor = color
 
             End If
 
@@ -367,16 +388,16 @@ Namespace Spielfeld
 
         Private Function GetPenGridOutside() As Pen
 
-            Dim clr As Color = INI.Editor_GridColorOutside
+            Dim color As Color = SFDat.SFLay.UGrdOverlayColorPalette.ColorSelected 'INI.Editor_GridColorOutside
 
-            If IsNothing(_penGridOutside) OrElse _penGridOutsideColor <> clr Then
+            If IsNothing(_penGridOutside) OrElse _penGridOutsideColor <> color Then
 
                 If Not IsNothing(_penGridOutside) Then
                     _penGridOutside.Dispose()
                 End If
 
-                _penGridOutside = New Pen(clr, 1)
-                _penGridOutsideColor = clr
+                _penGridOutside = New Pen(color, 1)
+                _penGridOutsideColor = color
 
             End If
 

@@ -30,6 +30,7 @@ Public Class Num2UpDown
 
     Public Event ValueChanged()
 
+#Disable Warning BC40054
     Public Sub New()
 
         MyBase.New()
@@ -80,7 +81,6 @@ Public Class Num2UpDown
         AddHandler _lbl.MouseUp, AddressOf OnArrowMouseUp
         AddHandler Me.MouseUp, AddressOf OnArrowMouseUp
 
-
         Controls.Add(_picLeft)
         Controls.Add(_lbl)
         Controls.Add(_picRight)
@@ -88,7 +88,6 @@ Public Class Num2UpDown
         PerformLayout()
 
     End Sub
-
 
     ' 1) Zentrale Methode
     Private Sub ApplyArrowImages()
@@ -225,7 +224,6 @@ Public Class Num2UpDown
         End If
     End Sub
 
-
     Private Shared Sub ValidateBound(b As Integer, paramName As String)
         If b < HARD_MIN OrElse b > HARD_MAX Then
             Throw New ArgumentOutOfRangeException(paramName, $"Wert muss zwischen {HARD_MIN} und {HARD_MAX} liegen.")
@@ -283,7 +281,6 @@ Public Class Num2UpDown
         End If
         Me.Focus()
     End Sub
-
 
     Private Shared Function FormatTwoDigits(n As Integer) As String
         If n < HARD_MIN Then n = HARD_MIN

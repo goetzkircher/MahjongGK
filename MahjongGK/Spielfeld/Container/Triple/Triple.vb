@@ -118,7 +118,6 @@ Public Class Triple
         End Get
     End Property
 
-
     <DebuggerBrowsable(DebuggerBrowsableState.Never)>
     Private ReadOnly Property DebuggerView As String
         Get
@@ -138,7 +137,6 @@ Public Class Triple
     Sub New(x As Integer, y As Integer, z As Integer, valide As ValidePlace)
         _x = x : _y = y : _z = z : _Valide = valide
     End Sub
-
 
     Sub New(tripl As Triple, valide As ValidePlace)
         _x = tripl.x : _y = tripl.y : _z = tripl.z : _Valide = valide
@@ -165,8 +163,6 @@ Public Class Triple
         End Get
     End Property
 
-
-
     Public Function IsEqual(triple As Triple) As Boolean
         If IsNothing(triple) Then
             Return False
@@ -176,6 +172,14 @@ Public Class Triple
     End Function
     Public Function IsEqual(x As Integer, y As Integer, z As Integer) As Boolean
         Return Me.x = x AndAlso Me.y = y AndAlso Me.z = z
+    End Function
+
+    Public Function IsNotEqual(triple As Triple) As Boolean
+        If IsNothing(triple) Then
+            Return True
+        Else
+            Return Not (x = triple.x AndAlso y = triple.y AndAlso z = triple.z)
+        End If
     End Function
 
     Public ReadOnly Property IsEmpty As Boolean

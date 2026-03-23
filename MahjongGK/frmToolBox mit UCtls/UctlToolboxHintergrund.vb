@@ -31,6 +31,7 @@ Imports System.Drawing.Drawing2D
 Imports System.Drawing.Imaging
 '
 Imports System.IO
+Imports MahjongGK.Spielfeld
 
 Public Class UctlToolboxHintergrund
     Public Sub InitialisierungAndUpdate()
@@ -47,42 +48,42 @@ Public Class UctlToolboxHintergrund
     Private m_iZuweisungAktiv As Integer = 0
 
     Private Sub CopyIniToControl()
-        'TODO SFD-Anpassung
-        '' '
-        ''With lblToolboxHGrdSplFldColor
-        ''    If Spielfeld.SFD.SpielfeldSpielfeldInfo.Toolbox_HGrdSplFldColor = Color.Empty Then
-        ''        .ForeColor = SystemColors.GrayText
-        ''        .BackColor = Color.Transparent
-        ''        .Text = NOCOLSEL
-        ''    Else
-        ''        .Text = String.Empty
-        ''        .BackColor = Spielfeld.SFD.SpielfeldSpielfeldInfo.Toolbox_HGrdSplFldColor
-        ''    End If
-        ''End With
-        '' '
-        ''With lblToolboxHGrdSplFldColorFallback
-        ''    If INI.Toolbox_HGrdSplFldColorFallback = Color.Empty Then
-        ''        .ForeColor = SystemColors.GrayText
-        ''        .BackColor = Color.Transparent
-        ''        .Text = NOCOLSEL
-        ''    Else
-        ''        .Text = String.Empty
-        ''        .BackColor = INI.Toolbox_HGrdSplFldColorFallback
-        ''    End If
-        ''End With
+        'TODO SFD - Anpassung
+        '
+        With lblToolboxHGrdSplFldColor
+            If SFMain.SFDat.SFInf.Toolbox_HGrdSplFldColor = Color.Empty Then
+                .ForeColor = SystemColors.GrayText
+                .BackColor = Color.Transparent
+                .Text = NOCOLSEL
+            Else
+                .Text = String.Empty
+                .BackColor = SFMain.SFDat.SFInf.Toolbox_HGrdSplFldColor
+            End If
+        End With
+        '
+        With lblToolboxHGrdSplFldColorFallback
+            If INI.Toolbox_HGrdSplFldColorFallback = Color.Empty Then
+                .ForeColor = SystemColors.GrayText
+                .BackColor = Color.Transparent
+                .Text = NOCOLSEL
+            Else
+                .Text = String.Empty
+                .BackColor = INI.Toolbox_HGrdSplFldColorFallback
+            End If
+        End With
 
-        ''chkDrawRenderRect.Checked = INI.Rendering_DrawRenderRect
+        chkDrawRenderRect.Checked = INI.Rendering_DrawRenderRect
 
-        ''picToolboxHGrdSplFld.Image = GetMiniThumb(Spielfeld.SFD.SpielfeldSpielfeldInfo.Toolbox_HGrdSplFldBitmapName, Spielfeld.SFD.SpielfeldSpielfeldInfo.Toolbox_HGrdSplFldBitmapIsUserGrafik)
-        ''picToolboxHGrdSplFldFallback.Image = GetMiniThumb(INI.Toolbox_HGrdSplFldBitmapNameFallback, INI.Toolbox_HGrdSplFldBitmapIsUserGrafikFallback)
-        ''lblToolboxHGrdSplFldRenderMode.Text = GetTextFromBirm(Spielfeld.SFD.SpielfeldSpielfeldInfo.Toolbox_HGrdSplFldRenderMode)
-        ''lblToolboxHGrdSplFldRenderModeFallback.Text = GetTextFromBirm(INI.Toolbox_HGrdSplFldRenderModeFallback)
+        picToolboxHGrdSplFld.Image = GetMiniThumb(SFMain.SFDat.SFInf.Toolbox_HGrdSplFldBitmapName, SFMain.SFDat.SFInf.Toolbox_HGrdSplFldBitmapIsUserGrafik)
+        picToolboxHGrdSplFldFallback.Image = GetMiniThumb(INI.Toolbox_HGrdSplFldBitmapNameFallback, INI.Toolbox_HGrdSplFldBitmapIsUserGrafikFallback)
+        lblToolboxHGrdSplFldRenderMode.Text = GetTextFromBirm(SFMain.SFDat.SFInf.Toolbox_HGrdSplFldRenderMode)
+        lblToolboxHGrdSplFldRenderModeFallback.Text = GetTextFromBirm(INI.Toolbox_HGrdSplFldRenderModeFallback)
 
-        ''  'INI.Toolbox_HGrdEditorColorFallback  
-        ''  'INI.Toolbox_HGrdSplFldBitmapFallback  
-        ''  'INI.Toolbox_HGrdEditorBitmapFallback 
-        ''  'INI.Toolbox_HGrdSplFldBitmapIsUserGrafikFallback  
-        ''  'INI.Toolbox_HGrdEditorBitmapIsUserGrafikFallback  
+        'INI.Toolbox_HGrdEditorColorFallback  
+        'INI.Toolbox_HGrdSplFldBitmapFallback  
+        'INI.Toolbox_HGrdEditorBitmapFallback 
+        'INI.Toolbox_HGrdSplFldBitmapIsUserGrafikFallback  
+        'INI.Toolbox_HGrdEditorBitmapIsUserGrafikFallback  
 
     End Sub
 
@@ -278,88 +279,88 @@ Public Class UctlToolboxHintergrund
         End Select
     End Function
 
-    ''TODO SFD-Anpassung
-    ''Private Sub btnToolboxHGrdSplFldBitmapClear_Click(sender As Object, e As EventArgs) Handles btnToolboxHGrdSplFldBitmapClear.Click
-    ''    With Spielfeld.SFD.SpielfeldSpielfeldInfo
-    ''        .Toolbox_HGrdSplFldBitmapIsUserGrafik = False
-    ''        .Toolbox_HGrdSplFldBitmapName = String.Empty
-    ''        .Toolbox_HGrdSplFldRenderMode = BackgroundImageRenderMode.None
-    ''    End With
-    ''    With picToolboxHGrdSplFld
-    ''        .Image = BuildNoSelectionMiniThumb(New Size(.Width, .Height), Me.Font, Me.BackColor)
-    ''    End With
-    ''End Sub
-    ''Private Sub btnToolboxHGrdSplFldBitmapClearFallback_Click(sender As Object, e As EventArgs) Handles btnToolboxHGrdSplFldBitmapClearFallback.Click
-    ''    INI.Toolbox_HGrdSplFldBitmapIsUserGrafikFallback = False
-    ''    INI.Toolbox_HGrdSplFldBitmapNameFallback = String.Empty
-    ''    INI.Toolbox_HGrdSplFldRenderModeFallback = BackgroundImageRenderMode.None
-    ''    With picToolboxHGrdSplFldFallback
-    ''        .Image = BuildNoSelectionMiniThumb(New Size(.Width, .Height), Me.Font, Me.BackColor)
-    ''    End With
-    ''End Sub
+    'TODO SFD-Anpassung
+    Private Sub btnToolboxHGrdSplFldBitmapClear_Click(sender As Object, e As EventArgs) Handles btnToolboxHGrdSplFldBitmapClear.Click
+        With SFMain.SFDat.SFInf
+            .Toolbox_HGrdSplFldBitmapIsUserGrafik = False
+            .Toolbox_HGrdSplFldBitmapName = String.Empty
+            .Toolbox_HGrdSplFldRenderMode = Images.BackgroundImageRenderMode.None
+        End With
+        With picToolboxHGrdSplFld
+            .Image = BuildNoSelectionMiniThumb(New Size(.Width, .Height), Me.Font, Me.BackColor)
+        End With
+    End Sub
+    Private Sub btnToolboxHGrdSplFldBitmapClearFallback_Click(sender As Object, e As EventArgs) Handles btnToolboxHGrdSplFldBitmapClearFallback.Click
+        INI.Toolbox_HGrdSplFldBitmapIsUserGrafikFallback = False
+        INI.Toolbox_HGrdSplFldBitmapNameFallback = String.Empty
+        INI.Toolbox_HGrdSplFldRenderModeFallback = Images.BackgroundImageRenderMode.None
+        With picToolboxHGrdSplFldFallback
+            .Image = BuildNoSelectionMiniThumb(New Size(.Width, .Height), Me.Font, Me.BackColor)
+        End With
+    End Sub
 
-    ''Private Sub btnToolboxHGrdSplFldBitmapName_Click(sender As Object, e As EventArgs) Handles btnToolboxHGrdSplFldBitmapName.Click
+    Private Sub btnToolboxHGrdSplFldBitmapName_Click(sender As Object, e As EventArgs) Handles btnToolboxHGrdSplFldBitmapName.Click
 
-    ''    With Spielfeld.SFD.SpielfeldSpielfeldInfo
-    ''        Using frm As New BackgroundSelector(If(.Toolbox_HGrdSplFldBitmapIsUserGrafik,
-    ''                                  INI.AppDataDirectory(AppDataSubDir.Eigene_Hintergrundgrafiken),
-    ''                                  INI.AppDataDirectory(AppDataSubDir.Hintergrundgrafiken)))
-    ''            frm.IsUserGrafik = .Toolbox_HGrdSplFldBitmapIsUserGrafik
-    ''            frm.SelectedFile = .Toolbox_HGrdSplFldBitmapName
-    ''            frm.SelectedMode = .Toolbox_HGrdSplFldRenderMode
-    ''            If frm.ShowDialog = DialogResult.OK Then
-    ''                .Toolbox_HGrdSplFldBitmapIsUserGrafik = frm.IsUserGrafik
-    ''                .Toolbox_HGrdSplFldBitmapName = frm.SelectedFile
-    ''                With picToolboxHGrdSplFld
-    ''                    .Image = GetMiniThumb(frm.SelectedFile, frm.IsUserGrafik)
-    ''                    .Refresh()
-    ''                End With
-    ''                lblToolboxHGrdSplFldRenderMode.Text = GetTextFromBirm(frm.SelectedMode)
-    ''                .Toolbox_HGrdSplFldRenderMode = frm.SelectedMode
-    ''            End If
-    ''        End Using
-    ''    End With
-    ''End Sub
+        With SFMain.SFDat.SFInf
+            Using frm As New BackgroundSelector(If(.Toolbox_HGrdSplFldBitmapIsUserGrafik,
+                                      INI.AppDataDirectory(AppDataSubDir.Eigene_Hintergrundgrafiken),
+                                      INI.AppDataDirectory(AppDataSubDir.Hintergrundgrafiken)))
+                frm.IsUserGrafik = .Toolbox_HGrdSplFldBitmapIsUserGrafik
+                frm.SelectedFile = .Toolbox_HGrdSplFldBitmapName
+                frm.SelectedMode = .Toolbox_HGrdSplFldRenderMode
+                If frm.ShowDialog = DialogResult.OK Then
+                    .Toolbox_HGrdSplFldBitmapIsUserGrafik = frm.IsUserGrafik
+                    .Toolbox_HGrdSplFldBitmapName = frm.SelectedFile
+                    With picToolboxHGrdSplFld
+                        .Image = GetMiniThumb(frm.SelectedFile, frm.IsUserGrafik)
+                        .Refresh()
+                    End With
+                    lblToolboxHGrdSplFldRenderMode.Text = GetTextFromBirm(frm.SelectedMode)
+                    .Toolbox_HGrdSplFldRenderMode = frm.SelectedMode
+                End If
+            End Using
+        End With
+    End Sub
 
-    ''Private Sub btnToolboxHGrdSplFldBitmapNameFallback_Click(sender As Object, e As EventArgs) Handles btnToolboxHGrdSplFldBitmapNameFallback.Click
-    ''    Using frm As New BackgroundSelector(If(INI.Toolbox_HGrdSplFldBitmapIsUserGrafikFallback,
-    ''                                  INI.AppDataDirectory(AppDataSubDir.Eigene_Hintergrundgrafiken),
-    ''                                  INI.AppDataDirectory(AppDataSubDir.Hintergrundgrafiken)))
-    ''        frm.IsUserGrafik = INI.Toolbox_HGrdSplFldBitmapIsUserGrafikFallback
-    ''        frm.SelectedFile = INI.Toolbox_HGrdSplFldBitmapNameFallback
-    ''        frm.SelectedMode = INI.Toolbox_HGrdSplFldRenderModeFallback
-    ''        If frm.ShowDialog = DialogResult.OK Then
-    ''            INI.Toolbox_HGrdSplFldBitmapIsUserGrafikFallback = frm.IsUserGrafik
-    ''            INI.Toolbox_HGrdSplFldBitmapNameFallback = frm.SelectedFile
-    ''            With picToolboxHGrdSplFldFallback
-    ''                .Image = GetMiniThumb(frm.SelectedFile, frm.IsUserGrafik)
-    ''                .Refresh()
-    ''            End With
-    ''            lblToolboxHGrdSplFldRenderModeFallback.Text = GetTextFromBirm(frm.SelectedMode)
-    ''            INI.Toolbox_HGrdSplFldRenderModeFallback = frm.SelectedMode
-    ''        End If
-    ''    End Using
-    ''End Sub
+    Private Sub btnToolboxHGrdSplFldBitmapNameFallback_Click(sender As Object, e As EventArgs) Handles btnToolboxHGrdSplFldBitmapNameFallback.Click
+        Using frm As New BackgroundSelector(If(INI.Toolbox_HGrdSplFldBitmapIsUserGrafikFallback,
+                                      INI.AppDataDirectory(AppDataSubDir.Eigene_Hintergrundgrafiken),
+                                      INI.AppDataDirectory(AppDataSubDir.Hintergrundgrafiken)))
+            frm.IsUserGrafik = INI.Toolbox_HGrdSplFldBitmapIsUserGrafikFallback
+            frm.SelectedFile = INI.Toolbox_HGrdSplFldBitmapNameFallback
+            frm.SelectedMode = INI.Toolbox_HGrdSplFldRenderModeFallback
+            If frm.ShowDialog = DialogResult.OK Then
+                INI.Toolbox_HGrdSplFldBitmapIsUserGrafikFallback = frm.IsUserGrafik
+                INI.Toolbox_HGrdSplFldBitmapNameFallback = frm.SelectedFile
+                With picToolboxHGrdSplFldFallback
+                    .Image = GetMiniThumb(frm.SelectedFile, frm.IsUserGrafik)
+                    .Refresh()
+                End With
+                lblToolboxHGrdSplFldRenderModeFallback.Text = GetTextFromBirm(frm.SelectedMode)
+                INI.Toolbox_HGrdSplFldRenderModeFallback = frm.SelectedMode
+            End If
+        End Using
+    End Sub
 
-    ''Private Sub btnToolboxHGrdSplFldColorClear_Click(sender As Object, e As EventArgs) Handles btnToolboxHGrdSplFldColorClear.Click
-    ''    Spielfeld.SFD.SpielfeldSpielfeldInfo.Toolbox_HGrdSplFldColor = Color.Empty
-    ''    ClearColor(lblToolboxHGrdSplFldColor)
-    ''End Sub
-    ''Private Sub btnToolboxHGrdSplFldColorClearFallback_Click(sender As Object, e As EventArgs) Handles btnToolboxHGrdSplFldColorClearFallback.Click
-    ''    INI.Toolbox_HGrdSplFldColorFallback = Color.Empty
-    ''    lblToolboxHGrdSplFldColorFallback.BackColor = Color.Transparent
-    ''End Sub
+    Private Sub btnToolboxHGrdSplFldColorClear_Click(sender As Object, e As EventArgs) Handles btnToolboxHGrdSplFldColorClear.Click
+        SFMain.SFDat.SFInf.Toolbox_HGrdSplFldColor = Color.Empty
+        ClearColor(lblToolboxHGrdSplFldColor)
+    End Sub
+    Private Sub btnToolboxHGrdSplFldColorClearFallback_Click(sender As Object, e As EventArgs) Handles btnToolboxHGrdSplFldColorClearFallback.Click
+        INI.Toolbox_HGrdSplFldColorFallback = Color.Empty
+        lblToolboxHGrdSplFldColorFallback.BackColor = Color.Transparent
+    End Sub
 
-    ''Private Sub btnToolboxHGrdSplFldColor_Click(sender As Object, e As EventArgs) Handles btnToolboxHGrdSplFldColor.Click
-    ''    If GetColor(lblToolboxHGrdSplFldColor) Then
-    ''        Spielfeld.SFD.SpielfeldSpielfeldInfo.Toolbox_HGrdSplFldColor = lblToolboxHGrdSplFldColor.BackColor
-    ''    End If
-    ''End Sub
-    ''Private Sub btnToolboxHGrdSplFldColorFallback_Click(sender As Object, e As EventArgs) Handles btnToolboxHGrdSplFldColorFallback.Click
-    ''    If GetColor(lblToolboxHGrdSplFldColorFallback) Then
-    ''        INI.Toolbox_HGrdSplFldColorFallback = lblToolboxHGrdSplFldColorFallback.BackColor
-    ''    End If
-    ''End Sub
+    Private Sub btnToolboxHGrdSplFldColor_Click(sender As Object, e As EventArgs) Handles btnToolboxHGrdSplFldColor.Click
+        If GetColor(lblToolboxHGrdSplFldColor) Then
+            SFMain.SFDat.SFInf.Toolbox_HGrdSplFldColor = lblToolboxHGrdSplFldColor.BackColor
+        End If
+    End Sub
+    Private Sub btnToolboxHGrdSplFldColorFallback_Click(sender As Object, e As EventArgs) Handles btnToolboxHGrdSplFldColorFallback.Click
+        If GetColor(lblToolboxHGrdSplFldColorFallback) Then
+            INI.Toolbox_HGrdSplFldColorFallback = lblToolboxHGrdSplFldColorFallback.BackColor
+        End If
+    End Sub
 
     Private Sub chkToolboxHGrdEditorShowFraming_CheckedChanged(sender As Object, e As EventArgs) Handles chkToolboxHGrdEditorShowFraming.CheckedChanged
 

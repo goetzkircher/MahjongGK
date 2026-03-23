@@ -221,6 +221,8 @@ Namespace Spielfeld
         Public Property rxUndo As RectangleX = Nothing
         Public Property rxRedo As RectangleX = Nothing
 
+        Public Property UGrdOverlayColorPalette As OverlayColorPalette = Nothing
+
         Private Property BitmapUGrdFingerprint As Spielfeld.BitmapFingerprint
 
         Private _bitmapsUndoRedo(1, 3) As Bitmap 'Ist automatisch mit Nothigg initialisiert
@@ -527,35 +529,39 @@ Namespace Spielfeld
 
             'Prüfen, ob sich der Hintergrund geändert hat?
             Dim createNew As Boolean = True
+            ' Dim colorPalette As OverlayColorPalette
+
+            If Not IsNothing(_sfd.SFLay.rxBitmapUgrd) Then
+                If _sfd.SFInf.HasBitmapUGrd Then
+                    Dim bmp As Bitmap = _sfd.SFInf.BitmapUGrdSingleImgCache.GetBitmap(rxBitmapUgrd.Size)
+                    Dim fingerprint As BitmapFingerprint = Spielfeld.CreateBitmapFingerprint(bmp)
+                    If Not fingerprint.Equals(BitmapUGrdFingerprint) Then
+                        UGrdOverlayColorPalette = New OverlayColorPalette(_sfd.SFInf.BitmapUGrdSingleImgCache.GetBitmap(rxBitmapUgrd.Size))
+                        BitmapUGrdFingerprint = fingerprint
+                    End If
+                Else
+                    UGrdOverlayColorPalette = New OverlayColorPalette(_sfd.SFInf.HGrdSplFldColor)
+                End If
+            Else
+                UGrdOverlayColorPalette = New OverlayColorPalette(INI.Rendering_BackgroundColor)
+            End If
 
             If (rxUndo IsNot Nothing OrElse rxRedo IsNot Nothing) AndAlso createNew Then
 
-                Dim UndoRedoPalette As OverlayColorPalette
-
-                If Not IsNothing(_sfd.SFLay.rxBitmapUgrd) Then
-                    If _sfd.SFInf.HasBitmapUGrd Then
-                        UndoRedoPalette = New OverlayColorPalette(_sfd.SFInf.BitmapUGrdSingleImgCache.GetBitmap(rxBitmapUgrd.Size))
-                    Else
-                        UndoRedoPalette = New OverlayColorPalette(_sfd.SFInf.HGrdSplFldColor)
-                    End If
-                Else
-                    UndoRedoPalette = New OverlayColorPalette(INI.Rendering_BackgroundColor)
-                End If
-
-                Dim bmpUndo As Bitmap = Images.UndoRedoBitmapFactory.CreateUndoRedoBitmap(Images.UndoRedoGlyph.Undo, UndoRedoPalette.ColorNormal, rxUndo.Size.Width)
-                Dim bmpRedo As Bitmap = Images.UndoRedoBitmapFactory.CreateUndoRedoBitmap(Images.UndoRedoGlyph.Redo, UndoRedoPalette.ColorNormal, rxUndo.Size.Width)
+                Dim bmpUndo As Bitmap = Images.UndoRedoBitmapFactory.CreateUndoRedoBitmap(Images.UndoRedoGlyph.Undo, UGrdOverlayColorPalette.ColorNormal, rxUndo.Size.Width)
+                Dim bmpRedo As Bitmap = Images.UndoRedoBitmapFactory.CreateUndoRedoBitmap(Images.UndoRedoGlyph.Redo, UGrdOverlayColorPalette.ColorNormal, rxUndo.Size.Width)
 
                 BitmapUnRe(UndoRedoBmp.Undo, UndoRedoMode.Normal) = bmpUndo
                 BitmapUnRe(UndoRedoBmp.Redo, UndoRedoMode.Normal) = bmpRedo
 
-                BitmapUnRe(UndoRedoBmp.Undo, UndoRedoMode.MouseOver) = Spielfeld.RenderHelper.DrawOverlay_Außenrahmen3D(bmpUndo, rahmenbreite:=2, UndoRedoPalette.ColorMouseOver, copyBitmap:=True)
-                BitmapUnRe(UndoRedoBmp.Redo, UndoRedoMode.MouseOver) = Spielfeld.RenderHelper.DrawOverlay_Außenrahmen3D(bmpRedo, rahmenbreite:=2, UndoRedoPalette.ColorMouseOver, copyBitmap:=True)
+                BitmapUnRe(UndoRedoBmp.Undo, UndoRedoMode.MouseOver) = Spielfeld.RenderHelper.DrawOverlay_Außenrahmen3D(bmpUndo, rahmenbreite:=2, UGrdOverlayColorPalette.ColorMouseOver, copyBitmap:=True)
+                BitmapUnRe(UndoRedoBmp.Redo, UndoRedoMode.MouseOver) = Spielfeld.RenderHelper.DrawOverlay_Außenrahmen3D(bmpRedo, rahmenbreite:=2, UGrdOverlayColorPalette.ColorMouseOver, copyBitmap:=True)
 
-                BitmapUnRe(UndoRedoBmp.Undo, UndoRedoMode.MouseDown) = Spielfeld.RenderHelper.DrawOverlay_Außenrahmen3D(bmpUndo, rahmenbreite:=2, UndoRedoPalette.ColorMouseDown, copyBitmap:=True)
-                BitmapUnRe(UndoRedoBmp.Redo, UndoRedoMode.MouseDown) = Spielfeld.RenderHelper.DrawOverlay_Außenrahmen3D(bmpRedo, rahmenbreite:=2, UndoRedoPalette.ColorMouseDown, copyBitmap:=True)
+                BitmapUnRe(UndoRedoBmp.Undo, UndoRedoMode.MouseDown) = Spielfeld.RenderHelper.DrawOverlay_Außenrahmen3D(bmpUndo, rahmenbreite:=2, UGrdOverlayColorPalette.ColorMouseDown, copyBitmap:=True)
+                BitmapUnRe(UndoRedoBmp.Redo, UndoRedoMode.MouseDown) = Spielfeld.RenderHelper.DrawOverlay_Außenrahmen3D(bmpRedo, rahmenbreite:=2, UGrdOverlayColorPalette.ColorMouseDown, copyBitmap:=True)
 
-                BitmapUnRe(UndoRedoBmp.Undo, UndoRedoMode.Selected) = Spielfeld.RenderHelper.DrawOverlay_Außenrahmen3D(bmpUndo, rahmenbreite:=2, UndoRedoPalette.ColorSelected, copyBitmap:=True)
-                BitmapUnRe(UndoRedoBmp.Redo, UndoRedoMode.Selected) = Spielfeld.RenderHelper.DrawOverlay_Außenrahmen3D(bmpRedo, rahmenbreite:=2, UndoRedoPalette.ColorSelected, copyBitmap:=True)
+                BitmapUnRe(UndoRedoBmp.Undo, UndoRedoMode.Selected) = Spielfeld.RenderHelper.DrawOverlay_Außenrahmen3D(bmpUndo, rahmenbreite:=2, UGrdOverlayColorPalette.ColorSelected, copyBitmap:=True)
+                BitmapUnRe(UndoRedoBmp.Redo, UndoRedoMode.Selected) = Spielfeld.RenderHelper.DrawOverlay_Außenrahmen3D(bmpRedo, rahmenbreite:=2, UGrdOverlayColorPalette.ColorSelected, copyBitmap:=True)
 
             End If
 

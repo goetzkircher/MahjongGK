@@ -1091,22 +1091,22 @@ Public Class frmMain
     End Sub
 
     Private Sub DoToolBox()
-        ''TODO SFD-Anpassung
-        ''If Spielfeld.SFD.AktRendering = RenderingEnum.None Then
-        ''    MsgBox("Kein Spiel geladen", MsgBoxStyle.Information)
-        ''Else
-        ''    ShowOrHideToolboxAndUpdateToolboxButton()
-        ''End If
+        'TODO SFD - Anpassung
+        If SFMain.RenderMode = RenderMode.NoDataLoaded Then
+            MsgBox("Kein Spiel geladen", MsgBoxStyle.Information)
+        Else
+            ShowOrHideToolboxAndUpdateToolboxButton()
+        End If
     End Sub
 
     Private Sub DoTakeScreenShot()
         ''TODO SFD-Anpassung
-        ''If Spielfeld.SFD.AktRendering = RenderingEnum.None Then
-        ''    MsgBox("Kein Spiel geladen", MsgBoxStyle.Information)
-        ''Else
-        ''    Spielfeld.PaintSpielfeld_CreateScreenShot()
-        ''    MsgBox("Screnshot erzeugt.", MsgBoxStyle.Information)
-        ''End If
+        If SFMain.RenderMode = RenderMode.NoDataLoaded Then
+            MsgBox("Kein Spiel geladen", MsgBoxStyle.Information)
+        Else
+            SFMain.SFDat.SFRenMan.PaintSpielfeld_CreateScreenShot()
+            MsgBox("Screnshot erzeugt.", MsgBoxStyle.Information)
+        End If
     End Sub
 
     Private Sub DoTipEinzel()
@@ -1193,54 +1193,54 @@ Public Class frmMain
             item = ToolStripExMain.Items("grpEditor_toolbox")
             btnToolBox = TryCast(item, ToolStripButton)
         End If
-        ''TODO SFD-Anpassung
-        ''If Not Spielfeld.SFD.ToolboxIsVisible Then
+        ' TODO SFD - Anpassung
+        If Not SFMain.SFDat.ToolboxIsVisible Then
 
-        ''    If btnToolBox IsNot Nothing Then
-        ''        btnToolBox.Image = Theme.GetResBmp(AppGrafikName.WerkzeugAktiv.ToString)
-        ''        btnToolBox.Checked = True
-        ''    End If
+            If btnToolBox IsNot Nothing Then
+                btnToolBox.Image = Theme.GetResBmp(AppGrafikName.WerkzeugAktiv.ToString)
+                btnToolBox.Checked = True
+            End If
 
-        ''    ' 3) Instanz sicherstellen
-        ''    If _frmToolBox Is Nothing OrElse _frmToolBox.IsDisposed Then
-        ''        _frmToolBox = New frmToolBox() With {
-        ''        .ShowInTaskbar = False,
-        ''        .TopMost = False   ' Relativ zu Owner statt absolut
-        ''        }
+            ' 3) Instanz sicherstellen
+            If _frmToolBox Is Nothing OrElse _frmToolBox.IsDisposed Then
+                _frmToolBox = New frmToolBox() With {
+                .ShowInTaskbar = False,
+                .TopMost = False   ' Relativ zu Owner statt absolut
+                }
 
-        ''        ' Empfehlung in frmToolBox:
-        ''        ' Private Sub frmToolBox_FormClosing(...) Handles Me.FormClosing
-        ''        '   If e.CloseReason = UserClosing Then e.Cancel = True : Me.Hide()
-        ''        ' End Sub
-        ''    End If
+                ' Empfehlung in frmToolBox:
+                ' Private Sub frmToolBox_FormClosing(...) Handles Me.FormClosing
+                '   If e.CloseReason = UserClosing Then e.Cancel = True : Me.Hide()
+                ' End Sub
+            End If
 
-        ''    Try
-        ''        ' 4) Als Owned-Form von frmMain anzeigen → bleibt über frmMain, aber nicht über anderen Apps
-        ''        _frmToolBox.Show(Me)       ' Owner setzen
-        ''        _frmToolBox.BringToFront() ' sicher nach vorne holen
-        ''        ' Optional:
-        ''        ' _frmToolBox.Activate()
+            Try
+                ' 4) Als Owned-Form von frmMain anzeigen → bleibt über frmMain, aber nicht über anderen Apps
+                _frmToolBox.Show(Me)       ' Owner setzen
+                _frmToolBox.BringToFront() ' sicher nach vorne holen
+                ' Optional:
+                ' _frmToolBox.Activate()
 
-        ''        ' 5) Maus-Overlay registrieren (falls noch nicht geschehen)
-        ''        'sonst wird die Toolbox von der Maus abgefangen und Spielfeld bekommt keine Mausbewegungen mehr,
-        ''        'wenn ein Stein unter der Toolbox hindurch gezogen wird.
-        ''        ' Spielfeld.SFD.MousePolling.RegisterOverlay(_frmToolBox.Handle) 'ist jetzt in frmToolBox
-        ''    Catch ex As Exception
-        ''        'ist bereits aktiv
-        ''    End Try
+                ' 5) Maus-Overlay registrieren (falls noch nicht geschehen)
+                'sonst wird die Toolbox von der Maus abgefangen und Spielfeld bekommt keine Mausbewegungen mehr,
+                'wenn ein Stein unter der Toolbox hindurch gezogen wird.
+                ' Spielfeld.SFD.MousePolling.RegisterOverlay(_frmToolBox.Handle) 'ist jetzt in frmToolBox
+            Catch ex As Exception
+                'ist bereits aktiv
+            End Try
 
-        ''Else
-        ''    If btnToolBox IsNot Nothing Then
-        ''        btnToolBox.Image = Theme.GetResBmp(AppGrafikName.Werkzeug.ToString)
-        ''        btnToolBox.Checked = False
-        ''    End If
+        Else
+            If btnToolBox IsNot Nothing Then
+                btnToolBox.Image = Theme.GetResBmp(AppGrafikName.Werkzeug.ToString)
+                btnToolBox.Checked = False
+            End If
 
-        ''    If _frmToolBox IsNot Nothing AndAlso Not _frmToolBox.IsDisposed Then
-        ''        _frmToolBox.Hide()
-        ''    End If
-        ''End If
+            If _frmToolBox IsNot Nothing AndAlso Not _frmToolBox.IsDisposed Then
+                _frmToolBox.Hide()
+            End If
+        End If
 
-        ''xxx Spielfeld.SFD.ToolboxIsVisible = Not Spielfeld.SFD.ToolboxIsVisible
+        SFMain.SFDat.ToolboxIsVisible = Not SFMain.SFDat.ToolboxIsVisible
 
     End Sub
 

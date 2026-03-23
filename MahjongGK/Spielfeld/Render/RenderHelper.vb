@@ -83,7 +83,7 @@ Namespace Spielfeld
                         g.FillRectangle(Brushes.Magenta, r2)
                     End If
                 End If
-                'TODO SFD-Anpassung abgechaltet
+
                 g.DrawString(SFMain.RenderMode.ToString & " - " & srcText & " - " & counter.ToString, fnt, Brushes.Black, r.X + 4, r.Y + 2)
 
             End Using

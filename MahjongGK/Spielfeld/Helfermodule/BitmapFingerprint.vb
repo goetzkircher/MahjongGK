@@ -12,24 +12,32 @@ Namespace Spielfeld
         ''' Kompakte Signatur einer Bitmap zur groben Änderungsprüfung.
         ''' </summary>
         Public Structure BitmapFingerprint
+            Implements IEquatable(Of BitmapFingerprint)
 
             Public Width As Integer
             Public Height As Integer
             Public PixelFormatValue As Integer
             Public SampleHash As Integer
 
-            Public Overrides Function Equals(ByVal obj As Object) As Boolean
+            ''Public Overrides Function Equals(ByVal obj As Object) As Boolean
+            ''    If Not TypeOf obj Is BitmapFingerprint Then
+            ''        Return False
+            ''    End If
+            ''    Dim other As BitmapFingerprint = DirectCast(obj, BitmapFingerprint)
 
-                If Not TypeOf obj Is BitmapFingerprint Then
-                    Return False
-                End If
+            ''    Return Width = other.Width AndAlso
+            ''           Height = other.Height AndAlso
+            ''           PixelFormatValue = other.PixelFormatValue AndAlso
+            ''           SampleHash = other.SampleHash
+            ''End Function
 
-                Dim other As BitmapFingerprint = DirectCast(obj, BitmapFingerprint)
+            Public Overloads Function Equals(ByVal other As BitmapFingerprint) As Boolean _
+                Implements IEquatable(Of BitmapFingerprint).Equals
 
                 Return Width = other.Width AndAlso
-               Height = other.Height AndAlso
-               PixelFormatValue = other.PixelFormatValue AndAlso
-               SampleHash = other.SampleHash
+                       Height = other.Height AndAlso
+                       PixelFormatValue = other.PixelFormatValue AndAlso
+                       SampleHash = other.SampleHash
 
             End Function
 
