@@ -42,7 +42,6 @@ Namespace Spielfeld
     ''' </summary>
     Public Class SFStockState
 
-
         ''' <summary>
         ''' Setzt auch alle Startwerte.
         ''' </summary>
@@ -97,7 +96,6 @@ Namespace Spielfeld
         Public Property OffsetLeft As Integer
         Public Property SteinVisibleAktFistIdx As Integer
         Public Property SteinVisibleAktLastIdx As Integer
-
 
         Public Property LastSteinWidth As Integer
         Public Property LastRxStockWidth As Integer
@@ -239,16 +237,7 @@ Namespace Spielfeld
         Public Sub ClearAndSetStartvalues()
 
         End Sub
-        Public Sub StartRemoveFromStock(removeSteinInfoIndex As Integer, removeAtStockIndex As Integer)
 
-            INI.Rendering_AnimationsCounterAddSteps(777)
-
-        End Sub
-        Public Sub StartInsertSteinToStock(insertSteinInfoIndex As Integer, insertAtStockIndex As Integer)
-
-            INI.Rendering_AnimationsCounterAddSteps(777)
-
-        End Sub
         '
         ''' <summary>
         ''' Das ist die Position relativ zur oberen linken Ecke des Steines,
@@ -265,13 +254,11 @@ Namespace Spielfeld
             End Get
         End Property
 
-
         Public ReadOnly Property HasSelectedMouseAnkerPos As Boolean
             Get
                 Return _hasSelectedMouseAnkerPos
             End Get
         End Property
-
 
         ''' <summary>
         ''' Die Scrollbar wird im Rendertakt aufgerufen, (also je Frame genau einmal)

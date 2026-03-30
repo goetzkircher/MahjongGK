@@ -158,8 +158,12 @@ Namespace Images
         ''' 1) keine Vorerzeugung: Größenabhängige Bitmaps nur on-demand.
         ''' 2) Größenwechsel je RenderingEnum → Cache dieser Gruppe leeren.
         ''' </summary>
+        ''' <param name="index">Welcher der 42 verschiedenen Steine</param>
+        ''' <param name="status">Welche Grundfarbe hat der Stein</param>
+        ''' <param name="size">die aktuelle Größe</param>
+        ''' <param name="aktRendering">Bestimmt das benutzte Cache</param>
+        ''' <returns></returns>
         Public Function GetStein(index As SteinIndexEnum, status As SteinStatus, size As Size, aktRendering As AktRenderMode) As Bitmap
-
 
             ' Muss ein Satz geladen sein.
             If _pack Is Nothing Then
@@ -198,7 +202,6 @@ Namespace Images
 
         End Function
 
-
         ''' <summary>
         ''' Liefert die Referenzgröße des geladenen Satzes (w, h). New Site, wenn nichts geladen
         ''' </summary>
@@ -218,7 +221,6 @@ Namespace Images
                 Return _currentSatz
             End Get
         End Property
-
 
         '###############################################################################
         '# Hilfsfunktionen (privat)

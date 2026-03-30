@@ -355,7 +355,7 @@ Namespace My.Resources
         '''</summary>
         Friend ReadOnly Property Editor() As System.Drawing.Bitmap
             Get
-                Dim obj As Object = ResourceManager.GetObject("Edit", resourceCulture)
+                Dim obj As Object = ResourceManager.GetObject("Editor", resourceCulture)
                 Return CType(obj,System.Drawing.Bitmap)
             End Get
         End Property

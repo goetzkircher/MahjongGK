@@ -27,22 +27,11 @@ Option Strict On
 '
 #Disable Warning IDE0079
 #Disable Warning IDE1006
-
-
-Public Enum FlugWeg
-    Direkt = 0
-    KurveOben = 1
-    KurveUnten = 2
-    BogenLinks = 3
-    BogenRechts = 4
-    ZickZack = 5
-    Zufall = 6
-End Enum
 '
 ''' <summary>
-''' Pfad: MahjongGK/Spielfeld/Runtime
+''' Pfad: MahjongGK\Spielfeld\Runtime\Steinflug
 ''' </summary>
-Public NotInheritable Class SteinFlugValues
+Public NotInheritable Class Airplanes_Flugweg
 
     Sub New()
 
@@ -53,7 +42,7 @@ Public NotInheritable Class SteinFlugValues
     Private ReadOnly _ptStart As Point
     Private ReadOnly _ptZiel As Point
     Private ReadOnly _steinSize As Size
-    Private ReadOnly _weg As FlugWeg
+    Private ReadOnly _weg As AirFlugWeg
 
     '
     ''' <summary>
@@ -91,7 +80,7 @@ Public NotInheritable Class SteinFlugValues
     Public Sub New(ByVal ptStart As Point,
                    ByVal ptZiel As Point,
                    ByVal steinSize As Size,
-                   ByVal weg As FlugWeg,
+                   ByVal weg As AirFlugWeg,
                    ByVal geschwindigkeitProFrame As Double)
 
         _ptStart = ptStart
@@ -104,8 +93,8 @@ Public NotInheritable Class SteinFlugValues
             _geschwindigkeitProFrame = geschwindigkeitProFrame
         End If
 
-        If weg = FlugWeg.Zufall Then
-            _weg = CType(_rnd.Next(0, 6), FlugWeg)
+        If weg = AirFlugWeg.Zufall Then
+            _weg = CType(_rnd.Next(0, 6), AirFlugWeg)
         Else
             _weg = weg
         End If
@@ -144,7 +133,7 @@ Public NotInheritable Class SteinFlugValues
         End Get
     End Property
 
-    Public ReadOnly Property Weg As FlugWeg
+    Public ReadOnly Property Weg As AirFlugWeg
         Get
             Return _weg
         End Get
@@ -244,7 +233,7 @@ Public NotInheritable Class SteinFlugValues
 
     '
     ''' <summary>
-    ''' Optional: setzt den Flug sofort ans Ziel.
+    ''' Optional: setzt den Flug sofort ins Ziel.
     ''' </summary>
     Public Sub FinishNow()
         _t = 1.0
@@ -272,27 +261,27 @@ Public NotInheritable Class SteinFlugValues
 
         Select Case _weg
 
-            Case FlugWeg.Direkt
+            Case AirFlugWeg.Direkt
                 control1 = New PointF(_startF.X + dx / 3.0F, _startF.Y + dy / 3.0F)
                 control2 = New PointF(_startF.X + dx * 2.0F / 3.0F, _startF.Y + dy * 2.0F / 3.0F)
 
-            Case FlugWeg.KurveOben
+            Case AirFlugWeg.KurveOben
                 control1 = New PointF(_startF.X + dx / 3.0F, _startF.Y + dy / 3.0F - bogenHoehe)
                 control2 = New PointF(_startF.X + dx * 2.0F / 3.0F, _startF.Y + dy * 2.0F / 3.0F - bogenHoehe)
 
-            Case FlugWeg.KurveUnten
+            Case AirFlugWeg.KurveUnten
                 control1 = New PointF(_startF.X + dx / 3.0F, _startF.Y + dy / 3.0F + bogenHoehe)
                 control2 = New PointF(_startF.X + dx * 2.0F / 3.0F, _startF.Y + dy * 2.0F / 3.0F + bogenHoehe)
 
-            Case FlugWeg.BogenLinks
+            Case AirFlugWeg.BogenLinks
                 control1 = New PointF(_startF.X + dx / 3.0F + nx * bogenHoehe, _startF.Y + dy / 3.0F + ny * bogenHoehe)
                 control2 = New PointF(_startF.X + dx * 2.0F / 3.0F + nx * bogenHoehe, _startF.Y + dy * 2.0F / 3.0F + ny * bogenHoehe)
 
-            Case FlugWeg.BogenRechts
+            Case AirFlugWeg.BogenRechts
                 control1 = New PointF(_startF.X + dx / 3.0F - nx * bogenHoehe, _startF.Y + dy / 3.0F - ny * bogenHoehe)
                 control2 = New PointF(_startF.X + dx * 2.0F / 3.0F - nx * bogenHoehe, _startF.Y + dy * 2.0F / 3.0F - ny * bogenHoehe)
 
-            Case FlugWeg.ZickZack
+            Case AirFlugWeg.ZickZack
                 control1 = New PointF(_startF.X + dx * 0.25F + nx * zickZackHoehe, _startF.Y + dy * 0.25F + ny * zickZackHoehe)
                 control2 = New PointF(_startF.X + dx * 0.75F - nx * zickZackHoehe, _startF.Y + dy * 0.75F - ny * zickZackHoehe)
 

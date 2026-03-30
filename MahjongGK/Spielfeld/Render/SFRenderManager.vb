@@ -34,6 +34,7 @@ Namespace Spielfeld
     ''' Pfad: MahjongGK/Spielfeld/Render
     ''' </summary>
     Public Class SFRenderManager
+        Implements IDisposable
 
         Public Sub New()
 
@@ -133,13 +134,13 @@ Namespace Spielfeld
             'Es gibt nur diese eine Stelle im Programm, wo der AktRenderMode
             'gesetzt wird. 
             'Manuelles Setzen nur direkt über SFMain.RenderMode.
-            If SFMain.SFDatHasData Then
+            If SFMain.SFDatHasDataAndDoRender Then
                 SFMain.SFDat.SFRun.SetAktRenderMode(CvtToAktRenderMode(SFMain.RenderMode))
 
                 If SFMain.SFDat.SFRun.AktRenderMode = AktRenderMode.None Then
                     '... deshalb:
                     Try
-                        If SFMain.SFDatHasData Then
+                        If SFMain.SFDatHasDataAndDoRender Then
                             PaintBackbuffer(e.Graphics, rectOutput)
                         Else
                             RenderingStartScreen.PaintStartScreen(e.Graphics, rectOutput)
@@ -166,8 +167,13 @@ Namespace Spielfeld
                 'darüber nachzudenken, ob es notwendig wird, die Taktzahl später nochmal zu erhöhen. 
 
                 _takteAussetzen -= 1
-                PaintBackbuffer(e.Graphics, rectOutput) 'Auskommentieren, wenn man den Zeitpunkt sehen will,
+                'Auskommentieren, wenn man den Zeitpunkt sehen will,
                 'an dem die INI-Datei geändert wurde. Die Oberfläche friert dann kurz und schwarz eingefärbt ein.
+                If _sfd.SFRun.Backbuffer_HasContent Then
+                    PaintBackbuffer(e.Graphics, _sfd.SFLay.rxOutputUsed)
+                Else
+                    PaintStartScreen(e.Graphics, rectOutput)
+                End If
                 Exit Sub
             End If
 
@@ -175,6 +181,13 @@ Namespace Spielfeld
 
             Dim somethingMouseDone As Boolean = _sfd.SFRun.MousePolling.Poll
             Dim somethingResizeDone As Boolean = _sfd.SFRun.ResizePolling.Poll
+            _sfd.SFAir.Poll()
+
+            If _sfd.SFInf.BitmapUGrdSingleImgCache IsNot Nothing Then
+                _sfd.SFLay.BitmapUGrdChanged = _sfd.SFInf.BitmapUGrdSingleImgCache.ConsumeBitmapChanged
+            Else
+                _sfd.SFLay.BitmapUGrdChanged = False
+            End If
 
             'If _sfd.ToolboxTabPageChanged Then
             '    Stop
@@ -188,6 +201,11 @@ Namespace Spielfeld
                 doRendering = True
                 _Spielbetrieb_PositionHistory = INI.Spielbetrieb_PositionHistory
                 SetRendertimerIntervall(setWorking:=True)
+            End If
+
+            If _sfd.SFLay.BitmapUGrdChanged Then
+                updateSpielfeld = True
+                doRendering = True
             End If
 
             If Not doRendering Then
@@ -208,39 +226,52 @@ Namespace Spielfeld
                 SetRendertimerIntervall(somethingMouseDone)
 
                 If _sfd.SFRun.ResizingIsAktiv Then
-                    PaintBackbuffer(e.Graphics, rectOutput)
+                    If _sfd.SFRun.Backbuffer_HasContent Then
+                        PaintBackbuffer(e.Graphics, _sfd.SFLay.rxOutputUsed)
+                    Else
+                        PaintStartScreen(e.Graphics, rectOutput)
+                    End If
                     Exit Sub
                 End If
             End If
 
-            Dim aktRenderModeChanged As Boolean = SFMain.SFDat.SFRun.consumeAktRenderModeChanged
+            Dim aktRenderModeChanged As Boolean
 
-            ' If Debug_StopRenderingOnce Then Stop
+            'Die Consume... Abfragen dürfen nicht übersprungen werden,
+            'also kein ElseIf...
+            If SFMain.SFDat.SFRun.ConsumeAktRenderModeChanged Then
+                aktRenderModeChanged = True
+                updateSpielfeld = True
+                doRendering = True
+            End If
 
-            If aktRenderModeChanged Then
-                updateSpielfeld = True
-                doRendering = True
-            ElseIf _sfd.SFRun.SessionIdentChanged Then
-                updateSpielfeld = True
-                doRendering = True
-            ElseIf rectOutput <> _lastRectOutput Then
-                updateSpielfeld = True
-                doRendering = True
-            ElseIf _sfd.ToolboxTabPageChanged Then
+            If INI.ToolBox_ConsumeTabPageChanged Then
                 'Sonst schaltet die Spielfeld/Editor-Umschaltung nicht, wenn die Toolbox auf frmMain steht.
                 updateSpielfeld = True
                 doRendering = True
             End If
 
+            If _sfd.SFRun.ConsumeSessionIdentChanged Then
+                updateSpielfeld = True
+                doRendering = True
+            End If
+
+            If rectOutput <> _lastRectOutput Then
+                updateSpielfeld = True
+                doRendering = True
+                _lastRectOutput = rectOutput
+            End If
+
+            'Die Consume... Abfragen dürfen nicht übersprungen werden,
+            'also kein ElseIf...
             If _sfd.SFInf.ConsumeSteinInfosCountChanged Then
                 doRendering = True
             End If
-            If INI.Rendering_ConsumeDoRendering Then
+
+            If _sfd.SFAir.ConsumePlaneAnimationDirtyFlag Then
                 doRendering = True
             End If
-            If INI.Rendering_AnimationsCounterCheckAndDec > 0 Then
-                doRendering = True
-            End If
+
             If doRendering = False Then
                 If somethingMouseDone Then
                     doRendering = True
@@ -254,15 +285,17 @@ Namespace Spielfeld
                     doRendering = True
                 ElseIf _takteAussetzen > 0 Then
                     doRendering = True
-                ElseIf _sfd.SFRun.EditorStockSteinFlugValues?.IsFlying Then
-                    doRendering = True
+                    'ZLVxxx  ElseIf _sfd.SFRun.EditorStockSteinFlugValues?.IsFlying Then
+                    'ZLVxxx      doRendering = True
                 End If
             End If
 
-            _lastRectOutput = rectOutput
-
             If Not doRendering Then
-                PaintBackbuffer(e.Graphics, rectOutput)
+                If _sfd.SFRun.Backbuffer_HasContent Then
+                    PaintBackbuffer(e.Graphics, _sfd.SFLay.rxOutputUsed)
+                Else
+                    PaintStartScreen(e.Graphics, rectOutput)
+                End If
                 Exit Sub
             End If
 
@@ -300,7 +333,7 @@ Namespace Spielfeld
                         _initialisierungLäuft = False
                         updateSpielfeld = False
                         _sfd.SFLay.UpdateSpielfeldLayout(rectOutput, aktRenderModeChanged)
-                        _sfd.SFMouse.UpdateMouseValues(rectOutput, somethingMouseDone, spielfeldIsUpdated:=True)
+                        'ZLVxxx  _sfd.SFMouse.UpdateMouseValues(rectOutput, somethingMouseDone, spielfeldIsUpdated:=True)
                         _sfd.SFRen.RenderVerteiler(e.Graphics, rectOutput, timeDifferenzFaktor)
                         Exit Sub
 
@@ -308,7 +341,7 @@ Namespace Spielfeld
                         _initialisierungLäuft = False
                         updateSpielfeld = False
                         _sfd.SFLay.UpdateSpielfeldLayout(rectOutput, aktRenderModeChanged)
-                        _sfd.SFMouse.UpdateMouseValues(rectOutput, somethingMouseDone, spielfeldIsUpdated:=True)
+                        'ZLVxxx  _sfd.SFMouse.UpdateMouseValues(rectOutput, somethingMouseDone, spielfeldIsUpdated:=True)
                         _sfd.SFRen.RenderVerteiler(e.Graphics, rectOutput, timeDifferenzFaktor)
                         Exit Sub
 
@@ -317,7 +350,7 @@ Namespace Spielfeld
 
             If updateSpielfeld Then
                 _sfd.SFLay.UpdateSpielfeldLayout(rectOutput, aktRenderModeChanged, _forceUpdate)
-                _sfd.SFMouse.UpdateMouseValues(rectOutput, somethingMouseDone, spielfeldIsUpdated:=True)
+                'ZLVxxx  _sfd.SFMouse.UpdateMouseValues(rectOutput, somethingMouseDone, spielfeldIsUpdated:=True)
                 _sfd.SFRen.RenderVerteiler(e.Graphics, rectOutput, timeDifferenzFaktor)
                 _forceUpdate = False
                 updateSpielfeld = False
@@ -325,7 +358,7 @@ Namespace Spielfeld
             End If
 
             If doRendering Then
-                _sfd.SFMouse.UpdateMouseValues(rectOutput, somethingMouseDone, spielfeldIsUpdated:=False)
+                'ZLVxxx   _sfd.SFMouse.UpdateMouseValues(rectOutput, somethingMouseDone, spielfeldIsUpdated:=False)
                 _sfd.SFRen.RenderVerteiler(e.Graphics, rectOutput, timeDifferenzFaktor)
             End If
         End Sub
@@ -355,6 +388,20 @@ Namespace Spielfeld
                 PaintEventGfx.DrawImageUnscaledAndClipped(RenderingStartScreen.StartscreenBackgroundImageCache.GetBitmap(rectOutput.Size), rectOutput)
             End If
         End Sub
+        '
 
+        Private _disposed As Boolean
+        Public Sub Dispose() Implements IDisposable.Dispose
+            If Not _disposed Then
+                If RenderTimer IsNot Nothing Then
+                    RemoveHandler RenderTimer.Tick, AddressOf RenderTimer_Tick
+                    RenderTimer.Stop()
+                    RenderTimer.Dispose()
+                    RenderTimer = Nothing
+                End If
+                _disposed = True
+            End If
+            GC.SuppressFinalize(Me)
+        End Sub
     End Class
 End Namespace

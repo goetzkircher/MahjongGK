@@ -64,8 +64,6 @@ Public Class Werkbank
         ReDim arrFB(xUBnd, yUBnd, zUBnd)
         SteinInfos = New List(Of Spielfeld.SteinInfo)
 
-
-
     End Sub
 
     Public xMin As Integer = 1
@@ -129,14 +127,12 @@ Public Class Werkbank
 
 #End Region
 
-
 #Region "Manipulationen des Spielfeldes Teil 1  (ACHTUNG COPY-PASTE-REGION #1)"
     '
     'Diese Region gib es im Spiel zweimal: In der SpielfeldInfo und in der Werkbank!
     'Änderungen nur in der Spielfeldinfo vornehmen und die Region komplett in die
     'Werkbank kopieren!
     'Nur solche Funktionen hinzufügen, die in beiden Klassen gebraucht werden.
-
 
     'Jeder Stein belegt 4 Felder.
     'Alle 4 Felder beinhalten Flags.
@@ -172,12 +168,12 @@ Public Class Werkbank
         SetOffsetX(arrFB(infoFBx, infoFBy, infoFBz), False)
         SetOffsetY(arrFB(infoFBx, infoFBy, infoFBz), False)
         '
-        SetIndexStein(arrFB(infoFBx, infoFBy, infoFBz), SteinInfoIndex)
+        SetSteinInfoIndex(arrFB(infoFBx, infoFBy, infoFBz), SteinInfoIndex)
 
     End Sub
 
-
     ''' <summary>
+    ''' WICHTIG: HIER FEHLT DIE REFFERENZ AUD DEN arrFB gegenüber der Spielfeld-Version
     ''' Setzt einen Stein auf das Spielfeld und Added einen Stein mit Basisinformationen
     ''' zu den SteinInfos. Wenn OK, gibt die Funktion True zurück.
     ''' Sind die Koordinaten des infoFBTriple ungültig, wird der Stein als Stein.Dummy
@@ -194,7 +190,8 @@ Public Class Werkbank
         'Index in SteinInfos. Grund: werden später Steine im Editor entfernt, verschieben sich die
         'Indexnummern in SteinInfos und da muss arrFB aktualisert werden. Dazu braucht man den
         '"alten" steinInfoIndex, eben diesen steinInfoIndex.
-        Dim newSteinInfo As New Spielfeld.SteinInfo(steinInfoIndex:=SteinInfos.Count, steinIndex, steinPos3D, tmpDebug)
+        'WICHTIG:Hier ist der arrFB Nothing gesetzt, weil unbekannt.
+        Dim newSteinInfo As New Spielfeld.SteinInfo(steinInfoIndex:=SteinInfos.Count, steinIndex, steinPos3D, Nothing)
 
         If Not steinPos3D.IsInsideSpielfeldBounds(arrFB) Then
             'Falsche Positionsangabe.
@@ -249,7 +246,6 @@ Public Class Werkbank
     End Function
 
 #End Region
-
 
 #Region "Fragen an das Spielfeld (ACHTUNG COPY-PASTE-REGION #2)"
     '
@@ -520,7 +516,7 @@ Public Class Werkbank
                     addY = 0
             End Select
 
-            Dim tpl2 As New Triple(infoFBTriple.x + addX, infoFBTriple.y + addY, infoFBTriple.z)
+            Dim tpl2 As New Triple(tpl.x + addX, tpl.y + addY, tpl.z)
 
             Dim tpl3 As Triple = IsValidePlace(tpl2)
 
@@ -649,7 +645,6 @@ Public Class Werkbank
 
         End Select
 
-
         Return IsValidePlace(New Triple(x, y, ebene))
 
     End Function
@@ -672,13 +667,11 @@ Public Class Werkbank
             fb = fb And Not FLAG_YOffset
         End If
     End Sub
-    Public Shared Sub SetIndexStein(ByRef fb As Integer, value As Integer)
-        ' Wert ab vierten Dezimalstelle setzen (ab Tausenderstelle)
-        ' Flags in den unteren Bits behalten
-        Dim flags As Integer = fb And &HFF  ' Bits 0-15, Dezimal 0 bi 255
+    Public Shared Sub SetSteinInfoIndex(ByRef fb As Integer, value As Integer)
+        Dim flags As Integer = fb And FB_FLAG_MASK
         'Der Index wird um 1 erhöht gespeichert, weil index = 0 gleichbedeutend
-        'wäre mit "freier Platz" (zumindest, wenn flags = 0, was möglich ist.)
-        fb = (value + 1) * 1000 + flags
+        'wäre mit "freier Platz".
+        fb = ((value + 1) << FB_INDEX_SHIFT) Or flags
     End Sub
 #End Region
 

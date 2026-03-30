@@ -285,7 +285,7 @@ Public Class frmMain
     End Sub
 
     Private Sub frmMain_FormClosing(sender As Object, e As FormClosingEventArgs) Handles Me.FormClosing
-        Spielfeld.SFMain.Dispose()
+        Spielfeld.SFMain.CloseSpielfeld()
     End Sub
 
     Private Sub frmMain_ResizeEnd(sender As Object, e As EventArgs) Handles Me.ResizeEnd, Me.Closing
@@ -456,24 +456,24 @@ Public Class frmMain
         mnuDatei.DropDownItems.Add(CreateMenuItem("Info", Sub() ShowInfo(Info.AutoSave)))
 
         ' === Spiel ===
-        Dim mnuSpiel As New ToolStripMenuItem("Spiel")
+        Dim mnuSpiel As New ToolStripMenuItem("Spielfeld")
         mnuSpiel.DropDownItems.Add(CreateMenuItem("Spielen",
                                                   Sub() ChangeVisibleControl(VisibleUserControl.Spielfeld),
                                                    Function() As Boolean
                                                        Return AktVisibleUserControl <> VisibleUserControl.Spielfeld
                                                    End Function))
 
-        mnuSpiel.DropDownItems.Add(CreateMenuItem("Spiel wählen",
+        mnuSpiel.DropDownItems.Add(CreateMenuItem("Spielfeld wählen",
                                                   Sub() ChangeVisibleControl(VisibleUserControl.SpielfeldWählen),
                                                   Function() As Boolean
                                                       Return AktVisibleUserControl <> VisibleUserControl.SpielfeldWählen
                                                   End Function))
 
-        mnuSpiel.DropDownItems.Add(CreateMenuItem("Spiel zufällig wählen", Sub() SelectRandomSpielfeld()))
+        mnuSpiel.DropDownItems.Add(CreateMenuItem("Spielfeld zufällig wählen", Sub() SelectRandomSpielfeld()))
 
-        Dim mnuEditor As New ToolStripMenuItem("Edit")
+        Dim mnuEditor As New ToolStripMenuItem("Editor")
 
-        Dim editorItem As ToolStripMenuItem = CreateMenuItem("Edit",
+        Dim editorItem As ToolStripMenuItem = CreateMenuItem("Editor",
                                                          Sub() ChangeVisibleControl(VisibleUserControl.Spielfeld),
                                                          Function() As Boolean
                                                              Return AktVisibleUserControl <> VisibleUserControl.Spielfeld
@@ -577,7 +577,7 @@ Public Class frmMain
     End Sub
 
     Private Sub SelectRandomSpielfeld()
-        MessageBox.Show("Zufälliges Spiel wählen")
+        MessageBox.Show("Zufälliges Spielfeld wählen")
     End Sub
 
 #End Region
@@ -595,7 +595,7 @@ Public Class frmMain
             .Dock = DockStyle.Bottom
             .GripStyle = ToolStripGripStyle.Hidden
             .AutoSize = False
-            .Height = 28
+            .Height = 30
             .CanOverflow = False
             .LayoutStyle = ToolStripLayoutStyle.HorizontalStackWithOverflow
             .ImageScalingSize = New Size(16, 16)
@@ -612,7 +612,7 @@ Public Class frmMain
             Sub() INI.IniEditieren(),
             If(INI.Sonstiges_ShowToolTips, "INI während der Laufzeit bearbeiten", Nothing)))
 
-            'ToolStripExMain.Items.Add(MkBtnText("dbg_explorer", "Explorer",
+            'ToolStripExMain.Items.AddRenderBitmapTopZOrder(MkBtnText("dbg_explorer", "Explorer",
             'Sub() Process.Start("explorer.exe", AppDataDirectory),
             'If(INI.Sonstiges_ShowToolTips, "Öffnet AppData-Verzeichnis", Nothing)))
 
@@ -632,7 +632,7 @@ Public Class frmMain
             Sub() Test2(),
             If(INI.Sonstiges_ShowToolTips, "frmMain Sub Test2 ausführen", Nothing)))
 
-            '  ToolStripExMain.Items.Add(New ToolStripSeparator())
+            '  ToolStripExMain.Items.AddRenderBitmapTopZOrder(New ToolStripSeparator())
 
             ' ---- Dateiexplorer aufrufen ----
             Dim cbo1 As New ToolStripComboBox("dbg_fileexpl") With {
@@ -722,9 +722,9 @@ Public Class frmMain
         ' =======================
         If INI.Editor_UsingEditorAllowed Then
             ToolStripExMain.Items.Add(MkBtnImg("grpEditor_player", Theme.GetResBmp(AppGrafikName.Spieler.ToString), Sub() DoSpielfeld(),
-                If(INI.Sonstiges_ShowToolTips, "Ruft das Spiel auf.", Nothing)))
+                If(INI.Sonstiges_ShowToolTips, "Ruft das Spielfeld auf.", Nothing)))
             ToolStripExMain.Items.Add(MkBtnImg("grpEditor_editor", Theme.GetResBmp(AppGrafikName.Editor.ToString), Sub() DoEditor(),
-                If(INI.Sonstiges_ShowToolTips, "Ruft den Edit auf.", Nothing)))
+                If(INI.Sonstiges_ShowToolTips, "Ruft den Editor auf.", Nothing)))
             ToolStripExMain.Items.Add(MkBtnImg("grpEditor_toolbox", Theme.GetResBmp(AppGrafikName.Werkzeug.ToString), Sub() DoToolBox(),
                 If(INI.Sonstiges_ShowToolTips, "Ruft die Werkzeugkiste auf.", Nothing)))
             ToolStripExMain.Items.Add(New ToolStripSeparator())
@@ -738,8 +738,8 @@ Public Class frmMain
         ' =======================
         ToolStripExMain.Items.Add(MkLbl("stat_size", "Feldgröße: 00/00/00"))
         ToolStripExMain.Items.Add(New ToolStripSeparator())
-        'ToolStripExMain.Items.Add(MkLbl("stat_title", "Steine:"))
-        'ToolStripExMain.Items.Add(New ToolStripSeparator())
+        'ToolStripExMain.Items.AddRenderBitmapTopZOrder(MkLbl("stat_title", "Steine:"))
+        'ToolStripExMain.Items.AddRenderBitmapTopZOrder(New ToolStripSeparator())
         ToolStripExMain.Items.Add(MkLbl("stat_total", "Summe Steine: 000"))
         ToolStripExMain.Items.Add(New ToolStripSeparator())
         ToolStripExMain.Items.Add(MkLbl("stat_current", "Aktuell: 000"))
@@ -755,15 +755,15 @@ Public Class frmMain
         ' =======================
 
         ToolStripExMain.Items.Add(MkBtnImgRight("act_screenshot", Theme.GetResBmp(AppGrafikName.Screenshot.ToString), Sub() DoTakeScreenShot(),
-        If(INI.Sonstiges_ShowToolTips, "Erzeugt einen ScreenShot vom Spiel/Edit/Werkbank.", Nothing)))
+        If(INI.Sonstiges_ShowToolTips, "Erzeugt einen ScreenShot vom Spielfeld/Editor/Werkbank.", Nothing)))
 
         ToolStripExMain.Items.Add(MkBtnImgRight("act_statistik", Theme.GetResBmp(AppGrafikName.Statistik.ToString), Sub() DoStatistik(),
-            If(INI.Sonstiges_ShowToolTips, "Statistische Daten zum Spiel", Nothing)))
+            If(INI.Sonstiges_ShowToolTips, "Statistische Daten zum Spielfeld", Nothing)))
 
         ToolStripExMain.Items.Add(MkSepRight())
 
         ' '' 4) Label "Zeige:"
-        ''ToolStripExMain.Items.Add(MkLblRight("act_show_lbl", "Zeige:"))
+        ''ToolStripExMain.Items.AddRenderBitmapTopZOrder(MkLblRight("act_show_lbl", "Zeige:"))
 
         ToolStripExMain.Items.Add(MkBtnImgTextRight("act_tip1", Theme.GetResBmp(AppGrafikName.Tip.ToString), "",
             Sub() DoTipEinzel(),
@@ -801,13 +801,13 @@ Public Class frmMain
         ToolStripExMain.Items.Add(MkSepRight())
 
         ToolStripExMain.Items.Add(MkBtnImgRight("act_restart", Theme.GetResBmp(AppGrafikName.Restart.ToString), Sub() DoReDo(),
-            If(INI.Sonstiges_ShowToolTips, "Stell das Spiel auf die Ausgangsstellung zurück", Nothing)))
+            If(INI.Sonstiges_ShowToolTips, "Stell das Spielfeld auf die Ausgangsstellung zurück", Nothing)))
 
         ToolStripExMain.Items.Add(MkBtnImgRight("act_redo", Theme.GetResBmp(AppGrafikName.Redo.ToString), Sub() DoReDo(),
             If(INI.Sonstiges_ShowToolTips, "Arbeitet wieder vorwärts, solange das noch möglich ist", Nothing)))
 
         ToolStripExMain.Items.Add(MkBtnImgRight("act_undo", Theme.GetResBmp(AppGrafikName.Undo.ToString), Sub() DoUndo(),
-            If(INI.Sonstiges_ShowToolTips, "Setzt das letzte Steinpaar wieder auf das Spiel", Nothing)))
+            If(INI.Sonstiges_ShowToolTips, "Setzt das letzte Steinpaar wieder auf das Spielfeld", Nothing)))
 
         ToolStripExMain.Items.Add(MkSepRight())
 
@@ -1072,8 +1072,8 @@ Public Class frmMain
 
     Public Sub DoSpielfeld()
         'TODO SFD - Anpassung
-        If SFMain.RenderMode = RenderMode.NoDataLoaded Then
-            MsgBox("Kein Spiel geladen", MsgBoxStyle.Information)
+        If SFMain.RenderMode = RenderMode.NoRendering Then
+            MsgBox("Kein Spielfeld geladen", MsgBoxStyle.Information)
         Else
             SFMain.RenderMode = RenderMode.Spiel
         End If
@@ -1082,18 +1082,18 @@ Public Class frmMain
 
     Private Sub DoEditor()
         ''TODO SFD-Anpassung
-        If SFMain.RenderMode = RenderMode.NoDataLoaded Then
-            MsgBox("Kein Spiel geladen", MsgBoxStyle.Information)
+        If SFMain.RenderMode = RenderMode.NoRendering Then
+            MsgBox("Kein Spielfeld geladen", MsgBoxStyle.Information)
         Else
-            SFMain.RenderMode = RenderMode.Spiel
+            SFMain.RenderMode = RenderMode.Edit
         End If
         UpdateSpielfeldEditorButtons()
     End Sub
 
     Private Sub DoToolBox()
         'TODO SFD - Anpassung
-        If SFMain.RenderMode = RenderMode.NoDataLoaded Then
-            MsgBox("Kein Spiel geladen", MsgBoxStyle.Information)
+        If SFMain.RenderMode = RenderMode.NoRendering Then
+            MsgBox("Kein Spielfeld geladen", MsgBoxStyle.Information)
         Else
             ShowOrHideToolboxAndUpdateToolboxButton()
         End If
@@ -1101,8 +1101,8 @@ Public Class frmMain
 
     Private Sub DoTakeScreenShot()
         ''TODO SFD-Anpassung
-        If SFMain.RenderMode = RenderMode.NoDataLoaded Then
-            MsgBox("Kein Spiel geladen", MsgBoxStyle.Information)
+        If SFMain.RenderMode = RenderMode.NoRendering Then
+            MsgBox("Kein Spielfeld geladen", MsgBoxStyle.Information)
         Else
             SFMain.SFDat.SFRenMan.PaintSpielfeld_CreateScreenShot()
             MsgBox("Screnshot erzeugt.", MsgBoxStyle.Information)
@@ -1162,7 +1162,7 @@ Public Class frmMain
         Dim btnEditor As ToolStripButton = TryCast(ToolStripExMain.Items("grpEditor_editor"), ToolStripButton)
         'TODO SFD-Anpassung
         Select Case Spielfeld.SFMain.RenderMode
-            Case RenderMode.NoDataLoaded, RenderMode.Paused
+            Case RenderMode.NoRendering, RenderMode.Paused
                 btnPlayer.Image = Theme.GetResBmp(AppGrafikName.Spieler.ToString)
                 btnEditor.Image = Theme.GetResBmp(AppGrafikName.Editor.ToString)
 
@@ -1193,8 +1193,8 @@ Public Class frmMain
             item = ToolStripExMain.Items("grpEditor_toolbox")
             btnToolBox = TryCast(item, ToolStripButton)
         End If
-        ' TODO SFD - Anpassung
-        If Not SFMain.SFDat.ToolboxIsVisible Then
+
+        If Not INI.ToolBox_FormIsVisible Then
 
             If btnToolBox IsNot Nothing Then
                 btnToolBox.Image = Theme.GetResBmp(AppGrafikName.WerkzeugAktiv.ToString)
@@ -1240,7 +1240,7 @@ Public Class frmMain
             End If
         End If
 
-        SFMain.SFDat.ToolboxIsVisible = Not SFMain.SFDat.ToolboxIsVisible
+        INI.ToolBox_FormIsVisible = Not INI.ToolBox_FormIsVisible
 
     End Sub
 

@@ -174,7 +174,7 @@ Public Class Statistik
 
 
         If _anzahlVorrat = 0 AndAlso _anzahlSpielfeld = 0 Then
-            Return "Es sind weder Vorratsdaten, noch Spielfelddaten vorhanden. (In Beiden, Stock und Spiel, ist die Anzahl der Steine = 0)"
+            Return "Es sind weder Vorratsdaten, noch Spielfelddaten vorhanden. (In Beiden, Stock und Spielfeld, ist die Anzahl der Steine = 0)"
         End If
 
         Dim sb As New System.Text.StringBuilder
@@ -183,9 +183,9 @@ Public Class Statistik
             sb.Append($"Summe der Steine im Stock: {_werteVorrat(0, StatistikResult.SumAbsVorrat)} Steine. ")
 
             If deltaProz144 Then
-                sb.AppendLine($"Vergleichsbasis: Spiel mit {MJ_STEINE_SUMMESTEINE144_ALLE} Steinen.")
+                sb.AppendLine($"Vergleichsbasis: Spielfeld mit {MJ_STEINE_SUMMESTEINE144_ALLE} Steinen.")
             Else
-                sb.AppendLine($"Vergleichsbasis: Spiel mit {MJ_STEINE_SUMMESTEINE152_ALLE} Steinen.")
+                sb.AppendLine($"Vergleichsbasis: Spielfeld mit {MJ_STEINE_SUMMESTEINE152_ALLE} Steinen.")
             End If
 
             sb.AppendLine()
@@ -207,9 +207,9 @@ Public Class Statistik
         If _anzahlSpielfeld > 0 Then
 
             If deltaProz144 Then
-                sb.AppendLine($"Vergleichsbasis: Spiel mit {MJ_STEINE_SUMMESTEINE144_ALLE} Steinen.")
+                sb.AppendLine($"Vergleichsbasis: Spielfeld mit {MJ_STEINE_SUMMESTEINE144_ALLE} Steinen.")
             Else
-                sb.AppendLine($"Vergleichsbasis: Spiel mit {MJ_STEINE_SUMMESTEINE152_ALLE} Steinen.")
+                sb.AppendLine($"Vergleichsbasis: Spielfeld mit {MJ_STEINE_SUMMESTEINE152_ALLE} Steinen.")
             End If
 
             sb.AppendLine()

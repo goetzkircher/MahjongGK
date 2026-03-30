@@ -4,7 +4,6 @@ Option Infer Off
 Option Strict On
 Imports MahjongGK.Spielfeld
 
-
 '
 ' SPDX-License-Identifier: GPL-3.0-or-later
 '###########################################################################
@@ -31,7 +30,7 @@ Imports MahjongGK.Spielfeld
 #Disable Warning IDE1006
 
 ''' <summary>
-''' Pfad: MahjongGK/Spielfeld/Runtime
+''' Pfad: MahjongGK/Spielfeld/Runtime/Steinflug
 ''' </summary>
 Public Class MouseAnkerVerschiebung
 
@@ -71,7 +70,7 @@ Public Class MouseAnkerVerschiebung
         _stepX = (_dstX - _srcX) / CDbl(steps)
         _stepY = (_dstY - _srcY) / CDbl(steps)
 
-        owner.SFRun.EditorStockMouseAnkerVerschiebung_HasValue = True
+        'ZLVxxx  owner.SFRun.EditorStockMouseAnkerVerschiebung_HasValue = True
     End Sub
 
     Private _sfd As SFDaten
@@ -110,7 +109,7 @@ Public Class MouseAnkerVerschiebung
         End If
 
         If finishedX AndAlso finishedY Then
-            _sfd.SFRun.EditorStockMouseAnkerVerschiebung_HasValue = False
+            'ZLVxxx _sfd.SFRun.EditorStockMouseAnkerVerschiebung_HasValue = False
         End If
 
         Return New Point(CInt(Math.Round(_srcX)), CInt(Math.Round(_srcY)))

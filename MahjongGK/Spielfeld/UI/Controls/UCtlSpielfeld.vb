@@ -4,9 +4,6 @@ Option Infer Off
 Option Strict On
 Imports MahjongGK.Spielfeld
 
-
-
-
 '
 ' SPDX-License-Identifier: GPL-3.0-or-later
 '###########################################################################
@@ -52,7 +49,6 @@ Public Class UCtlSpielfeld
         Me.SetStyle(ControlStyles.Opaque, True)
         Me.UpdateStyles()
 
-
     End Sub
 
     ' Ich fülle komplett selbst -> Hintergrund NICHT automatisch löschen
@@ -70,9 +66,7 @@ Public Class UCtlSpielfeld
             Return
         End If
 
-
-
-        If SFMain.SFDatHasData Then
+        If SFMain.SFDatHasDataAndDoRender Then
             Dim factor As Double = SFMain.SFDat.SFRenMan.RenderTakt.TimeDifferenzFaktor
 
             SFMain.SFDat.SFRenMan.PaintSpielfeld_Paint(VisibleUserControl.Spielfeld,
@@ -92,6 +86,5 @@ Public Class UCtlSpielfeld
     End Sub
 
 #End Region
-
 
 End Class

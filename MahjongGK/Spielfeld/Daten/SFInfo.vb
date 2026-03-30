@@ -37,6 +37,8 @@ Imports System.Xml.Serialization
 Namespace Spielfeld
     ''' <summary>
     ''' Pfad: MahjongGK/Spielfeld/Daten
+    ''' Die Klasse hieß ursprünglich SpielFeldInfo und beinhaltet alle Spielfeld-Daten
+    ''' darunter eine List(Of SteinInfo), die die SteinInfo für jeden Stein hält.
     ''' </summary>
     Public Class SFInfo
 
@@ -146,7 +148,7 @@ Namespace Spielfeld
             Dim fb(,,) As Integer = _arrFB
 
             If fb Is Nothing Then
-                Throw New Exception("Programmierfehler: arrFB darf nicht Nothing sein.")
+                Throw New Exception("Programmierfehler: arrFeldBeschr darf nicht Nothing sein.")
             End If
 
             Dim xUbnd As Integer = fb.GetUpperBound(0)
@@ -408,13 +410,13 @@ Namespace Spielfeld
         <XmlElement("ArrFB")>
         Public Property arrFB_Anchors As FBCodec2x2.FBAnchors
             Get
-                Return FBCodec2x2.ToAnchors(arrFB, 1000)
+                Return FBCodec2x2.ToAnchors(arrFB, FB_INDEX_FACTOR)
             End Get
             Set(value As FBCodec2x2.FBAnchors)
                 If value Is Nothing Then
                     arrFB = Nothing
                 Else
-                    arrFB = FBCodec2x2.FromAnchors(value, 1000)
+                    arrFB = FBCodec2x2.FromAnchors(value, FB_INDEX_FACTOR)
                 End If
             End Set
         End Property
@@ -797,7 +799,7 @@ Namespace Spielfeld
 
 #End Region
 
-#Region "Spielfeld - Add / Insert / Remove"
+#Region "Spielfeld - AddRenderBitmapTopZOrder / Insert / Remove"
 
         ''' <summary>
         ''' Setzt einen Stein auf das Spielfeld und Added einen Stein mit Basisinformationen
@@ -810,13 +812,13 @@ Namespace Spielfeld
         ''' </summary>
         ''' <param name="steinPos3D"></param>
         ''' <returns></returns>
-        Public Function AddSteinToSpielfeld(steinIndex As SteinIndexEnum, steinPos3D As Triple, Optional tmpDebug As Integer = 0) As Boolean
+        Public Function AddSteinToSpielfeld(steinIndex As SteinIndexEnum, steinPos3D As Triple) As Boolean
 
             'Der steinInfoIndex wird hier gesichert, obwohl er gleichlautend ist mit dem
             'Index in SteinInfos. Grund: werden später Steine im Editor entfernt, verschieben sich die
             'Indexnummern in SteinInfos und da muss arrFB aktualisert werden. Dazu braucht man den
             '"alten" steinInfoIndex, eben diesen steinInfoIndex.
-            Dim newSteinInfo As New SteinInfo(steinInfoIndex:=SteinInfos.Count, steinIndex, steinPos3D, tmpDebug)
+            Dim newSteinInfo As New SteinInfo(steinInfoIndex:=SteinInfos.Count, steinIndex, steinPos3D, _arrFB)
 
             If Not steinPos3D.IsInsideSpielfeldBounds(arrFB) Then
                 'Falsche Positionsangabe.
@@ -882,6 +884,7 @@ Namespace Spielfeld
             With siDc
                 .SteinInfoIndex = SteinInfos.Count
                 .Pos3D = steinPos3D
+                .SetArrFbReferenz(arrFB)
             End With
 
             If Not steinPos3D.IsInsideSpielfeldBounds(arrFB) Then
@@ -978,7 +981,7 @@ Namespace Spielfeld
                     For wbrX As Integer = 1 To .arrFB.GetUpperBound(0) - 1
                         For wbrY As Integer = 1 To .arrFB.GetUpperBound(1) - 1
                             If IsIndexQuadrant(.arrFB(wbrX, wbrY, wbrZ)) Then
-                                Dim idx As Integer = GetIndexStein(.arrFB(wbrX, wbrY, wbrZ))
+                                Dim idx As Integer = GetSteinInfoIndex(.arrFB(wbrX, wbrY, wbrZ))
                                 Dim newPlace As New Triple(insertAt.x + wbrX - 1, insertAt.y + wbrY - 1, insertAt.z + wbrZ)
                                 If IsFreePlace(newPlace) Then
                                     AddSteinToSpielfeld(.steinInfos(idx), newPlace)
@@ -1031,7 +1034,7 @@ Namespace Spielfeld
 
 #End Region
 
-#Region "Spielfeld - interne Add/Remove-Helfer"
+#Region "Spielfeld - interne AddRenderBitmapTopZOrder/Remove-Helfer"
 
         Private Function HandleInvalidInsertPosition(steinIndex As SteinIndexEnum, steinPos3D As Triple) As Boolean
 
@@ -1074,7 +1077,7 @@ Namespace Spielfeld
                         For wbrY As Integer = 1 To .wbArrFB.GetUpperBound(1) - 1
                             If IsIndexQuadrant(.wbArrFB(wbrX, wbrY, wbrZ)) Then
 
-                                Dim idx As Integer = GetIndexStein(.wbArrFB(wbrX, wbrY, wbrZ))
+                                Dim idx As Integer = GetSteinInfoIndex(.wbArrFB(wbrX, wbrY, wbrZ))
                                 Dim newPlace As New Triple(insertAt.x + wbrX - 1, insertAt.y + wbrY - 1, insertAt.z + wbrZ)
                                 Dim tpl As Triple = IsValidePlace(newPlace)
 
@@ -1271,6 +1274,73 @@ Namespace Spielfeld
 
         End Function
 
+        Public Function IsRemovable(steinInfoIndex As Integer) As Boolean
+
+            If steinInfoIndex < 0 Then
+                Return False
+            ElseIf IsNothing(_SteinInfos) Then
+                Return False
+            ElseIf _SteinInfos.Count = 0 Then
+                Return False
+            ElseIf steinInfoIndex >= _SteinInfos.Count Then
+                Return False
+            End If
+
+            Dim si As SteinInfo = _SteinInfos(steinInfoIndex)
+
+            '1. Regel:  Wenn der Stein auf der obersten Lage liegt, sind automatisch
+            '           alle vier Quadranten sichbar.
+            '           Es muss nur geprüft werden, ob link oder rechts kein Stein ist.
+            With si.Pos3D
+                If .z = zMax Then
+                    'links
+                    If arrFB(.x - 1, .y, .z) = 0 AndAlso arrFB(.x - 1, .y + 1, .z) = 0 Then Return True
+                    'rechts
+                    If arrFB(.x + 2, .y, .z) = 0 AndAlso arrFB(.x + 2, .y + 1, .z) = 0 Then Return True
+                End If
+            End With
+            '
+            '2. Regel: Es müssen alle Felder über dem Stein frei sein
+            '
+            With si.Pos3D
+                'über Quadrant LO
+                If arrFB(.x, .y, .z + 1) <> 0 Then Return False
+                'RO
+                If arrFB(.x, .y + 1, .z + 1) <> 0 Then Return False
+                'LU
+                If arrFB(.x + 1, .y, .z + 1) <> 0 Then Return False
+                'RU
+                If arrFB(.x + 1, .y + 1, .z + 1) <> 0 Then Return False
+                '
+                '3. Regel: Es müssen alle Felder links oder rechts frei sein.
+                '          (Wenn die frei sind, sind die darüber auch frei)
+                'links
+                If arrFB(.x - 1, .y, .z) = 0 AndAlso arrFB(.x - 1, .y + 1, .z) = 0 Then Return True
+                'rechts
+                If arrFB(.x + 2, .y, .z) = 0 AndAlso arrFB(.x + 2, .y + 1, .z) = 0 Then Return True
+                '
+                Return False
+
+            End With
+
+        End Function
+
+        Public Function IsRemovable(triple As TripleX) As Boolean
+            With triple
+                Return IsRemovable(.x, .y, .z)
+            End With
+        End Function
+
+        Public Function IsRemovable(x As Integer, y As Integer, z As Integer) As Boolean
+
+            If x < xMin OrElse x > xMax OrElse y < yMin OrElse y > yMax OrElse z < zMin OrElse z > zMax Then
+                Throw New Exception("Programmierfehler: versuchter Zugriff auf arrFeldBeschr außerhalb der Grenzen.")
+            End If
+
+            Return IsRemovable(GetSteinInfoIndex(x, y, z))
+
+        End Function
+
         ''' <summary>
         ''' Incrementiert die X- und Y-Koordinaten des Triple in die vorgegebene (Himmels-) Richtung.
         ''' </summary>
@@ -1416,7 +1486,7 @@ Namespace Spielfeld
                         addY = 0
                 End Select
 
-                Dim tpl2 As New Triple(infoFBTriple.x + addX, infoFBTriple.y + addY, infoFBTriple.z)
+                Dim tpl2 As New Triple(tpl.x + addX, tpl.y + addY, tpl.z)
 
                 Dim tpl3 As Triple = IsValidePlace(tpl2)
 
@@ -1556,14 +1626,14 @@ Namespace Spielfeld
 #End Region
 
 #Region "FB - Lesen"
-
         ' Kopiervorlagen der Funktionen und Methoden dieser Region als InlineCode
         '
         ' Lesen:
         ' Dim offsetX As Integer = If((fb And FLAG_XOffset) <> 0, 1, 0)
         ' Dim offsetY As Integer = If((fb And FLAG_YOffset) <> 0, 1, 0)
         ' Dim toggleFlag As Boolean = (fb And FLAG_ToggleFlag) <> 0
-        ' Dim index As Integer = fb \ 1000
+        ' Dim isRemoved As Boolean = (fb And FLAG_IsRemoved) <> 0
+        ' Dim index As Integer = (fb >> FB_INDEX_SHIFT) - 1
         '
         ' Schreiben:
         ' If value0or1 <> 0 Then fb = fb Or FLAG_XOffset Else fb = fb And Not FLAG_XOffset
@@ -1575,8 +1645,14 @@ Namespace Spielfeld
         '    fb = fb And Not FLAG_ToggleFlag
         ' End If
         '
-        ' Dim flags As Integer = fb And &HFF
-        ' fb = newValue * 1000 + flags
+        ' If isRemoved Then
+        '    fb = fb Or FLAG_IsRemoved
+        ' Else
+        '    fb = fb And Not FLAG_IsRemoved
+        ' End If
+        '
+        ' Dim flags As Integer = fb And FB_FLAG_MASK
+        ' fb = ((newValue + 1) << FB_INDEX_SHIFT) Or flags
         '
         ' fb = fb Xor FLAG_ToggleFlag ' Toggle
         '
@@ -1588,11 +1664,11 @@ Namespace Spielfeld
         ''' damit sie als belegt erkannt werden.
         ''' 
         ''' Der eigentliche Steinindex steht nur im linken oberen Feld des 2x2-Blocks,
-        ''' also in der Referenzsäule des Steins. Dort ist er um 1 erhöht und mit 1000
-        ''' multipliziert gespeichert, damit der Wert immer ungleich 0 ist und die drei
+        ''' also in der Referenzsäule des Steins. Dort ist er um 1 erhöht und vier Bits
+        ''' nah links verschoben gespeichert, damit der Wert immer ungleich 0 ist und die vier
         ''' niederwertigsten Stellen als Flagfeld frei bleiben.
         ''' 
-        ''' In den drei anderen Feldern steht nicht der Index selbst, sondern nur eine
+        ''' In den vier anderen Feldern steht nicht der Index selbst, sondern nur eine
         ''' Offset-Information zur Referenzsäule. Über FLAG_XOffset und FLAG_YOffset
         ''' wird bestimmt, ob der Feldbeschreiber eine Spalte nach links und/oder eine
         ''' Zeile nach oben versetzt gelesen werden muss.
@@ -1601,8 +1677,7 @@ Namespace Spielfeld
         ''' Referenzfeld des Steins zugegriffen und dort der Steinindex gelesen werden.
         ''' 
         ''' Wird die Funktion auf ein leeres Feld angewendet, ist arrFB = 0. Dann sind
-        ''' beide Offsets 0, es wird also erneut auf dasselbe Feld zugegriffen. Da dort
-        ''' ebenfalls 0 steht, ergibt (0 \ 1000) - 1 den Wert -1.
+        ''' beide Offsets 0, es wird also erneut auf dasselbe Feld zugegriffen.
         ''' 
         ''' Vorsicht: IsIndexQuadrant arbeitet anders, weil dort kein Offset berücksichtigt
         ''' wird. Zum Iterieren durch das Feld deshalb IsIndexQuadrant verwenden.
@@ -1611,17 +1686,24 @@ Namespace Spielfeld
         ''' <param name="y"></param>
         ''' <param name="z"></param>
         ''' <returns></returns> '
-        Public Function GetIndexStein(x As Integer, y As Integer, z As Integer) As Integer
+        Public Function GetSteinInfoIndex(x As Integer, y As Integer, z As Integer) As Integer
             Dim fb As Integer = arrFB(x, y, z)
             Dim offsetX As Integer = If((fb And FLAG_XOffset) <> 0, 1, 0)
             Dim offsetY As Integer = If((fb And FLAG_YOffset) <> 0, 1, 0)
-            Return (arrFB(x - offsetX, y - offsetY, z) \ 1000) - 1
+            Return (arrFB(x - offsetX, y - offsetY, z) >> FB_INDEX_SHIFT) - 1
             'Auf ein unbelegtes Feld angewendet passiert folgendes:
-            'offsetX und Offset Y sind 0, d.h. x und y werden nicht verändert. 
-            'Der Index  (arrFB(x - offsetX, y - offsetY, z) \ 1000) ist auch 0
+            'offsetX und Offset Y sind 0, d.h. x und y werden nicht verändert.
+            'Der Index ((arrFB(x - offsetX, y - offsetY, z) >> FB_INDEX_SHIFT)) ist auch 0
             '1 ab, gibt minus 1. ==> es muss nicht extra auf arrFB(x, y, z) = 0 geprüft werden,
             'ob ein Feld leer ist, es kann immer gleich nach dem SteinIndex gefragt werden.
         End Function
+
+        ''
+        '' Es gilt generell:
+        '' Dim flags As Integer = fb And &HF
+        '' Dim indexPlus1 As Integer = fb >> 4
+        '' fb = (indexPlus1 << 4) Or flags
+
         '
         ''' <summary>
         ''' Diese Überladung holt des Index direkt aus dem arrFB unter Berücksichtigung der OffsetXY
@@ -1630,13 +1712,13 @@ Namespace Spielfeld
         ''' </summary>
         ''' <param name="tripl"></param>
         ''' <returns></returns>'
-        Public Function GetIndexStein(tripl As Triple) As Integer
+        Public Function GetSteinInfoIndex(tripl As Triple) As Integer
             'Weil zeitkritisch doppelter Code
             With tripl
                 Dim fb As Integer = arrFB(.x, .y, .z)
                 Dim offsetX As Integer = If((fb And FLAG_XOffset) <> 0, 1, 0)
                 Dim offsetY As Integer = If((fb And FLAG_YOffset) <> 0, 1, 0)
-                Return (arrFB(.x - offsetX, .y - offsetY, .z) \ 1000) - 1
+                Return (arrFB(.x - offsetX, .y - offsetY, .z) >> FB_INDEX_SHIFT) - 1
             End With
         End Function
 
@@ -1647,10 +1729,10 @@ Namespace Spielfeld
         ''' </summary>
         ''' <param name="fb"></param>
         ''' <returns></returns>
-        Public Shared Function GetIndexStein(fb As Integer) As Integer
+        Public Shared Function GetSteinInfoIndex(fb As Integer) As Integer
             'Der Index wird um 1 erhöht gespeichert, weil index = 0 gleichbedeutend
             'wäre mit "freier Platz"
-            Return (fb \ 1000) - 1  ' Wert ab dritter Dezimalstelle (ab Hunderterstelle)
+            Return (fb >> FB_INDEX_SHIFT) - 1
         End Function
 
         ''' <summary>
@@ -1664,8 +1746,7 @@ Namespace Spielfeld
             'wäre mit "freier Platz" hier wird die 1 nicht abgezogen!
             'so ist sichergestellt, daß nur True ist bei den linken oberen Quadranten
             'und die anderen drei Quadranten nicht berücksichtigt werden.
-            'Quadranten 
-            Return (fb \ 1000) > 0  ' Wert ab dritter Dezimalstelle
+            Return (fb >> FB_INDEX_SHIFT) > 0
         End Function
 
         ''' <summary>
@@ -1677,12 +1758,10 @@ Namespace Spielfeld
             'wäre mit "freier Platz" hier wird die 1 nicht abgezogen!
             'so ist sichergestellt, daß nur True ist bei den linken oberen Quadranten
             'und die anderen drei Quadranten nicht berücksichtigt werden.
-            'Quadranten 
             With tripl
                 Dim fb As Integer = arrFB(.x, .y, .z)
-                Return (fb \ 1000) > 0  ' Wert ab dritter Dezimalstelle
+                Return (fb >> FB_INDEX_SHIFT) > 0
             End With
-
         End Function
 
         Public Function GetQuadrant(x As Integer, y As Integer, z As Integer) As Quadrant
@@ -1791,6 +1870,24 @@ Namespace Spielfeld
             Return False 'leeres Feld
         End Function
 
+        Public Function GetIsRemoved(X As Integer, Y As Integer, Z As Integer) As Boolean
+            'Weil zeitkritisch doppelter Code
+            Dim fb As Integer = _arrFB(X, Y, Z)
+            Dim offsetX As Integer = If((fb And FLAG_XOffset) <> 0, 1, 0)
+            Dim offsetY As Integer = If((fb And FLAG_YOffset) <> 0, 1, 0)
+            Return (_arrFB(X - offsetX, Y - offsetY, Z) And FLAG_IsRemoved) <> 0
+        End Function
+
+        Public Function GetIsRemoved(triple As Triple) As Boolean
+            With triple
+                'Weil zeitkritisch doppelter Code
+                Dim fb As Integer = _arrFB(.x, .y, .z)
+                Dim offsetX As Integer = If((fb And FLAG_XOffset) <> 0, 1, 0)
+                Dim offsetY As Integer = If((fb And FLAG_YOffset) <> 0, 1, 0)
+                Return (_arrFB(.x - offsetX, .y - offsetY, .z) And FLAG_IsRemoved) <> 0
+            End With
+        End Function
+
 #End Region
 
 #Region "FB - Schreiben"
@@ -1822,7 +1919,7 @@ Namespace Spielfeld
             SetOffsetX(arrFB(infoFBx, infoFBy, infoFBz), False)
             SetOffsetY(arrFB(infoFBx, infoFBy, infoFBz), False)
             '
-            SetIndexStein(arrFB(infoFBx, infoFBy, infoFBz), SteinInfoIndex)
+            SetSteinInfoIndex(arrFB(infoFBx, infoFBy, infoFBz), SteinInfoIndex)
 
         End Sub
 
@@ -1858,6 +1955,32 @@ Namespace Spielfeld
                 fb = fb And Not FLAG_YOffset
             End If
         End Sub
+
+        Public Sub SetIsRemoved(x As Integer, y As Integer, z As Integer, value As Boolean)
+            'Weil zeitkritisch doppelter Code
+            Dim fb As Integer = arrFB(x, y, z)
+            Dim offsetX As Integer = If((fb And FLAG_XOffset) <> 0, 1, 0)
+            Dim offsetY As Integer = If((fb And FLAG_YOffset) <> 0, 1, 0)
+            If value Then
+                arrFB(x - offsetX, y - offsetY, z) = arrFB(x - offsetX, y - offsetY, z) Or FLAG_IsRemoved
+            Else
+                arrFB(x - offsetX, y - offsetY, z) = arrFB(x - offsetX, y - offsetY, z) And Not FLAG_IsRemoved
+            End If
+        End Sub
+        Public Sub SetIsRemoved(triple As Triple, value As Boolean)
+            'Weil zeitkritisch doppelter Code
+            With triple
+                Dim fb As Integer = _arrFB(.x, .y, .z)
+                Dim offsetX As Integer = If((fb And FLAG_XOffset) <> 0, 1, 0)
+                Dim offsetY As Integer = If((fb And FLAG_YOffset) <> 0, 1, 0)
+                If value Then
+                    _arrFB(.x - offsetX, .y - offsetY, .z) = _arrFB(.x - offsetX, .y - offsetY, .z) Or FLAG_IsRemoved
+                Else
+                    _arrFB(.x - offsetX, .y - offsetY, .z) = _arrFB(.x - offsetX, .y - offsetY, .z) And Not FLAG_IsRemoved
+                End If
+            End With
+        End Sub
+
         '
         Public Sub SetToggleFlag(x As Integer, y As Integer, z As Integer, value As Boolean)
             'Weil zeitkritisch doppelter Code
@@ -1934,14 +2057,13 @@ Namespace Spielfeld
 
         End Sub
 
-        Public Shared Sub SetIndexStein(ByRef fb As Integer, value As Integer)
-            ' Wert ab vierten Dezimalstelle setzen (ab Tausenderstelle)
-            ' Flags in den unteren Bits behalten
-            Dim flags As Integer = fb And &HFF  ' Bits 0-15, Dezimal 0 bi 255
+        Public Shared Sub SetSteinInfoIndex(ByRef fb As Integer, value As Integer)
+            Dim flags As Integer = fb And FB_FLAG_MASK
             'Der Index wird um 1 erhöht gespeichert, weil index = 0 gleichbedeutend
-            'wäre mit "freier Platz" (zumindest, wenn flags = 0, was möglich ist.)
-            fb = (value + 1) * 1000 + flags
+            'wäre mit "freier Platz".
+            fb = ((value + 1) << FB_INDEX_SHIFT) Or flags
         End Sub
+
         '
         Public Sub ToggleToggleFlag(x As Integer, y As Integer, z As Integer)
             'Weil zeitkritisch doppelter Code
@@ -2054,6 +2176,17 @@ Namespace Spielfeld
 
 #Region "HitTest / Kandidaten / Mauslogik"
 
+        Public Function GetTopSteinInfoIndexAtPoint(mousePos As Point) As Integer
+
+            Dim tpl As Triple = GetTopSteinAtPoint(mousePos)
+
+            If tpl.IsValideYes Then
+                Return GetSteinInfoIndex(tpl)
+            Else
+                Return -1
+            End If
+
+        End Function
         '
         ''' <summary>
         ''' Da der 3D-Effekt die Steine nach oben und nach links verschiebt,muss man in der
@@ -2065,11 +2198,12 @@ Namespace Spielfeld
         ''' </summary>
         ''' <param name="mousePos"></param>
         ''' <returns></returns>
-        Public Function FindTopSteinAtPoint(mousePos As Point) As TripleX
+        Public Function GetTopSteinAtPoint(mousePos As Point) As TripleX
 
             UpdateTopSearchIndex()
 
-            Dim Kandidat As TripleX = New TripleX(ValidePlace.NoKandidat) 'Default
+            Dim kandidat As TripleX = New TripleX(ValidePlace.NoKandidat) 'Default
+            Dim retval As TripleX = Nothing
 
             For idx As Integer = 0 To _indexTopSearch.Length - 1
 
@@ -2082,9 +2216,69 @@ Namespace Spielfeld
 
                 ' erster Treffer gewinnt
                 ' If si.HitTest(pt) Then Return si
-                Kandidat = stein.IsTopQuadrant(mousePos, arrFB, _sfd)
-                If Kandidat.IsValideYes Then
-                    Return Kandidat
+                kandidat = stein.IsTopQuadrant(mousePos, arrFB, _sfd)
+
+                Dim ok As Integer
+
+                With kandidat
+                    If .IsValideYes Then
+                        ok = 1
+                        Select Case .Quadrant
+                            Case Quadrant.LO
+                                retval = kandidat
+                                If stein.IsTopQuadrant(.x + 1, .y, .z, arrFB, _sfd) Then
+                                    ok += 1
+                                End If
+                                If stein.IsTopQuadrant(.x, .y + 1, .z, arrFB, _sfd) Then
+                                    ok += 1
+                                End If
+                                If stein.IsTopQuadrant(.x + 1, .y + 1, .z, arrFB, _sfd) Then
+                                    ok += 1
+                                End If
+
+                            Case Quadrant.RO
+                                retval = kandidat.DeepCopy(addX:=-1, addY:=0, addZ:=0)
+
+                                If stein.IsTopQuadrant(.x - 1, .y, .z, arrFB, _sfd) Then
+                                    ok += 1
+                                End If
+                                If stein.IsTopQuadrant(.x - 1, .y + 1, .z, arrFB, _sfd) Then
+                                    ok += 1
+                                End If
+                                If stein.IsTopQuadrant(.x, .y + 1, .z, arrFB, _sfd) Then
+                                    ok += 1
+                                End If
+
+                            Case Quadrant.LU
+                                retval = kandidat.DeepCopy(addX:=0, addY:=-1, addZ:=0)
+                                If stein.IsTopQuadrant(.x, .y - 1, .z, arrFB, _sfd) Then
+                                    ok += 1
+                                End If
+                                If stein.IsTopQuadrant(.x + 1, .y - 1, .z, arrFB, _sfd) Then
+                                    ok += 1
+                                End If
+                                If stein.IsTopQuadrant(.x + 1, .y, .z, arrFB, _sfd) Then
+                                    ok += 1
+                                End If
+
+                            Case Quadrant.RU
+                                retval = kandidat.DeepCopy(addX:=0, addY:=-1, addZ:=0)
+                                If stein.IsTopQuadrant(.x - 1, .y - 1, .z, arrFB, _sfd) Then
+                                    ok += 1
+                                End If
+                                If stein.IsTopQuadrant(.x, .y - 1, .z, arrFB, _sfd) Then
+                                    ok += 1
+                                End If
+                                If stein.IsTopQuadrant(.x - 1, .y, .z, arrFB, _sfd) Then
+                                    ok += 1
+                                End If
+
+                        End Select
+                    End If
+                End With
+
+                If ok = 4 Then
+                    Return retval
                 End If
             Next
 
@@ -2115,13 +2309,13 @@ Namespace Spielfeld
 
             If kandidat.IsValideYes Then
 
-                'Steht der Kandidat auf dem rechten oder unteren Rand?
+                'Steht der kandidat auf dem rechten oder unteren Rand?
                 'Dann sind nach rechts bzw. nach unten keine Felder frei.
                 If Not kandidat.IsInsideSpielfeldBounds(arrFB, excludeRightAndBottomMargin:=True) Then
                     Return New Triple(ValidePlace.NoKandidat)
                 End If
 
-                'Kandidat ist der linke obere Quadrant des Steines.
+                'kandidat ist der linke obere Quadrant des Steines.
                 'Jetzt prüfen, ob die Plätze für anderen drei Quadranten frei sind
                 'und ob darunter ein Fundament ist.
 
@@ -2131,7 +2325,7 @@ Namespace Spielfeld
                 With kandidat
                     'Quadrant rechts oben frei?
                     If arrFB(.x + 1, .y, .z) = 0 Then
-                        If isBottom Then 'Kandidat steht auf der Grundfläche
+                        If isBottom Then 'kandidat steht auf der Grundfläche
                             okCounter += 1
                         Else
                             'Der Platz darunter belegt?
@@ -2143,7 +2337,7 @@ Namespace Spielfeld
                     '
                     'Quadrant unten drunter frei?
                     If arrFB(.x, .y + 1, .z) = 0 Then
-                        If isBottom Then 'Kandidat steht auf der Grundfläche
+                        If isBottom Then 'kandidat steht auf der Grundfläche
                             okCounter += 1
                         Else
                             'Der Platz darunter belegt?
@@ -2155,7 +2349,7 @@ Namespace Spielfeld
                     '
                     'Quadrant rechts unten frei?
                     If arrFB(.x + 1, .y + 1, .z) = 0 Then
-                        If isBottom Then 'Kandidat steht auf der Grundfläche
+                        If isBottom Then 'kandidat steht auf der Grundfläche
                             okCounter += 1
                         Else
                             'Der Platz darunter belegt?
@@ -2174,11 +2368,11 @@ Namespace Spielfeld
                     End If
 
                 End With
-            Else 'Kandidat.IsNotValideYes 
+            Else 'kandidat.IsNotValideYes 
                 'Wenn kein Stein gefunden wurde, die Grundfläche überprüfen.
                 kandidat = GetPos3DOnGround(mousePos)
                 If Not kandidat.IsInsideSpielfeldBounds(arrFB, excludeRightAndBottomMargin:=True) Then
-                    'Exclude...=True, weil Kandidat den linken oberen Quadrant darstellt und auf der
+                    'Exclude...=True, weil kandidat den linken oberen Quadrant darstellt und auf der
                     'rechten Spalte und der unteren Zeile kein Platz für die anderen Quadranten ist.
                     Return New Triple(ValidePlace.NoKandidat)
                 Else
@@ -2195,16 +2389,16 @@ Namespace Spielfeld
                 End If
             End If
         End Function
-
-        Public Function GetSteinStackInfos(mousePos As Point) As TripleX()
+        '
+        Public Function GetSteinToolTipInfos(mousePos As Point) As TripleX()
 
             Dim ssi As New List(Of TripleX)
 
-            Dim Kandidat As TripleX = FindTopSteinAtPoint(mousePos)
+            Dim Kandidat As TripleX = GetTopSteinAtPoint(mousePos)
 
             If Kandidat.IsValideYes Then
                 For idxZ As Integer = Kandidat.z To 0 Step -1
-                    Dim idx As Integer = GetIndexStein(New TripleX(Kandidat.x, Kandidat.y, idxZ))
+                    Dim idx As Integer = GetSteinInfoIndex(New TripleX(Kandidat.x, Kandidat.y, idxZ))
 
                     Dim aktSIE As TripleX
                     If idx = -1 Then
@@ -2782,7 +2976,7 @@ Namespace Spielfeld
             Dim fullpath As String = Path.Combine(INI.AppDataDirectory(sub1Dir, sub2Dir, sub3Dir), filename)
             Return Load(fullpath)
         End Function
-        Public Shared Function OpenWithDialog(sub1Dir As AppDataSubDir, sub2Dir As AppDataSubSubDir, sub3Dir As BasisformEnum, filename As String, Optional header As String = "Spiel laden") As SFInfo
+        Public Shared Function OpenWithDialog(sub1Dir As AppDataSubDir, sub2Dir As AppDataSubSubDir, sub3Dir As BasisformEnum, filename As String, Optional header As String = "Spielfeld laden") As SFInfo
             Dim path As String = IO.Path.Combine(INI.AppDataDirectory(sub1Dir, sub2Dir, sub3Dir.ToString), filename)
             Dim fullpath As String = INI.AppDataFullPathWithOpenFileDialog(path, "*.*", header)
             If Not String.IsNullOrEmpty(fullpath) Then
@@ -2839,6 +3033,13 @@ Namespace Spielfeld
                                     ") ist mit aktuellem Spielfeld nicht vereinbar." &
                                     "(prüfen, ob Steine des alten Spielfeldes außerhalb des neuen Spielfeldes liegen.)"
                                 End If
+                            End If
+                            '
+                            'Die einzelnen SteinInfos brauchen die Referenz auf den ArrFB
+                            If ._arrFB IsNot Nothing AndAlso .SteinInfos IsNot Nothing Then
+                                For Each st As SteinInfo In .SteinInfos
+                                    st.SetArrFbReferenz(.arrFB)
+                                Next
                             End If
                         End With
 

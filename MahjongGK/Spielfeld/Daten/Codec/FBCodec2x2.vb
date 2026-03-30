@@ -6,49 +6,51 @@ Option Strict On
 Imports System.Xml.Serialization
 
 'Zur Speicherung
-'3D-Arrays konnen nicht Xml-serialisiert werden.
+'3D-Arrays können nicht XML-serialisiert werden.
 'Außerdem kommen im Array sehr viele Nullen vor.
-'Jeder Stein belegt 4 Felder, von denen nur das linke obere Feld den 
-'Steinindes um 1000 erhöht enthält. Die anderen 3 Felder enthalten
-'einen Zeiger auf das linke obere Feld, die für alle Steine gleich
-'sind. Außerdem noch ein Flag, das nicht gespeichert werden muss.
-
-'Auskunft von ChatGPT:
-'Perfekt — genau diese Struktur schreit nach einer Anker-Serialisierung:
-'Speichere nur die 4-Felder-„Anker“ (die Zellen mit Wert ≥ 1000), also je Stein (x,y,z, StoneId).
-'Beim Laden rekonstruierst du daraus die drei Nachbarfelder mit den festen Offsets für 1, 2, 3.
-'So vermeidest du 0-Wüsten und die extrem häufigen 1/2/3 vollständig.
-
-'Ergebnis ist das Module FBCodec2x2
-
+'
+'Jeder Stein belegt 4 Felder.
+'Nur das linke obere Feld (Ankerfeld) enthält den SteinInfoIndex.
+'Gespeichert wird bitkodiert:
+'  Bits 0..3   = Flags
+'  ab Bit 4    = (SteinInfoIndex + 1)
+'
+'Die anderen 3 Felder enthalten nur die Offset-Flags zum Ankerfeld:
+'  rechts       : FLAG_XOffset
+'  unten        : FLAG_YOffset
+'  unten-rechts : FLAG_XOffset Or FLAG_YOffset
+'
+'FLAG_ToggleFlag wird nicht gespeichert, sondern ist nur ein Laufzeitflag.
+'
+'Ergebnis ist das Module FBCodec2x2.
+'
 'Was sichergestellt ist:
-'Beim Export (3D → Anchors) wird das FLAG_ToggleFlag gar nicht betrachtet 
-'(wir lesen nur die Ankerzellen ≥ 1000).
-
-'Beim Import (Anchors → 3D) stehen in den drei Nachbarfeldern nur FLAG_XOffset, 
-'FLAG_YOffset bzw. deren OR-Kombination — ohne FLAG_ToggleFlag.
-
-'Dein Renderer kann das Toggle-Bit weiterhin zur Laufzeit setzen/umdrehen; 
-'beim nächsten Speichern ist es wieder 0.
-
-'Wichtig bei Programmänderung. Wenn noch weitere Informationen im arrFB gespeichert werden,
-'muss die Speicherroutine angepasst werden. Es wird eventuell eine Version 2 geben,
-'die die bisherige Version 1 importieren kann.
+'Beim Export (3D → Anchors) wird FLAG_ToggleFlag nicht berücksichtigt.
+'Beim Import (Anchors → 3D) stehen in den drei Nachbarfeldern nur
+'FLAG_XOffset, FLAG_YOffset bzw. deren OR-Kombination — ohne FLAG_ToggleFlag.
+'
+'Wichtig bei Programmänderung:
+'Wenn noch weitere Informationen im arrFB gespeichert werden,
+'muss die Speicherroutine angepasst werden.
 
 ' ──────────────────────────────────────────────────────────────────────────────
 ' FBCodec2x2
 ' Serialisiert den arrFB (Integer(,,)) nur über "Anker" je Stein:
-' - Ankerzelle (oben-links) enthält (Index+1)*1000  (keine Flags)
+' - Ankerzelle (oben-links) enthält:
+'       ((SteinInfoIndex + 1) << 4)
+'   plus persistente Anker-Flags
+'
 ' - Weitere Zellen im 2×2-Block:
 '       rechts       : FLAG_XOffset
 '       unten        : FLAG_YOffset
 '       unten-rechts : FLAG_XOffset Or FLAG_YOffset
+'
 ' - FLAG_ToggleFlag wird NIE gespeichert (Laufzeitflag).
 '
 ' XML-Struktur:
-' <FBAnchors X=".." Y=".." Z=".." AnchorBase="1000">
+' <FBAnchors X=".." Y=".." Z=".." AnchorBase="16">
 '   <Stones>
-'     <S X=".." Y=".." Z=".." Id=".."/>
+'     <S X=".." Y=".." Z=".." Idx=".." Removed=".."/>
 '     ...
 '   </Stones>
 ' </FBAnchors>
@@ -58,18 +60,26 @@ Imports System.Xml.Serialization
 ''' </summary>
 Public Module FBCodec2x2
 
-    ' in Konstanten Deklariert
-    ' '' ---- Bitflags ------------------------------------------------------------
-    ''Public Const BIT0 As Integer = 1
-    ''Public Const BIT1 As Integer = 2
-    ''Public Const BIT2 As Integer = 4
+    ' in Konstanten deklariert
+    'Public Const BIT0 As Integer = 1
+    'Public Const BIT1 As Integer = 2
+    'Public Const BIT2 As Integer = 4
+    'Public Const BIT3 As Integer = 8
+    '
+    'Public Const FLAG_XOffset As Integer = BIT0
+    'Public Const FLAG_YOffset As Integer = BIT1
+    'Public Const FLAG_ToggleFlag As Integer = BIT2
+    'Public Const FLAG_IsRemoved As Integer = BIT3
 
-    ''Public Const FLAG_XOffset As Integer = BIT0
-    ''Public Const FLAG_YOffset As Integer = BIT1
-    ''Public Const FLAG_ToggleFlag As Integer = BIT2
+    ' Bitschema:
+    ' Bits 0..3 = Flags
+    ' ab Bit 4  = (SteinInfoIndex + 1)
+    Private Const FB_INDEX_SHIFT As Integer = 4
+    Private Const ANCHOR_BASE As Integer = 1 << FB_INDEX_SHIFT   ' = 16
 
-    ' Faktor für Anker-Kodierung
-    Private Const THOUSAND As Integer = 1000
+    ' Nur diese Flags dürfen in einer Ankerzelle persistent sein.
+    ' FLAG_ToggleFlag gehört ausdrücklich nicht dazu.
+    Private Const ANCHOR_PERSISTENT_FLAGS As Integer = FLAG_IsRemoved
 
     ' ---- 2×2-Offsets relativ zum Anker (oben-links) --------------------------
     Private ReadOnly OFF_1 As (dx As Integer, dy As Integer, dz As Integer) = (+1, 0, 0) ' rechts
@@ -81,12 +91,19 @@ Public Module FBCodec2x2
     ' ──────────────────────────────────────────────────────────────────────────
     <XmlRoot("FBAnchors")>
     Public Class FBAnchors
-        <XmlAttribute("X")> Public Property X As Integer
-        <XmlAttribute("Y")> Public Property Y As Integer
-        <XmlAttribute("Z")> Public Property Z As Integer
 
-        ' Für Lesbarkeit/Debug: üblich = 1000
-        <XmlAttribute("AnchorBase")> Public Property AnchorBase As Integer = THOUSAND
+        <XmlAttribute("X")>
+        Public Property X As Integer
+
+        <XmlAttribute("Y")>
+        Public Property Y As Integer
+
+        <XmlAttribute("Z")>
+        Public Property Z As Integer
+
+        ' Für Lesbarkeit/Debug: üblich = 16
+        <XmlAttribute("AnchorBase")>
+        Public Property AnchorBase As Integer = ANCHOR_BASE
 
         <XmlArray("Stones"), XmlArrayItem("S")>
         Public Property Stones As List(Of FBAnchorItem)
@@ -95,33 +112,56 @@ Public Module FBCodec2x2
         End Sub
 
         Public Sub New(x As Integer, y As Integer, z As Integer, stones As List(Of FBAnchorItem))
-            Me.X = x : Me.Y = y : Me.Z = z : Me.Stones = stones
+            Me.X = x
+            Me.Y = y
+            Me.Z = z
+            Me.Stones = stones
         End Sub
+
     End Class
 
     Public Class FBAnchorItem
-        <XmlAttribute("X")> Public Property X As Integer
-        <XmlAttribute("Y")> Public Property Y As Integer
-        <XmlAttribute("Z")> Public Property Z As Integer
-        ' Achtung: Id = DEKODIERTER Index (ohne +1, ohne *1000)
-        <XmlAttribute("Idx")> Public Property StoneId As Integer
+
+        <XmlAttribute("X")>
+        Public Property X As Integer
+
+        <XmlAttribute("Y")>
+        Public Property Y As Integer
+
+        <XmlAttribute("Z")>
+        Public Property Z As Integer
+
+        ' Achtung: Idx = dekodierter Index (ohne +1, ohne Shift)
+        <XmlAttribute("Idx")>
+        Public Property StoneId As Integer
+
+        ' Persistentes Anker-Flag
+        <XmlAttribute("Removed")>
+        Public Property IsRemoved As Boolean
 
         Public Sub New()
         End Sub
 
-        Public Sub New(x As Integer, y As Integer, z As Integer, stoneId As Integer)
-            Me.X = x : Me.Y = y : Me.Z = z : Me.StoneId = stoneId
+        Public Sub New(x As Integer, y As Integer, z As Integer, stoneId As Integer, isRemoved As Boolean)
+            Me.X = x
+            Me.Y = y
+            Me.Z = z
+            Me.StoneId = stoneId
+            Me.IsRemoved = isRemoved
         End Sub
+
     End Class
 
     ' ──────────────────────────────────────────────────────────────────────────
     ' 3D-Array -> Anchors
-    ' - Liest NUR Ankerzellen (>= AnchorBase)
-    ' - Dekodiert StoneId korrekt mit  (v \ 1000) - 1
-    ' - Flags werden beim Export ignoriert; ToggleFlag wird damit implizit verworfen
+    ' - Liest nur Ankerzellen
+    ' - Dekodiert StoneId korrekt mit (Ankerwert >> 4) - 1
+    ' - Persistiert FLAG_IsRemoved explizit als XML-Attribut
+    ' - FLAG_ToggleFlag wird ignoriert und damit implizit verworfen
     ' ──────────────────────────────────────────────────────────────────────────
     Public Function ToAnchors(arr As Integer(,,),
-                              Optional anchorBase As Integer = THOUSAND) As FBAnchors
+                              Optional anchorBase As Integer = ANCHOR_BASE) As FBAnchors
+
         If arr Is Nothing Then Return Nothing
 
         Dim maxX As Integer = arr.GetLength(0)
@@ -133,28 +173,34 @@ Public Module FBCodec2x2
         For x As Integer = 0 To maxX - 1
             For y As Integer = 0 To maxY - 1
                 For z As Integer = 0 To maxZ - 1
+
                     Dim v As Integer = arr(x, y, z)
-                    If v >= anchorBase Then
-                        ' Anker: Index = (v \ 1000) - 1   (Flags sind bei Anker per Definition 0)
-                        Dim stoneId As Integer = (v \ THOUSAND) - 1
-                        list.Add(New FBAnchorItem(x, y, z, stoneId))
+
+                    If IsAnchorValue(v, anchorBase) Then
+                        Dim stoneId As Integer = DecodeAnchorStoneId(v, anchorBase)
+                        Dim isRemoved As Boolean = ((v And FLAG_IsRemoved) <> 0)
+
+                        list.Add(New FBAnchorItem(x, y, z, stoneId, isRemoved))
                     End If
+
                 Next
             Next
         Next
 
         Return New FBAnchors(maxX, maxY, maxZ, list) With {.AnchorBase = anchorBase}
+
     End Function
 
     ' ──────────────────────────────────────────────────────────────────────────
     ' Anchors -> 3D-Array
-    ' - Schreibt die Ankerzelle als (Id+1)*1000  (ohne Flags)
+    ' - Schreibt die Ankerzelle als ((Id+1) << 4), optional Or FLAG_IsRemoved
     ' - Setzt die drei Nachbarzellen mit FLAG_XOffset/FLAG_YOffset (ohne Toggle)
     ' - Optional strenge Bounds-/Konfliktprüfung
     ' ──────────────────────────────────────────────────────────────────────────
     Public Function FromAnchors(fb As FBAnchors,
-                                Optional anchorBase As Integer = THOUSAND,
+                                Optional anchorBase As Integer = ANCHOR_BASE,
                                 Optional validate As Boolean = True) As Integer(,,)
+
         If fb Is Nothing OrElse fb.X <= 0 OrElse fb.Y <= 0 OrElse fb.Z <= 0 Then Return Nothing
 
         Dim arr As Integer(,,) = New Integer(fb.X - 1, fb.Y - 1, fb.Z - 1) {}
@@ -164,6 +210,7 @@ Public Module FBCodec2x2
         End If
 
         For Each s As FBAnchorItem In fb.Stones
+
             If validate Then
                 ' Bounds Anker
                 If s.X < 0 OrElse s.X >= fb.X OrElse
@@ -171,10 +218,16 @@ Public Module FBCodec2x2
                    s.Z < 0 OrElse s.Z >= fb.Z Then
                     Throw New InvalidOperationException($"Anchor außerhalb: ({s.X},{s.Y},{s.Z}) bei Größe {fb.X}×{fb.Y}×{fb.Z}.")
                 End If
+
                 ' 2×2-Block passt?
                 If s.X + 1 >= fb.X OrElse s.Y + 1 >= fb.Y Then
                     Throw New InvalidOperationException($"2×2-Block ragt raus: Anchor=({s.X},{s.Y},{s.Z}).")
                 End If
+
+                If s.StoneId < 0 Then
+                    Throw New InvalidOperationException($"Ungültige StoneId {s.StoneId} bei Anchor=({s.X},{s.Y},{s.Z}).")
+                End If
+
                 ' Keine Überschreibung
                 CheckEmpty(arr, s.X, s.Y, s.Z)
                 CheckEmpty(arr, s.X + OFF_1.dx, s.Y + OFF_1.dy, s.Z + OFF_1.dz)
@@ -182,21 +235,55 @@ Public Module FBCodec2x2
                 CheckEmpty(arr, s.X + OFF_3.dx, s.Y + OFF_3.dy, s.Z + OFF_3.dz)
             End If
 
-            ' Ankerzelle schreiben: (Id+1)*1000 (Flags = 0)
-            arr(s.X, s.Y, s.Z) = (s.StoneId + 1) * THOUSAND
+            ' Ankerzelle schreiben: ((Id+1) << 4) plus persistente Anker-Flags
+            Dim anchorValue As Integer = EncodeAnchorValue(s.StoneId, s.IsRemoved, anchorBase)
+            arr(s.X, s.Y, s.Z) = anchorValue
 
             ' Nachbarn: nur X/Y-Flags persistieren (Toggle NIE speichern)
             arr(s.X + OFF_1.dx, s.Y + OFF_1.dy, s.Z + OFF_1.dz) = FLAG_XOffset
             arr(s.X + OFF_2.dx, s.Y + OFF_2.dy, s.Z + OFF_2.dz) = FLAG_YOffset
             arr(s.X + OFF_3.dx, s.Y + OFF_3.dy, s.Z + OFF_3.dz) = FLAG_XOffset Or FLAG_YOffset
+
         Next
 
         Return arr
+
     End Function
 
     ' ──────────────────────────────────────────────────────────────────────────
     ' Helpers
     ' ──────────────────────────────────────────────────────────────────────────
+    Private Function IsAnchorValue(v As Integer, anchorBase As Integer) As Boolean
+        Return (v \ anchorBase) > 0
+    End Function
+
+    Private Function DecodeAnchorStoneId(v As Integer, anchorBase As Integer) As Integer
+        ' Persistente Flags liegen vollständig unterhalb der AnchorBase
+        ' und stören die Division daher nicht.
+        ' Trotzdem werden sie vorher entfernt, damit die Absicht klar bleibt.
+        Dim rawAnchor As Integer = v And Not ANCHOR_PERSISTENT_FLAGS
+        Return (rawAnchor \ anchorBase) - 1
+    End Function
+
+    Private Function EncodeAnchorValue(stoneId As Integer,
+                                       isRemoved As Boolean,
+                                       anchorBase As Integer) As Integer
+
+        If stoneId < 0 Then
+            Throw New ArgumentOutOfRangeException(NameOf(stoneId))
+        End If
+
+        Dim v As Integer = (stoneId + 1) * anchorBase
+        ' bei anchorBase = 16 entspricht das: (stoneId + 1) << 4
+
+        If isRemoved Then
+            v = v Or FLAG_IsRemoved
+        End If
+
+        Return v
+
+    End Function
+
     Private Sub CheckEmpty(arr As Integer(,,), x As Integer, y As Integer, z As Integer)
         If arr(x, y, z) <> 0 Then
             Throw New InvalidOperationException($"Zellenkonflikt bei ({x},{y},{z}); vorhandener Wert={arr(x, y, z)}.")

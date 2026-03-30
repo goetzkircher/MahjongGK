@@ -71,7 +71,7 @@ Namespace Spielfeld
                         'Wenn es knallt Hinweis lesen
                         SFDat.SFRenMan.RenderTimer.Stop()
                         If Debugger.IsAttached Then
-                            Throw New Exception("Programmierfehler: RenderMode.Edit OrElse RenderMode.Spiel angefordert ohne gültiges VisibleUserControl")
+                            Throw New Exception("Programmierfehler: RenderMode.Editor OrElse RenderMode.Spielfeld angefordert ohne gültiges VisibleUserControl")
                         End If
                         Exit Property
                     End If
@@ -79,12 +79,12 @@ Namespace Spielfeld
 
                 Select Case value
                         'Wenn es knallt Hinweis lesen
-                    Case RenderMode.NoDataLoaded 'Synonym: RenderMode.EndOfSpiel
+                    Case RenderMode.NoRendering 'Synonym: RenderMode.EndOfSpiel
                         'bewußte Umstellung ==> immer speichern 
                         If Not IsNothing(SFDat) Then
                             SFDat.SFInf.SaveLastUsedSpielfeld()
+                            SFDat.SFRenMan.RenderTimer.Stop()
                         End If
-                        SFDat.SFRenMan.RenderTimer.Stop()
 
                     Case RenderMode.Paused
                         SFDat.SFRenMan.RenderTimer.Stop()
@@ -139,9 +139,7 @@ Namespace Spielfeld
         ''' <returns></returns>
         Public Function CreateSpielfeld(spielsize As Triple) As Boolean
 
-            If SFDat IsNot Nothing Then
-                SFDatDisposeAndSetNothing(saveSpielFeld:=If(SFDat.SFInf.xMax = 0, False, True))
-            End If
+            CloseSpielfeld()
 
             If Not SFInfo.CheckSpielsize(spielsize) Then
                 Return False
@@ -159,9 +157,7 @@ Namespace Spielfeld
 
         Public Function CreateSpielfeld(spielfeldinfo As SFInfo) As Boolean
 
-            If SFDat IsNot Nothing Then
-                SFDatDisposeAndSetNothing(saveSpielFeld:=If(SFDat.SFInf.xMax = 0, False, True))
-            End If
+            CloseSpielfeld()
 
             If Not SFInfo.CheckSpielsize(spielfeldinfo.SpielSizeInSteinen) Then
                 Return False
@@ -177,21 +173,26 @@ Namespace Spielfeld
 
         End Function
 
-        Public ReadOnly Property SFDatHasNoData As Boolean
+        Public Sub CloseSpielfeld()
+
+            RenderMode = RenderMode.NoRendering
+
+            CloseToolBox()
+
+            If SFDat IsNot Nothing Then
+                SFDatDisposeAndSetNothing(saveSpielFeld:=If(SFDat.SFInf.xMax = 0, False, True))
+            End If
+        End Sub
+
+        Public ReadOnly Property SFDatHasDataAndDoRender As Boolean
             Get
                 If SFDat Is Nothing Then
-                    Return True
-                ElseIf RenderMode = RenderMode.EndOfSpiel Then
-                    Return True
-                Else
                     Return False
+                ElseIf RenderMode = RenderMode.NoRendering Then
+                    Return False
+                Else
+                    Return True
                 End If
-            End Get
-        End Property
-
-        Public ReadOnly Property SFDatHasData As Boolean
-            Get
-                Return Not SFDatHasNoData
             End Get
         End Property
 
@@ -235,7 +236,7 @@ Namespace Spielfeld
                     Return True
                 ElseIf .xMax = 0 Then
                     Return True
-                ElseIf RenderMode = RenderMode.NoDataLoaded Then
+                ElseIf RenderMode = RenderMode.NoRendering Then
                     Return True
                 Else
                     Return False
@@ -245,29 +246,62 @@ Namespace Spielfeld
         Public Function SpielfeldIsNotEmpty() As Boolean
             Return Not SpielfeldIsEmpty()
         End Function
+        Public Sub CloseToolBox()
+
+            Dim frm As Form = INI.ToolBox_FormToolBox
+
+            If frm Is Nothing Then
+                INI.ToolBox_FormIsVisible = False
+                Exit Sub
+            End If
+
+            Try
+                If Not frm.IsDisposed Then
+                    frm.Close()
+                End If
+            Catch
+                If Not frm.IsDisposed Then
+                    frm.Dispose()
+                End If
+            End Try
+
+            INI.ToolBox_FormToolBox = Nothing
+            INI.ToolBox_FormIsVisible = False
+
+        End Sub
+
+        'Ist das korrekt?. 
         '
         ''' <summary>
         ''' 
         ''' </summary>
         Public Sub SFDatDisposeAndSetNothing(saveSpielFeld As Boolean)
-            If saveSpielFeld Then
+
+            If saveSpielFeld AndAlso SFDat IsNot Nothing Then
                 SFDat.SFInf.SaveLastUsedSpielfeld()
             End If
+
+            If SFDat IsNot Nothing Then
+
+                SFDat.Dispose()
+                SFDat = Nothing
+            End If
+
+            _RenderMode = RenderMode.NoRendering
+
+        End Sub
+        '
+
+        '
+        ''' <summary>
+        ''' Disposed alles Notwendige in allen SF-Klassen und Abhängigen.
+        ''' Von außen SFMain.CloseSpielfeld verwenden.
+        ''' </summary>
+        Private Sub Dispose()
             If SFDat IsNot Nothing Then
                 SFDat.Dispose()
                 SFDat = Nothing
             End If
-            _RenderMode = RenderMode.NoDataLoaded
-        End Sub
-        '
-        ''' <summary>
-        ''' Disposed alles Notwendige in allen SF-Klassen und Abhängigen.
-        ''' </summary>
-        Public Sub Dispose()
-
-            SFDat?.Dispose()
-            SFDat?.SFLay?.Dispose()
-            SFDat?.SFAir?.Dispose()
         End Sub
 
     End Module

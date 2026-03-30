@@ -5,8 +5,6 @@ Option Strict On
 
 Imports MahjongGK.Spielfeld
 
-
-
 #Disable Warning IDE0079
 #Disable Warning IDE1006
 
@@ -111,11 +109,17 @@ Public Class TripleX
         Me.Tag = triplx.Tag
     End Sub
 
-    Public ReadOnly Property DeepCopyX As TripleX
+    Public Overloads ReadOnly Property DeepCopy As TripleX
         Get
             Dim result As New TripleX(x, y, z, Valide, SteinInfoIndex, SteinIndex, Quadrant, SteinInfo)
             result.Tag = Me.Tag
             Return result
+        End Get
+    End Property
+
+    Public Overloads ReadOnly Property DeepCopy(Optional addX As Integer = 0, Optional addY As Integer = 0, Optional addZ As Integer = 0) As TripleX
+        Get
+            Return New TripleX(x + addX, y + addY, z + addZ, Valide, SteinInfoIndex, SteinIndex, Quadrant, SteinInfo)
         End Get
     End Property
 

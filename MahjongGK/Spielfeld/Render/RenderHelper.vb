@@ -472,6 +472,63 @@ Namespace Spielfeld
 
         End Function
 
+        Public Function DrawOverlay_Außenrahmen2D(ByVal bmpSrc As Bitmap,
+                                          ByVal rahmenbreite As Integer,
+                                          ByVal rahmenColor As Color,
+                                          ByVal copyBitmap As Boolean) As Bitmap
+
+            If bmpSrc Is Nothing Then
+                Return Nothing
+            End If
+
+            If rahmenbreite <= 0 Then
+                If copyBitmap Then
+                    Return CType(bmpSrc.Clone(), Bitmap)
+                Else
+                    Return bmpSrc
+                End If
+            End If
+
+            Dim bmpDst As Bitmap
+
+            If copyBitmap Then
+                bmpDst = CType(bmpSrc.Clone(), Bitmap)
+            Else
+                bmpDst = bmpSrc
+            End If
+
+            Dim w As Integer = bmpDst.Width
+            Dim h As Integer = bmpDst.Height
+
+            If w <= 1 OrElse h <= 1 Then
+                Return bmpDst
+            End If
+
+            Dim radius As Integer = 6
+            Dim maxRadius As Integer = Math.Min(w, h) \ 2
+
+            If radius > maxRadius Then radius = maxRadius
+            If radius < 1 Then radius = 1
+
+            Using gfx As Graphics = Graphics.FromImage(bmpDst)
+
+                gfx.SmoothingMode = Drawing2D.SmoothingMode.AntiAlias
+                gfx.PixelOffsetMode = Drawing2D.PixelOffsetMode.HighQuality
+
+                Using pathFull As Drawing2D.GraphicsPath = CreateRoundedRectanglePath(0, 0, w - 1, h - 1, radius)
+                    Using penBase As Pen = New Pen(rahmenColor, rahmenbreite)
+                        penBase.Alignment = Drawing2D.PenAlignment.Inset
+                        penBase.LineJoin = Drawing2D.LineJoin.Round
+                        gfx.DrawPath(penBase, pathFull)
+                    End Using
+                End Using
+
+            End Using
+
+            Return bmpDst
+
+        End Function
+
         Public Function DrawOverlay_Außenrahmen3D(ByVal bmpSrc As Bitmap,
                                            ByVal rahmenbreite As Integer,
                                            ByVal rahmenColor As Color,

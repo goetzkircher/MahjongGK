@@ -31,8 +31,6 @@ Option Strict On
 '
 Imports MahjongGK.Spielfeld
 
-
-
 #Disable Warning IDE0079
 #Disable Warning IDE1006
 
@@ -54,13 +52,13 @@ Public Class SpielsteinGeneratorValuesForXml
     Public Property GeneratorModusForXml As GeneratorModus
     Public Property HalfSteinsetsCount As Integer
     Public Property StoneSet152SteineErzeugen As Boolean
-    Public Property Stock As List(Of SteinIndexEnum)
     Public Property StockMaxUBound As Integer
     Public Property StockNachschubschwelle As Integer
     Public Property StockStopNachschub As Boolean
     '
     Public Property StockStopNachschubXmlOnly As Boolean
     Public Property StockNoSortAreaEndIndex As Integer
+    Public Property Stock As List(Of SteinIndexEnum)
 
     Public Sub CopySpielsteinGeneratorValues_To_SpielsteinGenerator(gen As SpielsteinGenerator)
 

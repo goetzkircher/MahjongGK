@@ -1,4 +1,12 @@
-﻿Option Compare Text
+﻿'Ich brauche eine
+'Public ReadOnly Property ConsumeBitmapChanged As Boolean
+'    Get
+'      
+'    End Get
+'End Property
+'Gib mir bitte die notwendigen Codeänderungen an.
+
+Option Compare Text
 Option Explicit On
 Option Infer Off
 Option Strict On
@@ -50,10 +58,19 @@ Namespace Images
         Private _isError As Boolean = False
         Private _lastError As String = String.Empty
 
+        Private _consumeBitmapChanged As Boolean = False
+
 #End Region
 
 #Region "Öffentliche API"
 
+        Public ReadOnly Property ConsumeBitmapChanged As Boolean
+            Get
+                Dim ret As Boolean = _consumeBitmapChanged
+                _consumeBitmapChanged = False
+                Return ret
+            End Get
+        End Property
         Public ReadOnly Property IsError As Boolean
             Get
                 Return _isError
@@ -145,6 +162,7 @@ Namespace Images
 
             _isError = Not String.IsNullOrEmpty(errMsg)
             _lastError = If(_isError, errMsg, String.Empty)
+            _consumeBitmapChanged = True
         End Sub
 
         ' ── LoadIfPathChanged: ebenfalls ohne Throws (außer Disposed) ───────────────────
@@ -201,6 +219,7 @@ Namespace Images
             _orgSize = Size.Empty
             _isError = False
             _lastError = String.Empty
+            _consumeBitmapChanged = True
         End Sub
 
         Public Sub Dispose() Implements IDisposable.Dispose
@@ -294,6 +313,7 @@ Namespace Images
             End Select
 
             _lastSize = target
+            _consumeBitmapChanged = True
         End Sub
 
 #End Region

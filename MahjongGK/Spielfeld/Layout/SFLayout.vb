@@ -171,21 +171,28 @@ Namespace Spielfeld
         ''' Gesamte Ausgabefläche wie vom Paint.
         ''' </summary>
         Public Property rxOutput As RectangleX = Nothing
+        Public Property rxOutputUsed As RectangleX = Nothing
 
+        Private _rxStock As RectangleX = Nothing
         ''' <summary>
         ''' Oben die Leiste des Steinvorrats beim Editieren.
         ''' </summary>
-        Public Property rxStock As RectangleX = Nothing
+        Public Property rxStock As RectangleX
+            Get
+                Return _rxStock
+            End Get
+            Set(value As RectangleX)
+                _rxStock = value
+                If _rxStock IsNot Nothing Then
+                    'Stop
+                End If
+            End Set
+        End Property
 
         ''' <summary>
         ''' Scrollbar des Steinvorrats.
         ''' </summary>
         Public Property rxStockScrollbar As RectangleX = Nothing
-
-        ''' <summary>
-        ''' Markierung des Steinvorrats.
-        ''' </summary>
-        Public Property rxStockMark As RectangleX = Nothing
 
         ''' <summary>
         ''' Hält die UGrd-Bitmap.
@@ -214,6 +221,7 @@ Namespace Spielfeld
         ''' Optional innerhalb des rechten History-Containers.
         ''' </summary>
         Public Property rxHistoryBoxRight As RectangleX = Nothing
+        Public Property rxHistoryBoxSmall As RectangleX = Nothing
 
         Public Property rxHistoryBoxLeftScrollbar As RectangleX = Nothing
         Public Property rxHistoryBoxRightScrollbar As RectangleX = Nothing
@@ -223,7 +231,7 @@ Namespace Spielfeld
 
         Public Property UGrdOverlayColorPalette As OverlayColorPalette = Nothing
 
-        Private Property BitmapUGrdFingerprint As Spielfeld.BitmapFingerprint
+        Public Property BitmapUGrdChanged As Boolean
 
         Private _bitmapsUndoRedo(1, 3) As Bitmap 'Ist automatisch mit Nothigg initialisiert
 
@@ -276,7 +284,15 @@ Namespace Spielfeld
         Public Property AktLayout As Layout
 
 #End Region
-
+        ''' <summary>
+        ''' Legt das Layout fest.
+        ''' Gleich am Anfang ist der Code, der die gesamte Größe des Spielfeldes
+        ''' aus den Abmessungen des outputRect (vom UCtlSpielfeld) festlegt
+        ''' und hier angepasst werden kann.
+        ''' </summary>
+        ''' <param name="outputRect"></param>
+        ''' <param name="aktRenderModeChanged"></param>
+        ''' <param name="forceUpdate"></param>
         Public Sub UpdateSpielfeldLayout(outputRect As Rectangle, aktRenderModeChanged As Boolean, Optional forceUpdate As Boolean = False)
 
             Dim saveToTmpVerz As Boolean = False
@@ -294,13 +310,21 @@ Namespace Spielfeld
             'Die Zuweisungen RectangleX = Rectangle sind erlaubt 
             'wegen des Widening Operator in RectangleX, der automatisch
             'die Konvertierung vornimmt.
+            '
+            'Hier kann eine Abweichung der genutzten Größe
+            'von der vorhandenen Größe eigestellt werden.
+            Const deflate As Integer = 0
             If changed Or forceUpdate Then
                 rxOutput = outputRect
+                rxOutputUsed = rxOutput.DeepCopy
+                rxOutputUsed.Height -= deflate
             Else
                 If rxOutput = outputRect Then
                     Exit Sub
                 Else
                     rxOutput = outputRect
+                    rxOutputUsed = rxOutput.DeepCopy
+                    rxOutputUsed.Height -= deflate
                 End If
             End If
 
@@ -347,14 +371,19 @@ Namespace Spielfeld
                 'bearbeiten und nicht nach Gemeinsamkeiten zu sortieren.
                 'spätestens bei Änderungen geht es einfacher.
                 'Daher zunächst, ganz übersichtlich und kurz:
-                '
+                '"0 = ohne sichtbare History,
+                ' 1 = kleine Historybox frei beweglich,
+                ' 2 = links vom Spiel,
+                ' 3 = rechts vom Spiel. Default:  = 1"
                 Select Case INI.Spielbetrieb_PositionHistory
                     Case 0
                         AktLayout = Layout.SplfldWithHeaderAndHistNone
                     Case 2
+                        AktLayout = Layout.SplfldWithHeaderAndHistLeft
+                    Case 3
                         AktLayout = Layout.SplfldWithHeaderAndHistRight
                     Case Else
-                        AktLayout = Layout.SplfldWithHeaderAndHistLeft
+                        AktLayout = Layout.SplfldWithHeaderAndSmallHist
                 End Select
 
             ElseIf _sfd.SFRun.AktRenderMode = AktRenderMode.Edit Then
@@ -513,56 +542,56 @@ Namespace Spielfeld
             End Select
 
             If _sfd.SFRun.AktRenderMode = AktRenderMode.Edit Then
-                If INI.Editor_ShowFrmSteinStackInfo Then
-                    If IsNothing(_sfd.SFRun.EditorFrmSteinStackInfo) Then
-                        _sfd.SFRun.EditorFrmSteinStackInfo = New frmSteinStackInfo(frmMain, offsetRight:=18, offsetUp:=12)
+                If INI.Editor_ShowFrmTooltipSteinInfo Then
+                    If IsNothing(_sfd.SFRun.EditorFrmTooltipSteinInfo) Then
+                        _sfd.SFRun.EditorFrmTooltipSteinInfo = New frmTooltipSteinInfo(frmMain, offsetRight:=18, offsetUp:=12)
+                        _sfd.SFRun.EditorFrmTooltipSteinInfo.BringToFront()
                     End If
                 End If
             Else
-                If _sfd.SFRun.EditorFrmSteinStackInfo IsNot Nothing Then
-                    _sfd.SFRun.EditorFrmSteinStackInfo.Dispose()
-                    _sfd.SFRun.EditorFrmSteinStackInfo = Nothing
+                If _sfd.SFRun.EditorFrmTooltipSteinInfo IsNot Nothing Then
+                    _sfd.SFRun.EditorFrmTooltipSteinInfo.Dispose()
+                    _sfd.SFRun.EditorFrmTooltipSteinInfo = Nothing
                 End If
             End If
 
-            DisposeUndoRedoBitmaps()
-
-            'Prüfen, ob sich der Hintergrund geändert hat?
-            Dim createNew As Boolean = True
-            ' Dim colorPalette As OverlayColorPalette
-
-            If Not IsNothing(_sfd.SFLay.rxBitmapUgrd) Then
-                If _sfd.SFInf.HasBitmapUGrd Then
-                    Dim bmp As Bitmap = _sfd.SFInf.BitmapUGrdSingleImgCache.GetBitmap(rxBitmapUgrd.Size)
-                    Dim fingerprint As BitmapFingerprint = Spielfeld.CreateBitmapFingerprint(bmp)
-                    If Not fingerprint.Equals(BitmapUGrdFingerprint) Then
-                        UGrdOverlayColorPalette = New OverlayColorPalette(_sfd.SFInf.BitmapUGrdSingleImgCache.GetBitmap(rxBitmapUgrd.Size))
-                        BitmapUGrdFingerprint = fingerprint
+            If BitmapUGrdChanged OrElse UGrdOverlayColorPalette Is Nothing Then
+                If Not IsNothing(_sfd.SFLay.rxBitmapUgrd) Then
+                    If _sfd.SFInf.HasBitmapUGrd Then
+                        Dim rect As Rectangle = RectangleX.GetUnionRect(rxUndo, rxRedo)
+                        UGrdOverlayColorPalette = New OverlayColorPalette(_sfd.SFInf.BitmapUGrdSingleImgCache.GetBitmap(rxBitmapUgrd.Size), rect)
+                    Else
+                        UGrdOverlayColorPalette = New OverlayColorPalette(_sfd.SFInf.HGrdSplFldColor)
                     End If
                 Else
-                    UGrdOverlayColorPalette = New OverlayColorPalette(_sfd.SFInf.HGrdSplFldColor)
+                    UGrdOverlayColorPalette = New OverlayColorPalette(INI.Rendering_BackgroundColor)
                 End If
-            Else
-                UGrdOverlayColorPalette = New OverlayColorPalette(INI.Rendering_BackgroundColor)
-            End If
 
-            If (rxUndo IsNot Nothing OrElse rxRedo IsNot Nothing) AndAlso createNew Then
+                If (rxUndo IsNot Nothing OrElse rxRedo IsNot Nothing) Then
+                    DisposeUndoRedoBitmaps()
 
-                Dim bmpUndo As Bitmap = Images.UndoRedoBitmapFactory.CreateUndoRedoBitmap(Images.UndoRedoGlyph.Undo, UGrdOverlayColorPalette.ColorNormal, rxUndo.Size.Width)
-                Dim bmpRedo As Bitmap = Images.UndoRedoBitmapFactory.CreateUndoRedoBitmap(Images.UndoRedoGlyph.Redo, UGrdOverlayColorPalette.ColorNormal, rxUndo.Size.Width)
+                    Dim bmpUndo As Bitmap = Images.UndoRedoBitmapFactory.CreateUndoRedoBitmap(Images.UndoRedoSymbol.Undo, UGrdOverlayColorPalette.ColorNormal, rxUndo.Size.Width)
+                    Dim bmpRedo As Bitmap = Images.UndoRedoBitmapFactory.CreateUndoRedoBitmap(Images.UndoRedoSymbol.Redo, UGrdOverlayColorPalette.ColorNormal, rxUndo.Size.Width)
+                    BitmapUnRe(UndoRedoBmp.Undo, UndoRedoMode.Normal) = bmpUndo
+                    BitmapUnRe(UndoRedoBmp.Redo, UndoRedoMode.Normal) = bmpRedo
 
-                BitmapUnRe(UndoRedoBmp.Undo, UndoRedoMode.Normal) = bmpUndo
-                BitmapUnRe(UndoRedoBmp.Redo, UndoRedoMode.Normal) = bmpRedo
+                    Const rahmenbreite As Integer = 2
+                    bmpUndo = Images.UndoRedoBitmapFactory.CreateUndoRedoBitmap(Images.UndoRedoSymbol.Undo, UGrdOverlayColorPalette.ColorMouseOver, rxUndo.Size.Width)
+                    bmpRedo = Images.UndoRedoBitmapFactory.CreateUndoRedoBitmap(Images.UndoRedoSymbol.Redo, UGrdOverlayColorPalette.ColorMouseOver, rxUndo.Size.Width)
+                    BitmapUnRe(UndoRedoBmp.Undo, UndoRedoMode.MouseOver) = Spielfeld.RenderHelper.DrawOverlay_Außenrahmen2D(bmpUndo, rahmenbreite, UGrdOverlayColorPalette.ColorMouseOver, copyBitmap:=True)
+                    BitmapUnRe(UndoRedoBmp.Redo, UndoRedoMode.MouseOver) = Spielfeld.RenderHelper.DrawOverlay_Außenrahmen2D(bmpRedo, rahmenbreite, UGrdOverlayColorPalette.ColorMouseOver, copyBitmap:=True)
 
-                BitmapUnRe(UndoRedoBmp.Undo, UndoRedoMode.MouseOver) = Spielfeld.RenderHelper.DrawOverlay_Außenrahmen3D(bmpUndo, rahmenbreite:=2, UGrdOverlayColorPalette.ColorMouseOver, copyBitmap:=True)
-                BitmapUnRe(UndoRedoBmp.Redo, UndoRedoMode.MouseOver) = Spielfeld.RenderHelper.DrawOverlay_Außenrahmen3D(bmpRedo, rahmenbreite:=2, UGrdOverlayColorPalette.ColorMouseOver, copyBitmap:=True)
+                    bmpUndo = Images.UndoRedoBitmapFactory.CreateUndoRedoBitmap(Images.UndoRedoSymbol.Undo, UGrdOverlayColorPalette.ColorMouseDown, rxUndo.Size.Width)
+                    bmpRedo = Images.UndoRedoBitmapFactory.CreateUndoRedoBitmap(Images.UndoRedoSymbol.Redo, UGrdOverlayColorPalette.ColorMouseDown, rxUndo.Size.Width)
+                    BitmapUnRe(UndoRedoBmp.Undo, UndoRedoMode.MouseDown) = Spielfeld.RenderHelper.DrawOverlay_Außenrahmen2D(bmpUndo, rahmenbreite, UGrdOverlayColorPalette.ColorMouseDown, copyBitmap:=True)
+                    BitmapUnRe(UndoRedoBmp.Redo, UndoRedoMode.MouseDown) = Spielfeld.RenderHelper.DrawOverlay_Außenrahmen2D(bmpRedo, rahmenbreite, UGrdOverlayColorPalette.ColorMouseDown, copyBitmap:=True)
 
-                BitmapUnRe(UndoRedoBmp.Undo, UndoRedoMode.MouseDown) = Spielfeld.RenderHelper.DrawOverlay_Außenrahmen3D(bmpUndo, rahmenbreite:=2, UGrdOverlayColorPalette.ColorMouseDown, copyBitmap:=True)
-                BitmapUnRe(UndoRedoBmp.Redo, UndoRedoMode.MouseDown) = Spielfeld.RenderHelper.DrawOverlay_Außenrahmen3D(bmpRedo, rahmenbreite:=2, UGrdOverlayColorPalette.ColorMouseDown, copyBitmap:=True)
+                    bmpUndo = Images.UndoRedoBitmapFactory.CreateUndoRedoBitmap(Images.UndoRedoSymbol.Undo, UGrdOverlayColorPalette.ColorSelected, rxUndo.Size.Width)
+                    bmpRedo = Images.UndoRedoBitmapFactory.CreateUndoRedoBitmap(Images.UndoRedoSymbol.Redo, UGrdOverlayColorPalette.ColorSelected, rxUndo.Size.Width)
+                    BitmapUnRe(UndoRedoBmp.Undo, UndoRedoMode.Selected) = Spielfeld.RenderHelper.DrawOverlay_Außenrahmen2D(bmpUndo, rahmenbreite, UGrdOverlayColorPalette.ColorSelected, copyBitmap:=True)
+                    BitmapUnRe(UndoRedoBmp.Redo, UndoRedoMode.Selected) = Spielfeld.RenderHelper.DrawOverlay_Außenrahmen2D(bmpRedo, rahmenbreite, UGrdOverlayColorPalette.ColorSelected, copyBitmap:=True)
 
-                BitmapUnRe(UndoRedoBmp.Undo, UndoRedoMode.Selected) = Spielfeld.RenderHelper.DrawOverlay_Außenrahmen3D(bmpUndo, rahmenbreite:=2, UGrdOverlayColorPalette.ColorSelected, copyBitmap:=True)
-                BitmapUnRe(UndoRedoBmp.Redo, UndoRedoMode.Selected) = Spielfeld.RenderHelper.DrawOverlay_Außenrahmen3D(bmpRedo, rahmenbreite:=2, UGrdOverlayColorPalette.ColorSelected, copyBitmap:=True)
-
+                End If
             End If
 
             If saveToTmpVerz Then
@@ -684,12 +713,12 @@ Namespace Spielfeld
 
             rxStock = Nothing
             rxStockScrollbar = Nothing
-            rxStockMark = Nothing
             rxBitmapUgrd = Nothing
             rxHeader = Nothing
             rxContent = Nothing
             rxHistoryBoxLeft = Nothing
             rxHistoryBoxRight = Nothing
+            rxHistoryBoxSmall = Nothing
             rxHistoryBoxLeftScrollbar = Nothing
             rxHistoryBoxRightScrollbar = Nothing
             rxStageAvailable = Nothing
@@ -713,8 +742,8 @@ Namespace Spielfeld
             Const UNDOMARGINRIGHT As Integer = 32
 
             Select Case AktLayout
-                Case Layout.SplfldWithHeaderAndHistNone
-                    rxBitmapUgrd = New RectangleX(rxOutput)
+                Case Layout.SplfldWithHeaderAndHistNone, Layout.SplfldWithHeaderAndSmallHist
+                    rxBitmapUgrd = New RectangleX(rxOutputUsed)
                     rxHeader = rxBitmapUgrd.GetRectangleXInside(width:=-1, INI.Rendering_HeaderHeight, align:=RectangleX.Align.Top)
                     rxContent = rxBitmapUgrd.GetRectangleXInside(width:=-1, height:=-1, align:=RectangleX.Align.Center)
                     rxContent.IncTop(rxHeader.Height + 1)
@@ -733,8 +762,16 @@ Namespace Spielfeld
                         rxRedo.Left = rxContent.Right - UNDOW - UNDOMARGINRIGHT
                         rxRedo.Top = rxContent.Bottom - UNDOH - UNDOMARGIN
                     End If
+                    If AktLayout = Layout.SplfldWithHeaderAndSmallHist Then
+                        'TODO später: Frei verfügbar machen
+                        rxHistoryBoxSmall = New RectangleX()
+                        rxHistoryBoxSmall.Width = 2 * steinWidth
+                        rxHistoryBoxSmall.Height = steinHeight
+                        rxHistoryBoxSmall.Left = rxContent.Left + UNDOMARGINRIGHT
+                        rxHistoryBoxSmall.Top = rxContent.Bottom - steinHeight - UNDOH - UNDOMARGIN
+                    End If
                 Case Layout.SplfldWithHeaderAndHistLeft
-                    rxBitmapUgrd = New RectangleX(rxOutput)
+                    rxBitmapUgrd = New RectangleX(rxOutputUsed)
                     rxHeader = rxBitmapUgrd.GetRectangleXInside(width:=-1, INI.Rendering_HeaderHeight, align:=RectangleX.Align.Top)
                     rxContent = rxBitmapUgrd.GetRectangleXInside(width:=-1, height:=-1, align:=RectangleX.Align.Center)
                     rxContent.IncTop(rxHeader.Height + 1)
@@ -760,7 +797,7 @@ Namespace Spielfeld
                         rxRedo.Top = rxContent.Bottom - UNDOH - UNDOMARGIN
                     End If
                 Case Layout.SplfldWithHeaderAndHistRight
-                    rxBitmapUgrd = New RectangleX(rxOutput)
+                    rxBitmapUgrd = New RectangleX(rxOutputUsed)
                     rxHeader = rxBitmapUgrd.GetRectangleXInside(width:=-1, INI.Rendering_HeaderHeight, align:=RectangleX.Align.Top)
                     rxContent = rxBitmapUgrd.GetRectangleXInside(width:=-1, height:=-1, align:=RectangleX.Align.Center)
                     rxContent.IncTop(rxHeader.Height + 1)
@@ -790,12 +827,10 @@ Namespace Spielfeld
 
                     'If fDoStop Then Stop
 
-                    rxBitmapUgrd = New RectangleX(rxOutput)
+                    rxBitmapUgrd = New RectangleX(rxOutputUsed)
                     rxHeader = rxBitmapUgrd.GetRectangleXInside(width:=-1, INI.Rendering_HeaderHeight, align:=RectangleX.Align.Top)
                     rxContent = rxBitmapUgrd.GetRectangleXInside(width:=-1, height:=-1, align:=RectangleX.Align.Center)
                     rxContent.IncTop(rxHeader.Height + 1)
-
-                    rxStockMark = rxContent.GetRectangleXInside(width:=-1, height:=INI.Rendering_StockMarkHeight, align:=RectangleX.Align.Top)
 
                     rxStock = rxContent.GetRectangleXInside(width:=-1, height:=steinHeight, align:=RectangleX.Align.Top)
                     rxStock.MoveDown(INI.Rendering_StockMarkHeight + 1)
@@ -827,15 +862,15 @@ Namespace Spielfeld
             If INI.Rendering_DrawRenderRect Then
                 rxBitmapUgrd = Nothing
                 '
-                rxOutput?.SetDrawBoundsAndContentDebug(Style(reset:=True))
+                rxOutputUsed?.SetDrawBoundsAndContentDebug(Style(reset:=True))
                 rxStock?.SetDrawBoundsAndContentDebug(Style)
                 rxStockScrollbar?.SetDrawBoundsAndContentDebug(Style)
-                rxStockMark?.SetDrawBoundsAndContentDebug(Style)
                 rxBitmapUgrd?.SetDrawBoundsAndContentDebug(Style)
                 rxHeader?.SetDrawBoundsAndContentDebug(Style)
                 rxContent?.SetDrawBoundsAndContentDebug(Style)
                 rxHistoryBoxLeft?.SetDrawBoundsAndContentDebug(Style)
                 rxHistoryBoxRight?.SetDrawBoundsAndContentDebug(Style)
+                rxHistoryBoxSmall?.SetDrawBoundsAndContentDebug(Style)
                 rxHistoryBoxLeftScrollbar?.SetDrawBoundsAndContentDebug(Style)
                 rxHistoryBoxRightScrollbar?.SetDrawBoundsAndContentDebug(Style)
                 rxStageAvailable?.SetDrawBoundsAndContentDebug(Style)
@@ -873,22 +908,15 @@ Namespace Spielfeld
         End Sub
 
         Private _disposed As Boolean
-        Protected Overridable Sub Dispose(disposing As Boolean)
 
+        Public Sub Dispose() Implements IDisposable.Dispose
             If Not _disposed Then
 
-                If disposing Then
-                    DisposeUndoRedoBitmaps()
-                End If
+                DisposeUndoRedoBitmaps()
 
                 _disposed = True
 
             End If
-
-        End Sub
-
-        Public Sub Dispose() Implements IDisposable.Dispose
-            Dispose(True)
             GC.SuppressFinalize(Me)
         End Sub
 

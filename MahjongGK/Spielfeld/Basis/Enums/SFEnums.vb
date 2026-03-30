@@ -19,7 +19,7 @@ Public Module SFEnums
         ''' den Rendermode auf diesen Mode gesetzt.
         ''' Unterscheidbar durch: Keine_Daten_geladen = _sfd.SFInfo.xMax = 0  
         ''' </summary>
-        NoDataLoaded = 0
+        NoRendering = 0
         '
         ''' <summary>
         ''' Das ist eine bewußte Pause, nicht die,die durch Untätigkeit 
@@ -39,11 +39,6 @@ Public Module SFEnums
         ''' Wie Spielfeld, nur auf den EditorMode bezogen.
         ''' </summary>
         Edit = 4
-        '
-        ''' <summary>
-        ''' Synonym für NoDataLoaded
-        ''' </summary>
-        EndOfSpiel = NoDataLoaded
 
     End Enum
     '
@@ -68,11 +63,7 @@ Public Module SFEnums
 
     End Function
 
-
     'Zentrale Deklaration programmweit geltender Enumerationen
-
-
-
 
 #Region "Stein-Enums"
 
@@ -113,9 +104,9 @@ Public Module SFEnums
     End Enum
     '
     ''' <summary>
-    ''' Die in Mahjong verwendeten Steine.
+    ''' Der Index auf die in Mahjong verwendeten Steine.
     ''' In jedem Verzeichnis des Steinstatus gibt es für jeden Stein
-    ''' eine PNG-Datei, die den Stein mit diesem  enthält.
+    ''' eine PNG-Datei, die die Bizmap des Steines enthält.
     ''' </summary>
     Public Enum SteinIndexEnum
         ErrorSy
@@ -229,7 +220,6 @@ Public Module SFEnums
         StoneSet_304 = 15
     End Enum
 
-
     Public Enum SteinRndGruppe
         Normal
         Flower
@@ -275,7 +265,6 @@ Public Module SFEnums
         LeftOrUp
         RightOrDown
     End Enum
-
 
     Public Enum PositionEnum
         '
@@ -461,14 +450,12 @@ Public Module SFEnums
         PaintEvent
     End Enum
 
-
     'ZLV
     Public Enum RenderingEnum
         None
         Spielfeld
         Editor
     End Enum
-
 
 #Region "Enums und Konstanten"
     ' Datei-Menü getrennt für Editor/Werkbank (unterschiedlich erweiterbar)
@@ -509,14 +496,12 @@ Public Module SFEnums
         Item2
     End Enum
 
-
 #End Region
-
-
 
     Public Enum Layout
         None
         SplfldWithHeaderAndHistNone
+        SplfldWithHeaderAndSmallHist
         SplfldWithHeaderAndHistLeft
         SplfldWithHeaderAndHistRight
         EditorWithHeader

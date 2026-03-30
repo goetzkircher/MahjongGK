@@ -57,7 +57,5 @@ Namespace Spielfeld
 
         Private ReadOnly _sfd As SFDaten
 
-
-
     End Class
 End Namespace

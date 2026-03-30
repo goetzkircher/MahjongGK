@@ -1515,7 +1515,7 @@ Public Class IniManager
                 Directory.CreateDirectory(aktpath)
             Catch
                 MessageBox.Show("Auch der Notfall-Speicherpfad konnte nicht erstellt werden." & vbCrLf &
-                                "Das Spiel wird beendet.",
+                                "Das Spielfeld wird beendet.",
                                 "Kritischer Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error)
                 Environment.Exit(1)
             End Try
@@ -1542,7 +1542,7 @@ Public Class IniManager
     ''' Montiert den kompletten Pfad aus den Enumerationen und fügt ggf. den aktuellen Zeitstempel hinzu.
     ''' Bei timestamp = AppDataTimeStamp.LookForLastTimeStamp wird nach der jüngsten Datei gesucht.
     ''' Gibt es keine Datei, wird String.Empty zurückgegeben!
-    ''' maxFiles arbeitet nur in Verbindung mit timestamp = AppDataTimeStamp.Add und räumt
+    ''' maxFiles arbeitet nur in Verbindung mit timestamp = AppDataTimeStamp.AddRenderBitmapTopZOrder und räumt
     ''' "on the Fly" auf, indem alle Dateien über maxFiles hinaus gelöscht werden.
     ''' </summary>
     Public Function AppDataFullPath(filename As AppDataFileName,
@@ -1562,7 +1562,7 @@ Public Class IniManager
     ''' Montiert den kompletten Pfad aus den Enumerationen und fügt ggf. den aktuellen Zeitstempel hinzu.
     ''' Bei timestamp = AppDataTimeStamp.LookForLastTimeStamp wird nach der jüngsten Datei gesucht.
     ''' Gibt es keine Datei, wird String.Empty zurückgegeben!
-    ''' maxFiles arbeitet nur in Verbindung mit timestamp = AppDataTimeStamp.Add und räumt
+    ''' maxFiles arbeitet nur in Verbindung mit timestamp = AppDataTimeStamp.AddRenderBitmapTopZOrder und räumt
     ''' "on the Fly" auf, indem alle Dateien über maxFiles hinaus gelöscht werden.
     ''' </summary>
     Public Function AppDataFullPath(subdir As AppDataSubDir,
@@ -1584,7 +1584,7 @@ Public Class IniManager
     ''' Montiert den kompletten Pfad aus den Enumerationen und fügt ggf. den aktuellen Zeitstempel hinzu.
     ''' Bei timestamp = AppDataTimeStamp.LookForLastTimeStamp wird nach der jüngsten Datei gesucht.
     ''' Gibt es keine Datei, wird String.Empty zurückgegeben!
-    ''' maxFiles arbeitet nur in Verbindung mit timestamp = AppDataTimeStamp.Add und räumt
+    ''' maxFiles arbeitet nur in Verbindung mit timestamp = AppDataTimeStamp.AddRenderBitmapTopZOrder und räumt
     ''' "on the Fly" auf, indem alle Dateien über maxFiles hinaus gelöscht werden.
     ''' </summary>
     Public Function AppDataFullPath(subdir As AppDataSubDir,
@@ -1608,7 +1608,7 @@ Public Class IniManager
     ''' Montiert den kompletten Pfad aus den Enumerationen und fügt ggf. den aktuellen Zeitstempel hinzu.
     ''' Bei timestamp = AppDataTimeStamp.LookForLastTimeStamp wird nach der jüngsten Datei gesucht.
     ''' Gibt es keine Datei, wird String.Empty zurückgegeben!
-    ''' maxFiles arbeitet nur in Verbindung mit timestamp = AppDataTimeStamp.Add und räumt
+    ''' maxFiles arbeitet nur in Verbindung mit timestamp = AppDataTimeStamp.AddRenderBitmapTopZOrder und räumt
     ''' "on the Fly" auf, indem alle Dateien über maxFiles hinaus gelöscht werden.
     ''' </summary>
     ''' <param name="subdir"></param>

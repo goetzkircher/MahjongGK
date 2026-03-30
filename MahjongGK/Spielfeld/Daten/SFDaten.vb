@@ -70,8 +70,8 @@ Namespace Spielfeld
             SFRen = New SFRender(Me)
             SFRenMan = New SFRenderManager(Me)
             SFUI = New SFUIFace(Me)
-            SFMouse = New SFMouseRuntime(Me)
-            SFAir = New SFAircrafts(Me)
+            'ZLVxxx   SFMouse = New SFMouseRuntime_zlv(Me)
+            SFAir = New SFAirflight(Me)
         End Sub
 
         Public Sub New(spielfeldinfo As SFInfo)
@@ -84,57 +84,29 @@ Namespace Spielfeld
             SFRen = New SFRender(Me)
             SFRenMan = New SFRenderManager(Me)
             SFUI = New SFUIFace(Me)
-            SFMouse = New SFMouseRuntime(Me)
-            SFAir = New SFAircrafts(Me)
+            'ZLVxxx   SFMouse = New SFMouseRuntime_zlv(Me)
+            SFAir = New SFAirflight(Me)
 
         End Sub
 
-
 #End Region
-
 
 #Region "Tochterklassen"
         '
-        Public ReadOnly Property SFInf As SFInfo
-        Public ReadOnly Property SFCur As SFCurrent
-        Public ReadOnly Property SFRun As SFRuntime
-        Public ReadOnly Property SFLay As SFLayout
-        Public ReadOnly Property SFEdi As SFEditor
-        Public ReadOnly Property SFRen As SFRender
-        Public ReadOnly Property SFRenMan As SFRenderManager
-        Public ReadOnly Property SFUI As SFUIFace
+        Public Property SFInf As SFInfo
+        Public Property SFCur As SFCurrent
+        Public Property SFRun As SFRuntime
+        Public Property SFLay As SFLayout
+        Public Property SFEdi As SFEditor
+        Public Property SFRen As SFRender
+        Public Property SFRenMan As SFRenderManager
+        Public Property SFUI As SFUIFace
         '
-        Public ReadOnly Property SFMouse As SFMouseRuntime
-        Public ReadOnly Property SFAir As SFAircrafts
+        'ZLVxxx   Public Property SFMouse As SFMouseRuntime_zlv
+        Public Property SFAir As SFAirflight
 #End Region
-
-
-#Region "UI - Toolbox / Sichtbarkeit / Tabzustand"
-        'Verbleibt bis zur Nutzung noch hier gelagert.
-        Public Property ToolboxIsVisible As Boolean
-
-        Private _toolboxTabPageChanged As Boolean
-        Private disposedValue As Boolean
-
-        Public Property ToolboxTabPageChanged As Boolean
-            Get
-                If _toolboxTabPageChanged Then
-                    _toolboxTabPageChanged = False
-                    Return True
-                Else
-                    Return False
-                End If
-            End Get
-            Set(value As Boolean)
-                _toolboxTabPageChanged = value
-            End Set
-        End Property
-
-#End Region
-
 
 #Region "Dispose"
-
 
         Private _disposed As Boolean
 
@@ -143,11 +115,17 @@ Namespace Spielfeld
                 Return
             End If
 
-            If Me.SFRun.MousePolling IsNot Nothing Then
-                Me.SFRun.MousePolling.Dispose()
+            _disposed = True
+
+            If SFLay IsNot Nothing Then
+                SFLay.Dispose()
+                SFLay = Nothing
             End If
 
-            _disposed = True
+            If SFRenMan IsNot Nothing Then
+                SFRenMan.Dispose()
+                SFRenMan = Nothing
+            End If
 
             GC.SuppressFinalize(Me)
 

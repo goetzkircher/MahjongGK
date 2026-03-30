@@ -1,7 +1,6 @@
 ﻿'Ich gebe dir nochmal die komplette Klasse RectangleX.
 'Gib mir bitte die komplette geänderte #Region "Debughilfe (Zeichnen ins _gfx, pro-Kante, DashPattern)"
 
-
 Option Compare Text
 Option Explicit On
 Option Infer Off
@@ -463,6 +462,36 @@ Public Class RectangleX
 
 #End Region
 
+#Region "Umschließendes Rechteck"
+    Public Shared Function GetUnionRect(ByVal rxA As RectangleX,
+                                        ByVal rxB As RectangleX,
+                                        Optional margin As Integer = 0) As RectangleX
+        If rxA Is Nothing Then
+            If rxB Is Nothing Then
+                Return New RectangleX
+            Else
+                Return New RectangleX(rxB.X, rxB.Y, rxB.Width, rxB.Height)
+            End If
+        End If
+
+        If rxB Is Nothing Then
+            Return New RectangleX(rxA.X, rxA.Y, rxA.Width, rxA.Height)
+        End If
+
+        Dim left As Integer = Math.Min(rxA.X, rxB.X) - margin
+        Dim top As Integer = Math.Min(rxA.Y, rxB.Y) - margin
+
+        Dim right As Integer = Math.Max(rxA.X + rxA.Width, rxB.X + rxB.Width) + margin
+        Dim bottom As Integer = Math.Max(rxA.Y + rxA.Height, rxB.Y + rxB.Height) + margin
+
+        Return New RectangleX(left,
+                              top,
+                              right - left,
+                              bottom - top)
+
+    End Function
+
+#End Region
 
 #Region "Ableitungen – bestehende Rectangle / RectangleX"
 
@@ -1048,7 +1077,6 @@ Public Class RectangleX
     End Sub
 
 #End Region
-
 
 #Region "Bitmap-Utility (optional)"
 

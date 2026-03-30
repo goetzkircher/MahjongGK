@@ -27,19 +27,17 @@ Option Strict On
 #Disable Warning IDE0079
 #Disable Warning IDE1006
 
-
 Imports System.ComponentModel
 Imports MahjongGK.Helfer
-
+Imports MahjongGK.Spielfeld
 
 Public Class frmToolBox
 
-
     Public Const MJ_FRMTOOLBOX_WIDTH As Integer = 400
-    Public Const MJ_FRMTOOLBOX_HEIGHT As Integer = 580
-    Public Const MJ_FRMTOOLBOX_PADDING_LEFT As Integer = 15
-    Public Const MJ_FRMTOOLBOX_PADDING_BOTTOM As Integer = 20
-    Public Const MJ_FRMTOOLBOX_PANEL_ As Integer = 15
+    Public Const MJ_FRMTOOLBOX_HEIGHT As Integer = 500
+    'Public Const MJ_FRMTOOLBOX_PADDING_LEFT As Integer = 15
+    'Public Const MJ_FRMTOOLBOX_PADDING_BOTTOM As Integer = 20
+    'Public Const MJ_FRMTOOLBOX_PANEL_ As Integer = 15
 
     Private _themer As Theme.ThemeManager
     Private _aktVisibleUserControl As VisibleUserControl
@@ -64,7 +62,6 @@ Public Class frmToolBox
     'Ich habe eine kleine Hilfsfunktion eingebaut, die das Bitmap
     'aus My.Resources holt und auf 16×16 skaliert (anpassbar).
 
-
     Private Const ICON_SIZE As Integer = 16
     Private Const SCALE_ICONS As Boolean = True
 #End Region
@@ -75,11 +72,8 @@ Public Class frmToolBox
 #Region "Form-Events"
     Private Sub frmToolBox_Load(sender As Object, e As EventArgs) Handles Me.Load
 
-
         Me.Location = INI.ToolBox_Rectangle.Location
-        Me.Width = MJ_FRMTOOLBOX_WIDTH
-        Me.Height = MJ_FRMTOOLBOX_HEIGHT
-
+        Me.Size = DpiScaleSize(MJ_FRMTOOLBOX_WIDTH, MJ_FRMTOOLBOX_HEIGHT)
 
         'TabControlToolBox.SelectedTab = TabPageWerkbank
         ' lblImageSpieler.Image = MjGfx_HGrdEinfügenGrün(32)
@@ -96,11 +90,19 @@ Public Class frmToolBox
 
         Helfer.DisableAllTabStops(Me)
 
+        INI.ToolBox_FormToolBox = Me
         ''TODO SFD-Anpassung
         ''_toolboxBinder = New MousePollerHandleBinder(Spielfeld.SFD.MousePolling, Me)
 
     End Sub
+    Private Function DpiScale(ByVal value As Integer) As Integer
+        Return CInt(Math.Round(value * Me.DeviceDpi / 96.0F))
+    End Function
 
+    Private Function DpiScaleSize(ByVal width As Integer,
+                                  ByVal height As Integer) As Size
+        Return New Size(DpiScale(width), DpiScale(height))
+    End Function
     Private Sub frmToolBox_Shown(sender As Object, e As EventArgs) Handles Me.Shown
 
         UctlToolboxHintergrund1.InitialisierungAndUpdate()
@@ -108,7 +110,10 @@ Public Class frmToolBox
     Private Sub frmToolBox_FormClosing(sender As Object, e As FormClosingEventArgs) Handles Me.FormClosing
         If e.CloseReason = CloseReason.UserClosing Then
             e.Cancel = True     ' Schließen verhindern
+            Me.Hide()
+            INI.ToolBox_FormIsVisible = False
         End If
+        INI.ToolBox_FormToolBox = Nothing
     End Sub
 
     Private Sub frmToolBox_LocationChanged(sender As Object, e As EventArgs) Handles Me.LocationChanged
@@ -242,26 +247,24 @@ Public Class frmToolBox
 
 #Region "Panelhandling"
 
-
-
     Private Sub TabControlToolBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles TabControlToolBox.SelectedIndexChanged
         ''TODO SFD-Anpassung
-        ''If TabControlToolBox.SelectedTab Is TabPageSpieler Then
-        ''    Spielfeld.SFD.ToolboxTabPageChanged = True
-        ''    Spielfeld.SFD.AktRendering = AktRenderMode.Spiel
+        If TabControlToolBox.SelectedTab Is TabPageSpieler Then
+            INI.ToolBox_ConsumeTabPageChanged = True
+            SFMain.RenderMode = RenderMode.Spiel
 
-        ''ElseIf TabControlToolBox.SelectedTab Is TabPageEditor Then
-        ''    Spielfeld.SFD.ToolboxTabPageChanged = True
-        ''    Spielfeld.SFD.AktRendering = AktRenderMode.Edit
+        ElseIf TabControlToolBox.SelectedTab Is TabPageEditor Then
+            INI.ToolBox_ConsumeTabPageChanged = True
+            SFMain.RenderMode = RenderMode.Edit
 
-        ''ElseIf TabControlToolBox.SelectedTab Is TabPageHintergrund Then
-        ''    UctlToolboxHintergrund1.InitialisierungAndUpdate()
+        ElseIf TabControlToolBox.SelectedTab Is TabPageHintergrund Then
+            UctlToolboxHintergrund1.InitialisierungAndUpdate()
 
-        ''Else
-        ''    If Debugger.IsAttached Then
-        ''        Stop 'Programmierfehler: hinzugefügte TabPag auch hier hinzufügen.
-        ''    End If
-        ''End If
+        Else
+            If Debugger.IsAttached Then
+                Stop 'Programmierfehler: hinzugefügte TabPag auch hier hinzufügen.
+            End If
+        End If
 
         UpDateSelectedTabIcon()
 
@@ -283,7 +286,6 @@ Public Class frmToolBox
         ' Beispiel im Designer:
         ' TabPage „Editor“ → ImageIndex = 2
         ' TabPage „Werkbank“ → ImageIndex = 4
-
 
         ' Alle Tabs auf "inaktiv" setzen (Basis-Icon)
         For Each tp As TabPage In TabControlToolBox.TabPages
@@ -321,7 +323,6 @@ Public Class frmToolBox
         End Select
     End Sub
 
-
     ' Platzhalter
     Private Sub DoPlatzhalterEditor(item As PlatzhalterEditor)
         Select Case item
@@ -351,16 +352,8 @@ Public Class frmToolBox
 
     End Sub
 
-    Private Sub UctlToolboxHintergrund1_Load(sender As Object, e As EventArgs) Handles UctlToolboxHintergrund1.Load
-
-    End Sub
-
-
-
 #End Region
 
 #End Region
-
-
 
 End Class

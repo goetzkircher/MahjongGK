@@ -3,6 +3,7 @@ Option Explicit On
 Option Infer Off
 Option Strict On
 Imports System.Drawing.Imaging
+Imports System.Runtime.InteropServices
 
 Namespace Spielfeld
 
@@ -17,36 +18,35 @@ Namespace Spielfeld
             Public Width As Integer
             Public Height As Integer
             Public PixelFormatValue As Integer
-            Public SampleHash As Integer
-
-            ''Public Overrides Function Equals(ByVal obj As Object) As Boolean
-            ''    If Not TypeOf obj Is BitmapFingerprint Then
-            ''        Return False
-            ''    End If
-            ''    Dim other As BitmapFingerprint = DirectCast(obj, BitmapFingerprint)
-
-            ''    Return Width = other.Width AndAlso
-            ''           Height = other.Height AndAlso
-            ''           PixelFormatValue = other.PixelFormatValue AndAlso
-            ''           SampleHash = other.SampleHash
-            ''End Function
+            Public SampleHash As Long
 
             Public Overloads Function Equals(ByVal other As BitmapFingerprint) As Boolean _
-                Implements IEquatable(Of BitmapFingerprint).Equals
+        Implements IEquatable(Of BitmapFingerprint).Equals
 
                 Return Width = other.Width AndAlso
-                       Height = other.Height AndAlso
-                       PixelFormatValue = other.PixelFormatValue AndAlso
-                       SampleHash = other.SampleHash
+               Height = other.Height AndAlso
+               PixelFormatValue = other.PixelFormatValue AndAlso
+               SampleHash = other.SampleHash
+
+            End Function
+
+            Public Overrides Function Equals(ByVal obj As Object) As Boolean
+
+                If Not TypeOf obj Is BitmapFingerprint Then
+                    Return False
+                End If
+
+                Return Equals(DirectCast(obj, BitmapFingerprint))
 
             End Function
 
             Public Overrides Function GetHashCode() As Integer
 
                 Dim h As Integer = Width
-                h = (h * 397) Xor Height
-                h = (h * 397) Xor PixelFormatValue
-                h = (h * 397) Xor SampleHash
+                h = h Xor (Height << 3)
+                h = h Xor (PixelFormatValue << 7)
+                h = h Xor SampleHash.GetHashCode()
+
                 Return h
 
             End Function
@@ -92,7 +92,7 @@ Namespace Spielfeld
             Dim data As BitmapData = bmp.LockBits(rect, ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb)
 
             Try
-                Dim hash As Integer = 17
+                Dim hash As Long = 17L
                 Dim stride As Integer = data.Stride
                 Dim basePtr As IntPtr = data.Scan0
 
@@ -121,14 +121,17 @@ Namespace Spielfeld
 
                         Dim p As Integer = y * stride + x * 4
 
-                        Dim bb As Integer = CInt(Runtime.InteropServices.Marshal.ReadByte(basePtr, p + 0))
-                        Dim gg As Integer = CInt(Runtime.InteropServices.Marshal.ReadByte(basePtr, p + 1))
-                        Dim rr As Integer = CInt(Runtime.InteropServices.Marshal.ReadByte(basePtr, p + 2))
-                        Dim aa As Integer = CInt(Runtime.InteropServices.Marshal.ReadByte(basePtr, p + 3))
+                        Dim bb As Integer = CInt(Marshal.ReadByte(basePtr, p + 0))
+                        Dim gg As Integer = CInt(Marshal.ReadByte(basePtr, p + 1))
+                        Dim rr As Integer = CInt(Marshal.ReadByte(basePtr, p + 2))
+                        Dim aa As Integer = CInt(Marshal.ReadByte(basePtr, p + 3))
 
-                        Dim argb As Integer = (aa << 24) Or (rr << 16) Or (gg << 8) Or bb
+                        Dim argb As Long = (CLng(aa) << 24) Or
+                                           (CLng(rr) << 16) Or
+                                           (CLng(gg) << 8) Or
+                                           CLng(bb)
 
-                        hash = (hash * 31) Xor argb
+                        hash = MixFingerprintHash(hash, argb)
                     Next
                 Next
 
@@ -156,10 +159,10 @@ Namespace Spielfeld
 
                         Dim p As Integer = y * stride + x * 4
 
-                        sumB += CInt(Runtime.InteropServices.Marshal.ReadByte(basePtr, p + 0))
-                        sumG += CInt(Runtime.InteropServices.Marshal.ReadByte(basePtr, p + 1))
-                        sumR += CInt(Runtime.InteropServices.Marshal.ReadByte(basePtr, p + 2))
-                        sumA += CInt(Runtime.InteropServices.Marshal.ReadByte(basePtr, p + 3))
+                        sumB += CInt(Marshal.ReadByte(basePtr, p + 0))
+                        sumG += CInt(Marshal.ReadByte(basePtr, p + 1))
+                        sumR += CInt(Marshal.ReadByte(basePtr, p + 2))
+                        sumA += CInt(Marshal.ReadByte(basePtr, p + 3))
                         count += 1
                     Next
                 Next
@@ -170,8 +173,12 @@ Namespace Spielfeld
                     Dim avgR As Integer = sumR \ count
                     Dim avgA As Integer = sumA \ count
 
-                    Dim avgArgb As Integer = (avgA << 24) Or (avgR << 16) Or (avgG << 8) Or avgB
-                    hash = (hash * 31) Xor avgArgb
+                    Dim avgArgb As Long = (CLng(avgA) << 24) Or
+                                          (CLng(avgR) << 16) Or
+                                          (CLng(avgG) << 8) Or
+                                          CLng(avgB)
+
+                    hash = MixFingerprintHash(hash, avgArgb)
                 End If
 
                 fp.SampleHash = hash
@@ -184,6 +191,20 @@ Namespace Spielfeld
                     bmp.Dispose()
                 End If
             End Try
+
+        End Function
+
+        Private Function MixFingerprintHash(ByVal hash As Long,
+                                            ByVal value As Long) As Long
+
+            Dim h As ULong = CULng(hash)
+            Dim v As ULong = CULng(value)
+
+            ' RotateLeft um 7 Bit und anschließend XOR
+            h = ((h << 7) Or (h >> 57)) Xor v
+
+            ' Positiv halten, damit nichts mit Vorzeichen irritiert
+            Return CLng(h And &H7FFFFFFFFFFFFFFFUL)
 
         End Function
 

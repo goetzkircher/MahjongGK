@@ -36,7 +36,7 @@ Imports MahjongGK.Spielfeld
 Public Class UctlToolboxHintergrund
     Public Sub InitialisierungAndUpdate()
         If Not Debugger.IsAttached Then
-            chkDrawRenderRect.Visible = False
+            gbxAktSpielOnlyIDE.Visible = False
         End If
         m_iZuweisungAktiv = +1
         CopyIniToControl()
@@ -47,6 +47,7 @@ Public Class UctlToolboxHintergrund
 
     Private m_iZuweisungAktiv As Integer = 0
 
+    Private _OverlayColorPalette As OverlayColorPalette = Nothing
     Private Sub CopyIniToControl()
         'TODO SFD - Anpassung
         '
@@ -74,8 +75,10 @@ Public Class UctlToolboxHintergrund
 
         chkDrawRenderRect.Checked = INI.Rendering_DrawRenderRect
 
-        picToolboxHGrdSplFld.Image = GetMiniThumb(SFMain.SFDat.SFInf.Toolbox_HGrdSplFldBitmapName, SFMain.SFDat.SFInf.Toolbox_HGrdSplFldBitmapIsUserGrafik)
         picToolboxHGrdSplFldFallback.Image = GetMiniThumb(INI.Toolbox_HGrdSplFldBitmapNameFallback, INI.Toolbox_HGrdSplFldBitmapIsUserGrafikFallback)
+        CopyOverlayColorPaletteToForm()
+
+        picToolboxHGrdSplFld.Image = GetMiniThumb(SFMain.SFDat.SFInf.Toolbox_HGrdSplFldBitmapName, SFMain.SFDat.SFInf.Toolbox_HGrdSplFldBitmapIsUserGrafik)
         lblToolboxHGrdSplFldRenderMode.Text = GetTextFromBirm(SFMain.SFDat.SFInf.Toolbox_HGrdSplFldRenderMode)
         lblToolboxHGrdSplFldRenderModeFallback.Text = GetTextFromBirm(INI.Toolbox_HGrdSplFldRenderModeFallback)
 
@@ -97,6 +100,24 @@ Public Class UctlToolboxHintergrund
 
     End Sub
 
+    Private Sub CopyOverlayColorPaletteToForm()
+
+        If _OverlayColorPalette Is Nothing Then
+            lblDominantBackgroundColor.BackColor = Color.Silver
+            lblColorNormal.BackColor = Color.Silver
+            lblColorMouseOver.BackColor = Color.Silver
+            lblColorMouseDown.BackColor = Color.Silver
+            lblColorSelected.BackColor = Color.Silver
+        Else
+            With _OverlayColorPalette
+                lblDominantBackgroundColor.BackColor = .DominantBackgroundColor
+                lblColorNormal.BackColor = .ColorNormal
+                lblColorMouseOver.BackColor = .ColorMouseOver
+                lblColorMouseDown.BackColor = .ColorMouseDown
+                lblColorSelected.BackColor = .ColorSelected
+            End With
+        End If
+    End Sub
     ' HINWEIS:
     ' - Erwartet vorhandene INI.AppDataDirectory(AppDataSubDir.*)
     ' - Erwartet die vom Nutzer bereitgestellte ShrinkBitmap(ByRef bmp, newW, newH, ...)
@@ -111,6 +132,12 @@ Public Class UctlToolboxHintergrund
     ''' Existiert die Datei nicht oder tritt ein Fehler auf, wird eine neutrale Fehlerminiatur erzeugt.
     ''' </summary>
     Private Function GetMiniThumb(name As String, isUserGrafik As Boolean) As Bitmap
+
+        If Debugger.IsAttached Then
+            _OverlayColorPalette = Nothing 'Default
+            CopyOverlayColorPaletteToForm  'Anzeige löschen
+        End If
+
         ' Zielgröße für die PictureBox (Editor-Thumb; symmetrisch genug für beide)
         Dim maxW As Integer = picToolboxHGrdSplFld.Width
         Dim maxH As Integer = picToolboxHGrdSplFld.Height
@@ -147,6 +174,15 @@ Public Class UctlToolboxHintergrund
             Catch
                 Return BuildErrorMiniThumb(New Size(maxW, maxH))
             End Try
+
+            If Debugger.IsAttached Then
+                'Die Palette aus dem MiniThumb erzeugen für die
+                'Anzeige in der ToolBox
+                Const W As Integer = 30
+                Const H As Integer = 20
+                _OverlayColorPalette = New OverlayColorPalette(bmp, New Rectangle(bmp.Width - W, bmp.Height - H, W, H))
+                CopyOverlayColorPaletteToForm()
+            End If
 
             ' 7) Auf Ziel einpassen (nur schrumpfen)
             Dim tw As Integer = bmp.Width

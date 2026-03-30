@@ -98,7 +98,7 @@ Namespace Spielfeld
         ''' <summary>
         ''' Gibt einmalig True zurück, wenn AktRenderMode geändert wurde.
         ''' </summary>
-        Public ReadOnly Property consumeAktRenderModeChanged As Boolean
+        Public ReadOnly Property ConsumeAktRenderModeChanged As Boolean
             Get
                 Dim retval As Boolean = _consumeAktRenderModeChanged
                 _consumeAktRenderModeChanged = False
@@ -130,7 +130,7 @@ Namespace Spielfeld
         ''' <summary>
         ''' Analog RenderVersionChanged.
         ''' </summary>
-        Public ReadOnly Property SessionIdentChanged As Boolean
+        Public ReadOnly Property ConsumeSessionIdentChanged As Boolean
             Get
                 Dim result As Boolean
 
@@ -143,10 +143,7 @@ Namespace Spielfeld
             End Get
         End Property
 
-
-
 #End Region
-
 
 #Region "Render - Backbuffer / Graphics"
 
@@ -155,8 +152,8 @@ Namespace Spielfeld
         Public Property Backbuffer_HasContent As Boolean
 
         Public Sub CreateBackbufferAndGfx()
-            With _sfd.SFLay.rxOutput
-                If _sfd.SFLay.rxOutput Is Nothing OrElse _sfd.SFLay.rxOutput.IsEmpty Then
+            With _sfd.SFLay.rxOutputUsed
+                If _sfd.SFLay.rxOutputUsed Is Nothing OrElse _sfd.SFLay.rxOutputUsed.IsEmpty Then
                     Throw New Exception("Programmierfehler: CreateBackbufferAndGfx vor CreateMainLayoutIterativStep aufgerufen.")
                 End If
 
@@ -179,8 +176,6 @@ Namespace Spielfeld
         End Sub
 
 #End Region
-
-
 
 #Region "Render - Cache / Startscreen / Debug"
 
@@ -210,24 +205,22 @@ Namespace Spielfeld
 
 #End Region
 
-
-
 #Region "UI - Renderer / Controls / Formulare"
 
         Public Property HScrollBarStock As HScrollRenderer = Nothing
 
-        Public Property EditorFrmSteinStackInfo As frmSteinStackInfo = Nothing
+        Public Property EditorFrmTooltipSteinInfo As frmTooltipSteinInfo = Nothing
 
 #End Region
 
 #Region "Editor - Vorrat / Ghost / Flug / Mausanker"
 
         Public Property EditorStockValues As SFStockState = Nothing
-        Public Property EditorStockGhostRect As Rectangle
-        Public Property EditorStockDeltaMouseToGhost As Point
-        Public Property EditorStockSteinFlugValues As SteinFlugValues = Nothing
-        Public Property EditorStockMouseAnkerVerschiebung As MouseAnkerVerschiebung = Nothing
-        Public Property EditorStockMouseAnkerVerschiebung_HasValue As Boolean
+        'ZLVxxx Public Property EditorStockGhostRect As Rectangle
+        'ZLVxxx Public Property EditorStockDeltaMouseToGhost As Point
+        'ZLVxxx Public Property EditorStockSteinFlugValues As Airplanes_Flugweg = Nothing
+        'ZLVxxx Public Property EditorStockMouseAnkerVerschiebung As MouseAnkerVerschiebung = Nothing
+        'ZLVxxx Public Property EditorStockMouseAnkerVerschiebung_HasValue As Boolean
 
 #End Region
 
@@ -239,8 +232,6 @@ Namespace Spielfeld
         Public Property EditorSteinDoPlaceAtPosTriple As New Triple
 
         Public Property EditorSteinDoPlace_SteinIndex As SteinIndexEnum
-
-
 
 #End Region
 

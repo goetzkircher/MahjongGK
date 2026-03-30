@@ -111,7 +111,7 @@ Public Class FrmIniEditor
 
     Public Sub New()
 
-        Me.Text = "INI Edit"
+        Me.Text = "INI Editor"
         Me.StartPosition = FormStartPosition.CenterScreen
         Me.Icon = My.Resources.MahjongGK
         Me.KeyPreview = True
@@ -450,7 +450,7 @@ Public Class FrmIniEditor
     Private Sub Frm_FormClosing(sender As Object, e As FormClosingEventArgs)
         If _isDirty Then
             _IniFileChanged = True
-            Dim ans As DialogResult = MessageBox.Show(Me, "Änderungen speichern?", "INI Edit",
+            Dim ans As DialogResult = MessageBox.Show(Me, "Änderungen speichern?", "INI Editor",
                                       MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question)
             If ans = DialogResult.Cancel Then
                 e.Cancel = True

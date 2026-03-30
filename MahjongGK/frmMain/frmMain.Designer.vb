@@ -79,7 +79,7 @@ Partial Class frmMain
         Me.TabPageSpielfeld.Padding = New System.Windows.Forms.Padding(3)
         Me.TabPageSpielfeld.Size = New System.Drawing.Size(1052, 409)
         Me.TabPageSpielfeld.TabIndex = 0
-        Me.TabPageSpielfeld.Text = "Spiel"
+        Me.TabPageSpielfeld.Text = "Spielfeld"
         Me.TabPageSpielfeld.UseVisualStyleBackColor = True
         '
         'UCtlSpielfeldMain

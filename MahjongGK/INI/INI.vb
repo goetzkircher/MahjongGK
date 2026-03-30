@@ -61,7 +61,7 @@ Public Module INI
 
     '' Public Enum AppDataTimeStamp
     ''     None
-    ''     Add
+    ''     AddRenderBitmapTopZOrder
     ''     LookForLastTimeStamp
     '' End Enum
 
@@ -728,7 +728,7 @@ Public Module INI
                                     "~Sorgfältig arbeiten! Bei Fehlern arbeitet das Programm unvorhersehbar. Nicht bei laufendem Programm ändern." &
                                     "~Sie können diese Ini-Datei einfach löschen. Sie wird dann mit Satz1-Werten neu erzeugt." &
                                     "~Hinweis an Programmierer: Läuft das Programm in der IDE, ist im Hauptformular ganz links unten ein Button ""INI""." &
-                                    "~Mit diesem Edit können Sie während der Laufzeit die INI ändern. Ein Teil der Änderungen bedürfen dennoch einen Neustart."
+                                    "~Mit diesem Editor können Sie während der Laufzeit die INI ändern. Ein Teil der Änderungen bedürfen dennoch einen Neustart."
 
             Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
         End Get
@@ -872,7 +872,7 @@ Public Module INI
     Public Property Editor_UsingEditorAllowed As Boolean
         Get
             Dim [Default] As Boolean = True
-            Dim comment As String = "Mit False läßt sich der Edit komplett abschalten. Satz1: True"
+            Dim comment As String = "Mit False läßt sich der Editor komplett abschalten. Satz1: True"
             Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
         End Get
         Set(value As Boolean)
@@ -1076,19 +1076,19 @@ Public Module INI
         End Set
     End Property
 
-    Private _Editor_ShowFrmSteinStackInfo As Boolean?
-    Public Property Editor_ShowFrmSteinStackInfo As Boolean
+    Private _Editor_ShowFrmTooltipSteinInfo As Boolean?
+    Public Property Editor_ShowFrmTooltipSteinInfo As Boolean
         Get
-            If IsNothing(_Editor_ShowFrmSteinStackInfo) Then
+            If IsNothing(_Editor_ShowFrmTooltipSteinInfo) Then
                 Dim [Default] As Boolean = True
-                Dim comment As String = "Das kleine Formular im Edit, das an die Maus gekoppelt ist."
-                _Editor_ShowFrmSteinStackInfo = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+                Dim comment As String = "Das kleine Formular im Editor, das an die Maus gekoppelt ist."
+                _Editor_ShowFrmTooltipSteinInfo = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
             End If
-            Return CBool(_Editor_ShowFrmSteinStackInfo)
+            Return CBool(_Editor_ShowFrmTooltipSteinInfo)
         End Get
         Set(value As Boolean)
             BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
-            _Editor_ShowFrmSteinStackInfo = Nothing
+            _Editor_ShowFrmTooltipSteinInfo = Nothing
         End Set
     End Property
 
@@ -1109,7 +1109,7 @@ Public Module INI
     Public Property SpielsteinGenerator_VorratNoSortAreaEndIndexDefault As Integer
         Get
             Dim [Default] As Integer = 9
-            Dim comment As String = "Im Edit läßt sich die Vorratskiste jederzeit neu mischen. Davon ausgenommen sind die Steine bis zum" &
+            Dim comment As String = "Im Editor läßt sich die Vorratskiste jederzeit neu mischen. Davon ausgenommen sind die Steine bis zum" &
                                     "~hier angegebenem Index. Satz1: 9 (=10 Steine), abschalten mit -1"
             'Rückgabe 
             Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
@@ -1220,8 +1220,8 @@ Public Module INI
     Public Property Spielbetrieb_PositionHistory As Integer
         Get
             If Not _Spielbetrieb_PositionHistory.HasValue Then
-                Dim [Default] As Integer = 1
-                Dim comment As String = "0 = ohne sichtbare History, 1 = links vom Spiel, 2 = rechts vom Spiel. Default:  = 1"
+                Dim [Default] As Integer = 0
+                Dim comment As String = "0 = ohne sichtbare History, 1 = kleine Historybox links unten, 2 = links vom Spielfeld, 3 = rechts vom Spielfeld. Default:  = 1"
                 _Spielbetrieb_PositionHistory = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
             End If
             Return _Spielbetrieb_PositionHistory.Value
@@ -1603,7 +1603,7 @@ Public Module INI
     Public Property IfRunningInIDE_DownloadDirectory As String
         Get
             Dim [Default] As String = "C:\Users\goetz\Downloads\Vivaldi"
-            Dim comment As String = "Gleiches Spiel mit dem Downloadverzeichnis." &
+            Dim comment As String = "Gleiches Spielfeld mit dem Downloadverzeichnis." &
                                       "~Hinweis: Backslashes müssen verdoppelt werden, da sie Escape-Zeichen sind."
             Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
         End Get
@@ -1794,6 +1794,46 @@ Public Module INI
 #End Region
 
 #Region "Toolbox"
+    Private _ToolBox_FormToolBox As Form
+    Public Property ToolBox_FormToolBox As Form
+        Get
+            Return _ToolBox_FormToolBox
+        End Get
+        Set(value As Form)
+            _ToolBox_FormToolBox = value
+            If value Is Nothing Then
+                _ToolBox_FormIsVisible = False
+            End If
+        End Set
+    End Property
+
+    Private _ToolBox_FormIsVisible As Boolean
+    Public Property ToolBox_FormIsVisible As Boolean
+        Get
+            If ToolBox_FormToolBox Is Nothing Then
+                _ToolBox_FormIsVisible = False
+            End If
+            Return _ToolBox_FormIsVisible
+        End Get
+        Set(value As Boolean)
+            _ToolBox_FormIsVisible = value
+        End Set
+    End Property
+    Private _ToolBox_TabPageChangedConsume As Boolean
+
+    Public Property ToolBox_ConsumeTabPageChanged As Boolean
+        Get
+            If _ToolBox_TabPageChangedConsume Then
+                _ToolBox_TabPageChangedConsume = False
+                Return True
+            Else
+                Return False
+            End If
+        End Get
+        Set(value As Boolean)
+            _ToolBox_TabPageChangedConsume = value
+        End Set
+    End Property
     '
     ''' <summary>
     ''' Speicherung der aktuellen Position der Form Toolbox
@@ -2035,12 +2075,7 @@ Public Module INI
 
     Public Property Toolbox_HGrdSplFldBitmapNameFallback As String
         Get
-            'Return "Himalaya_647135.jpg"
-            'Return "water-2175237.jpg"
-            Return "Pond_5771499.jpg"
-            'Dim [Default] As String = "wallpaperInv-2070678.jpg" 'Soll
-            Dim [Default] As String = "water-2175237.jpg"
-            ' Dim [Default] As String = "Himalaya_647135.jpg"
+            Dim [Default] As String = "wallpaperInv-2070678.jpg" 'Soll
             Dim comment As String = "Default: wallpaperInv-2070678.jpg"
             Return ToolBoxIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
         End Get
@@ -2483,20 +2518,6 @@ Public Module INI
         _Rendering_ConsumeDoRendering = True
     End Sub
     '
-    ''' <summary>
-    ''' Kann von überallheraus True gese
-    ''' </summary>
-    ''' <returns></returns>
-    Public ReadOnly Property Rendering_ConsumeDoRendering As Boolean
-        Get
-            If _Rendering_ConsumeDoRendering Then
-                _Rendering_ConsumeDoRendering = False
-                Return True
-            Else
-                Return False
-            End If
-        End Get
-    End Property
 
     Private _Rendering_BackgroundColorDarkMode As Color
     Public Property Rendering_BackgroundColorDarkMode As Color
@@ -2687,11 +2708,11 @@ Public Module INI
     Private _Rendering_DrawRenderRect As Boolean?
     Public Property Rendering_DrawRenderRect As Boolean
         Get
-            If Debugger.IsAttached Then
-                Return False
-            Else
-                Return False
-            End If
+            'If Debugger.IsAttached Then
+            '    Return True
+            'Else
+            '    Return False
+            'End If
             If IsNothing(_Rendering_DrawRenderRect) Then
                 Dim [Default] As Boolean = True ' Debugger.IsAttached
                 Dim comment As String = "Für die Programmentwicklung zur Kontrolle der Lage der rxRectangle. Nur innerhalb der IDE verwendbar."
@@ -2749,7 +2770,7 @@ Public Module INI
         Get
             If IsNothing(_Rendering_DrawRenderingSkipDoneMarker) Then
                 Dim [Default] As Boolean = Debugger.IsAttached
-                Dim comment As String = "Zeichnet rechts unten im Spiel ein Feld ein, an dem erkennbar ist, ob neu gerendert wurde. Default: Debugger.IsAttached"
+                Dim comment As String = "Zeichnet rechts unten im Spielfeld ein Feld ein, an dem erkennbar ist, ob neu gerendert wurde. Default: Debugger.IsAttached"
                 _Rendering_DrawRenderingSkipDoneMarker = Rendering.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
             End If
             Return CBool(_Rendering_DrawRenderingSkipDoneMarker)
@@ -2760,27 +2781,6 @@ Public Module INI
             _Rendering_ConsumeDoRendering = True
         End Set
     End Property
-
-    Private _Rendering_AnimationsCounter As Integer
-    Public ReadOnly Property Rendering_AnimationsCounterCheckAndDec As Integer
-        Get
-            If _Rendering_AnimationsCounter >= 0 Then
-                _Rendering_AnimationsCounter -= 1
-            End If
-            Return _Rendering_AnimationsCounter + 1
-        End Get
-
-    End Property
-    '
-    ''' <summary>
-    ''' Anzahl der Animationsschritte einer Animation. Im Zweifelsfall mehr Schritte als
-    ''' notwendig angeben.
-    ''' Diese Anzahl an Renderungen wird mit Sicherheit ausgeführt.
-    ''' </summary>
-    ''' <param name="animationsSteps"></param>
-    Public Sub Rendering_AnimationsCounterAddSteps(animationsSteps As Integer)
-        _Rendering_AnimationsCounter += animationsSteps
-    End Sub
 
 #End Region
 
@@ -2793,7 +2793,7 @@ Public Module INI
     Public Sub IniEditieren()
 
         Dim sicRendermode As RenderMode = SFMain.RenderMode
-        If SFMain.SFDatHasData Then
+        If SFMain.SFDatHasDataAndDoRender Then
             SFMain.RenderMode = RenderMode.Paused
         End If
         Using frm As New FrmIniEditor()
@@ -2801,7 +2801,7 @@ Public Module INI
             frm.ShowDialog()
 
         End Using
-        If SFMain.SFDatHasData Then
+        If SFMain.SFDatHasDataAndDoRender Then
             SFMain.RenderMode = sicRendermode
         End If
     End Sub
@@ -2865,7 +2865,7 @@ Public Module INI
     ''' Montiert den kompletten Pfad aus den Enumerationen und fügt ggf. den aktuellen Zeitstempel hinzu.
     ''' Bei timestamp = AppDataTimeStamp.LookForLastTimeStamp wird nach der jüngsten Datei gesucht.
     ''' Gibt es keine Datei, wird String.Empty zurückgegeben!
-    ''' maxFiles arbeitet nur in Verbindung mit timestamp = AppDataTimeStamp.Add und räumt
+    ''' maxFiles arbeitet nur in Verbindung mit timestamp = AppDataTimeStamp.AddRenderBitmapTopZOrder und räumt
     ''' "on the Fly" auf, indem alle Dateien über maxFiles hinaus gelöscht werden.
     ''' </summary>
     Public Function AppDataFullPath(filename As AppDataFileName,
@@ -2881,7 +2881,7 @@ Public Module INI
     ''' Montiert den kompletten Pfad aus den Enumerationen und fügt ggf. den aktuellen Zeitstempel hinzu.
     ''' Bei timestamp = AppDataTimeStamp.LookForLastTimeStamp wird nach der jüngsten Datei gesucht.
     ''' Gibt es keine Datei, wird String.Empty zurückgegeben!
-    ''' maxFiles arbeitet nur in Verbindung mit timestamp = AppDataTimeStamp.Add und räumt
+    ''' maxFiles arbeitet nur in Verbindung mit timestamp = AppDataTimeStamp.AddRenderBitmapTopZOrder und räumt
     ''' "on the Fly" auf, indem alle Dateien über maxFiles hinaus gelöscht werden.
     ''' </summary>
     Public Function AppDataFullPath(subdir As AppDataSubDir,
@@ -2898,7 +2898,7 @@ Public Module INI
     ''' Montiert den kompletten Pfad aus und fügt ggf. den aktuellen Zeitstempel hinzu.
     ''' Bei timestamp = AppDataTimeStamp.LookForLastTimeStamp wird nach der jüngsten Datei gesucht.
     ''' Gibt es keine Datei, wird String.Empty zurückgegeben!
-    ''' maxFiles arbeitet nur in Verbindung mit timestamp = AppDataTimeStamp.Add und räumt
+    ''' maxFiles arbeitet nur in Verbindung mit timestamp = AppDataTimeStamp.AddRenderBitmapTopZOrder und räumt
     ''' "on the Fly" auf, indem alle Dateien über maxFiles hinaus gelöscht werden.
     ''' </summary>
     Public Function AppDataFullPath(subdir As AppDataSubDir,
@@ -2921,7 +2921,7 @@ Public Module INI
     ''' Montiert den kompletten Pfad aus den Enumerationen und fügt ggf. den aktuellen Zeitstempel hinzu.
     ''' Bei timestamp = AppDataTimeStamp.LookForLastTimeStamp wird nach der jüngsten Datei gesucht.
     ''' Gibt es keine Datei, wird String.Empty zurückgegeben!
-    ''' maxFiles arbeitet nur in Verbindung mit timestamp = AppDataTimeStamp.Add und räumt
+    ''' maxFiles arbeitet nur in Verbindung mit timestamp = AppDataTimeStamp.AddRenderBitmapTopZOrder und räumt
     ''' "on the Fly" auf, indem alle Dateien über maxFiles hinaus gelöscht werden.
     ''' </summary>
     Public Function AppDataFullPath(subdir As AppDataSubDir,
@@ -2939,7 +2939,7 @@ Public Module INI
     ''' Montiert den kompletten Pfad aus den Enumerationen und fügt ggf. den aktuellen Zeitstempel hinzu.
     ''' Bei timestamp = AppDataTimeStamp.LookForLastTimeStamp wird nach der jüngsten Datei gesucht.
     ''' Gibt es keine Datei, wird String.Empty zurückgegeben!
-    ''' maxFiles arbeitet nur in Verbindung mit timestamp = AppDataTimeStamp.Add und räumt
+    ''' maxFiles arbeitet nur in Verbindung mit timestamp = AppDataTimeStamp.AddRenderBitmapTopZOrder und räumt
     ''' "on the Fly" auf, indem alle Dateien über maxFiles hinaus gelöscht werden.
     ''' </summary>
     Public Function AppDataFullPath(subdir As AppDataSubDir,
@@ -2954,7 +2954,7 @@ Public Module INI
     ''' Montiert den kompletten Pfad aus und fügt ggf. den aktuellen Zeitstempel hinzu.
     ''' Bei timestamp = AppDataTimeStamp.LookForLastTimeStamp wird nach der jüngsten Datei gesucht.
     ''' Gibt es keine Datei, wird String.Empty zurückgegeben!
-    ''' maxFiles arbeitet nur in Verbindung mit timestamp = AppDataTimeStamp.Add und räumt
+    ''' maxFiles arbeitet nur in Verbindung mit timestamp = AppDataTimeStamp.AddRenderBitmapTopZOrder und räumt
     ''' "on the Fly" auf, indem alle Dateien über maxFiles hinaus gelöscht werden.
     ''' </summary>
     Public Function AppDataFullPath(subdir As AppDataSubDir,

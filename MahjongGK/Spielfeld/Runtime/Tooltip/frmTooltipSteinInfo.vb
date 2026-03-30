@@ -4,9 +4,9 @@ Option Infer Off
 Option Strict On
 
 ''Verwendung:
-''Private _frmSteinInfo As frmSteinStackInfo
+''Private _frmSteinInfo As frmTooltipSteinInfo
 ''Private Sub InitSteinInfoForm()
-''    _frmSteinInfo = New frmSteinStackInfo(Me,
+''    _frmSteinInfo = New frmTooltipSteinInfo(Me,
 ''                                          offsetRight:=18,
 ''                                          offsetUp:=12)
 ''End Sub
@@ -19,13 +19,14 @@ Option Strict On
 
 '
 ''' <summary>
+''' Pfad: MahjongGK\Spielfeld\Runtime\Tooltip\
 ''' Kleine rahmenlose Info-Form zur Anzeige der unter dem Mauszeiger
 ''' gestapelten Mahjong-Steine.
 '''
 ''' Alle übergebenen Koordinaten beziehen sich auf die Owner-Form.
 ''' Intern wird nach Bildschirmkoordinaten umgerechnet.
 ''' </summary>
-Public NotInheritable Class frmSteinStackInfo
+Public NotInheritable Class frmTooltipSteinInfo
     Inherits Form
 
     Private Const MaxZeilen As Integer = MJ_STEINE_MAXZ
@@ -380,7 +381,6 @@ Public NotInheritable Class frmSteinStackInfo
         Else
             Return quadrantText & " " & steinText
         End If
-
 
     End Function
 

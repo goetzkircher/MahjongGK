@@ -178,7 +178,12 @@
     <Compile Include="Formulare\ColorPickerNamedColors.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Formulare\frmSteinStackInfo.vb">
+    <Compile Include="Spielfeld\Runtime\Steinflug\AirHelper.vb" />
+    <Compile Include="Spielfeld\Runtime\Steinflug\AirEnumerationen.vb" />
+    <Compile Include="Spielfeld\Runtime\Steinflug\AirJobSelector.vb" />
+    <Compile Include="Spielfeld\Runtime\Steinflug\AirPlanePosition.vb" />
+    <Compile Include="Spielfeld\Runtime\Steinflug\AirRenderBuffer.vb" />
+    <Compile Include="Spielfeld\Runtime\Tooltip\frmTooltipSteinInfo.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="frmMain\frmSplash.Designer.vb">
@@ -199,8 +204,8 @@
     <Compile Include="Spielfeld\Helferklassen\OverlayColorPalette.vb" />
     <Compile Include="Spielfeld\Main\SFMain.vb" />
     <Compile Include="Spielfeld\Render\SFRenderManager.vb" />
-    <Compile Include="Spielfeld\Runtime\Aircraft.vb" />
-    <Compile Include="Spielfeld\Runtime\SFAircrafts.vb" />
+    <Compile Include="Spielfeld\Runtime\Steinflug\Airplane.vb" />
+    <Compile Include="Spielfeld\Runtime\Steinflug\SFAirflight.vb" />
     <Compile Include="Spielfeld\UI\Form\ResizeActivityPoller.vb" />
     <Compile Include="Spielfeld\UI\Mouse\MouseInputPoller.vb" />
     <Compile Include="Spielfeld\UI\Mouse\MousePollerHandleBinderGroup.vb" />
@@ -276,7 +281,7 @@
     <Compile Include="Spielfeld\UI\SFUIFace.vb" />
     <Compile Include="Spielfeld\Runtime\SFStockState.vb" />
     <Compile Include="Spielfeld\Render\HScrollRenderer.vb" />
-    <Compile Include="Spielfeld\Runtime\MouseAnkerVerschiebung.vb" />
+    <Compile Include="Spielfeld\Runtime\Steinflug\MouseAnkerVerschiebung.vb" />
     <Compile Include="Spielfeld\Render\RenderHelper.vb" />
     <Compile Include="Spielfeld\Render\RenderingStartScreen.vb" />
     <Compile Include="DebughelferNamespaceMjDebug\DebugBitmaps.vb" />
@@ -290,8 +295,8 @@
     <Compile Include="INI\IniManager.vb" />
     <Compile Include="Spielfeld unbenutzt\SpielfeldSteineAustauscher.vb" />
     <Compile Include="Spielfeld\Daten\Generator\SpielsteinGeneratorValuesForXml.vb" />
-    <Compile Include="Spielfeld\Runtime\SFMouseRuntime.vb" />
-    <Compile Include="Spielfeld\Runtime\SteinFlugValues.vb" />
+    <Compile Include="Spielfeld\Runtime\SFMouseRuntime_zlv.vb" />
+    <Compile Include="Spielfeld\Runtime\Steinflug\Airplanes_Flugweg.vb" />
     <Compile Include="Temporär zlv\frmWebPTest.vb">
       <SubType>Form</SubType>
     </Compile>
@@ -372,7 +377,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Spielfeld\Render\SteinflugAnimator.vb" />
+    <Compile Include="Spielfeld\Runtime\Steinflug\AirplaneAnimator.vb" />
     <Compile Include="Spielfeld\Helfermodule\SpielfeldHelper.vb" />
     <Compile Include="Helfer\HelferAllgemein.vb" />
     <Compile Include="Spielfeld\Daten\SFDaten.vb" />

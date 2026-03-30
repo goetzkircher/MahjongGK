@@ -163,6 +163,12 @@ Public Class Triple
         End Get
     End Property
 
+    Public ReadOnly Property DeepCopy(Optional addX As Integer = 0, Optional addY As Integer = 0, Optional addZ As Integer = 0) As Triple
+        Get
+            Return New Triple(x + addX, y + addY, z + addZ, Valide)
+        End Get
+    End Property
+
     Public Function IsEqual(triple As Triple) As Boolean
         If IsNothing(triple) Then
             Return False

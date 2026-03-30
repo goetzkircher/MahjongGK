@@ -28,7 +28,6 @@ Option Strict On
 #Disable Warning IDE0079
 #Disable Warning IDE1006
 
-
 Imports System.Drawing.Drawing2D
 Imports System.Drawing.Imaging
 
@@ -43,11 +42,11 @@ Namespace Spielfeld
     'End Sub
 
     ''' <summary>
-    ''' Pfad: MahjongGK/Spielfeld/Render
+    ''' Pfad: MahjongGK\Spielfeld\Runtime\Steinflug
     ''' 
     ''' Hier sind alle Funktionen zur Animation angesiedelt einschließlich deren Verwaltung.
     ''' </summary>
-    Public Module SteinflugAnimator
+    Public Module AirplaneAnimator
 
         'Grundregeln aller Funktionen:
         'bmp ist das Original.
@@ -59,42 +58,24 @@ Namespace Spielfeld
 
         'Animations-Set (12 Stück)
 
-        Public Enum AirplaneAnimation
-            None = 0
-            ScaleDown = 1
-            ScaleUp = 2
-            Rotate = 3
-            RotateShrink = 4
-            FlipX = 5
-            FlipY = 6
-            FlipShrink = 7
-            Pulse = 8
-            SlideLeft = 9
-            SlideUp = 10
-            ScaleSlide = 11
-            RotatePulse = 12
-        End Enum
-
-        Public Function RunAnimation(animType As AirplaneAnimation, bmp As Bitmap, aktStep As Integer, maxStep As Integer) As Bitmap
+        Public Function RunAnimation(animType As AircraftAnimation, bmp As Bitmap, aktStep As Integer, maxStep As Integer) As Bitmap
             Select Case animType
-                Case AirplaneAnimation.ScaleDown : Return Animation_ScaleDown(bmp, aktStep, maxStep)
-                Case AirplaneAnimation.ScaleUp : Return Animation_ScaleUp(bmp, aktStep, maxStep)
-                Case AirplaneAnimation.Rotate : Return Animation_Rotate(bmp, aktStep, maxStep)
-                Case AirplaneAnimation.RotateShrink : Return Animation_RotateShrink(bmp, aktStep, maxStep)
-                Case AirplaneAnimation.FlipX : Return Animation_FlipX(bmp, aktStep, maxStep)
-                Case AirplaneAnimation.FlipY : Return Animation_FlipY(bmp, aktStep, maxStep)
-                Case AirplaneAnimation.FlipShrink : Return Animation_FlipShrink(bmp, aktStep, maxStep)
-                Case AirplaneAnimation.Pulse : Return Animation_Pulse(bmp, aktStep, maxStep)
-                Case AirplaneAnimation.SlideLeft : Return Animation_SlideLeft(bmp, aktStep, maxStep)
-                Case AirplaneAnimation.SlideUp : Return Animation_SlideUp(bmp, aktStep, maxStep)
-                Case AirplaneAnimation.ScaleSlide : Return Animation_ScaleSlide(bmp, aktStep, maxStep)
-                Case AirplaneAnimation.RotatePulse : Return Animation_RotatePulse(bmp, aktStep, maxStep)
+                Case AircraftAnimation.ScaleDown : Return Animation_ScaleDown(bmp, aktStep, maxStep)
+                Case AircraftAnimation.ScaleUp : Return Animation_ScaleUp(bmp, aktStep, maxStep)
+                Case AircraftAnimation.Rotate : Return Animation_Rotate(bmp, aktStep, maxStep)
+                Case AircraftAnimation.RotateShrink : Return Animation_RotateShrink(bmp, aktStep, maxStep)
+                Case AircraftAnimation.FlipX : Return Animation_FlipX(bmp, aktStep, maxStep)
+                Case AircraftAnimation.FlipY : Return Animation_FlipY(bmp, aktStep, maxStep)
+                Case AircraftAnimation.FlipShrink : Return Animation_FlipShrink(bmp, aktStep, maxStep)
+                Case AircraftAnimation.Pulse : Return Animation_Pulse(bmp, aktStep, maxStep)
+                Case AircraftAnimation.SlideLeft : Return Animation_SlideLeft(bmp, aktStep, maxStep)
+                Case AircraftAnimation.SlideUp : Return Animation_SlideUp(bmp, aktStep, maxStep)
+                Case AircraftAnimation.ScaleSlide : Return Animation_ScaleSlide(bmp, aktStep, maxStep)
+                Case AircraftAnimation.RotatePulse : Return Animation_RotatePulse(bmp, aktStep, maxStep)
                 Case Else
                     Return bmp ' keine Animation
             End Select
         End Function
-
-
 
         ''' <summary>
         ''' Einfaches Schrumpfen
@@ -304,9 +285,7 @@ Namespace Spielfeld
             Return newBmp
         End Function
 
-
 #Region "Wegberechnungen"
-
 
         ''' <summary>
         ''' Punkt einer animierten Bahn zwischen pStart und pZiel.
@@ -421,16 +400,6 @@ Namespace Spielfeld
 
         End Function
 
-
-        Public Enum AnimStartPos
-            EckeLinksOben
-            EckeRechtsOben
-            EckeLinksUnten
-            EckeRechtsUnten
-        End Enum
-
-
-
         ''' <summary>
         ''' Spiralbahn ("SnailShell"/"Spiral") zwischen Ecke und Mitte.
         ''' shrink=True  -> von Ecke nach Mitte.
@@ -440,7 +409,7 @@ Namespace Spielfeld
         Public Function AnimationPathPoint_SnailShell(aktStep As Integer,
                                                       maxStep As Integer,
                                                       rectOutside As Rectangle,
-                                                      pos As AnimStartPos,
+                                                      pos As AirAnimStartPos,
                                                       drehwinkel As Integer,
                                                       shrink As Boolean) As Point
             ' Normales t ∈ [0..1]
@@ -461,13 +430,13 @@ Namespace Spielfeld
             ' Eckpunkt
             Dim ex As Integer, ey As Integer
             Select Case pos
-                Case AnimStartPos.EckeLinksOben
+                Case AirAnimStartPos.EckeLinksOben
                     ex = rectOutside.Left : ey = rectOutside.Top
-                Case AnimStartPos.EckeRechtsOben
+                Case AirAnimStartPos.EckeRechtsOben
                     ex = rectOutside.Right - 1 : ey = rectOutside.Top
-                Case AnimStartPos.EckeLinksUnten
+                Case AirAnimStartPos.EckeLinksUnten
                     ex = rectOutside.Left : ey = rectOutside.Bottom - 1
-                Case AnimStartPos.EckeRechtsUnten
+                Case AirAnimStartPos.EckeRechtsUnten
                     ex = rectOutside.Right - 1 : ey = rectOutside.Bottom - 1
             End Select
 
@@ -532,7 +501,6 @@ Namespace Spielfeld
             If y > maxY Then y = maxY
             Return New Point(x, y)
         End Function
-
 
 #End Region
 

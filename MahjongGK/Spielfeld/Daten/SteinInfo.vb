@@ -92,7 +92,6 @@ Namespace Spielfeld
     <Serializable>
     Public Class SteinInfo
 
-
         <XmlIgnore>
         Private _notifyDirty As Action
 
@@ -129,7 +128,6 @@ Namespace Spielfeld
         <XmlIgnore>
         Private _RectStein As Rectangle
 
-
         <XmlIgnore>
         Private _AnimTyp As Animation
 
@@ -158,18 +156,29 @@ Namespace Spielfeld
 
         End Sub
 
-        Sub New(steinInfoIndex As Integer, steinIndex As SteinIndexEnum, pos3D As Triple, Optional tmpDebug As Integer = 0)
+        Sub New(steinInfoIndex As Integer, steinIndex As SteinIndexEnum, pos3D As Triple, ByRef arrFB(,,) As Integer)
             Me.SteinInfoIndex = steinInfoIndex
             Me.SteinIndex = steinIndex
             KlickGruppe = Spielfeld.GetSteinClickGruppe(steinIndex, INI.Spielbetrieb_WindsAreInOneClickGroup)
             SteinStatusIst = SteinStatus.I01Normal
             SteinStatusUsed = SteinStatus.I01Normal
             Me.Pos3D = pos3D
-            Me.tmpDebug = tmpDebug
+            _arrFB = arrFB
         End Sub
         '
-
-        'Private ReadOnly _sfd As SFDaten
+        ''' <summary>
+        ''' Referenz auf den arrFB. Wird benötigt um das dort gespeicherte
+        ''' Flag IsRemoved zu ändern oder auszulesen.
+        ''' </summary>
+        Private _arrFB(,,) As Integer
+        '
+        ''' <summary>
+        ''' Wird benötigt um die Referenz nach dem Laden wieder herzustellen.
+        ''' </summary>
+        ''' <param name="arrFB"></param>
+        Public Sub SetArrFbReferenz(ByRef arrFB(,,) As Integer)
+            _arrFB = arrFB
+        End Sub
 
         Private Sub MarkDirty()
             IsDirty = True
@@ -180,31 +189,46 @@ Namespace Spielfeld
             MarkDirty()
         End Sub
         '
-        ''' <summary>
-        ''' Wird temporär zum Debuggen genutzt.
-        ''' </summary>
-        <XmlIgnore>
-        Public Property tmpDebug As Integer
-            Get
-                Return _tmpDebug
-            End Get
-            Set(value As Integer)
-                If _tmpDebug = value Then Return
-                _tmpDebug = value
-                ' Debug-Overlay ja/nein? Wenn Debug Teil der Ausgabe ist -> MarkDirty()
-                MarkDirty()
-            End Set
-        End Property
+        '
         '
         ''' <summary>
+        ''' Das Flag von IsRemoved wird im arrFB gespeichert, weil so ein zeitkritisch
+        ''' schneller Zugriff möglich ist.
         ''' Im Spielbetrieb werden keine Steine entnommen, sondern ausschließlich
         ''' als IsRemoved gekennzeichnet. Das ist programmiertechnich deutlich
         ''' einfacher zu handhaben.
         ''' Im Editierbetrieb werden die Steininfo entnommener Steine wieder
         ''' entfernt, die ArrFB und weitere Listen aktualisiert bzw. neu aufgebaut.
+        ''' Durch die Speicherung im arrFB bleibt der Status von IsRemoved automatisch erhalten.
         ''' </summary>
         ''' <returns></returns>
-        Public Property IsRemoved As Boolean
+        Public Property IsRemoved() As Boolean
+            Get
+                'Weil zeitkritisch doppelter Code
+                Dim fb As Integer = _arrFB(X, Y, Z)
+                Dim offsetX As Integer = If((fb And FLAG_XOffset) <> 0, 1, 0)
+                Dim offsetY As Integer = If((fb And FLAG_YOffset) <> 0, 1, 0)
+                Return (_arrFB(X - offsetX, Y - offsetY, Z) And FLAG_IsRemoved) <> 0
+            End Get
+            Set(value As Boolean)
+                'Weil zeitkritisch doppelter Code
+                Dim fb As Integer = _arrFB(X, Y, Z)
+                Dim offsetX As Integer = If((fb And FLAG_XOffset) <> 0, 1, 0)
+                Dim offsetY As Integer = If((fb And FLAG_YOffset) <> 0, 1, 0)
+                If value Then
+                    _arrFB(X - offsetX, Y - offsetY, Z) = _arrFB(X - offsetX, Y - offsetY, Z) Or FLAG_IsRemoved
+                Else
+                    _arrFB(X - offsetX, Y - offsetY, Z) = _arrFB(X - offsetX, Y - offsetY, Z) And Not FLAG_IsRemoved
+                End If
+            End Set
+        End Property
+
+        '
+        ''' <summary>
+        ''' Die Reihenfolge, in der die Steine entfernt wurden.
+        ''' </summary>
+        ''' <returns></returns>
+        Public Property IsRemovedIndex As Integer
 
         ''' <summary>
         ''' Identisch des Index in SteinInfos
@@ -654,8 +678,6 @@ Namespace Spielfeld
         ''            Return CType(15 Xor CInt(verdeckt), Sichtbar)
         ''        End Function
 
-
-
         ''        'Hier die vollständige Abfrage:
         ''        '
         ''        ''' <summary>
@@ -712,7 +734,6 @@ Namespace Spielfeld
         ''            ' dreht also die Verdeckung zur Sichtbarkeit
         ''            Dim q As Integer = 15 Xor CInt(_Verdeckung)
 
-
         ''            If _RectQuadrant(0).Contains(ptMousePos) Then Return Quadrant.LO
         ''            If _RectQuadrant(1).Contains(ptMousePos) Then Return Quadrant.RO
         ''            If _RectQuadrant(2).Contains(ptMousePos) Then Return Quadrant.LU
@@ -741,7 +762,6 @@ Namespace Spielfeld
         ''            If q <> 15 Then
         ''                Return False
         ''            End If
-
 
         ''            If _RectQuadrant(0).Contains(ptMousePos) Then Return True
         ''            If _RectQuadrant(1).Contains(ptMousePos) Then Return True
@@ -824,6 +844,23 @@ Namespace Spielfeld
 
         End Function
 
+        Public Function IsTopQuadrant(tpl As TripleX, arrFB(,,) As Integer, sfd As SFDaten) As Boolean
+            With tpl
+                If .z = sfd.SFInf.zMax OrElse arrFB(.x, .y, .z + 1) = 0 Then
+                    Return True
+                Else
+                    Return False
+                End If
+            End With
+        End Function
+
+        Public Function IsTopQuadrant(x As Integer, y As Integer, z As Integer, arrFB(,,) As Integer, sfd As SFDaten) As Boolean
+            If z = sfd.SFInf.zMax OrElse arrFB(x, y, z + 1) = 0 Then
+                Return True
+            Else
+                Return False
+            End If
+        End Function
 
         Public Function IsRemovingPartKandidat(mousePos As Point, arrFB(,,) As Integer) As Triple
 

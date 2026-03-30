@@ -6,7 +6,7 @@ Imports System.Drawing.Drawing2D
 Imports System.Drawing.Imaging
 
 Namespace Images
-    Public Enum UndoRedoGlyph
+    Public Enum UndoRedoSymbol
         Undo = 0
         Redo = 1
     End Enum
@@ -19,9 +19,9 @@ Namespace Images
         ''' Transparent im Hintergrund, 32x32 standardmäßig.
         ''' Die Schattierung wird aus der Basisfarbe automatisch abgeleitet.
         ''' </summary>
-        Public Function CreateUndoRedoBitmap(ByVal glyph As UndoRedoGlyph,
-                                         ByVal baseColor As Color,
-                                         Optional ByVal size As Integer = 32) As Bitmap
+        Public Function CreateUndoRedoBitmap(ByVal symbol As UndoRedoSymbol,
+                                            ByVal baseColor As Color,
+                                            Optional ByVal size As Integer = 32) As Bitmap
 
             If size < 16 Then
                 Throw New ArgumentOutOfRangeException(NameOf(size), "Die Symbolgröße sollte mindestens 16 Pixel betragen.")
@@ -37,12 +37,12 @@ Namespace Images
                 g.CompositingQuality = CompositingQuality.HighQuality
                 g.Clear(Color.Transparent)
 
-                If glyph = UndoRedoGlyph.Redo Then
+                If symbol = UndoRedoSymbol.Redo Then
                     g.TranslateTransform(CSng(size), 0.0F)
                     g.ScaleTransform(-1.0F, 1.0F)
                 End If
 
-                DrawUndoGlyph(g, size, baseColor)
+                DrawUndoSymbol(g, size, baseColor)
 
                 g.ResetTransform()
 
@@ -57,12 +57,12 @@ Namespace Images
         ''' Zeichnet das eigentliche Undo-Symbol.
         ''' Redo entsteht durch horizontales Spiegeln.
         ''' </summary>
-        Private Sub DrawUndoGlyph(ByVal g As Graphics,
+        Private Sub DrawUndoSymbol(ByVal g As Graphics,
                               ByVal size As Integer,
                               ByVal baseColor As Color)
 
-            Dim darkColor As Color = BlendWith(baseColor, Color.Black, 0.34F)
-            Dim lightColor As Color = BlendWith(baseColor, Color.White, 0.18F)
+            Dim darkColor As Color = baseColor 'BlendWith(baseColor, Color.Black, 0.34F)
+            Dim lightColor As Color = baseColor 'BlendWith(baseColor, Color.White, 0.18F)
 
             Dim lineWidthOuter As Single = Math.Max(3.6F, CSng(size) * 0.115F)
             Dim lineWidthInner As Single = Math.Max(2.2F, CSng(size) * 0.075F)

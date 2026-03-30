@@ -1,11 +1,8 @@
-﻿'Diesen MousePoller hast du mir geschrieben. Er funktioniert auch, zeigt aber Merkwürdigkeiten.
-'Deshalb schreibe ihn mir neu mit folgenden Bedingungen:
-'
-
-Option Compare Text
+﻿Option Compare Text
 Option Explicit On
 Option Infer Off
 Option Strict On
+
 Imports System.Runtime.InteropServices
 
 '
@@ -13,39 +10,89 @@ Imports System.Runtime.InteropServices
 ''' Pfad: MahjongGK/Spielfeld/UI/Mouse
 ''' 
 ''' Minimaler, instanzbasierter Maus-Poller (WinForms, .NET Framework 4.8.x).
-''' Variante B (Drag-in korrekt):
-''' - Hardware-Zustände (L/R + Cursorpos) werden global sauber verfolgt.
-''' - "Changed" wird nur gemeldet, wenn der Cursor effektiv über dem Target liegt,
-'''   PLUS: beim Eintritt ins Target wird ein bereits gedrückter Button als "Changed" gemeldet.
-'''
-''' Zusätzlich:
-''' - MouseEntered() / MouseLeft() (nicht rückstellend)
+''' 
+''' Grundidee:
+''' - Die physische Maus (Position, linke/rechte Taste) wird global gelesen.
+''' - Ein MouseDown wird aber nur dann als "gültig für das Target" akzeptiert,
+'''   wenn der Druck effektiv über dem Target begonnen hat.
+''' - Das dazugehörige MouseUp wird danach auch außerhalb des Targets noch
+'''   zugelassen, damit Drag-/Klicksequenzen sauber beendet werden können.
+''' 
+''' Damit werden insbesondere herausgefiltert:
+''' - Klicks außerhalb des Target-Controls
+''' - Klicks auf andere eigene Forms
+''' - Klicks auf Menüs / ContextMenus
+''' - Klicks auf fremde Programme, die über dem eigenen Fenster liegen
+''' 
+''' Wichtige Begriffe:
+''' - Raw / Hardwarezustand:
+'''   physischer Zustand der Maustaste, global gelesen
+''' - Valid / gültige Klicksequenz:
+'''   nur dann aktiv, wenn MouseDown auf dem Target begonnen hat
+''' 
+''' Die Methoden LeftMouseDown / RightMouseDown liefern daher bewusst NICHT
+''' den rohen Hardwarezustand, sondern den gültigen, auf das Target bezogenen Zustand.
+''' 
+''' Zusatz:
+''' - MouseEntered() / MouseLeft() sind nicht konsumierend.
+''' - Consume...Pressed/Released sind konsumierende Flankenabfragen.
 ''' </summary>
 Public NotInheritable Class MouseInputPoller
-    Implements IDisposable
+    ' Diese Klasse besitzt keine eigenen unmanaged Ressourcen,
+    ' keine Timer, keine Event-Subscriptions und keine Handles,
+    ' die sie selbst erzeugt oder freigeben müsste.
+    ' Daher ist in dieser Form kein Dispose nötig.
 
 #Region "Win32 interop"
 
+    '
+    ''' <summary>
+    ''' Liefert das übergeordnete Fenster zu einem Handle.
+    ''' Hier benutzt, um zum Root-Fenster eines Overlay-Controls zu kommen.
+    ''' </summary>
     <DllImport("user32.dll", SetLastError:=False)>
     Private Shared Function GetAncestor(hWnd As IntPtr, gaFlags As UInteger) As IntPtr
     End Function
 
+    '
+    ''' <summary>
+    ''' Liefert die aktuelle Cursorposition in Screen-Koordinaten.
+    ''' </summary>
     <DllImport("user32.dll", SetLastError:=False)>
     Private Shared Function GetCursorPos(ByRef lpPoint As Point) As Boolean
     End Function
 
+    '
+    ''' <summary>
+    ''' Wandelt einen Screen-Punkt in Client-Koordinaten eines Fensters um.
+    ''' </summary>
     <DllImport("user32.dll", SetLastError:=False)>
     Private Shared Function ScreenToClient(hWnd As IntPtr, ByRef lpPoint As Point) As Integer
     End Function
 
+    '
+    ''' <summary>
+    ''' Liest den aktuellen Hardwarezustand einer Taste.
+    ''' Bit 15 gesetzt => Taste ist aktuell gedrückt.
+    ''' </summary>
     <DllImport("user32.dll", SetLastError:=False)>
     Private Shared Function GetAsyncKeyState(vKey As Integer) As Short
     End Function
 
+    '
+    ''' <summary>
+    ''' Liefert das Fenster/Control, das an einem Screen-Punkt aktuell "oben liegt".
+    ''' Genau das ist hier wichtig, damit nicht nur geometrisch,
+    ''' sondern auch visuell/oberflächenbezogen geprüft wird.
+    ''' </summary>
     <DllImport("user32.dll", SetLastError:=False)>
     Private Shared Function WindowFromPoint(pt As Point) As IntPtr
     End Function
 
+    '
+    ''' <summary>
+    ''' Prüft, ob ein Handle Kind eines anderen Fensters ist.
+    ''' </summary>
     <DllImport("user32.dll", SetLastError:=False)>
     Private Shared Function IsChild(hWndParent As IntPtr, hWnd As IntPtr) As Boolean
     End Function
@@ -59,47 +106,174 @@ Public NotInheritable Class MouseInputPoller
 
 #Region "Felder"
 
+    '
+    ''' <summary>
+    ''' True, solange ein fachlich freigegebenes DragDrop aktiv ist.
+    ''' </summary>
+    Private _dragDropActive As Boolean
+
+    '
+    ''' <summary>
+    ''' Konsumierende Endflanke für DragDrop.
+    ''' </summary>
+    Private _dragEndedEdge As Boolean
+
+    '
+    ''' <summary>
+    ''' True genau in dem Poll-Durchlauf, in dem sich die Maus
+    ''' während eines aktiven DragDrop bewegt hat.
+    ''' </summary>
+    Private _dragMoved As Boolean
+    '
+    ''' <summary>
+    ''' Das Ziel-Control, für das die Maus logisch ausgewertet wird.
+    ''' </summary>
     Private ReadOnly _target As Control
+
+    '
+    ''' <summary>
+    ''' Reserviert für spätere Synchronisierung. Derzeit nicht aktiv benutzt.
+    ''' Kann bleiben oder entfernt werden.
+    ''' </summary>
     Private ReadOnly _sync As New Object()
 
+    '
+    ''' <summary>
+    ''' Overlay-Roots, die logisch wie "durchlässig" behandelt werden sollen.
+    ''' Beispiel: eigene transparente Hilfsfenster oder definierte Overlay-Controls.
+    ''' 
+    ''' Wenn der Cursor darüber liegt, soll dies trotzdem noch als "über dem Target"
+    ''' gelten, sofern das Overlay bewusst registriert wurde.
+    ''' </summary>
     Private ReadOnly _overlayRoots As New HashSet(Of IntPtr)()
 
-    Private _disposed As Boolean
-
-    ' Client-Position nur "geführt", wenn inside=True
+    '
+    ''' <summary>
+    ''' Aktuelle Mausposition im Client-Koordinatensystem des Targets.
+    ''' Wird nur dann aktiv geführt, wenn der Cursor effektiv über dem Target liegt.
+    ''' </summary>
     Private _curPos As Point
+
+    '
+    ''' <summary>
+    ''' Vorherige Client-Position.
+    ''' </summary>
     Private _prevPos As Point
+
+    '
+    ''' <summary>
+    ''' Positionsänderung seit dem letzten Poll.
+    ''' </summary>
     Private _delta As Point
 
-    ' Hardware-Zustand global (immer korrekt, unabhängig vom inside)
+    '
+    ''' <summary>
+    ''' Roher globaler Hardwarezustand der linken Taste.
+    ''' Achtung: Das ist NICHT die Target-Logik, sondern nur "physisch gedrückt".
+    ''' </summary>
     Private _leftDown As Boolean
+
+    '
+    ''' <summary>
+    ''' Roher globaler Hardwarezustand der rechten Taste.
+    ''' </summary>
     Private _rightDown As Boolean
 
-    ' Ergebnisflags (nicht konsumierend)
+    '
+    ''' <summary>
+    ''' Nicht konsumierende Änderungsflags für links/rechts.
+    ''' Diese melden nur Änderungen, die für das Target logisch relevant sind.
+    ''' </summary>
     Private _leftChanged As Boolean
     Private _rightChanged As Boolean
+
+    '
+    ''' <summary>
+    ''' Nicht konsumierendes Änderungsflag für die Position.
+    ''' </summary>
     Private _posChanged As Boolean
 
+    '
+    ''' <summary>
+    ''' True, wenn der Cursor aktuell effektiv über dem Target ist.
+    ''' "Effektiv" heißt:
+    ''' - geometrisch im Bereich des Controls
+    ''' - und nicht von einem fremden/anderen Fenster verdeckt,
+    '''   außer es ist ein registriertes Overlay
+    ''' </summary>
     Private _inside As Boolean
+
+    '
+    ''' <summary>
+    ''' Flanke outside -> inside seit letztem Poll.
+    ''' Nicht konsumierend.
+    ''' </summary>
     Private _entered As Boolean
+
+    '
+    ''' <summary>
+    ''' Flanke inside -> outside seit letztem Poll.
+    ''' Nicht konsumierend.
+    ''' </summary>
     Private _left As Boolean
+
+    '
+    ''' <summary>
+    ''' Konsumierende Flankenflags für gültige Klicksequenzen.
+    ''' Werden nur gesetzt, wenn die Sequenz für das Target gültig ist.
+    ''' </summary>
+    Private _leftPressedEdge As Boolean
+    Private _leftReleasedEdge As Boolean
+    Private _rightPressedEdge As Boolean
+    Private _rightReleasedEdge As Boolean
+
+    '
+    ''' <summary>
+    ''' True, solange eine gültige linke Klicksequenz aktiv ist.
+    ''' 
+    ''' Bedeutet:
+    ''' - Die linke Maustaste wurde physisch gedrückt
+    ''' - und dieses MouseDown begann effektiv über dem Target
+    ''' - damit gehört das spätere MouseUp ebenfalls logisch zum Target
+    ''' </summary>
+    Private _leftValidDownActive As Boolean
+
+    '
+    ''' <summary>
+    ''' Analog zur linken Taste für rechts.
+    ''' </summary>
+    Private _rightValidDownActive As Boolean
 
 #End Region
 
-#Region "Konstruktion / Dispose"
+#Region "Konstruktion"
 
+    '
+    ''' <summary>
+    ''' Erstellt einen Poller für ein bestimmtes Ziel-Control.
+    ''' Der Startzustand wird aus der aktuellen realen Mauslage abgeleitet.
+    ''' </summary>
+    ''' <param name="targetControl">Das Ziel-Control, für das die Maus logisch ausgewertet wird.</param>
     Public Sub New(targetControl As Control)
-        If targetControl Is Nothing Then Throw New ArgumentNullException(NameOf(targetControl))
+
+        If targetControl Is Nothing Then
+            Throw New ArgumentNullException(NameOf(targetControl))
+        End If
+
         _target = targetControl
 
-
+        ' Aktuelle echte Mausposition im Screen holen
         Dim scr As Point = GetMouseScreenPosSafe()
+
+        ' Prüfen, ob der Cursor beim Start effektiv über dem Target liegt
         Dim insideNow As Boolean = IsCursorEffectivelyOverTarget(scr)
 
         _inside = insideNow
         _entered = False
         _left = False
 
+        ' Nur wenn der Cursor aktuell wirklich auf dem Target ist,
+        ' wird eine sinnvolle Client-Position geführt.
         If insideNow AndAlso _target.IsHandleCreated Then
             _curPos = ScreenToClientSafe(scr, _target.Handle)
         Else
@@ -110,58 +284,163 @@ Public NotInheritable Class MouseInputPoller
         _delta = Point.Empty
         _posChanged = False
 
+        ' Rohzustand der Tasten beim Erzeugen übernehmen
         _leftDown = IsKeyDown(VK_LBUTTON)
         _rightDown = IsKeyDown(VK_RBUTTON)
 
         _leftChanged = False
         _rightChanged = False
 
-    End Sub
+        _leftPressedEdge = False
+        _leftReleasedEdge = False
+        _rightPressedEdge = False
+        _rightReleasedEdge = False
 
-    Public Sub Dispose() Implements IDisposable.Dispose
-        _disposed = True
-        GC.SuppressFinalize(Me)
+        ' Beim Start wird absichtlich keine gültige Klicksequenz angenommen.
+        ' Auch wenn die Taste physisch schon gedrückt wäre, wissen wir nicht,
+        ' ob das Down auf dem Target begonnen hat.
+        _leftValidDownActive = False
+        _rightValidDownActive = False
+
+        _dragDropActive = False
+        _dragEndedEdge = False
+        _dragMoved = False
+
     End Sub
 
 #End Region
 
 #Region "API"
 
+    '
     ''' <summary>
-    ''' Aktualisiert Zustand. True, wenn seit dem letzten Poll() etwas geändert hat (Variante B).
+    ''' Aktualisiert den Zustand.
+    ''' 
+    ''' Rückgabe:
+    ''' True, wenn sich seit dem letzten Poll() etwas geändert hat,
+    ''' das für die weitere Auswertung relevant sein kann.
     ''' </summary>
     Public Function Poll() As Boolean
 
-        If _disposed Then Return False
-
-
         Dim anyChange As Boolean = False
+        _dragMoved = False
 
-        ' --- Screenpos + inside ---
+        ' ---------------------------------------------------------
+        ' 1) Aktuelle Screen-Position und inside-Zustand bestimmen
+        ' ---------------------------------------------------------
         Dim scr As Point = GetMouseScreenPosSafe()
         Dim insideNow As Boolean = IsCursorEffectivelyOverTarget(scr)
 
+        ' Enter-/Leave-Flanken zum bisherigen Zustand
         Dim enteredNow As Boolean = (Not _inside) AndAlso insideNow
         Dim leftNow As Boolean = _inside AndAlso (Not insideNow)
 
         _entered = enteredNow
         _left = leftNow
 
-        If _entered OrElse _left Then anyChange = True
+        If _entered OrElse _left Then
+            anyChange = True
+        End If
 
-        ' --- Buttons global lesen + globalen Wechsel bestimmen ---
+        ' ---------------------------------------------------------
+        ' 2) Aktuellen rohen Hardwarezustand der Tasten lesen
+        ' ---------------------------------------------------------
         Dim lNow As Boolean = IsKeyDown(VK_LBUTTON)
         Dim rNow As Boolean = IsKeyDown(VK_RBUTTON)
 
+        ' Flanke = hat sich der rohe Hardwarezustand geändert?
         Dim leftChangedGlobal As Boolean = (lNow <> _leftDown)
         Dim rightChangedGlobal As Boolean = (rNow <> _rightDown)
 
-        ' Hardwarezustand IMMER fortschreiben (global korrekt)
+        ' Änderungsflags pro Poll neu aufbauen
+        _leftChanged = False
+        _rightChanged = False
+
+        ' ---------------------------------------------------------
+        ' 3) Linke Taste logisch filtern
+        ' ---------------------------------------------------------
+        If leftChangedGlobal Then
+
+            If lNow Then
+                ' -----------------------------
+                ' Linkes MouseDown
+                ' -----------------------------
+                ' Nur akzeptieren, wenn der Druck effektiv über dem Target begann.
+                ' Alles andere wird als Start einer gültigen Sequenz verworfen.
+                If insideNow Then
+                    _leftValidDownActive = True
+                    _leftPressedEdge = True
+                    _leftChanged = True
+                Else
+                    _leftValidDownActive = False
+                End If
+
+            Else
+                ' -----------------------------
+                ' Linkes MouseUp
+                ' -----------------------------
+                ' Das MouseUp wird auch außerhalb zugelassen,
+                ' aber nur wenn zuvor ein gültiges MouseDown aktiv war.
+                If _leftValidDownActive Then
+                    _leftReleasedEdge = True
+                    _leftChanged = True
+
+                    If _dragDropActive Then
+                        _dragEndedEdge = True
+                        _dragDropActive = False
+                    End If
+                End If
+
+                ' Nach dem Release ist die gültige Sequenz beendet.
+                _leftValidDownActive = False
+            End If
+
+        End If
+
+        ' ---------------------------------------------------------
+        ' 4) Rechte Taste logisch filtern
+        ' ---------------------------------------------------------
+        If rightChangedGlobal Then
+
+            If rNow Then
+                ' Rechtes MouseDown nur akzeptieren,
+                ' wenn es effektiv über dem Target beginnt.
+                If insideNow Then
+                    _rightValidDownActive = True
+                    _rightPressedEdge = True
+                    _rightChanged = True
+                Else
+                    _rightValidDownActive = False
+                End If
+
+            Else
+                ' Rechtes MouseUp auch außerhalb zulassen,
+                ' aber nur für eine gültig gestartete Sequenz.
+                If _rightValidDownActive Then
+                    _rightReleasedEdge = True
+                    _rightChanged = True
+                End If
+
+                _rightValidDownActive = False
+            End If
+
+        End If
+
+        ' ---------------------------------------------------------
+        ' 5) Rohzustand immer global fortschreiben
+        ' ---------------------------------------------------------
+        ' Sehr wichtig:
+        ' Die Hardwarezustände müssen immer korrekt aktuell bleiben,
+        ' auch wenn die Flanke logisch verworfen wurde.
         _leftDown = lNow
         _rightDown = rNow
 
-        ' --- Position nur bei inside auswerten ---
+        ' ---------------------------------------------------------
+        ' 6) Position nur dann auswerten, wenn der Cursor effektiv
+        '    über dem Target liegt
+        ' ---------------------------------------------------------
         If insideNow AndAlso _target.IsHandleCreated Then
+
             Dim newPos As Point = ScreenToClientSafe(scr, _target.Handle)
 
             _prevPos = _curPos
@@ -172,130 +451,375 @@ Public NotInheritable Class MouseInputPoller
             _delta = New Point(dx, dy)
 
             _posChanged = (dx <> 0 OrElse dy <> 0)
-            If _posChanged Then anyChange = True
+
+            If _posChanged Then
+                anyChange = True
+            End If
+
         Else
+            ' Außerhalb keine neue Client-Position führen
             _prevPos = _curPos
             _delta = Point.Empty
             _posChanged = False
         End If
 
-        'originaler Code:
-        '' ' --- Changed-Meldung nur bei inside, PLUS Drag-in-Sync beim Eintritt ---
-        ''If insideNow Then
-        ''    _leftChanged = leftChangedGlobal OrElse (enteredNow AndAlso lNow)
-        ''    _rightChanged = rightChangedGlobal OrElse (enteredNow AndAlso rNow)
-
-        ''    If _leftChanged OrElse _rightChanged Then
-        ''        anyChange = True
-        ''    End If
-        ''Else
-        ''    _leftChanged = False
-        ''    _rightChanged = False
-        ''End If
+        If _dragDropActive AndAlso _posChanged Then
+            _dragMoved = True
+        End If
+        ' ---------------------------------------------------------
+        ' 7) Wiedereintritt ins Target während einer gültigen Sequenz
+        ' ---------------------------------------------------------
+        ' Wenn z.B. links gültig auf dem Target gedrückt wurde,
+        ' der Cursor danach das Target verlässt und später wieder eintritt,
+        ' darf dies erneut als relevante Änderung gemeldet werden.
         '
-        'geänderter Code
-        _leftChanged = leftChangedGlobal OrElse (enteredNow AndAlso lNow)
-        _rightChanged = rightChangedGlobal OrElse (enteredNow AndAlso rNow)
+        ' ABER:
+        ' Nur für gültig gestartete Sequenzen, nicht für beliebiges
+        ' "von außen gedrückt hereingezogen".
+        If enteredNow Then
+
+            If _leftValidDownActive AndAlso lNow Then
+                _leftChanged = True
+            End If
+
+            If _rightValidDownActive AndAlso rNow Then
+                _rightChanged = True
+            End If
+
+        End If
 
         If _leftChanged OrElse _rightChanged Then
             anyChange = True
         End If
-        'Ende Änderung
 
-
+        ' Bisherigen inside-Zustand auf den aktuellen Stand bringen
         _inside = insideNow
 
         Return anyChange
 
     End Function
 
-    ' keine der folgenden Funktionen ist rückstellend!
+    ' -------------------------------------------------------------
+    ' Nicht konsumierende Zustandsabfragen
+    ' -------------------------------------------------------------
 
+    '
+    ''' <summary>
+    ''' True, wenn seit dem letzten Poll() eine für das Target relevante
+    ''' Änderung der linken Taste festgestellt wurde.
+    ''' Nicht konsumierend.
+    ''' </summary>
     Public Function LeftMouseChanged() As Boolean
 
         Return _leftChanged
 
     End Function
 
-    Public Function LeftMousePressed() As Boolean
+    '
+    ''' <summary>
+    ''' True, solange eine gültige linke Klicksequenz aktiv ist.
+    ''' 
+    ''' Achtung:
+    ''' Das ist NICHT einfach der rohe Hardwarezustand,
+    ''' sondern der logisch für das Target gültige Zustand.
+    ''' </summary>
+    Public Function LeftMouseDown() As Boolean
 
-        Return _leftDown
+        Return _leftValidDownActive
 
     End Function
-    Public Function LeftMouseReleased() As Boolean
 
-        Return Not _leftDown
+    '
+    ''' <summary>
+    ''' Inverse der gültigen linken Klicksequenz.
+    ''' </summary>
+    Public Function LeftMouseUp() As Boolean
+
+        Return Not _leftValidDownActive
 
     End Function
 
+    '
+    ''' <summary>
+    ''' True, wenn seit dem letzten Poll() eine für das Target relevante
+    ''' Änderung der rechten Taste festgestellt wurde.
+    ''' Nicht konsumierend.
+    ''' </summary>
     Public Function RightMouseChanged() As Boolean
 
         Return _rightChanged
 
     End Function
 
-    Public Function RightMousePressed() As Boolean
+    '
+    ''' <summary>
+    ''' True, solange eine gültige rechte Klicksequenz aktiv ist.
+    ''' </summary>
+    Public Function RightMouseDown() As Boolean
 
-        Return _rightDown
+        Return _rightValidDownActive
 
     End Function
-    Public Function RightMouseReleased() As Boolean
 
-        Return Not _rightDown
+    '
+    ''' <summary>
+    ''' Inverse der gültigen rechten Klicksequenz.
+    ''' </summary>
+    Public Function RightMouseUp() As Boolean
+
+        Return Not _rightValidDownActive
 
     End Function
 
+    ' -------------------------------------------------------------
+    ' Konsumierende Flankenabfragen
+    ' -------------------------------------------------------------
+
+    '
+    ''' <summary>
+    ''' Liefert einmalig die gültige Press-Flanke der linken Taste.
+    ''' Danach wird das Flag zurückgesetzt.
+    ''' </summary>
+    Public Function ConsumeLeftMousePressed() As Boolean
+
+        Dim result As Boolean = _leftPressedEdge
+        _leftPressedEdge = False
+        Return result
+
+    End Function
+
+    '
+    ''' <summary>
+    ''' Liefert einmalig die gültige Release-Flanke der linken Taste.
+    ''' Danach wird das Flag zurückgesetzt.
+    ''' </summary>
+    Public Function ConsumeLeftMouseReleased() As Boolean
+
+        Dim result As Boolean = _leftReleasedEdge
+        _leftReleasedEdge = False
+        Return result
+
+    End Function
+
+    '
+    ''' <summary>
+    ''' Liefert einmalig die gültige Press-Flanke der rechten Taste.
+    ''' Danach wird das Flag zurückgesetzt.
+    ''' </summary>
+    Public Function ConsumeRightMousePressed() As Boolean
+
+        Dim result As Boolean = _rightPressedEdge
+        _rightPressedEdge = False
+        Return result
+
+    End Function
+
+    '
+    ''' <summary>
+    ''' Liefert einmalig die gültige Release-Flanke der rechten Taste.
+    ''' Danach wird das Flag zurückgesetzt.
+    ''' </summary>
+    Public Function ConsumeRightMouseReleased() As Boolean
+
+        Dim result As Boolean = _rightReleasedEdge
+        _rightReleasedEdge = False
+        Return result
+
+    End Function
+
+    ' -------------------------------------------------------------
+    ' Positionsabfragen
+    ' -------------------------------------------------------------
+
+    '
+    ''' <summary>
+    ''' True, wenn sich die geführte Mausposition seit dem letzten Poll()
+    ''' geändert hat.
+    ''' Nur relevant, solange der Cursor effektiv über dem Target ist.
+    ''' </summary>
     Public Function MousePosChanged() As Boolean
 
         Return _posChanged
 
     End Function
 
+    '
+    ''' <summary>
+    ''' Aktuelle geführte Mausposition im Client-System des Targets.
+    ''' </summary>
     Public Function MousePos() As Point
+
         Return _curPos
-    End Function
-    '
-    ''' <summary>
-    ''' Gibt den Point aus den X-Wert und übergebenem y zurück
-    ''' </summary>
-    ''' <param name="y"></param>
-    ''' <returns></returns>
-    Public Function MousePosX(y As Integer) As Point
-        Return New Point(_curPos.X, y)
-    End Function
-    '
-    ''' <summary>
-    ''' Gibt den Point aus dem Y-Wert und übergebenem X-Wert zurück.
-    ''' </summary>
-    ''' <param name="x"></param>
-    ''' <returns></returns>
-    Public Function MousePosY(x As Integer) As Point
-        Return New Point(x, _curPos.Y)
+
     End Function
 
+    '
+    ''' <summary>
+    ''' Gibt einen Point mit aktuellem X und übergebenem Y zurück.
+    ''' Praktisch für Hilfskonstruktionen beim Rendern oder Testen.
+    ''' </summary>
+    Public Function MousePosX(y As Integer) As Point
+
+        Return New Point(_curPos.X, y)
+
+    End Function
+
+    '
+    ''' <summary>
+    ''' Gibt einen Point mit übergebenem X und aktuellem Y zurück.
+    ''' </summary>
+    Public Function MousePosY(x As Integer) As Point
+
+        Return New Point(x, _curPos.Y)
+
+    End Function
+
+    '
+    ''' <summary>
+    ''' Positionsdifferenz seit dem letzten Poll().
+    ''' </summary>
     Public Function MousePosDelta() As Point
 
         Return _delta
 
     End Function
 
+    ' -------------------------------------------------------------
+    ' Bereichs- / Enter-Leave-Abfragen
+    ' -------------------------------------------------------------
+
+    '
+    ''' <summary>
+    ''' True, wenn der Cursor aktuell effektiv über dem Target liegt.
+    ''' </summary>
     Public Function IsInsideTarget() As Boolean
 
         Return _inside
 
     End Function
 
-    ''' <summary>True, wenn seit letztem Poll() ein Enter (outside-&gt;inside) stattgefunden hat.</summary>
+    '
+    ''' <summary>
+    ''' True, wenn seit dem letzten Poll() ein Übergang
+    ''' von außerhalb nach innerhalb stattgefunden hat.
+    ''' Nicht konsumierend.
+    ''' </summary>
     Public Function MouseEntered() As Boolean
 
         Return _entered
 
     End Function
 
-    ''' <summary>True, wenn seit letztem Poll() ein Leave (inside-&gt;outside) stattgefunden hat.</summary>
+    '
+    ''' <summary>
+    ''' True, wenn seit dem letzten Poll() ein Übergang
+    ''' von innerhalb nach außerhalb stattgefunden hat.
+    ''' Nicht konsumierend.
+    ''' </summary>
     Public Function MouseLeft() As Boolean
 
         Return _left
+
+    End Function
+
+    ' -------------------------------------------------------------
+    ' Drag-Drop-Abfragen
+    ' --------chrome://vivaldi-webui/startpage?section=Speed-dials&background-color=#111112-----------------------------------------------------
+
+    '
+    ''' <summary>
+    ''' Startet ein DragDrop.
+    ''' Voraussetzung: gültiges linkes MouseDown ist aktiv.
+    ''' </summary>
+    Public Sub StartDragDrop()
+
+        If _dragDropActive Then
+            Throw New InvalidOperationException("Programmierfehler: DragDrop ist bereits aktiv.")
+        End If
+
+        If Not _leftValidDownActive Then
+            Throw New InvalidOperationException("Programmierfehler: StartDragDrop ohne gültiges linkes MouseDown.")
+        End If
+
+        _dragDropActive = True
+        _dragEndedEdge = False
+        _dragMoved = False
+
+    End Sub
+
+    '
+    ''' <summary>
+    ''' Bricht ein aktives DragDrop sofort ab.
+    ''' Das spätere MouseUp liefert dann kein DragDrop-Ende mehr.
+    ''' </summary>
+    Public Sub AbortDragDrop()
+
+        _dragDropActive = False
+        _dragEndedEdge = False
+        _dragMoved = False
+
+    End Sub
+
+    '
+    ''' <summary>
+    ''' True genau in dem Poll-Durchlauf, in dem sich die Maus
+    ''' während eines aktiven DragDrop bewegt hat.
+    ''' </summary>
+    Public Function DragDropMoved() As Boolean
+
+        Return _dragMoved
+
+    End Function
+
+    ''' <summary>
+    ''' True in jedem Durchlauf, ausgenommen
+    ''' ConsumeEndDragDrop
+    ''' </summary>
+    Public Function DragDropActive() As Boolean
+
+        Return _dragDropActive
+
+    End Function
+
+    '
+    ''' <summary>
+    ''' Liefert einmalig das Ende eines aktiven DragDrop.
+    ''' </summary>
+    Public Function ConsumeEndDragDrop() As Boolean
+
+        Dim result As Boolean = _dragEndedEdge
+        _dragEndedEdge = False
+        Return result
+
+    End Function
+
+    ' -------------------------------------------------------------
+    ' Optionale Raw-Abfragen
+    ' -------------------------------------------------------------
+    ' Diese beiden Methoden liefern den reinen Hardwarezustand.
+    ' Damit bleibt die Trennung sauber:
+    ' - LeftMouseDown()  = gültig fürs Target
+    ' - LeftMouseDownRaw() = physisch gedrückt
+
+    '
+    ''' <summary>
+    ''' Roher Hardwarezustand der linken Maustaste.
+    ''' Ohne Target-Filterung.
+    ''' </summary>
+    Public Function LeftMouseDownRaw() As Boolean
+
+        Return _leftDown
+
+    End Function
+
+    '
+    ''' <summary>
+    ''' Roher Hardwarezustand der rechten Maustaste.
+    ''' Ohne Target-Filterung.
+    ''' </summary>
+    Public Function RightMouseDownRaw() As Boolean
+
+        Return _rightDown
 
     End Function
 
@@ -303,24 +827,41 @@ Public NotInheritable Class MouseInputPoller
 
 #Region "Overlay API"
 
+    '
+    ''' <summary>
+    ''' Registriert ein Control als Overlay-Root.
+    ''' Ein Klick/Pointer über diesem Overlay kann damit weiterhin
+    ''' logisch als "über dem Target" gelten.
+    ''' </summary>
     Public Sub RegisterOverlay(ctrl As Control)
+
         If ctrl Is Nothing Then Return
+
         Dim h As IntPtr = ctrl.Handle
         If h <> IntPtr.Zero Then
-
             _overlayRoots.Add(h)
-
         End If
+
     End Sub
 
+    '
+    ''' <summary>
+    ''' Registriert direkt ein Fensterhandle als Overlay-Root.
+    ''' </summary>
     Public Sub RegisterOverlay(hWnd As IntPtr)
+
         If hWnd = IntPtr.Zero Then Return
 
         _overlayRoots.Add(hWnd)
 
     End Sub
 
+    '
+    ''' <summary>
+    ''' Entfernt ein Overlay-Root wieder aus der Berücksichtigung.
+    ''' </summary>
     Public Sub UnregisterOverlay(hWnd As IntPtr)
+
         If hWnd = IntPtr.Zero Then Return
 
         _overlayRoots.Remove(hWnd)
@@ -331,53 +872,104 @@ Public NotInheritable Class MouseInputPoller
 
 #Region "HitTest / Helper"
 
+    '
+    ''' <summary>
+    ''' Grobprüfung:
+    ''' Liegt der Screen-Punkt geometrisch im Screen-Rechteck des Target-Controls?
+    ''' 
+    ''' Diese Prüfung genügt allein nicht, weil das Control verdeckt sein könnte.
+    ''' </summary>
     Private Function IsCursorOverTargetScreen(screenPos As Point) As Boolean
+
         If _target Is Nothing Then Return False
         If Not _target.IsHandleCreated Then Return False
+
         Dim r As Rectangle = _target.RectangleToScreen(_target.ClientRectangle)
         Return r.Contains(screenPos)
+
     End Function
 
+    '
+    ''' <summary>
+    ''' Feine "liegt wirklich auf dem Target"-Prüfung.
+    ''' 
+    ''' Logik:
+    ''' 1) Geometrisch im Bereich des Target?
+    ''' 2) Welches Fenster/Control liegt an dieser Stelle wirklich oben?
+    ''' 3) Ist das das Target, ein Kind davon oder ein bewusst registriertes Overlay?
+    ''' 
+    ''' Nur dann gilt der Cursor als effektiv über dem Target.
+    ''' </summary>
     Private Function IsCursorEffectivelyOverTarget(screenPos As Point) As Boolean
-        ' 1) Grob: Punkt muss im Screen-Rect des Ziel-Controls liegen
-        If Not IsCursorOverTargetScreen(screenPos) Then Return False
 
-        ' 2) Fein: wirklich oberstes Fenster an der Position bestimmen
+        ' 1) Grobe Geometrieprüfung
+        If Not IsCursorOverTargetScreen(screenPos) Then
+            Return False
+        End If
+
+        ' 2) Tatsächlich oberstes Fenster an der Position
         Dim h As IntPtr = WindowFromPoint(screenPos)
-        If h = IntPtr.Zero Then Return False
+        If h = IntPtr.Zero Then
+            Return False
+        End If
 
         Dim targetH As IntPtr = _target.Handle
 
-        ' 2a) Ziel selbst oder sein Kind?
-        If h = targetH OrElse IsChild(targetH, h) Then Return True
+        ' 2a) Das Target selbst oder ein Kind davon?
+        If h = targetH OrElse IsChild(targetH, h) Then
+            Return True
+        End If
 
-        ' 2b) Overlay „durchsichtig“ behandeln: Root oder Kind davon
+        ' 2b) Registrierte Overlays wie "durchlässig" behandeln
         Dim hRoot As IntPtr = GetAncestor(h, GA_ROOT)
+
         For Each ov As IntPtr In _overlayRoots
             If h = ov OrElse hRoot = ov OrElse IsChild(ov, h) Then
                 Return True
             End If
         Next
 
+        ' Alles andere gilt als nicht über dem Target
         Return False
+
     End Function
 
+    '
+    ''' <summary>
+    ''' Holt die Mausposition sicher in Screen-Koordinaten.
+    ''' Falls die API wider Erwarten fehlschlägt, wird Point.Empty geliefert.
+    ''' </summary>
     Private Shared Function GetMouseScreenPosSafe() As Point
+
         Dim p As Point
         If GetCursorPos(p) Then
             Return p
         End If
+
         Return Point.Empty
+
     End Function
 
+    '
+    ''' <summary>
+    ''' Wandelt Screen-Koordinaten in Client-Koordinaten des angegebenen Fensters um.
+    ''' </summary>
     Private Shared Function ScreenToClientSafe(screenPos As Point, hwnd As IntPtr) As Point
+
         Dim p As Point = screenPos
         Call ScreenToClient(hwnd, p)
         Return p
+
     End Function
 
+    '
+    ''' <summary>
+    ''' True, wenn die angegebene Taste physisch gerade gedrückt ist.
+    ''' </summary>
     Private Shared Function IsKeyDown(vKey As Integer) As Boolean
+
         Return (GetAsyncKeyState(vKey) And &H8000S) <> 0
+
     End Function
 
 #End Region

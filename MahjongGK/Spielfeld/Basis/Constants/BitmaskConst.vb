@@ -17,7 +17,6 @@
     Public Const DIV_DIG17 As Long = 100000000000000000L    ' 10^17
     Public Const DIV_DIG18 As Long = 1000000000000000000L   ' 10^18
 
-
     ' Konstanten für einzelne Bits (Bitmasken)
     Public Const BIT0 As Integer = 1       ' Einerstelle Bit 0
     Public Const BIT1 As Integer = 2       ' Einerstelle Bit 1
@@ -34,12 +33,14 @@
     Public Const FLAG_YOffset As Integer = BIT1
     Public Const FLAG_ToggleFlag As Integer = BIT2
 
-    Public Const FLAG_Frei3 As Integer = BIT3
+    Public Const FLAG_IsRemoved As Integer = BIT3 ' = 8
     Public Const FLAG_Frei4 As Integer = BIT4
     Public Const FLAG_Frei5 As Integer = BIT5
     Public Const FLAG_Frei6 As Integer = BIT6
     Public Const FLAG_Frei7 As Integer = BIT7
 
-    ''
+    Public Const FB_FLAG_MASK As Integer = &HF
+    Public Const FB_INDEX_SHIFT As Integer = 4
+    Public Const FB_INDEX_FACTOR As Integer = 1 << FB_INDEX_SHIFT
 
 End Module
