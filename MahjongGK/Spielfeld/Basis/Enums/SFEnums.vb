@@ -91,9 +91,9 @@ Public Module SFEnums
         ''' </summary>
         I00Unsichtbar          ' nicht sichtbar (Geistergrafik möglich)
         I01Normal
-        I02Selected
-        I03Selectable        ' einzeln klickbar
-        I04Removable ' klickbar und Teil eines gültigen Paars
+        I02Selected           'hier ohne Bedeutung. Der ersten Stein eines Paares, den der Spieler angeklickt hat
+        I03Selectable        ' einzeln klickbar, aber ohne Paarstein
+        I04Removable        ' klickbar und Teil eines gültigen Paars (oder noch weiterer gültiger Steine)
         I05Locked
         I06NotUnsed            ' nur für Schwierigkeitslevel-Auswahl
         I07MissingSecond       ' im Editor, wenn Partnerstein fehlt
@@ -457,7 +457,6 @@ Public Module SFEnums
         Editor
     End Enum
 
-#Region "Enums und Konstanten"
     ' Datei-Menü getrennt für Editor/Werkbank (unterschiedlich erweiterbar)
     Public Enum EditorFileCmd
         LadenInterne
@@ -496,8 +495,6 @@ Public Module SFEnums
         Item2
     End Enum
 
-#End Region
-
     Public Enum Layout
         None
         SplfldWithHeaderAndHistNone
@@ -505,6 +502,13 @@ Public Module SFEnums
         SplfldWithHeaderAndHistLeft
         SplfldWithHeaderAndHistRight
         EditorWithHeader
+    End Enum
+
+    Public Enum FreeSide
+        None        '0000
+        Left = 1    '0001
+        Right = 2   '0010
+        Both = 3    '0011
     End Enum
 
 End Module

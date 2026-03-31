@@ -60,8 +60,8 @@
         ''' <summary>
         ''' Für Steine aus dem Vorrat.
         ''' </summary>
-        Public Sub CreateNewPlane(steinIndex As SteinIndexEnum, dragDropAktiv As Boolean, srcRect As Rectangle, insertAt As AirplaneInsertAt)
-            Dim plane As New Airplane(_sfd, steinIndex, dragDropAktiv)
+        Public Sub CreateNewPlane(stockIndex As Integer, steinIndex As SteinIndexEnum, dragDropAktiv As Boolean, srcRect As Rectangle, insertAt As AirplaneInsertAt)
+            Dim plane As New Airplane(_sfd, stockIndex, steinIndex, dragDropAktiv, srcRect)
             AddPlane(plane, insertAt)
         End Sub
 
@@ -691,6 +691,7 @@
 
         End Function
 
+        Private _stop As Boolean
         Private Sub DoRenderstep()
 
             ResetNextPlane()
@@ -754,10 +755,10 @@
             With _aktPlane
                 Select Case job
                     Case DragDropJob.FirstStep
-                        .AddRenderBitmapSteinZOrder(.SrcRect, .BmpGhost)
+                        .AddRenderSteinInfoIndexZOrder(.SrcRect, .BmpGhost)
 
                     Case DragDropJob.Active
-                        .AddRenderBitmapSteinZOrder(.SrcRect, .BmpGhost)
+                        .AddRenderSteinInfoIndexZOrder(.SrcRect, .BmpGhost)
 
                     Case DragDropJob.EndJob
                         'Neue Instanz zum Ablegen oder zurückfliegen erstellen
@@ -797,16 +798,48 @@
             plane.PlanePosition = New AirPlanePosition(plane.SrcRect, _mousePos, _sfd.SFLay.rxStageUsed)
 
         End Sub
+
+        Private _aktValideMouseTripl As New Triple(valide:=ValidePlace.NotSet)
+
         Private Sub DoRenderstepEditor(job As DragDropJob)
             With _aktPlane
                 Select Case job
                     Case DragDropJob.FirstStep
-                        .AddRenderBitmapSteinZOrder(.SrcRect, .BmpGhost)
+                        '()
+                        _sfd.SFInf.TmpRemoveStein(.SteinInfoIndex)
+
+                        .AddRenderSteinInfoIndexZOrder(.SrcRect, .BmpGhost)
+                        'Andernfalls blitzt der Geist einen Rendertakt lang auf.
+                        RenderBuffer.AddRenderBitmapTopZOrder(.PlanePosition.GetAktRectPlane(_mousePos), .BmpSelected)
 
                     Case DragDropJob.Active
-                        .AddRenderBitmapSteinZOrder(.SrcRect, .BmpGhost)
-                        RenderBuffer.AddRenderBitmapTopZOrder(.PlanePosition.GetAktRectPlane(_mousePos), .BmpOrg)
+                        ' Z-Order-Problem
+                        '.AddRenderSteinInfoIndexZOrder(.SrcRect, .BmpGhost)
+
+                        RenderBuffer.AddRenderBitmapTopZOrder(.SrcRect, .BmpGhost)
+                        RenderBuffer.AddRenderBitmapTopZOrder(.PlanePosition.GetAktRectPlane(_mousePos), .BmpSelected)
+
+                        Dim tpl As Triple = _sfd.SFInf.IsFundamentKandidat(_mousePos)
+                        If tpl.IsValideYes Then
+                            Dim rect As Rectangle = _sfd.SFInf.GetSteinRenderRect(tpl)
+                            RenderBuffer.AddRenderBitmapTopZOrder(rect, .BmpGhost)
+                            _aktValideMouseTripl = tpl
+                        Else
+                            _aktValideMouseTripl.Valide = ValidePlace.NotSet
+                        End If
+
                     Case DragDropJob.EndJob
+                        '()
+                        _sfd.SFInf.TmpReturnRemovedStein()
+
+                        If _aktValideMouseTripl.IsValideYes Then
+                            If .HasSteinInfoIndex Then
+                                'Umsetzen innerhalb des Editors
+                                _sfd.SFInf.RemoveSteinFromSpielfeld(.SteinInfoIndex)
+                                _sfd.SFInf.AddSteinToSpielfeld(.SteinIndex, _aktValideMouseTripl)
+                            End If
+                        End If
+
                         'Neue Instanz zum Ablegen oder zurückfliegen erstellen
 
                         'alte Instanz löschen
@@ -825,10 +858,10 @@
             With _aktPlane
                 Select Case job
                     Case DragDropJob.FirstStep
-                        .AddRenderBitmapSteinZOrder(.SrcRect, .BmpGhost)
+                        .AddRenderSteinInfoIndexZOrder(.SrcRect, .BmpGhost)
 
                     Case DragDropJob.Active
-                        .AddRenderBitmapSteinZOrder(.SrcRect, .BmpGhost)
+                        .AddRenderSteinInfoIndexZOrder(.SrcRect, .BmpGhost)
 
                     Case DragDropJob.EndJob
                         'Neue Instanz zum Ablegen oder zurückfliegen erstellen

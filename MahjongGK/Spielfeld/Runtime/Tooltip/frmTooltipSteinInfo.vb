@@ -376,11 +376,13 @@ Public NotInheritable Class frmTooltipSteinInfo
         Dim quadrantText As String = GetQuadrantText(value.Quadrant)
         Dim steinText As String = GetSteinText(value.SteinIndex)
 
-        If isDebugAttached Then
-            Return value.SteinInfoIndex.ToString().PadLeft(3) & " " & quadrantText & " " & steinText
-        Else
-            Return quadrantText & " " & steinText
-        End If
+        ''If isDebugAttached Then
+        ''    Return value.SteinInfoIndex.ToString().PadLeft(3) & " " & quadrantText & " " & steinText
+        ''Else
+        ''    Return quadrantText & " " & steinText
+        ''End If
+
+        Return (value.SteinInfoIndex + 1).ToString().PadLeft(3) & " " & quadrantText & " " & steinText
 
     End Function
 

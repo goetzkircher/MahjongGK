@@ -161,6 +161,7 @@
     <Compile Include="Spielfeld\Container\RectangleX\RectangleX.vb" />
     <Compile Include="Spielfeld\Container\RectangleX\Debug\RectangleXDebugBinder.vb" />
     <Compile Include="Spielfeld\Container\RectangleX\Debug\DebugLabelPlacer.vb" />
+    <Compile Include="Spielfeld\Container\Triple\TopSteinInfo.vb" />
     <Compile Include="Spielfeld\Container\Triple\TripleX.vb" />
     <Compile Include="Controls erweiterte\ButtonInfo.vb">
       <SubType>Component</SubType>

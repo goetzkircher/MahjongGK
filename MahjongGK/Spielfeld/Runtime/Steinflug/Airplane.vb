@@ -25,9 +25,11 @@
             _steinInfoIndex = steinInfoIndex
             _dragDropAktiv = dragDropAktiv
             _dragDropFirstStep = dragDropAktiv
-            _steinIndex = SteinIndexEnum.ErrorSy
+            _steinIndex = sfd.SFInf.SteinInfos(steinInfoIndex).SteinIndex
             _stockIndex = -1
+            _srcPos3D = sfd.SFInf.SteinInfos(steinInfoIndex).Pos3D
             Initialisierung(srcRect:=Nothing) 'holt sich srcRect aus den SteinInfos
+            InitRenderBitmapBuffer()
         End Sub
         '
         ''' <summary>
@@ -46,6 +48,7 @@
             _dragDropAktiv = dragDropAktiv
             _dragDropFirstStep = dragDropAktiv
             _steinIndex = steinIndex
+            _srcPos3D = Nothing
             Initialisierung(srcRect)
         End Sub
 
@@ -196,7 +199,8 @@
         Private _steinInfoIndex As Integer
         Private _stockIndex As Integer
         Private _steinIndex As SteinIndexEnum
-        Private _SrcRect As Rectangle
+        Private _srcRect As Rectangle
+        Private _srcPos3D As Triple
         'ja
 
         Public ReadOnly Property SteinInfoIndex As Integer
@@ -279,6 +283,11 @@
             End Get
         End Property
         '
+        Public ReadOnly Property SrcPos3D As Triple
+            Get
+                Return _SrcPos3D
+            End Get
+        End Property
 
         ''' <summary>
         ''' Das Renderrechteck des Steines am Quellort (ggf Ghost)
@@ -324,17 +333,26 @@
 
         '
         ''' <summary>
-        ''' Die Anzahl der Bitmaps -1, die maximal von einem Airplane
-        ''' gerendert werden müssen.
-        ''' Standard = 2:
-        ''' - die an der Maus hängende Bitmap
-        ''' - der Ghost am Quellort
-        ''' - der potentielle Ablageort
+        ''' Anfangsgröße des Puffers.
+        ''' Im Normalfall reichen wenige Einträge.
         ''' </summary>
-        Private Const RENDERBITMAPSUBOUND As Integer = 2
+        Private Const RENDERBITMAPBUFFERSTARTSIZE As Integer = 3
 
-        Private _renderRect(RENDERBITMAPSUBOUND) As Rectangle
-        Private _renderBitmap(RENDERBITMAPSUBOUND) As Bitmap
+        '
+        ''' <summary>
+        ''' Vergrößerungsschritt des Puffers.
+        ''' Dient als Reserve, falls künftig doch mehr Renderbitmaps
+        ''' pro Airplane benötigt werden.
+        ''' </summary>
+        Private Const RENDERBITMAPBUFFERGROWSTEP As Integer = 10
+
+        Private _renderRect() As Rectangle = Nothing
+        Private _renderBitmap() As Bitmap = Nothing
+
+        Private _nextFreeRenderBitmapIndex As Integer
+        Private _nextReadRenderBitmapIndex As Integer
+
+        Private _renderBitmapNeedsClear As Boolean
 
         '
         ''' <summary>
@@ -342,20 +360,53 @@
         ''' </summary>
         Public ReadOnly Property RenderBitmapIsAvailable As Boolean
             Get
-                For i As Integer = 0 To RENDERBITMAPSUBOUND
-                    If Not _renderRect(i).IsEmpty Then
-                        Return True
-                    End If
-                Next
-
-                Return False
+                Return _nextFreeRenderBitmapIndex > 0
             End Get
         End Property
 
         '
         ''' <summary>
-        ''' Gibt den nächsten Render-Eintrag zurück und löscht ihn sofort.
-        ''' Die Ausgabereihenfolge entspricht der Slot-Reihenfolge.
+        ''' Muss einmal beim Erzeugen der Instanz aufgerufen werden.
+        ''' </summary>
+        Private Sub InitRenderBitmapBuffer()
+
+            ReDim _renderRect(RENDERBITMAPBUFFERSTARTSIZE - 1)
+            ReDim _renderBitmap(RENDERBITMAPBUFFERSTARTSIZE - 1)
+
+            _nextFreeRenderBitmapIndex = 0
+            _nextReadRenderBitmapIndex = 0
+
+            _renderBitmapNeedsClear = False
+
+        End Sub
+
+        '
+        ''' <summary>
+        ''' Löscht intern alle Bitmap-Referenzen.
+        ''' Es wird nichts disposed, sondern nur auf Nothing gesetzt.
+        ''' </summary>
+        Private Sub ClearRenderBitmapBufferInternal()
+
+            Dim i As Integer
+
+            For i = 0 To _renderBitmap.GetUpperBound(0)
+                _renderBitmap(i) = Nothing
+            Next
+
+            _nextFreeRenderBitmapIndex = 0
+            _nextReadRenderBitmapIndex = 0
+
+            _renderBitmapNeedsClear = False
+
+        End Sub
+
+        '
+        ''' <summary>
+        ''' Gibt den nächsten Render-Eintrag zurück.
+        ''' Die Ausgabereihenfolge entspricht der Einfügereihenfolge.
+        ''' Wenn kein Eintrag mehr vorhanden ist, werden die Indizes
+        ''' zurückgesetzt. Die eigentlichen Referenzen werden erst vor
+        ''' dem nächsten Add vollständig gelöscht.
         ''' </summary>
         ''' <param name="rect">
         ''' Zielrechteck der Bitmap.
@@ -366,24 +417,25 @@
         ''' <returns>
         ''' True, wenn ein Eintrag vorhanden war, sonst False.
         ''' </returns>
-        Public Function ConsumeNextRenderBitmap(ByRef rect As Rectangle,
-                                                ByRef bmp As Bitmap) As Boolean
+        Public Function NextRenderBitmap(ByRef rect As Rectangle,
+                                         ByRef bmp As Bitmap) As Boolean
 
-            For i As Integer = 0 To RENDERBITMAPSUBOUND
-                If Not _renderRect(i).IsEmpty Then
+            If _nextReadRenderBitmapIndex < _nextFreeRenderBitmapIndex Then
 
-                    rect = _renderRect(i)
-                    bmp = _renderBitmap(i)
+                rect = _renderRect(_nextReadRenderBitmapIndex)
+                bmp = _renderBitmap(_nextReadRenderBitmapIndex)
 
-                    _renderRect(i) = Rectangle.Empty
-                    _renderBitmap(i) = Nothing
+                _nextReadRenderBitmapIndex += 1
+                Return True
 
-                    Return True
-                End If
-            Next
+            End If
 
             rect = Rectangle.Empty
             bmp = Nothing
+
+            _nextFreeRenderBitmapIndex = 0
+            _nextReadRenderBitmapIndex = 0
+            _renderBitmapNeedsClear = True
 
             Return False
 
@@ -392,21 +444,24 @@
         '
         ''' <summary>
         ''' Fügt eine zu rendernde Bitmap mit Zielrechteck ein.
-        ''' Der erste freie Slot wird verwendet.
+        ''' Der Eintrag wird hinten angehängt.
         ''' </summary>
-        Public Sub AddRenderBitmapSteinZOrder(rect As Rectangle, bmp As Bitmap)
+        Public Sub AddRenderSteinInfoIndexZOrder(rect As Rectangle, bmp As Bitmap)
 
-            For i As Integer = 0 To RENDERBITMAPSUBOUND
-                If _renderRect(i).IsEmpty Then
-                    _renderRect(i) = rect
-                    _renderBitmap(i) = bmp
-                    Exit Sub
-                End If
-            Next
-            If Debugger.IsAttached Then
-                Stop
-                'Programmierfehler: zu viele Bitmaps zu rendern.
+            If _renderBitmapNeedsClear Then
+                ClearRenderBitmapBufferInternal()
             End If
+
+            If _nextFreeRenderBitmapIndex > _renderRect.GetUpperBound(0) Then
+                ReDim Preserve _renderRect(_renderRect.GetUpperBound(0) + RENDERBITMAPBUFFERGROWSTEP)
+                ReDim Preserve _renderBitmap(_renderBitmap.GetUpperBound(0) + RENDERBITMAPBUFFERGROWSTEP)
+            End If
+
+            _renderRect(_nextFreeRenderBitmapIndex) = rect
+            _renderBitmap(_nextFreeRenderBitmapIndex) = bmp
+
+            _nextFreeRenderBitmapIndex += 1
+
         End Sub
 
 #End Region
@@ -440,7 +495,7 @@
         ''' für den nächsten Abruf.
         ''' Solange StartPlane nicht aufgerufen wurde, wird 0 zurückgegeben.
         ''' </summary>
-        Public Function GetAndAdvancePlaneStepNumber() As Integer
+        Public Function GetAndIncrementPlaneStepNumber() As Integer
 
             If _planeStepNumber <= 0 Then
                 Return 0

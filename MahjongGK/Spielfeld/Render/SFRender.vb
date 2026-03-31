@@ -2,6 +2,7 @@
 Option Explicit On
 Option Infer Off
 Option Strict On
+
 '
 ' SPDX-License-Identifier: GPL-3.0-or-later
 '###########################################################################
@@ -66,6 +67,7 @@ Namespace Spielfeld
         Private _rectOutputOrg As Rectangle
         Private _rectOutputUsed As Rectangle
         Private _timeDifferenzFaktor As Double
+        Private _arrTopSteinTriple() As Triple
 
         ''' <summary>
         ''' Der Hauptverteiler zum Rendern. Hier sind die Basisfunktionen angesiedelt
@@ -86,6 +88,8 @@ Namespace Spielfeld
             _rectOutputOrg = rectOutput
             _rectOutputUsed = _sfd.SFLay.rxOutputUsed
             _timeDifferenzFaktor = timeDifferenzFaktor
+
+            _arrTopSteinTriple = _sfd.SFInf.GetAllTopSteinTriple
 
             'Den Zeichenknecht des Background-Backbuffers setzen
             _sfd.SFLay.rxOutputUsed?.SetGfx(_backBufferGfx)
@@ -176,6 +180,7 @@ Namespace Spielfeld
                 If INI.Editor_ShowGrid Then
                     PaintGrid()
                 End If
+
                 Paint_Editor()
 
                 If INI.Editor_ShowFrmTooltipSteinInfo Then
@@ -312,7 +317,7 @@ Namespace Spielfeld
                             If plane IsNot Nothing AndAlso plane.RenderBitmapIsAvailable Then
                                 'mindestens eine animierte oder an der Maus hängende Bitmap ist vorhanden
                                 Do
-                                    Dim found As Boolean = plane.ConsumeNextRenderBitmap(rectStein, bmpStein)
+                                    Dim found As Boolean = plane.NextRenderBitmap(rectStein, bmpStein)
                                     If found Then
                                         _backBufferGfx.DrawImage(bmpStein, rectStein)
                                     Else
@@ -331,6 +336,11 @@ Namespace Spielfeld
                                     bmpStein = Images.SGM.GetStein(.SteinIndex, .SteinStatusUsed, _sfd.SFLay.steinSize, _sfd.SFRun.AktRenderMode)
 
                                     If Not IsNothing(bmpStein) Then
+
+                                        If ContainsTripl(x, y, z, _arrTopSteinTriple) Then
+                                            bmpStein = DrawOverlay(bmpStein, OverlayType.RahmenSteinMouseOver, copyBitmap:=True)
+                                        End If
+
                                         ''Je nach .SteinStatusUsed kann die Bitmap Nothing sein.
                                         'If Kandidat.IsEqual(x, y, z) Then
                                         '    'eine ungültige Position hat die Werte (0,0,0), die es auf den Spielfeld nicht gibt,
@@ -473,7 +483,7 @@ Namespace Spielfeld
             End With
         End Sub
 
-        Public Sub PaintStock()
+        Private Sub PaintStock()
 
             If _sfd.SFInf.Generator.StockAktCount = 0 Then
                 _sfd.SFRun.HScrollBarStock.SetRange(0)
@@ -597,5 +607,8 @@ Namespace Spielfeld
 
         End Sub
 
+#Region "Helfer"
+
+#End Region
     End Class
 End Namespace

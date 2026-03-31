@@ -181,6 +181,8 @@ Namespace Spielfeld
 
             Dim somethingMouseDone As Boolean = _sfd.SFRun.MousePolling.Poll
             Dim somethingResizeDone As Boolean = _sfd.SFRun.ResizePolling.Poll
+            _sfd.SFInf.UpdateTopSteinInfos()
+            '()
             _sfd.SFAir.Poll()
 
             If _sfd.SFInf.BitmapUGrdSingleImgCache IsNot Nothing Then

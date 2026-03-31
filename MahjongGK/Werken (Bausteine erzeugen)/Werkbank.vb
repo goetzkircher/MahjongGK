@@ -190,8 +190,8 @@ Public Class Werkbank
         'Index in SteinInfos. Grund: werden später Steine im Editor entfernt, verschieben sich die
         'Indexnummern in SteinInfos und da muss arrFB aktualisert werden. Dazu braucht man den
         '"alten" steinInfoIndex, eben diesen steinInfoIndex.
-        'WICHTIG:Hier ist der arrFB Nothing gesetzt, weil unbekannt.
-        Dim newSteinInfo As New Spielfeld.SteinInfo(steinInfoIndex:=SteinInfos.Count, steinIndex, steinPos3D, Nothing)
+        'WICHTIG:Hier ist der arrFB und sfb Nothing gesetzt, weil unbekannt.
+        Dim newSteinInfo As New Spielfeld.SteinInfo(steinInfoIndex:=SteinInfos.Count, steinIndex, steinPos3D, Nothing, sfd:=Nothing)
 
         If Not steinPos3D.IsInsideSpielfeldBounds(arrFB) Then
             'Falsche Positionsangabe.

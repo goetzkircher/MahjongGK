@@ -156,7 +156,7 @@ Namespace Spielfeld
 
         End Sub
 
-        Sub New(steinInfoIndex As Integer, steinIndex As SteinIndexEnum, pos3D As Triple, ByRef arrFB(,,) As Integer)
+        Sub New(steinInfoIndex As Integer, steinIndex As SteinIndexEnum, pos3D As Triple, ByRef arrFB(,,) As Integer, sfd As SFDaten)
             Me.SteinInfoIndex = steinInfoIndex
             Me.SteinIndex = steinIndex
             KlickGruppe = Spielfeld.GetSteinClickGruppe(steinIndex, INI.Spielbetrieb_WindsAreInOneClickGroup)
@@ -164,7 +164,13 @@ Namespace Spielfeld
             SteinStatusUsed = SteinStatus.I01Normal
             Me.Pos3D = pos3D
             _arrFB = arrFB
+            _sfd = sfd
         End Sub
+        '
+        ''' <summary>
+        ''' Zugriff auf alle SF..Daten.
+        ''' </summary>
+        Private _sfd As SFDaten
         '
         ''' <summary>
         ''' Referenz auf den arrFB. Wird benötigt um das dort gespeicherte
@@ -189,7 +195,14 @@ Namespace Spielfeld
             MarkDirty()
         End Sub
         '
-        '
+        ''' <summary>
+        ''' Es kann ein einzelner Stein temporär entnommen werden, insbesondere den Stein,
+        ''' der mit der Maus gezogen wird. Sonst gibt es jede Menge Sonderregeln,
+        ''' wo der Stein abgelegt werden kann.
+        ''' </summary>
+        ''' <returns></returns>
+        <XmlIgnore>
+        Public Property IsTmpRemoved As Boolean
         '
         ''' <summary>
         ''' Das Flag von IsRemoved wird im arrFB gespeichert, weil so ein zeitkritisch
@@ -778,33 +791,32 @@ Namespace Spielfeld
         ''' Gibt ein Triple zurück mit ValidePlaceEnum.Yes oder ValidePlaceEnum.NoFundamentKandidat
         ''' </summary>
         ''' <param name="mousePos"></param>
-        ''' <param name="arrFB"></param>
         ''' <returns></returns>
-        Public Function IsFundamentPartKandidat(mousePos As Point, arrFB(,,) As Integer) As Triple
+        Public Function IsFundamentQuadrantKandidat(mousePos As Point) As Triple
 
-            If _pos3D.z = arrFB.GetUpperBound(2) Then
+            If _pos3D.z = _arrFB.GetUpperBound(2) Then
                 'Steine der obersten Lage können nie Fundament sein.
                 Return New Triple(ValidePlace.NoKandidat)
             End If
 
             With _pos3D
                 If _RectQuadrant(0).Contains(mousePos) Then
-                    If arrFB(.x, .y, .z + 1) = 0 Then
+                    If _arrFB(.x, .y, .z + 1) = 0 Then
                         Return New Triple(.x, .y, .z + 1, ValidePlace.Yes)
                     End If
                 End If
                 If _RectQuadrant(1).Contains(mousePos) Then
-                    If arrFB(.x + 1, .y, .z + 1) = 0 Then
+                    If _arrFB(.x + 1, .y, .z + 1) = 0 Then
                         Return New Triple(.x + 1, .y, .z + 1, ValidePlace.Yes)
                     End If
                 End If
                 If _RectQuadrant(2).Contains(mousePos) Then
-                    If arrFB(.x, .y + 1, .z + 1) = 0 Then
+                    If _arrFB(.x, .y + 1, .z + 1) = 0 Then
                         Return New Triple(.x, .y + 1, .z + 1, ValidePlace.Yes)
                     End If
                 End If
                 If _RectQuadrant(3).Contains(mousePos) Then
-                    If arrFB(.x + 1, .y + 1, .z + 1) = 0 Then
+                    If _arrFB(.x + 1, .y + 1, .z + 1) = 0 Then
                         Return New Triple(.x + 1, .y + 1, .z + 1, ValidePlace.Yes)
                     End If
                 End If
@@ -815,26 +827,26 @@ Namespace Spielfeld
         End Function
         '
 
-        Public Function IsTopQuadrant(mousePos As Point, arrFB(,,) As Integer, sfd As SFDaten) As TripleX
+        Public Function IsTopQuadrant(mousePos As Point) As TripleX
 
             With _pos3D
                 If _RectQuadrant(0).Contains(mousePos) Then
-                    If .z = sfd.SFInf.zMax OrElse arrFB(.x, .y, .z + 1) = 0 Then
+                    If .z = _arrFB.GetUpperBound(2) OrElse _arrFB(.x, .y, .z + 1) = 0 Then
                         Return New TripleX(.x, .y, .z, ValidePlace.Yes, SteinInfoIndex, SteinIndex, Quadrant.LO, Me)
                     End If
                 End If
                 If _RectQuadrant(1).Contains(mousePos) Then
-                    If .z = sfd.SFInf.zMax OrElse arrFB(.x + 1, .y, .z + 1) = 0 Then
+                    If .z = _arrFB.GetUpperBound(2) OrElse _arrFB(.x + 1, .y, .z + 1) = 0 Then
                         Return New TripleX(.x + 1, .y, .z, ValidePlace.Yes, SteinInfoIndex, SteinIndex, Quadrant.RO, Me)
                     End If
                 End If
                 If _RectQuadrant(2).Contains(mousePos) Then
-                    If .z = sfd.SFInf.zMax OrElse arrFB(.x, .y + 1, .z + 1) = 0 Then
+                    If .z = _arrFB.GetUpperBound(2) OrElse _arrFB(.x, .y + 1, .z + 1) = 0 Then
                         Return New TripleX(.x, .y + 1, .z, ValidePlace.Yes, SteinInfoIndex, SteinIndex, Quadrant.LU, Me)
                     End If
                 End If
                 If _RectQuadrant(3).Contains(mousePos) Then
-                    If .z = sfd.SFInf.zMax OrElse arrFB(.x + 1, .y + 1, .z + 1) = 0 Then
+                    If .z = _arrFB.GetUpperBound(2) OrElse _arrFB(.x + 1, .y + 1, .z + 1) = 0 Then
                         Return New TripleX(.x + 1, .y + 1, .z, ValidePlace.Yes, SteinInfoIndex, SteinIndex, Quadrant.RU, Me)
                     End If
                 End If
@@ -844,9 +856,9 @@ Namespace Spielfeld
 
         End Function
 
-        Public Function IsTopQuadrant(tpl As TripleX, arrFB(,,) As Integer, sfd As SFDaten) As Boolean
+        Public Function IsTopQuadrant(tpl As Triple) As Boolean
             With tpl
-                If .z = sfd.SFInf.zMax OrElse arrFB(.x, .y, .z + 1) = 0 Then
+                If .z = _arrFB.GetUpperBound(2) OrElse _arrFB(.x, .y, .z + 1) = 0 Then
                     Return True
                 Else
                     Return False
@@ -854,44 +866,44 @@ Namespace Spielfeld
             End With
         End Function
 
-        Public Function IsTopQuadrant(x As Integer, y As Integer, z As Integer, arrFB(,,) As Integer, sfd As SFDaten) As Boolean
-            If z = sfd.SFInf.zMax OrElse arrFB(x, y, z + 1) = 0 Then
+        Public Function IsTopQuadrant(x As Integer, y As Integer, z As Integer) As Boolean
+            If z = _arrFB.GetUpperBound(2) OrElse _arrFB(x, y, z + 1) = 0 Then
                 Return True
             Else
                 Return False
             End If
         End Function
 
-        Public Function IsRemovingPartKandidat(mousePos As Point, arrFB(,,) As Integer) As Triple
+        Public Function IsRemovingPartKandidat(mousePos As Point) As Triple
 
-            Dim isTop As Boolean = _pos3D.z = arrFB.GetUpperBound(2)
+            Dim isTop As Boolean = _pos3D.z = _arrFB.GetUpperBound(2)
 
             With _pos3D
                 If _RectQuadrant(0).Contains(mousePos) Then
                     If isTop Then
                         Return New Triple(.x, .y, .z, ValidePlace.Yes)
-                    ElseIf arrFB(.x, .y, .z + 1) = 0 Then
+                    ElseIf _arrFB(.x, .y, .z + 1) = 0 Then
                         Return New Triple(.x, .y, .z, ValidePlace.Yes)
                     End If
                 End If
                 If _RectQuadrant(1).Contains(mousePos) Then
                     If isTop Then
                         Return New Triple(.x + 1, .y, .z, ValidePlace.Yes)
-                    ElseIf arrFB(.x + 1, .y, .z + 1) = 0 Then
+                    ElseIf _arrFB(.x + 1, .y, .z + 1) = 0 Then
                         Return New Triple(.x + 1, .y, .z, ValidePlace.Yes)
                     End If
                 End If
                 If _RectQuadrant(2).Contains(mousePos) Then
                     If isTop Then
                         Return New Triple(.x, .y + 1, .z, ValidePlace.Yes)
-                    ElseIf arrFB(.x, .y + 1, .z + 1) = 0 Then
+                    ElseIf _arrFB(.x, .y + 1, .z + 1) = 0 Then
                         Return New Triple(.x, .y + 1, .z, ValidePlace.Yes)
                     End If
                 End If
                 If _RectQuadrant(3).Contains(mousePos) Then
                     If isTop Then
                         Return New Triple(.x + 1, .y + 1, .z, ValidePlace.Yes)
-                    ElseIf arrFB(.x + 1, .y + 1, .z + 1) = 0 Then
+                    ElseIf _arrFB(.x + 1, .y + 1, .z + 1) = 0 Then
                         Return New Triple(.x + 1, .y + 1, .z, ValidePlace.Yes)
                     End If
                 End If

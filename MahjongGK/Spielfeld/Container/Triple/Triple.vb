@@ -1,11 +1,4 @@
-﻿'Ich will aus dieser Klasse die Property:
-'Public Property Quadrant As Quadrant
-'Public Property SteinIndex As SteinIndexEnum
-'Public Property SteinInfoIndex As Integer
-'herausnehmen und in eine ansonsten funktionsgleiche
-'Klasse TriplX verlagern. Da ich wieder nicht weis,
-'wie die Vererbung funktioniert, schreibe sie mir bitte.
-'
+﻿'
 ' SPDX-License-Identifier: GPL-3.0-or-later
 '###########################################################################
 '#                                                                         #

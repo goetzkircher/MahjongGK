@@ -65,10 +65,13 @@ Namespace Spielfeld
         ''' <param name="spielSize"></param>
         Public Sub New(owner As SFDaten, spielSize As Triple)
             _sfd = owner
+            TestEnumStein()
             Initialisierung(spielSize)
         End Sub
 
         Public Sub New(spielsize As Triple)
+
+            TestEnumStein()
 
             If Not CheckSpielsize(spielsize) Then
                 Throw New Exception("Ungültige Spielfeldgröße.")
@@ -818,7 +821,7 @@ Namespace Spielfeld
             'Index in SteinInfos. Grund: werden später Steine im Editor entfernt, verschieben sich die
             'Indexnummern in SteinInfos und da muss arrFB aktualisert werden. Dazu braucht man den
             '"alten" steinInfoIndex, eben diesen steinInfoIndex.
-            Dim newSteinInfo As New SteinInfo(steinInfoIndex:=SteinInfos.Count, steinIndex, steinPos3D, _arrFB)
+            Dim newSteinInfo As New SteinInfo(steinInfoIndex:=SteinInfos.Count, steinIndex, steinPos3D, _arrFB, _sfd)
 
             If Not steinPos3D.IsInsideSpielfeldBounds(arrFB) Then
                 'Falsche Positionsangabe.
@@ -1012,24 +1015,76 @@ Namespace Spielfeld
         End Sub
 
         ''' <summary>
-        ''' Entfernt einen Stein vollständig, d.h. einschließlich aller Daten vom Spielfeld
-        ''' und aus steininfos
+        ''' Entfernt den Stein vom Spielfeld (Nicht verwechseln mit IsRemoved, dem Flag) 
+        ''' vollständig d.h. einschließlich aller Daten vom Spielfeld (SteinInfos und arrFB)
         ''' Hinweis: Um ihn nicht mehr anzuzeigen muß er nicht entfernt werden. Dazu wird
-        ''' lediglich in der SteinInfo IsRemoved gesetzt.
+        ''' lediglich in arrFB IsRemoved gesetzt.
         ''' </summary>
-        ''' <param name="arrFB"></param>
-        ''' <param name="steininfos"></param>
-        ''' <param name="steininfo"></param>
-        Public Sub RemoveSteinFromSpielfeld(arrFB(,,) As Integer, steininfos As SFInfo, steininfo As SteinInfo)
+        Public Sub RemoveSteinFromSpielfeld(steinInfoIndex As Integer)
 
-            ' später
+            If steinInfoIndex >= SteinInfos.Count Then
+                Throw New Exception($"Programmierfehler: Versuch mit dem nicht vorhandenen steinInfoIndex = {steinInfoIndex} einen Stein zu entfernen.")
+            End If
+
+            'den arrFB-Eintrag entfernen
+            Dim tpl As Triple = SteinInfos(steinInfoIndex).Pos3D
+
+            With tpl
+                arrFB(.x, .y, .z) = 0
+                arrFB(.x + 1, .y, .z) = 0
+                arrFB(.x, .y + 1, .z) = 0
+                arrFB(.x + 1, .y + 1, .z) = 0
+            End With
+            '
+            'Die SteinInfo in SteinInfos entfernen
+            SteinInfos.Remove(SteinInfos(steinInfoIndex))
+            '
+            'In SteinInfo und im arrFB verschieben sich jetzt alle steinInfoIndex um -1.
+            If steinInfoIndex >= SteinInfos.Count Then
+                'Es wurde der letzte Stein entfernt
+                Exit Sub
+            End If
+            '
+            For idx As Integer = steinInfoIndex To SteinInfos.Count - 1
+                SteinInfos(idx).SteinInfoIndex = idx
+                SetSteinInfoIndex(SteinInfos(idx).Pos3D, idx)
+            Next
 
         End Sub
-
-        Public Sub RemoveLastSteinFromSpielfeld(arrFB(,,) As Integer, steininfos As SFInfo)
-
-            ' später
-
+        '
+        ''' <summary>
+        ''' Entfernt den Stein vom Spielfeld (Nicht verwechseln mit IsRemoved, dem Flag) 
+        ''' </summary>
+        ''' <param name="steinInfo"></param>
+        Public Sub RemoveSteinFromSpielfeld(steinInfo As SteinInfo)
+            RemoveSteinFromSpielfeld(steinInfo.SteinInfoIndex)
+        End Sub
+        '
+        ''' <summary>
+        ''' Entfernt den Stein vom Spielfeld (Nicht verwechseln mit IsRemoved, dem Flag) 
+        ''' </summary>
+        ''' <param name="triple"></param>
+        Public Sub RemoveSteinFromSpielfeld(triple As Triple)
+            RemoveSteinFromSpielfeld(GetSteinInfoIndex(triple))
+        End Sub
+        '
+        ''' <summary>
+        ''' Entfernt den Stein vom Spielfeld (Nicht verwechseln mit IsRemoved, dem Flag) 
+        ''' </summary>
+        ''' <param name="tripleX"></param>
+        Public Sub RemoveSteinFromSpielfeld(tripleX As TripleX)
+            RemoveSteinFromSpielfeld(GetSteinInfoIndex(tripleX.ToTriple))
+        End Sub
+        '
+        ''' <summary>
+        ''' Entfernt den Stein vom Spielfeld (Nicht verwechseln mit IsRemoved, dem Flag) 
+        ''' </summary>
+        Public Sub RemoveLastSteinFromSpielfeld()
+            If SteinInfos.Count = 0 Then
+                Exit Sub
+            Else
+                RemoveSteinFromSpielfeld(steinInfoIndex:=SteinInfos.Count - 1)
+            End If
         End Sub
 
 #End Region
@@ -1046,12 +1101,6 @@ Namespace Spielfeld
         Private Sub WriteSteinToArrFB(steinPos3D As Triple, steinInfoIndex As Integer)
 
             CopySteinIndexToSpielfeldPos3DAndSetOffsetXY(steinPos3D, steinInfoIndex)
-
-        End Sub
-
-        Private Sub DeleteSteinFromArrFB(steinPos3D As Triple)
-
-            ' später
 
         End Sub
 
@@ -1764,6 +1813,10 @@ Namespace Spielfeld
             End With
         End Function
 
+        Public Function IsIndexQuadrant(x As Integer, y As Integer, z As Integer) As Boolean
+            Return (arrFB(x, y, z) >> FB_INDEX_SHIFT) > 0
+        End Function
+
         Public Function GetQuadrant(x As Integer, y As Integer, z As Integer) As Quadrant
 
             ''Dim fb As Integer = arrFB(x, y, z)
@@ -2057,6 +2110,15 @@ Namespace Spielfeld
 
         End Sub
 
+        Public Sub SetSteinInfoIndex(triple As Triple, value As Integer)
+            With triple
+                Dim flags As Integer = arrFB(.x, .y, .z) And FB_FLAG_MASK
+                'Der Index wird um 1 erhöht gespeichert, weil index = 0 gleichbedeutend
+                'wäre mit "freier Platz".
+                arrFB(.x, .y, .z) = ((value + 1) << FB_INDEX_SHIFT) Or flags
+            End With
+        End Sub
+
         Public Shared Sub SetSteinInfoIndex(ByRef fb As Integer, value As Integer)
             Dim flags As Integer = fb And FB_FLAG_MASK
             'Der Index wird um 1 erhöht gespeichert, weil index = 0 gleichbedeutend
@@ -2085,6 +2147,81 @@ Namespace Spielfeld
 
         Public Shared Sub ToggleToggleFlag(ByRef fb As Integer)
             fb = fb Xor FLAG_ToggleFlag
+        End Sub
+
+        Private _tmpRemoveSteinAktive As Boolean
+        Private _tmpFB(3) As Integer
+        Private _tmpSteinInfoIndex As Integer = -1
+        '
+        ''' <summary>
+        ''' Entfernt temporär einen Stein aus dem ArrFB
+        ''' und setzt das Flag IsTmpRemoved im SteinInfo
+        ''' </summary>
+        ''' <param name="steinInfoIndex"></param>
+        Public Sub TmpRemoveStein(steinInfoIndex As Integer)
+
+            If _tmpRemoveSteinAktive Then
+                Throw New Exception("TmpRemoveStein ist noch aktiv.")
+            End If
+
+            _tmpRemoveSteinAktive = True
+
+            If steinInfoIndex < 0 Then
+                _tmpSteinInfoIndex = -1
+                Exit Sub
+            End If
+            If steinInfoIndex >= SteinInfos.Count Then
+                _tmpSteinInfoIndex = -1
+                Exit Sub
+            End If
+
+            _tmpSteinInfoIndex = steinInfoIndex
+            _SteinInfos(steinInfoIndex).IsTmpRemoved = True
+
+            With _SteinInfos(steinInfoIndex).Pos3D
+                _tmpFB(0) = arrFB(.x, .y, .z)
+                _tmpFB(1) = arrFB(.x + 1, .y, .z)
+                _tmpFB(2) = arrFB(.x, .y + 1, .z)
+                _tmpFB(3) = arrFB(.x + 1, .y + 1, .z)
+
+                arrFB(.x, .y, .z) = 0
+                arrFB(.x + 1, .y, .z) = 0
+                arrFB(.x, .y + 1, .z) = 0
+                arrFB(.x + 1, .y + 1, .z) = 0
+            End With
+
+        End Sub
+
+        Public Sub TmpReturnRemovedStein()
+
+            If Not _tmpRemoveSteinAktive Then
+                Throw New Exception("TmpReturnRemovedStein aufgerufen ohne vorheriges TmpRemoveStein")
+            End If
+            '
+            If _tmpSteinInfoIndex < 0 Then
+                Exit Sub
+            End If
+
+            With _SteinInfos(_tmpSteinInfoIndex).Pos3D
+                '
+                'Die ToggleFlags syncronisieren
+                Dim tglf As Boolean = GetToggleFlag(_SteinInfos(0).Pos3D)
+                SetToggleFlag(_tmpFB(0), tglf)
+                SetToggleFlag(_tmpFB(1), tglf)
+                SetToggleFlag(_tmpFB(2), tglf)
+                SetToggleFlag(_tmpFB(3), tglf)
+                '
+                'und zurück
+                arrFB(.x, .y, .z) = _tmpFB(0)
+                arrFB(.x + 1, .y, .z) = _tmpFB(1)
+                arrFB(.x, .y + 1, .z) = _tmpFB(2)
+                arrFB(.x + 1, .y + 1, .z) = _tmpFB(3)
+            End With
+
+            _SteinInfos(_tmpSteinInfoIndex).IsTmpRemoved = False
+
+            _tmpRemoveSteinAktive = False
+
         End Sub
 
 #End Region
@@ -2187,6 +2324,39 @@ Namespace Spielfeld
             End If
 
         End Function
+
+        Public Function GetTopQuadrantAtPoint(mousePos As Point) As TripleX
+
+            UpdateTopSearchIndex()
+
+            Dim kandidat As TripleX = New TripleX
+
+            For idx As Integer = 0 To _indexTopSearch.Length - 1
+
+                Dim steinIndex As Integer = _indexTopSearch(idx)
+                Dim stein As SteinInfo = _SteinInfos(steinIndex)
+
+                If stein.IsRemoved Then
+                    Continue For
+                End If
+                If stein.IsTmpRemoved Then
+                    Continue For
+                End If
+
+                ' erster Treffer gewinnt
+                ' If si.HitTest(pt) Then Return si
+                kandidat = stein.IsTopQuadrant(mousePos)
+
+                If kandidat.IsValideYes Then
+                    Return kandidat
+                End If
+
+            Next
+
+            Return New TripleX(ValidePlace.No)
+
+        End Function
+
         '
         ''' <summary>
         ''' Da der 3D-Effekt die Steine nach oben und nach links verschiebt,muss man in der
@@ -2213,71 +2383,74 @@ Namespace Spielfeld
                 If stein.IsRemoved Then
                     Continue For
                 End If
+                If stein.IsTmpRemoved Then
+                    Continue For
+                End If
 
                 ' erster Treffer gewinnt
                 ' If si.HitTest(pt) Then Return si
-                kandidat = stein.IsTopQuadrant(mousePos, arrFB, _sfd)
+                kandidat = stein.IsTopQuadrant(mousePos)
 
-                Dim ok As Integer
+                Dim okCounter As Integer
 
                 With kandidat
                     If .IsValideYes Then
-                        ok = 1
+                        okCounter = 1
                         Select Case .Quadrant
                             Case Quadrant.LO
                                 retval = kandidat
-                                If stein.IsTopQuadrant(.x + 1, .y, .z, arrFB, _sfd) Then
-                                    ok += 1
+                                If stein.IsTopQuadrant(.x + 1, .y, .z) Then
+                                    okCounter += 1
                                 End If
-                                If stein.IsTopQuadrant(.x, .y + 1, .z, arrFB, _sfd) Then
-                                    ok += 1
+                                If stein.IsTopQuadrant(.x, .y + 1, .z) Then
+                                    okCounter += 1
                                 End If
-                                If stein.IsTopQuadrant(.x + 1, .y + 1, .z, arrFB, _sfd) Then
-                                    ok += 1
+                                If stein.IsTopQuadrant(.x + 1, .y + 1, .z) Then
+                                    okCounter += 1
                                 End If
 
                             Case Quadrant.RO
                                 retval = kandidat.DeepCopy(addX:=-1, addY:=0, addZ:=0)
 
-                                If stein.IsTopQuadrant(.x - 1, .y, .z, arrFB, _sfd) Then
-                                    ok += 1
+                                If stein.IsTopQuadrant(.x - 1, .y, .z) Then
+                                    okCounter += 1
                                 End If
-                                If stein.IsTopQuadrant(.x - 1, .y + 1, .z, arrFB, _sfd) Then
-                                    ok += 1
+                                If stein.IsTopQuadrant(.x - 1, .y + 1, .z) Then
+                                    okCounter += 1
                                 End If
-                                If stein.IsTopQuadrant(.x, .y + 1, .z, arrFB, _sfd) Then
-                                    ok += 1
+                                If stein.IsTopQuadrant(.x, .y + 1, .z) Then
+                                    okCounter += 1
                                 End If
 
                             Case Quadrant.LU
                                 retval = kandidat.DeepCopy(addX:=0, addY:=-1, addZ:=0)
-                                If stein.IsTopQuadrant(.x, .y - 1, .z, arrFB, _sfd) Then
-                                    ok += 1
+                                If stein.IsTopQuadrant(.x, .y - 1, .z) Then
+                                    okCounter += 1
                                 End If
-                                If stein.IsTopQuadrant(.x + 1, .y - 1, .z, arrFB, _sfd) Then
-                                    ok += 1
+                                If stein.IsTopQuadrant(.x + 1, .y - 1, .z) Then
+                                    okCounter += 1
                                 End If
-                                If stein.IsTopQuadrant(.x + 1, .y, .z, arrFB, _sfd) Then
-                                    ok += 1
+                                If stein.IsTopQuadrant(.x + 1, .y, .z) Then
+                                    okCounter += 1
                                 End If
 
                             Case Quadrant.RU
                                 retval = kandidat.DeepCopy(addX:=0, addY:=-1, addZ:=0)
-                                If stein.IsTopQuadrant(.x - 1, .y - 1, .z, arrFB, _sfd) Then
-                                    ok += 1
+                                If stein.IsTopQuadrant(.x - 1, .y - 1, .z) Then
+                                    okCounter += 1
                                 End If
-                                If stein.IsTopQuadrant(.x, .y - 1, .z, arrFB, _sfd) Then
-                                    ok += 1
+                                If stein.IsTopQuadrant(.x, .y - 1, .z) Then
+                                    okCounter += 1
                                 End If
-                                If stein.IsTopQuadrant(.x - 1, .y, .z, arrFB, _sfd) Then
-                                    ok += 1
+                                If stein.IsTopQuadrant(.x - 1, .y, .z) Then
+                                    okCounter += 1
                                 End If
 
                         End Select
                     End If
                 End With
 
-                If ok = 4 Then
+                If okCounter = 4 Then
                     Return retval
                 End If
             Next
@@ -2295,13 +2468,30 @@ Namespace Spielfeld
         ''' obere Quadrant der "Führungsquadrant". (Der Mauszeiger steht auf dem 
         ''' abzulegende Stein immer auf diesem Quadranten) 
         ''' </summary>
-        ''' <param name="mousePos"></param>
+        ''' <param name="mousePos">Die aktuelle Mausposition</param>
         ''' <returns></returns>
         Public Function IsFundamentKandidat(mousePos As Point) As Triple
 
+            UpdateTopSearchIndex()
+
+            'skipSteinFromRect
+            'Es geht um den Stein, der angeklickt wurde.
+            'Das Problem ist folgendes: eigentlich müsste es heißen: skipSteinInfoIndex
+            'Der steinInfoIndex ist auch bekannt
+
             Dim kandidat As New Triple(ValidePlace.NoKandidat) 'Default
+
             For Each stein As SteinInfo In SteinInfos
-                kandidat = stein.IsFundamentPartKandidat(mousePos, arrFB)
+
+                If stein.IsRemoved Then
+                    Continue For
+                End If
+                If stein.IsTmpRemoved Then
+                    Continue For
+                End If
+
+                kandidat = stein.IsFundamentQuadrantKandidat(mousePos)
+
                 If kandidat.IsValideYes Then
                     Exit For
                 End If
@@ -2394,7 +2584,7 @@ Namespace Spielfeld
 
             Dim ssi As New List(Of TripleX)
 
-            Dim Kandidat As TripleX = GetTopSteinAtPoint(mousePos)
+            Dim Kandidat As TripleX = GetTopQuadrantAtPoint(mousePos)
 
             If Kandidat.IsValideYes Then
                 For idxZ As Integer = Kandidat.z To 0 Step -1
@@ -2449,7 +2639,22 @@ Namespace Spielfeld
                 Return .rxStageUsed.Top + rasterY + shift3D
             End With
         End Function
-        'Ich habe noch Varianten hinzugefügt:
+
+        ''' <summary>
+        ''' Gibt den Mittelpunkt der Feldraster an.
+        ''' </summary>
+        ''' <param name="X">X-Wert des aktuellen arrFB-Steines</param>
+        ''' <param name="Y">Y-Wert des aktuellen arrFB-Steines</param>
+        ''' <returns></returns>
+        Public Function GetFeldRasterCenter(X As Integer, Y As Integer) As Point
+            With _sfd.SFLay
+                Dim rasterX As Integer = .steinWidthHalf * (X - 1) + .steinWidthHalf
+                Dim rasterY As Integer = .steinHeightHalf * (Y - 1) + .steinHeightHalf
+
+                Return New Point(.rxStageUsed.Left + rasterX, .rxStageUsed.Top + rasterY)
+            End With
+        End Function
+
         '
         ''' <summary>
         '''  Gibt den Point-Wert zur Anzeige des aktuellen arrFB-Steines an.
@@ -2480,15 +2685,29 @@ Namespace Spielfeld
         ''' <param name="Z"></param>
         ''' <returns></returns>
         Public Function GetSteinRenderRect(X As Integer, Y As Integer, Z As Integer) As Rectangle
+            Dim lay As SFLayout = _sfd.SFLay
 
-            Return New Rectangle(GetSteinRenderLeft(X, Z), GetSteinRenderTop(Y, Z), _sfd.SFLay.steinWidth, _sfd.SFLay.steinHeight)
+            Dim rasterX As Integer = lay.steinWidthHalf * (X - 1)
+            Dim rasterY As Integer = lay.steinHeightHalf * (Y - 1)
 
+            Dim left As Integer = lay.rxStageUsed.Left + rasterX + lay.offset3DLeftSumme - (lay.offset3DLeftJeEbene * Z)
+            Dim top As Integer = lay.rxStageUsed.Top + rasterY + lay.offset3DTopSumme - (lay.offset3DTopJeEbene * Z)
+
+            Return New Rectangle(left, top, lay.steinWidth, lay.steinHeight)
         End Function
 
         Public Function GetSteinRenderRect(tripl As Triple) As Rectangle
 
             With tripl
-                Return New Rectangle(GetSteinRenderLeft(.x, .z), GetSteinRenderTop(.y, .z), _sfd.SFLay.steinWidth, _sfd.SFLay.steinHeight)
+                Dim lay As SFLayout = _sfd.SFLay
+
+                Dim rasterX As Integer = lay.steinWidthHalf * (.x - 1)
+                Dim rasterY As Integer = lay.steinHeightHalf * (.y - 1)
+
+                Dim left As Integer = lay.rxStageUsed.Left + rasterX + lay.offset3DLeftSumme - (lay.offset3DLeftJeEbene * .z)
+                Dim top As Integer = lay.rxStageUsed.Top + rasterY + lay.offset3DTopSumme - (lay.offset3DTopJeEbene * .z)
+
+                Return New Rectangle(left, top, lay.steinWidth, lay.steinHeight)
             End With
 
         End Function
@@ -2579,6 +2798,547 @@ Namespace Spielfeld
 
             Return New Triple(xResult, yResult, 0, ValidePlace.Yes)
 
+        End Function
+
+#End Region
+
+#Region "TopSteinInfo"
+
+        Private _arrTopSteinInfo() As TopSteinInfo = Nothing
+        Private _arrTopSteinInfoIdxMaxInUse As Integer = -1
+
+        'Enthält nur Indizes auf _arrTopSteinInfo,
+        'nach SteinClickGruppe sortiert.
+        Private _arrTopSteinInfoLookupByClickGruppe() As Integer = Nothing
+
+        '
+        ''' <summary>
+        ''' Prüft, ob der Stein an x/y/z in der aktuellen TopSteinInfo-Liste enthalten ist.
+        ''' Voraussetzung: UpdateTopSteinInfos wurde zuvor aufgerufen.
+        ''' </summary>
+        Public Function IsTopStein(x As Integer, y As Integer, z As Integer) As Boolean
+            Return ContainsTopStein(x, y, z)
+        End Function
+
+        '
+        ''' <summary>
+        ''' Liefert den TopSteinInfo-Eintrag zu x/y/z per binärer Suche.
+        ''' Voraussetzung: UpdateTopSteinInfos wurde zuvor aufgerufen.
+        ''' Gibt Nothing zurück, wenn kein Eintrag gefunden wurde.
+        ''' </summary>
+        Public Function GetTopSteinInfo(x As Integer, y As Integer, z As Integer) As TopSteinInfo
+
+            If _arrTopSteinInfoIdxMaxInUse < 0 Then
+                Return Nothing
+            End If
+
+            Dim low As Integer = 0
+            Dim high As Integer = _arrTopSteinInfoIdxMaxInUse
+
+            Do While low <= high
+
+                Dim mid As Integer = low + ((high - low) \ 2)
+                Dim item As TopSteinInfo = _arrTopSteinInfo(mid)
+
+                Dim cmp As Integer = CompareTopSteinInfoToXYZ(item, x, y, z)
+
+                If cmp = 0 Then
+                    Return item
+                End If
+
+                If cmp < 0 Then
+                    low = mid + 1
+                Else
+                    high = mid - 1
+                End If
+
+            Loop
+
+            Return Nothing
+
+        End Function
+
+        '
+        ''' <summary>
+        ''' Erzeugt/aktualisiert eine aktuelle Liste der vollständig sichtbaren Steine und deren Eigenschaften.
+        ''' Aufruf nur dann nötig, wenn sich der Steinbestand oder die Klickregel geändert hat.
+        ''' Aufruf im Normalfall am besten in SFRenderManager unmittelbar vor _sfd.SFAir.Poll(),
+        ''' damit dort auf das Ergebnis zugegriffen werden kann.
+        ''' </summary>
+        Public Sub UpdateTopSteinInfos()
+
+            'Die maximal mögliche Größe des Arrays festlegen.
+            'Es sind maximal xMaxSteine * yMaxSteine vollständig sichtbar.
+            Dim uBnd As Integer = xMaxSteine * yMaxSteine
+
+            If _arrTopSteinInfo Is Nothing OrElse _arrTopSteinInfo.GetUpperBound(0) < uBnd Then
+                ReDim _arrTopSteinInfo(uBnd)
+            End If
+
+            If _arrTopSteinInfoLookupByClickGruppe Is Nothing OrElse _arrTopSteinInfoLookupByClickGruppe.GetUpperBound(0) < uBnd Then
+                ReDim _arrTopSteinInfoLookupByClickGruppe(uBnd)
+            End If
+
+            'Der Array wird nicht gelöscht, sondern nur logisch zurückgesetzt.
+            _arrTopSteinInfoIdxMaxInUse = -1
+
+            Dim z As Integer
+
+            For x As Integer = xMin To xMax
+                For y As Integer = yMin To yMax
+
+                    If arrFB(x, y, 0) = 0 Then
+                        Continue For
+                    End If
+
+                    If GetIsRemoved(x, y, 0) Then
+                        Continue For
+                    End If
+
+                    'Den obersten Stein suchen
+                    If arrFB(x, y, zMax) <> 0 Then
+                        'Die oberste Ebene ist mit einem Stein belegt
+                        z = zMax
+                    Else
+                        'Von unten nach oben den letzten Stein suchen
+                        z = zMax
+                        For idx As Integer = 1 To zMax
+                            If arrFB(x, y, idx) = 0 Then
+                                z = idx - 1
+                                Exit For
+                            End If
+                        Next
+                    End If
+
+                    If Not IsIndexQuadrant(x, y, z) Then
+                        'Das ist nicht der linke obere Quadrant eines Steines
+                        Continue For
+                    End If
+
+                    Dim steinIsKplVisible As Boolean
+
+                    If z = zMax Then
+                        steinIsKplVisible = True
+                    Else
+                        'Den gefundenen linken oberen Quadranten untersuchen
+                        Dim okCounter As Integer = 1 'Ein oberster Quadrant ist gefunden.
+
+                        'Sind auf den anderen drei Quadranten die Felder drüber frei?
+                        If arrFB(x + 1, y, z + 1) = 0 Then okCounter += 1
+                        If arrFB(x, y + 1, z + 1) = 0 Then okCounter += 1
+                        If arrFB(x + 1, y + 1, z + 1) = 0 Then okCounter += 1
+
+                        steinIsKplVisible = (okCounter = 4)
+                    End If
+
+                    If steinIsKplVisible Then
+
+                        Dim hasFreeSide As Integer = 0
+
+                        'Linke Seite prüfen
+                        If arrFB(x - 1, y, z) = 0 AndAlso arrFB(x - 1, y + 1, z) = 0 Then
+                            hasFreeSide += 1
+                        End If
+
+                        'Rechte Seite prüfen
+                        If arrFB(x + 2, y, z) = 0 AndAlso arrFB(x + 2, y + 1, z) = 0 Then
+                            hasFreeSide += 2
+                        End If
+
+                        Dim tsi As New TopSteinInfo(x, y, z)
+
+                        With tsi
+                            .FreeSide = CType(hasFreeSide, FreeSide)
+                            .RenderRect = GetSteinRenderRect(x, y, z)
+                            .SteinInfoIndex = GetSteinInfoIndex(x, y, z)
+                            .SteinInfo = _SteinInfos(.SteinInfoIndex)
+                            .SteinIndex = .SteinInfo.SteinIndex
+                            .SteinClickGruppe = GetSteinClickGruppe(.SteinIndex)
+
+                            If (hasFreeSide And 3) <> 0 Then
+                                .SteinStatus = SteinStatus.I03Selectable
+                            Else
+                                .SteinStatus = SteinStatus.I01Normal
+                            End If
+
+                            .Valide = ValidePlace.Yes
+                        End With
+
+                        _arrTopSteinInfoIdxMaxInUse += 1
+                        _arrTopSteinInfo(_arrTopSteinInfoIdxMaxInUse) = tsi
+
+                    End If
+
+                Next
+            Next
+
+            If _arrTopSteinInfoIdxMaxInUse < 0 Then
+                Return
+            End If
+
+            'Nur den tatsächlich benutzten Bereich sortieren.
+            If _arrTopSteinInfoIdxMaxInUse > 0 Then
+                Array.Sort(Of TopSteinInfo)(_arrTopSteinInfo,
+                                            0,
+                                            _arrTopSteinInfoIdxMaxInUse + 1,
+                                             Comparer(Of TopSteinInfo).Create(AddressOf CompareTopSteinInfoXYZ))
+            End If
+
+            'Lookup-Array mit den Indizes auf _arrTopSteinInfo füllen
+            For i As Integer = 0 To _arrTopSteinInfoIdxMaxInUse
+                _arrTopSteinInfoLookupByClickGruppe(i) = i
+            Next
+
+            'Lookup nach SteinClickGruppe sortieren
+            If _arrTopSteinInfoIdxMaxInUse > 0 Then
+                Array.Sort(Of Integer)(_arrTopSteinInfoLookupByClickGruppe,
+                                        0,
+                                        _arrTopSteinInfoIdxMaxInUse + 1,
+                                        Comparer(Of Integer).Create(AddressOf CompareTopSteinInfoLookupByClickGruppe))
+            End If
+
+            'Nun feststellen, welche anklickbaren Steine auch einen Partner haben.
+            UpdateTopSteinInfoPairStatus()
+
+        End Sub
+
+        '
+        ''' <summary>
+        ''' Setzt bei allen I03Selectable-Steinen den Status auf I04Removable,
+        ''' wenn innerhalb ihrer SteinClickGruppe mindestens zwei Topsteine vorhanden sind.
+        ''' Voraussetzung: _arrTopSteinInfoLookupByClickGruppe ist sortiert.
+        ''' </summary>
+        Private Sub UpdateTopSteinInfoPairStatus()
+
+            Dim runStart As Integer = 0
+
+            Do While runStart <= _arrTopSteinInfoIdxMaxInUse
+
+                Dim firstTopIndex As Integer = _arrTopSteinInfoLookupByClickGruppe(runStart)
+                Dim clickGruppe As Integer = _arrTopSteinInfo(firstTopIndex).SteinClickGruppe
+
+                Dim runEnd As Integer = runStart + 1
+                Do While runEnd <= _arrTopSteinInfoIdxMaxInUse
+
+                    Dim nextTopIndex As Integer = _arrTopSteinInfoLookupByClickGruppe(runEnd)
+
+                    If _arrTopSteinInfo(nextTopIndex).SteinClickGruppe <> clickGruppe Then
+                        Exit Do
+                    End If
+
+                    runEnd += 1
+                Loop
+
+                Dim sameGroupCount As Integer = runEnd - runStart
+
+                If sameGroupCount >= 2 Then
+                    For i As Integer = runStart To runEnd - 1
+
+                        Dim tsiIndex As Integer = _arrTopSteinInfoLookupByClickGruppe(i)
+                        Dim tsi As TopSteinInfo = _arrTopSteinInfo(tsiIndex)
+
+                        If tsi IsNot Nothing Then
+                            If tsi.SteinStatus = SteinStatus.I03Selectable Then
+                                tsi.SteinStatus = SteinStatus.I04Removable
+                            End If
+                        End If
+
+                    Next
+                End If
+
+                runStart = runEnd
+
+            Loop
+
+        End Sub
+
+        '
+        ''' <summary>
+        ''' Prüft per binärer Suche, ob das sortierte Array den TopSteinInfo-Eintrag enthält.
+        ''' Voraussetzung: UpdateTopSteinInfos wurde zuvor aufgerufen.
+        ''' </summary>
+        Private Function ContainsTopStein(x As Integer,
+                                  y As Integer,
+                                  z As Integer) As Boolean
+
+            If _arrTopSteinInfoIdxMaxInUse < 0 Then
+                Return False
+            End If
+
+            Dim low As Integer = 0
+            Dim high As Integer = _arrTopSteinInfoIdxMaxInUse
+
+            Do While low <= high
+
+                Dim mid As Integer = low + ((high - low) \ 2)
+                Dim item As TopSteinInfo = _arrTopSteinInfo(mid)
+
+                Dim cmp As Integer = CompareTopSteinInfoToXYZ(item, x, y, z)
+
+                If cmp = 0 Then
+                    Return True
+                End If
+
+                If cmp < 0 Then
+                    low = mid + 1
+                Else
+                    high = mid - 1
+                End If
+
+            Loop
+
+            Return False
+
+        End Function
+
+        '
+        ''' <summary>
+        ''' Vergleich zweier TopSteinInfo-Objekte: zuerst X, dann Y, dann Z.
+        ''' </summary>
+        Private Function CompareTopSteinInfoXYZ(a As TopSteinInfo, b As TopSteinInfo) As Integer
+
+            If a Is b Then
+                Return 0
+            End If
+
+            If a Is Nothing Then
+                Return -1
+            End If
+
+            If b Is Nothing Then
+                Return 1
+            End If
+
+            If a.x < b.x Then Return -1
+            If a.x > b.x Then Return 1
+
+            If a.y < b.y Then Return -1
+            If a.y > b.y Then Return 1
+
+            If a.z < b.z Then Return -1
+            If a.z > b.z Then Return 1
+
+            Return 0
+
+        End Function
+
+        '
+        ''' <summary>
+        ''' Vergleich eines TopSteinInfo-Eintrags mit X/Y/Z.
+        ''' </summary>
+        Private Function CompareTopSteinInfoToXYZ(item As TopSteinInfo,
+                                          x As Integer,
+                                          y As Integer,
+                                          z As Integer) As Integer
+
+            If item Is Nothing Then
+                Return -1
+            End If
+
+            If item.x < x Then Return -1
+            If item.x > x Then Return 1
+
+            If item.y < y Then Return -1
+            If item.y > y Then Return 1
+
+            If item.z < z Then Return -1
+            If item.z > z Then Return 1
+
+            Return 0
+
+        End Function
+
+        '
+        ''' <summary>
+        ''' Vergleicht zwei Indizes des Lookup-Arrays anhand der SteinClickGruppe.
+        ''' Sekundärsortierung nach X/Y/Z nur für definierte Ordnung.
+        ''' </summary>
+        Private Function CompareTopSteinInfoLookupByClickGruppe(indexA As Integer,
+                                                        indexB As Integer) As Integer
+
+            Dim a As TopSteinInfo = _arrTopSteinInfo(indexA)
+            Dim b As TopSteinInfo = _arrTopSteinInfo(indexB)
+
+            If a Is b Then
+                Return 0
+            End If
+
+            If a Is Nothing Then
+                Return -1
+            End If
+
+            If b Is Nothing Then
+                Return 1
+            End If
+
+            If a.SteinClickGruppe < b.SteinClickGruppe Then Return -1
+            If a.SteinClickGruppe > b.SteinClickGruppe Then Return 1
+
+            If a.x < b.x Then Return -1
+            If a.x > b.x Then Return 1
+
+            If a.y < b.y Then Return -1
+            If a.y > b.y Then Return 1
+
+            If a.z < b.z Then Return -1
+            If a.z > b.z Then Return 1
+
+            Return 0
+
+        End Function
+
+#End Region
+
+#Region "Lookup-Tabelle"
+
+        Private Sub TestEnumStein()
+
+            'Wenn die Enumeration "Stein" geändert wird, muß die Lockuptabelle GruppeLookup
+            'angepasst werden.
+            'Diese Prüfung erinnert daran :-)
+            Dim enumLength As Integer = [Enum].GetValues(GetType(SteinIndexEnum)).Length
+
+            If GruppeLookupNormal.Length <> enumLength Then
+                Throw New InvalidOperationException(
+            $"Programmierfehler! GruppeLookupNormal hat {GruppeLookupNormal.Length} Einträge, Enum SteinIndexEnum hat {enumLength}. Tabelle anpassen!")
+            End If
+
+            If GruppeLookupVereinfacht.Length <> enumLength Then
+                Throw New InvalidOperationException(
+            $"Programmierfehler! GruppeLookupVereinfacht hat {GruppeLookupVereinfacht.Length} Einträge, Enum SteinIndexEnum hat {enumLength}. Tabelle anpassen!")
+            End If
+        End Sub
+
+        ' Lookup-Tabelle.
+        ' Muss aus der Reihenfolge der Enum-Deklarationen SteinIndexEnum
+        ' und SteinClickGruppe gebaut sein!
+        ' Hintergrund: Die Regel "Steine mit gleichem Symbol können paarweise
+        ' entfernt werden" gilt meistens, aber nicht immer.
+        ' Die Blüten und Jahressymbole sind optisch unterschiedlich, können
+        ' aber paarweise entfernt werden. Deshalb gibt es die SteinClickGruppe
+        ' und das hier ist die Übersetzungstabellevom SteinIndexEnum zur
+        ' SteinClickGruppe
+        ' Der Wert des Index selber ist egal, wichtig ist, daß Steine einer
+        ' Klickgruppe den gleichen Wert haben.
+
+        Private ReadOnly GruppeLookupNormal As Integer() = {
+        0,  'Dummy
+        1,  'Punkt1
+        2,  'Punkt2
+        3,  'Punkt3
+        4,  'Punkt4
+        5,  'Punkt5
+        6,  'Punkt6
+        7,  'Punkt7
+        8,  'Punkt8
+        9,  'Punkt9
+        10, 'Bambus1
+        11, 'Bambus2
+        12, 'Bambus3
+        13, 'Bambus4
+        14, 'Bambus5
+        15, 'Bambus6
+        16, 'Bambus7
+        17, 'Bambus8
+        18, 'Bambus9
+        19, 'Symbol1
+        20, 'Symbol2
+        21, 'Symbol3
+        22, 'Symbol4
+        23, 'Symbol5
+        24, 'Symbol6
+        25, 'Symbol7
+        26, 'Symbol8
+        27, 'Symbol9
+        28, 'DrachenRot
+        29, 'DrachenGrün
+        30, 'DrachenWeiß
+        31, 'WindOst
+        32, 'WindSüd
+        33, 'WindWest
+        34, 'WindNord
+        35, 'BlütePflaume
+        35, 'BlüteOrchidee
+        35, 'BlüteChrisantheme
+        35, 'BlüteBambus
+        36, 'JahrFrühling
+        36, 'JahrSommer
+        36, 'JahrHerbst
+        36  'JahrWinter
+    }
+
+        Private ReadOnly GruppeLookupVereinfacht As Integer() = {
+        0,  'Dummy
+        1,  'Punkt1
+        2,  'Punkt2
+        3,  'Punkt3
+        4,  'Punkt4
+        5,  'Punkt5
+        6,  'Punkt6
+        7,  'Punkt7
+        8,  'Punkt8
+        9,  'Punkt9
+        10, 'Bambus1
+        11, 'Bambus2
+        12, 'Bambus3
+        13, 'Bambus4
+        14, 'Bambus5
+        15, 'Bambus6
+        16, 'Bambus7
+        17, 'Bambus8
+        18, 'Bambus9
+        19, 'Symbol1
+        20, 'Symbol2
+        21, 'Symbol3
+        22, 'Symbol4
+        23, 'Symbol5
+        24, 'Symbol6
+        25, 'Symbol7
+        26, 'Symbol8
+        27, 'Symbol9
+        28, 'DrachenRot
+        29, 'DrachenGrün
+        30, 'DrachenWeiß
+        31, 'WindOst
+        31, 'WindSüd
+        31, 'WindWest
+        31, 'WindNord
+        35, 'BlütePflaume
+        35, 'BlüteOrchidee
+        35, 'BlüteChrisantheme
+        35, 'BlüteBambus
+        36, 'JahrFrühling
+        36, 'JahrSommer
+        36, 'JahrHerbst
+        36  'JahrWinter
+    }
+
+        ''' <summary>
+        ''' Gibt die SteinklickGruppe aus dem SteinIndex zurück. 
+        ''' Greift auf INI.Regeln_WindsInOneClickGroup zu.
+        ''' </summary>
+        ''' <param name="index"></param>
+        ''' <returns></returns>
+        Public Function GetSteinClickGruppe(index As SteinIndexEnum) As Integer
+            If INI.Spielbetrieb_WindsAreInOneClickGroup Then
+                Return GruppeLookupVereinfacht(index)
+            Else
+                Return GruppeLookupNormal(index)
+            End If
+        End Function
+        '
+        ''' <summary>
+        ''' Gibt die SteinklickGruppe aus dem SteinIndex zurück unter Auswertung von windsInOneClickGroup.
+        ''' </summary>
+        ''' <param name="index"></param>
+        ''' <param name="windsInOneClickGroup"></param>
+        ''' <returns></returns>
+        Public Function GetSteinClickGruppe(index As SteinIndexEnum, windsInOneClickGroup As Boolean) As Integer
+            If windsInOneClickGroup Then
+                Return GruppeLookupVereinfacht(index)
+            Else
+                Return GruppeLookupNormal(index)
+            End If
         End Function
 
 #End Region
