@@ -136,8 +136,8 @@ Namespace MjDebug
         '                    If fb >= 100 Then
         '                        'Hier in diesem Feld sind die Flags (derzeit, Programmversion 0) immer 0
         '                        'der Index steht hier mit 100 multipliziert.
-        '                        'deshalb zum sichtbar machen den SteinIndex addieren.
-        '                        fb += .SteinInfos((fb \ 1000) - 1).SteinIndex
+        '                        'deshalb zum sichtbar machen den SteinTypIndex addieren.
+        '                        fb += .SteinInfos((fb \ 1000) - 1).SteinTypIndex
         '                    End If
 
         '                    If isHighlight Then

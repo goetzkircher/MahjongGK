@@ -1,4 +1,8 @@
-﻿'
+﻿Option Compare Text
+Option Explicit On
+Option Infer Off
+Option Strict On
+'
 ' SPDX-License-Identifier: GPL-3.0-or-later
 '###########################################################################
 '#                                                                         #
@@ -20,15 +24,10 @@
 '###########################################################################
 '
 '
-Option Compare Text
-Option Explicit On
-Option Infer Off
-Option Strict On
+Imports MahjongGK.Contracts.GlobalEnum
 
 #Disable Warning IDE0079
 #Disable Warning IDE1006
-
-
 
 Namespace Spielfeld
     '
@@ -46,44 +45,40 @@ Namespace Spielfeld
 
             With newSpielfeldInfo.SFInf
                 Dim centerXyz As Triple = .GetSpielfeldCenter(0)
-                .AddSteinToSpielfeld(SteinIndexEnum.Bambus1, centerXyz)
+                .AddSteinToSpielfeld(SteinTyp.Bambus1, centerXyz)
 
                 Dim tplr As Triple
                 tplr = .SearchPlace(centerXyz, Direction.Left)
                 If tplr.Valide = ValidePlace.Yes Then
-                    .AddSteinToSpielfeld(SteinIndexEnum.Bambus2, tplr)
+                    .AddSteinToSpielfeld(SteinTyp.Bambus2, tplr)
                 End If
 
                 tplr = .SearchPlace(centerXyz, Direction.LeftUp)
                 If tplr.Valide = ValidePlace.Yes Then
-                    .AddSteinToSpielfeld(SteinIndexEnum.Bambus3, tplr)
+                    .AddSteinToSpielfeld(SteinTyp.Bambus3, tplr)
                 End If
 
                 tplr = .SearchPlace(centerXyz, Direction.RightDown)
                 If tplr.Valide = ValidePlace.Yes Then
-                    .AddSteinToSpielfeld(SteinIndexEnum.Bambus4, tplr)
+                    .AddSteinToSpielfeld(SteinTyp.Bambus4, tplr)
                 End If
 
                 tplr = .SearchPlace(tplr, Direction.Up)
                 If tplr.Valide = ValidePlace.Yes Then
-                    .AddSteinToSpielfeld(SteinIndexEnum.Bambus5, tplr)
+                    .AddSteinToSpielfeld(SteinTyp.Bambus5, tplr)
                 End If
 
                 tplr = .SearchPlace(tplr, Direction.Up)
                 If tplr.Valide = ValidePlace.Yes Then
-                    .AddSteinToSpielfeld(SteinIndexEnum.Bambus6, tplr)
+                    .AddSteinToSpielfeld(SteinTyp.Bambus6, tplr)
                 End If
 
             End With
-
-
-
 
             'DebugHilfen.Print3DArrayToTxtOutputForm(SFD.AktSpielfeldInfo)
             '   DebugShowArrFBMain(arrFBMain, 0)
 
         End Sub
-
 
     End Module
 End Namespace

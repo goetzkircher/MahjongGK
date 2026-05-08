@@ -30,6 +30,7 @@ Imports System.IO
 Imports System.Text
 Imports System.Xml
 Imports System.Xml.Serialization
+Imports MahjongGK.Contracts
 
 #Disable Warning IDE0079
 #Disable Warning IDE1006
@@ -65,13 +66,10 @@ Namespace Spielfeld
         ''' <param name="spielSize"></param>
         Public Sub New(owner As SFDaten, spielSize As Triple)
             _sfd = owner
-            TestEnumStein()
             Initialisierung(spielSize)
         End Sub
 
         Public Sub New(spielsize As Triple)
-
-            TestEnumStein()
 
             If Not CheckSpielsize(spielsize) Then
                 Throw New Exception("Ungültige Spielfeldgröße.")
@@ -105,6 +103,8 @@ Namespace Spielfeld
 
         Private Sub Initialisierung(spielSize As Triple)
 
+            TestEnumStein()
+
             If CheckSpielsize(spielSize) Then
                 copySpielSizeToXyzValues(spielSize)
             Else
@@ -116,6 +116,8 @@ Namespace Spielfeld
             ReDim arrFB(xUBnd, yUBnd, zUBnd)
 
             SteinInfos = New List(Of SteinInfo)
+
+            MakeDirtyTopSteinInfos()
 
         End Sub
 
@@ -249,6 +251,7 @@ Namespace Spielfeld
                     _SpielSizeInSteinenFromXml = value.DeepCopy
                 End If
                 _SpielSizeInSteinen = value
+                MakeDirtyTopSteinInfos()
             End Set
         End Property
         '
@@ -266,7 +269,6 @@ Namespace Spielfeld
         ''' </summary>
         ''' <returns></returns>
         Public Property ErrorMsg As String = Nothing
-
         '
         Public ReadOnly Property xMin As Integer
             Get
@@ -435,29 +437,12 @@ Namespace Spielfeld
 
         End Sub
 
-        Private Sub RemoveSteinInfoInternal(index As Integer)
-
-            ' später
-
-        End Sub
-
-        Private Sub ClearSteinInfosInternal()
-
-            ' später
-
-        End Sub
-
-        Private Sub RebuildSteinInfoIndices()
-
-            ' später
-
-        End Sub
-
         Private Sub NotifySteinInfosChanged()
 
             SyncToggleFlag()
             MarkTopSearchDirty()
             MarkSteinCountChanged()
+            MakeDirtyTopSteinInfos()
 
             Update_SteinInfos_RectQuadranten()
 
@@ -716,48 +701,49 @@ Namespace Spielfeld
 #End Region
 
 #Region "Zustand / Status"
+        'TODO
         '
-        ''' <summary>
-        ''' Spielbar ist ein Spiel dann, wenn Daten vorhanden sind und wenn
-        ''' wenn alle Paare auf dem Spielfeld vollständig sind, also keine
-        ''' "StrohWitwen" oder "Witwer" vorhanden sind und den Werkstattsteinen
-        ''' alle andere Grafiken zugeordnet wurden
-        ''' </summary>
-        ''' <returns></returns>
-        Public ReadOnly Property IsPlayable As Boolean
-            Get
-                If IsNothing(SteinInfos) OrElse SteinInfos.Count = 0 Then
-                    Return False
-                End If
+        '''' <summary>
+        '''' Spielbar ist ein Spiel dann, wenn Daten vorhanden sind und wenn
+        '''' wenn alle Paare auf dem Spielfeld vollständig sind, also keine
+        '''' "StrohWitwen" oder "Witwer" vorhanden sind und den Werkstattsteinen
+        '''' alle andere Grafiken zugeordnet wurden
+        '''' </summary>
+        '''' <returns></returns>
+        'Public ReadOnly Property IsPlayable As Boolean
+        '    Get
+        '        If IsNothing(SteinInfos) OrElse SteinInfos.Count = 0 Then
+        '            Return False
+        '        End If
 
-                Dim arrKlickGruppeCount(MJ_STEININDEX_MAX) As Integer
-                Dim foundWerkstattStein As Boolean
+        '        Dim arrKlickGruppeCount(MJ_STEININDEX_MAX) As Integer
+        '        Dim foundWerkstattStein As Boolean
 
-                For Each stein As SteinInfo In SteinInfos
-                    arrKlickGruppeCount(stein.KlickGruppe) += 1
-                    If stein.IsWerkbankStein Then
-                        foundWerkstattStein = True
-                    End If
-                Next
+        '        For Each stein As SteinInfo In SteinInfos
+        '            arrKlickGruppeCount(stein.KlickGruppe) += 1
+        '            If stein.IsWerkbankStein Then
+        '                foundWerkstattStein = True
+        '            End If
+        '        Next
 
-                If foundWerkstattStein Then
-                    Return False
-                End If
+        '        If foundWerkstattStein Then
+        '            Return False
+        '        End If
 
-                For idx As Integer = 0 To MJ_STEININDEX_MAX
-                    If (arrKlickGruppeCount(idx) Mod 2) <> 0 Then
-                        'Für 0 gilt: 0 Mod 2 = 0 -> braucht deshalb nicht abgefangen zu werden,
-                        'denn nicht vorhandene Steinpaare brauchen nicht berücksichtigt werden,
-                        'ausgenommen, es gibt überhaupt keine Steine. Das ist oben abgefangen.
-                        Return False
-                    End If
-                Next
+        '        For idx As Integer = 0 To MJ_STEININDEX_MAX
+        '            If (arrKlickGruppeCount(idx) Mod 2) <> 0 Then
+        '                'Für 0 gilt: 0 Mod 2 = 0 -> braucht deshalb nicht abgefangen zu werden,
+        '                'denn nicht vorhandene Steinpaare brauchen nicht berücksichtigt werden,
+        '                'ausgenommen, es gibt überhaupt keine Steine. Das ist oben abgefangen.
+        '                Return False
+        '            End If
+        '        Next
 
-                Return True
+        '        Return True
 
-            End Get
+        '    End Get
 
-        End Property
+        'End Property
 
         Public ReadOnly Property IsEmpty As Boolean
             Get
@@ -815,7 +801,7 @@ Namespace Spielfeld
         ''' </summary>
         ''' <param name="steinPos3D"></param>
         ''' <returns></returns>
-        Public Function AddSteinToSpielfeld(steinIndex As SteinIndexEnum, steinPos3D As Triple) As Boolean
+        Public Function AddSteinToSpielfeld(steinIndex As SteinTyp, steinPos3D As Triple) As Boolean
 
             'Der steinInfoIndex wird hier gesichert, obwohl er gleichlautend ist mit dem
             'Index in SteinInfos. Grund: werden später Steine im Editor entfernt, verschieben sich die
@@ -850,14 +836,14 @@ Namespace Spielfeld
                                 tpl.y = 2
 
                                 'SetStein rekursiv, aber mit jetzt gültigen Werten aufrufen
-                                AddSteinToSpielfeld(SteinIndexEnum.ErrorSy, tpl)
+                                AddSteinToSpielfeld(SteinTyp.ErrorSy, tpl)
                                 Return False
                             End If
 
                         Case ValidePlace.Yes, ValidePlace.NoFundamentFound
                             ' FoundResult.NoFundament ist in diesem Fall OK, er wird zum freischwebendem Stein.
                             'SetStein rekursiv, aber mit jetzt gültigen Werten aufrufen
-                            AddSteinToSpielfeld(SteinIndexEnum.ErrorSy, tplR)
+                            AddSteinToSpielfeld(SteinTyp.ErrorSy, tplR)
                             Return False
                     End Select
                 Loop
@@ -917,14 +903,14 @@ Namespace Spielfeld
                                 tpl.y = 2
 
                                 'SetStein rekursiv, aber mit jetzt gültigen Werten aufrufen
-                                AddSteinToSpielfeld(SteinIndexEnum.ErrorSy, tpl)
+                                AddSteinToSpielfeld(SteinTyp.ErrorSy, tpl)
                                 Return False
                             End If
 
                         Case ValidePlace.Yes, ValidePlace.NoFundamentFound
                             ' FoundResult.NoFundament ist in diesem Fall OK, er wird zum freischwebendem Stein.
                             'SetStein rekursiv, aber mit jetzt gültigen Werten aufrufen
-                            AddSteinToSpielfeld(SteinIndexEnum.ErrorSy, tplR)
+                            AddSteinToSpielfeld(SteinTyp.ErrorSy, tplR)
                             Return False
                     End Select
                 Loop
@@ -975,8 +961,9 @@ Namespace Spielfeld
                 If vp <> ValidePlace.Yes Then
                     For idx As Integer = 0 To .steinInfos.Count - 1
                         .steinInfos(idx).IsWerkbankStein = True 'wieder einschalten (ob man's noch gebrauchen kann, weis ich derzeit nicht)
-                        .steinInfos(idx).SteinStatusUsed = SteinStatus.I08WerkstückEinfügeFehler
-                        .steinInfos(idx).SteinStatusIst = SteinStatus.I08WerkstückEinfügeFehler
+                        'TODO
+                        '.steinInfos(idx).SteinStatusUsed = SteinStatus.I08WerkstückEinfügeFehler
+                        '.steinInfos(idx).SteinStatusIst = SteinStatus.I08WerkstückEinfügeFehler
                     Next
                 End If
 
@@ -1091,7 +1078,7 @@ Namespace Spielfeld
 
 #Region "Spielfeld - interne AddRenderBitmapTopZOrder/Remove-Helfer"
 
-        Private Function HandleInvalidInsertPosition(steinIndex As SteinIndexEnum, steinPos3D As Triple) As Boolean
+        Private Function HandleInvalidInsertPosition(steinIndex As SteinTyp, steinPos3D As Triple) As Boolean
 
             ' optional später aus AddSteinToSpielfeld herausziehen
             Return False
@@ -1343,9 +1330,13 @@ Namespace Spielfeld
             With si.Pos3D
                 If .z = zMax Then
                     'links
-                    If arrFB(.x - 1, .y, .z) = 0 AndAlso arrFB(.x - 1, .y + 1, .z) = 0 Then Return True
-                    'rechts
-                    If arrFB(.x + 2, .y, .z) = 0 AndAlso arrFB(.x + 2, .y + 1, .z) = 0 Then Return True
+                    If arrFB(.x - 1, .y, .z) = 0 AndAlso arrFB(.x - 1, .y + 1, .z) = 0 Then
+                        Return True
+                    ElseIf arrFB(.x + 2, .y, .z) = 0 AndAlso arrFB(.x + 2, .y + 1, .z) = 0 Then
+                        Return True
+                    Else
+                        Return False
+                    End If
                 End If
             End With
             '
@@ -1744,7 +1735,7 @@ Namespace Spielfeld
             'offsetX und Offset Y sind 0, d.h. x und y werden nicht verändert.
             'Der Index ((arrFB(x - offsetX, y - offsetY, z) >> FB_INDEX_SHIFT)) ist auch 0
             '1 ab, gibt minus 1. ==> es muss nicht extra auf arrFB(x, y, z) = 0 geprüft werden,
-            'ob ein Feld leer ist, es kann immer gleich nach dem SteinIndex gefragt werden.
+            'ob ein Feld leer ist, es kann immer gleich nach dem SteinTypIndex gefragt werden.
         End Function
 
         ''
@@ -1785,7 +1776,7 @@ Namespace Spielfeld
         End Function
 
         ''' <summary>
-        ''' Prüft, ob an der Stelle ein Felbbeschreiber FB ist, der einen SteinIndex enthält.
+        ''' Prüft, ob an der Stelle ein Felbbeschreiber FB ist, der einen SteinTypIndex enthält.
         ''' Kann zum Iterieren durch das Feld benutzt werden.
         ''' </summary>
         ''' <param name="fb"></param>
@@ -1799,7 +1790,7 @@ Namespace Spielfeld
         End Function
 
         ''' <summary>
-        ''' Prüft, ob an der Stelle ein Felbeschreiber FB ist, der einen SteinIndex enthält.
+        ''' Prüft, ob an der Stelle ein Felbeschreiber FB ist, der einen SteinTypIndex enthält.
         ''' Kann zum Iterieren durch das Feld benutzt werden.
         ''' </summary>
         Public Function IsIndexQuadrant(tripl As Triple) As Boolean
@@ -2296,12 +2287,6 @@ Namespace Spielfeld
             End If
         End Sub
 
-        Private Sub Update_WindsAreInOneClickGroup(enabled As Boolean)
-
-            ' ... Später
-
-        End Sub
-
         Private Sub RebuildAllCaches()
 
             Update_SteinInfos_RectQuadranten()
@@ -2592,10 +2577,11 @@ Namespace Spielfeld
 
                     Dim aktSIE As TripleX
                     If idx = -1 Then
+                        'Dann liegen Steine frei
                         aktSIE = New TripleX
                     Else
                         With SteinInfos(idx)
-                            aktSIE = New TripleX(.X, .Y, idxZ, ValidePlace.Yes, .SteinInfoIndex, .SteinIndex, GetQuadrant(Kandidat.x, Kandidat.y, idxZ), SteinInfos(idx))
+                            aktSIE = New TripleX(.X, .Y, idxZ, ValidePlace.Yes, .SteinInfoIndex, .SteinTypIndex, GetQuadrant(Kandidat.x, Kandidat.y, idxZ), SteinInfos(idx))
                         End With
                     End If
                     ssi.Add(aktSIE)
@@ -2811,7 +2797,25 @@ Namespace Spielfeld
         'nach SteinClickGruppe sortiert.
         Private _arrTopSteinInfoLookupByClickGruppe() As Integer = Nothing
 
+        Private _topSteinInfoIsDirty As Boolean = True
+        Private _lastWindsAreInOneClickGroup As Boolean
+        Private _lastAktRenderMode As AktRenderMode
+        Private _foundMissingSecond As Boolean
         '
+        ''' <summary>
+        ''' Gibt an, ob sich auf dem Spielfeld Steine gleicher SteinKlickGruppe
+        ''' in ungerader Anzahl befinden. Wenn ja, ist das Spiel nicht spielbar.
+        ''' Steht nur zur Verfügung, wenn:
+        ''' INI.Spielbetrieb_ShowRemovableStones = True oder _sfd.SFRun.AktRenderMode =
+        ''' AktRenderMode.Edit (Siehe SFInfo.UpdateTopSteinInfos)
+        ''' </summary>
+        ''' <returns></returns>
+        Public ReadOnly Property FoundMissingSecond As Boolean
+            Get
+                Return _foundMissingSecond
+            End Get
+        End Property
+
         ''' <summary>
         ''' Prüft, ob der Stein an x/y/z in der aktuellen TopSteinInfo-Liste enthalten ist.
         ''' Voraussetzung: UpdateTopSteinInfos wurde zuvor aufgerufen.
@@ -2857,15 +2861,58 @@ Namespace Spielfeld
             Return Nothing
 
         End Function
+        Public Sub MakeDirtyTopSteinInfos()
+            _topSteinInfoIsDirty = True
+        End Sub '
+        '
+        ''' <summary>
+        ''' Ruft UpdateTopSteinInfos auf, wenn zuvor MakeDirtyTopSteinInfos aufgerufen wurde oder sich
+        ''' INI.Spielbetrieb_WindsAreInOneClickGroup und andere Bedingungen geändert haben. (siehe Code) Aufruf im
+        ''' Normalfall am besten in SFRenderManager unmittelbar vor _sfd.SFAir.ConsumeAirplanePolling(), damit dort auf das Ergebnis
+        ''' zugegriffen werden kann. Gibt True zurück, wenn UpdateTopSteinInfos aufgerufen wurde
+        ''' </summary>
+        Public Function ConsumeTopSteinInfosPolling() As Boolean
 
+            If _lastWindsAreInOneClickGroup <> INI.Spielbetrieb_WindsAreInOneClickGroup Then
+                _topSteinInfoIsDirty = True
+                _lastWindsAreInOneClickGroup = INI.Spielbetrieb_WindsAreInOneClickGroup
+            End If
+
+            If _lastAktRenderMode <> _sfd.SFRun.AktRenderMode Then
+                _topSteinInfoIsDirty = True
+                _lastAktRenderMode = _sfd.SFRun.AktRenderMode
+            End If
+
+            If _topSteinInfoIsDirty Then
+                _topSteinInfoIsDirty = False
+                UpdateTopSteinInfos()
+                Return True
+            Else
+                Return False
+            End If
+
+        End Function
         '
         ''' <summary>
         ''' Erzeugt/aktualisiert eine aktuelle Liste der vollständig sichtbaren Steine und deren Eigenschaften.
-        ''' Aufruf nur dann nötig, wenn sich der Steinbestand oder die Klickregel geändert hat.
-        ''' Aufruf im Normalfall am besten in SFRenderManager unmittelbar vor _sfd.SFAir.Poll(),
-        ''' damit dort auf das Ergebnis zugegriffen werden kann.
+        ''' Aufruf nur dann nötig, wenn sich der Steinbestand oder eine der Regeln geändert hat.
+        ''' (Siehe im Code von SFInfo.ConsumeTopSteinInfosPolling. Aufruf im Normalfall auch von dort.)
         ''' </summary>
         Public Sub UpdateTopSteinInfos()
+
+            Dim showSelectableSteine As Boolean
+            Dim showRemovableSteine As Boolean
+            Dim renderModeEdit As Boolean = _sfd.SFRun.AktRenderMode = AktRenderMode.Edit
+
+            If renderModeEdit Then
+                showSelectableSteine = True
+                showRemovableSteine = True
+            Else 'AktRenderMode.Spiel (oder None, das kommt hier aber nicht an.)
+                showSelectableSteine = INI.Spielbetrieb_ShowSelectableStones
+                showRemovableSteine = INI.Spielbetrieb_ShowRemovableStones
+            End If
+
+            _foundMissingSecond = False
 
             'Die maximal mögliche Größe des Arrays festlegen.
             'Es sind maximal xMaxSteine * yMaxSteine vollständig sichtbar.
@@ -2895,6 +2942,14 @@ Namespace Spielfeld
                         Continue For
                     End If
 
+                    '
+                    'Nicht nötig, ist ja aus dem arrFB entfernt.
+                    ''If renderModeEdit Then
+                    ''    If _SteinInfos(GetSteinInfoIndex(x, y, z)).IsTmpRemoved Then
+                    ''        Continue For
+                    ''    End If
+                    ''End If
+
                     'Den obersten Stein suchen
                     If arrFB(x, y, zMax) <> 0 Then
                         'Die oberste Ebene ist mit einem Stein belegt
@@ -2902,7 +2957,7 @@ Namespace Spielfeld
                     Else
                         'Von unten nach oben den letzten Stein suchen
                         z = zMax
-                        For idx As Integer = 1 To zMax
+                        For idx As Integer = 1 To zMax '1 ist richtig, 0 bereits weiter oben aussortiert.
                             If arrFB(x, y, idx) = 0 Then
                                 z = idx - 1
                                 Exit For
@@ -2949,14 +3004,22 @@ Namespace Spielfeld
 
                         With tsi
                             .FreeSide = CType(hasFreeSide, FreeSide)
-                            .RenderRect = GetSteinRenderRect(x, y, z)
+                            '    .RenderRect = GetSteinRenderRect(x, y, z)
                             .SteinInfoIndex = GetSteinInfoIndex(x, y, z)
                             .SteinInfo = _SteinInfos(.SteinInfoIndex)
-                            .SteinIndex = .SteinInfo.SteinIndex
-                            .SteinClickGruppe = GetSteinClickGruppe(.SteinIndex)
+                            .SteinTypIndex = .SteinInfo.SteinTypIndex
+                            .SteinClickGruppe = GetSteinClickGruppe(.SteinTypIndex)
 
-                            If (hasFreeSide And 3) <> 0 Then
-                                .SteinStatus = SteinStatus.I03Selectable
+                            If showSelectableSteine OrElse showRemovableSteine Then
+                                If (hasFreeSide And 3) <> 0 Then
+                                    'Wenn showRemovableSteine, werden die I03Selectable
+                                    'ggf in UpdateTopSteinInfoPairStatus hochgestuft.
+                                    'Wenn Not showSelectableSteine, werden die übriggebliebenen
+                                    'I03Selectable wieder runtergestuft in I01Normal
+                                    .SteinStatus = SteinStatus.I03Selectable 'Default
+                                Else
+                                    .SteinStatus = SteinStatus.I01Normal
+                                End If
                             Else
                                 .SteinStatus = SteinStatus.I01Normal
                             End If
@@ -2998,14 +3061,27 @@ Namespace Spielfeld
             End If
 
             'Nun feststellen, welche anklickbaren Steine auch einen Partner haben.
-            UpdateTopSteinInfoPairStatus()
+
+            If showRemovableSteine Then
+                UpdateTopSteinInfoPairStatus()
+                If Not showSelectableSteine Then
+                    'die übriggebliebenen I03Selectable runterstufen
+                    For idx As Integer = 0 To _arrTopSteinInfoIdxMaxInUse
+                        If _arrTopSteinInfo(idx).SteinStatus = SteinStatus.I03Selectable Then
+                            _arrTopSteinInfo(idx).SteinStatus = SteinStatus.I01Normal
+                        End If
+                    Next
+                End If
+            End If
 
         End Sub
 
         '
+        '
         ''' <summary>
         ''' Setzt bei allen I03Selectable-Steinen den Status auf I04Removable,
-        ''' wenn innerhalb ihrer SteinClickGruppe mindestens zwei Topsteine vorhanden sind.
+        ''' wenn innerhalb ihrer SteinClickGruppe mindestens zwei selektierbare
+        ''' Topsteine vorhanden sind.
         ''' Voraussetzung: _arrTopSteinInfoLookupByClickGruppe ist sortiert.
         ''' </summary>
         Private Sub UpdateTopSteinInfoPairStatus()
@@ -3029,20 +3105,23 @@ Namespace Spielfeld
                     runEnd += 1
                 Loop
 
-                Dim sameGroupCount As Integer = runEnd - runStart
+                Dim selectableCount As Integer = 0
 
-                If sameGroupCount >= 2 Then
+                For i As Integer = runStart To runEnd - 1
+                    Dim tsiIndex As Integer = _arrTopSteinInfoLookupByClickGruppe(i)
+                    If _arrTopSteinInfo(tsiIndex).SteinStatus = SteinStatus.I03Selectable Then
+                        selectableCount += 1
+                    End If
+                Next
+
+                If selectableCount >= 2 Then
                     For i As Integer = runStart To runEnd - 1
-
                         Dim tsiIndex As Integer = _arrTopSteinInfoLookupByClickGruppe(i)
                         Dim tsi As TopSteinInfo = _arrTopSteinInfo(tsiIndex)
 
-                        If tsi IsNot Nothing Then
-                            If tsi.SteinStatus = SteinStatus.I03Selectable Then
-                                tsi.SteinStatus = SteinStatus.I04Removable
-                            End If
+                        If tsi.SteinStatus = SteinStatus.I03Selectable Then
+                            tsi.SteinStatus = SteinStatus.I04Removable
                         End If
-
                     Next
                 End If
 
@@ -3174,6 +3253,10 @@ Namespace Spielfeld
             If a.SteinClickGruppe < b.SteinClickGruppe Then Return -1
             If a.SteinClickGruppe > b.SteinClickGruppe Then Return 1
 
+            If a.SteinInfoIndex < b.SteinInfoIndex Then Return -1
+            If a.SteinInfoIndex > b.SteinInfoIndex Then Return 1
+
+            'wird nicht erreicht, da jeder SteininfoIndex nur einmal vorkommt.
             If a.x < b.x Then Return -1
             If a.x > b.x Then Return 1
 
@@ -3187,6 +3270,55 @@ Namespace Spielfeld
 
         End Function
 
+        '
+        ''' <summary>
+        ''' Prüft den gesamten Steinbestand darauf, ob jede SteinClickGruppe
+        ''' in gerader Anzahl vorhanden ist.
+        ''' True = es fehlt mindestens ein Partnerstein.
+        ''' </summary>
+        Private Sub UpdateFoundMissingSecond()
+
+            Dim maxClickGruppe As Integer = [Enum].GetValues(GetType(SteinTyp)).Length - 1
+            Dim groupCount(maxClickGruppe) As Integer
+
+            For x As Integer = xMin To xMax
+                For y As Integer = yMin To yMax
+                    For z As Integer = zMin To zMax
+
+                        If arrFB(x, y, z) = 0 Then
+                            Continue For
+                        End If
+
+                        ''Hier kein Removed, sondern das gesamte Spielfeld betrachten
+                        ''If GetIsRemoved(x, y, z) Then
+                        ''    Continue For
+                        ''End If
+
+                        If Not IsIndexQuadrant(x, y, z) Then
+                            Continue For
+                        End If
+
+                        Dim steinInfoIndex As Integer = GetSteinInfoIndex(x, y, z)
+                        Dim clickGruppe As Integer = _SteinInfos(steinInfoIndex).KlickGruppe
+
+                        groupCount(clickGruppe) += 1
+
+                    Next
+                Next
+            Next
+
+            _foundMissingSecond = False
+
+            For i As Integer = 0 To groupCount.GetUpperBound(0)
+                If (groupCount(i) And 1) <> 0 Then
+                    'ungerade Zahl
+                    _foundMissingSecond = True
+                    Exit For
+                End If
+            Next
+
+        End Sub
+
 #End Region
 
 #Region "Lookup-Tabelle"
@@ -3196,32 +3328,32 @@ Namespace Spielfeld
             'Wenn die Enumeration "Stein" geändert wird, muß die Lockuptabelle GruppeLookup
             'angepasst werden.
             'Diese Prüfung erinnert daran :-)
-            Dim enumLength As Integer = [Enum].GetValues(GetType(SteinIndexEnum)).Length
+            Dim enumLength As Integer = [Enum].GetValues(GetType(SteinTyp)).Length
 
             If GruppeLookupNormal.Length <> enumLength Then
                 Throw New InvalidOperationException(
-            $"Programmierfehler! GruppeLookupNormal hat {GruppeLookupNormal.Length} Einträge, Enum SteinIndexEnum hat {enumLength}. Tabelle anpassen!")
+            $"Programmierfehler! GruppeLookupNormal hat {GruppeLookupNormal.Length} Einträge, Enum SteinTyp hat {enumLength}. Tabelle anpassen!")
             End If
 
             If GruppeLookupVereinfacht.Length <> enumLength Then
                 Throw New InvalidOperationException(
-            $"Programmierfehler! GruppeLookupVereinfacht hat {GruppeLookupVereinfacht.Length} Einträge, Enum SteinIndexEnum hat {enumLength}. Tabelle anpassen!")
+            $"Programmierfehler! GruppeLookupVereinfacht hat {GruppeLookupVereinfacht.Length} Einträge, Enum SteinTyp hat {enumLength}. Tabelle anpassen!")
             End If
         End Sub
 
         ' Lookup-Tabelle.
-        ' Muss aus der Reihenfolge der Enum-Deklarationen SteinIndexEnum
+        ' Muss aus der Reihenfolge der Enum-Deklarationen SteinTyp
         ' und SteinClickGruppe gebaut sein!
         ' Hintergrund: Die Regel "Steine mit gleichem Symbol können paarweise
         ' entfernt werden" gilt meistens, aber nicht immer.
         ' Die Blüten und Jahressymbole sind optisch unterschiedlich, können
         ' aber paarweise entfernt werden. Deshalb gibt es die SteinClickGruppe
-        ' und das hier ist die Übersetzungstabellevom SteinIndexEnum zur
+        ' und das hier ist die Übersetzungstabellevom SteinTyp zur
         ' SteinClickGruppe
         ' Der Wert des Index selber ist egal, wichtig ist, daß Steine einer
         ' Klickgruppe den gleichen Wert haben.
 
-        Private ReadOnly GruppeLookupNormal As Integer() = {
+        Private Shared ReadOnly GruppeLookupNormal As Integer() = {
         0,  'Dummy
         1,  'Punkt1
         2,  'Punkt2
@@ -3267,7 +3399,7 @@ Namespace Spielfeld
         36  'JahrWinter
     }
 
-        Private ReadOnly GruppeLookupVereinfacht As Integer() = {
+        Private Shared ReadOnly GruppeLookupVereinfacht As Integer() = {
         0,  'Dummy
         1,  'Punkt1
         2,  'Punkt2
@@ -3314,12 +3446,12 @@ Namespace Spielfeld
     }
 
         ''' <summary>
-        ''' Gibt die SteinklickGruppe aus dem SteinIndex zurück. 
+        ''' Gibt die SteinklickGruppe aus dem SteinTypIndex zurück. 
         ''' Greift auf INI.Regeln_WindsInOneClickGroup zu.
         ''' </summary>
         ''' <param name="index"></param>
         ''' <returns></returns>
-        Public Function GetSteinClickGruppe(index As SteinIndexEnum) As Integer
+        Public Shared Function GetSteinClickGruppe(index As SteinTyp) As Integer
             If INI.Spielbetrieb_WindsAreInOneClickGroup Then
                 Return GruppeLookupVereinfacht(index)
             Else
@@ -3328,12 +3460,12 @@ Namespace Spielfeld
         End Function
         '
         ''' <summary>
-        ''' Gibt die SteinklickGruppe aus dem SteinIndex zurück unter Auswertung von windsInOneClickGroup.
+        ''' Gibt die SteinklickGruppe aus dem SteinTypIndex zurück unter Auswertung von windsInOneClickGroup.
         ''' </summary>
         ''' <param name="index"></param>
         ''' <param name="windsInOneClickGroup"></param>
         ''' <returns></returns>
-        Public Function GetSteinClickGruppe(index As SteinIndexEnum, windsInOneClickGroup As Boolean) As Integer
+        Public Shared Function GetSteinClickGruppe(index As SteinTyp, windsInOneClickGroup As Boolean) As Integer
             If windsInOneClickGroup Then
                 Return GruppeLookupVereinfacht(index)
             Else
@@ -3346,13 +3478,13 @@ Namespace Spielfeld
 #Region "Statistik"
 
         Public Sub ShowMessageBoxStatistik()
-            Dim steineVorrat As New List(Of SteinIndexEnum)
-            Dim steineSpielfeld As New List(Of SteinIndexEnum)
+            Dim steineVorrat As New List(Of SteinTyp)
+            Dim steineSpielfeld As New List(Of SteinTyp)
 
             If SteinInfos IsNot Nothing AndAlso SteinInfos.Count > 0 Then
                 'Steine einsammeln
                 For Each item As SteinInfo In SteinInfos
-                    steineSpielfeld.Add(item.SteinIndex)
+                    steineSpielfeld.Add(item.SteinTypIndex)
                 Next
             End If
         End Sub

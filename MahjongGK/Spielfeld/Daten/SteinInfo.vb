@@ -25,6 +25,7 @@ Option Strict On
 '
 '
 Imports System.Xml.Serialization
+Imports MahjongGK.Contracts.GlobalEnum
 
 #Disable Warning IDE0079
 #Disable Warning IDE1006
@@ -36,7 +37,7 @@ Namespace Spielfeld
     ''' Pfad: MahjongGK/Spielfeld/Daten
     ''' 
     ''' Beschreibt einen einzelnen Spielstein im MahjongGK-Spielfeld.
-    ''' Enthält Identität/Zuordnung (<c>SteinInfoIndex</c>, <c>SteinIndex</c>, <c>KlickGruppe</c>),
+    ''' Enthält Identität/Zuordnung (<c>SteinInfoIndex</c>, <c>SteinTypIndex</c>, <c>KlickGruppe</c>),
     ''' Lage (<c>Postion3D</c>, abgeleitete <c>X/Y/Z</c>), Sichtbarkeitsmaske (<c>Verdeckung</c>/<c>Sichtbar</c>)
     ''' sowie optionale Animationsparameter (nur Laufzeit, <c>XmlIgnore</c>).
     ''' Bietet eine typsichere <see cref="DeepCopy"/> zur Erstellung echter, referenzgetrennter Kopien.
@@ -44,7 +45,7 @@ Namespace Spielfeld
     ''' <remarks>
     ''' <para>
     ''' <b>Identität &amp; Paarlogik:</b> <c>SteinInfoIndex</c> entspricht dem Index in <c>SteinInfos</c>.
-    ''' Die Zuordnung zu Paaren erfolgt über <c>KlickGruppe</c> (Mapping aus <c>SteinIndexEnum</c>),
+    ''' Die Zuordnung zu Paaren erfolgt über <c>KlickGruppe</c> (Mapping aus <c>SteinTyp</c>),
     ''' sodass auch visuell unterschiedliche Steine paarweise entfernt werden können.
     ''' </para>
     ''' <para>
@@ -71,7 +72,7 @@ Namespace Spielfeld
     ''' <code language="vbnet">
     ''' ' Stein erzeugen und ins Spielfeld übernehmen
     ''' Dim s As New SteinInfo(steinInfoIndex:=0,
-    '''                        steinIndex:=SteinIndexEnum.Bambus1,
+    '''                        steinIndex:=SteinTyp.Bambus1,
     '''                        pos3D:=New Triple(5, 7, 0))
     '''
     ''' ' Sichtbarkeitsbits anpassen (Quadrant-bezogen)
@@ -92,61 +93,40 @@ Namespace Spielfeld
     <Serializable>
     Public Class SteinInfo
 
-        <XmlIgnore>
         Private _notifyDirty As Action
 
-        <XmlIgnore>
         Private _pos3D As Triple
 
-        <XmlIgnore>
         Private _tmpDebug As Integer
 
-        <XmlIgnore>
         Private _SteinInfoIndex As Integer
 
-        <XmlIgnore>
-        Private _SteinIndex As SteinIndexEnum
+        Private _SteinIndex As SteinTyp
 
-        <XmlIgnore>
         Private _KlickGruppe As Integer
 
-        <XmlIgnore>
-        Private _SteinStatusIst As SteinStatus
+        Private _SteinStatus As SteinStatus = SteinStatus.I01Normal
 
-        <XmlIgnore>
-        Private _SteinStatusUsed As SteinStatus
-
-        <XmlIgnore>
         Private _IsWerkbankStein As Boolean
 
-        <XmlIgnore>
         Private _Verdeckung As Verdeckt
 
-        <XmlIgnore>
         Private _RectQuadrant(3) As Rectangle
 
-        <XmlIgnore>
         Private _RectStein As Rectangle
 
-        <XmlIgnore>
         Private _AnimTyp As Animation
 
-        <XmlIgnore>
         Private _AnimShowAnimated As Boolean
 
-        <XmlIgnore>
         Private _AnimStartDelay As Integer
 
-        <XmlIgnore>
         Private _AnimCurStep As Integer
 
-        <XmlIgnore>
         Private _AnimLoopCount As Integer
 
-        <XmlIgnore>
         Private _AnimMaxStep As Integer
 
-        <XmlIgnore>
         Private _AnimLoops As Single
 
         <XmlIgnore>
@@ -156,12 +136,13 @@ Namespace Spielfeld
 
         End Sub
 
-        Sub New(steinInfoIndex As Integer, steinIndex As SteinIndexEnum, pos3D As Triple, ByRef arrFB(,,) As Integer, sfd As SFDaten)
+        Sub New(steinInfoIndex As Integer, steinIndex As SteinTyp, pos3D As Triple, ByRef arrFB(,,) As Integer, sfd As SFDaten)
             Me.SteinInfoIndex = steinInfoIndex
-            Me.SteinIndex = steinIndex
-            KlickGruppe = Spielfeld.GetSteinClickGruppe(steinIndex, INI.Spielbetrieb_WindsAreInOneClickGroup)
-            SteinStatusIst = SteinStatus.I01Normal
-            SteinStatusUsed = SteinStatus.I01Normal
+            Me.SteinTypIndex = steinIndex
+            'TODO
+            'KlickGruppe = SFInfo.GetSteinClickGruppe(steinIndex, INI.Spielbetrieb_WindsAreInOneClickGroup)
+            'SteinStatusIst = SteinStatus.I01Normal
+            'SteinStatusUsed = SteinStatus.I01Normal
             Me.Pos3D = pos3D
             _arrFB = arrFB
             _sfd = sfd
@@ -266,72 +247,48 @@ Namespace Spielfeld
         ''' Eine Enumeration aller 43 verschiedenen Grafiken für die Steine.
         ''' </summary>
         <XmlElement("SIdx")>
-        Public Property SteinIndex As SteinIndexEnum
+        Public Property SteinTypIndex As SteinTyp
             Get
                 Return _SteinIndex
             End Get
-            Set(value As SteinIndexEnum)
+            Set(value As SteinTyp)
                 If _SteinIndex = value Then Return
                 _SteinIndex = value
                 MarkDirty()
             End Set
         End Property
-        '
+
         ''' <summary>
         ''' Steine können immer nur paarweise entfernt werden. Meist gleich aussehende Steine,
         ''' also Steine mit gleicher Enum Stein. 
         ''' Es gibt aber Steine, die verschieden aussehen, aber paarweise entfernt werden können.
         ''' Diese Steine gehören zur gleichen Klickgruppe, obwohl sie verschiedene Enum Stein haben.
-        ''' Es gibt eine Übersetzungstabelle Enum Stein -> Klickgruppe.
         ''' </summary>
-        <XmlElement("KGrp")>
-        Public Property KlickGruppe As Integer
+        Public ReadOnly Property KlickGruppe As Integer
             Get
-                Return _KlickGruppe
+                Return SFInfo.GetSteinClickGruppe(_SteinIndex)
             End Get
-            Set(value As Integer)
-                If _KlickGruppe = value Then Return
-                _KlickGruppe = value
-                MarkDirty()
-            End Set
         End Property
-        '
-        ''' <summary>
-        ''' Das ist der tatsächliche Steinstatus, den der Stein hat.
-        ''' </summary>
-        <XmlElement("StStIst")>
-        Public Property SteinStatusIst As SteinStatus
+
+        '' <summary>
+        '' Das ist der tatsächliche Steinstatus, den der Stein hat.
+        '' </summary>
+        <XmlIgnore>
+        Public Property SteinStatus As SteinStatus
             Get
-                Return _SteinStatusIst
+                Return _SteinStatus
             End Get
             Set(value As SteinStatus)
-                If _SteinStatusIst = value Then Return
-                _SteinStatusIst = value
+                If _SteinStatus = value Then Return
+                _SteinStatus = value
                 MarkDirty()
             End Set
         End Property
-        '
-        ''' <summary>
-        ''' Das ist der Steinstatus, der zur Renderung ausgewertet wird. Er kann sich vom
-        ''' SteinStatusReal unterscheiden, wenn der Spieler z.B. nicht wissen will, welche
-        ''' Steine klickbar sind, oder nicht sehen soll, welche Steinpaare entnommen werden
-        ''' können.
-        ''' </summary>
-        <XmlElement("StStUsed")>
-        Public Property SteinStatusUsed As SteinStatus
-            Get
-                Return _SteinStatusUsed
-            End Get
-            Set(value As SteinStatus)
-                If _SteinStatusUsed = value Then Return
-                _SteinStatusUsed = value
-                MarkDirty()
-            End Set
-        End Property
+
         '
         ''' <summary>
         ''' Die IsWerkstattStein setzt dieses Flag als Kennzeichen,
-        ''' das der SteinIndexEnum noch nicht zugewiesen wurde.
+        ''' das der SteinTyp noch nicht zugewiesen wurde.
         ''' Wird sicherheitshalber in der Xml mit gespeichert.
         ''' </summary>
         ''' <returns></returns>
@@ -362,6 +319,20 @@ Namespace Spielfeld
                 End If
             End Set
         End Property
+
+        ''' <summary>
+        ''' Steht nur zur Verfügung, wenn SteinStatus = SteinStatus.I04Removable
+        ''' </summary>
+        ''' <returns></returns>
+        Public Property MissingSecond As Boolean
+        '
+        ''' <summary>
+        ''' Wenn MissingSecond = True, steht hier der wievielte von
+        ''' wieviel vorhandenen Steinen dieser Stein ist.
+        ''' Format z.B.: "5/7"
+        ''' </summary>
+        ''' <returns></returns>
+        Public Property MissingSecondText As String
 
         ''' <summary>
         ''' Die Pos3D-Angabe bezieht sich immer auf den Quadranten LinksOben.
@@ -832,22 +803,22 @@ Namespace Spielfeld
             With _pos3D
                 If _RectQuadrant(0).Contains(mousePos) Then
                     If .z = _arrFB.GetUpperBound(2) OrElse _arrFB(.x, .y, .z + 1) = 0 Then
-                        Return New TripleX(.x, .y, .z, ValidePlace.Yes, SteinInfoIndex, SteinIndex, Quadrant.LO, Me)
+                        Return New TripleX(.x, .y, .z, ValidePlace.Yes, SteinInfoIndex, SteinTypIndex, Quadrant.LO, Me)
                     End If
                 End If
                 If _RectQuadrant(1).Contains(mousePos) Then
                     If .z = _arrFB.GetUpperBound(2) OrElse _arrFB(.x + 1, .y, .z + 1) = 0 Then
-                        Return New TripleX(.x + 1, .y, .z, ValidePlace.Yes, SteinInfoIndex, SteinIndex, Quadrant.RO, Me)
+                        Return New TripleX(.x + 1, .y, .z, ValidePlace.Yes, SteinInfoIndex, SteinTypIndex, Quadrant.RO, Me)
                     End If
                 End If
                 If _RectQuadrant(2).Contains(mousePos) Then
                     If .z = _arrFB.GetUpperBound(2) OrElse _arrFB(.x, .y + 1, .z + 1) = 0 Then
-                        Return New TripleX(.x, .y + 1, .z, ValidePlace.Yes, SteinInfoIndex, SteinIndex, Quadrant.LU, Me)
+                        Return New TripleX(.x, .y + 1, .z, ValidePlace.Yes, SteinInfoIndex, SteinTypIndex, Quadrant.LU, Me)
                     End If
                 End If
                 If _RectQuadrant(3).Contains(mousePos) Then
                     If .z = _arrFB.GetUpperBound(2) OrElse _arrFB(.x + 1, .y + 1, .z + 1) = 0 Then
-                        Return New TripleX(.x + 1, .y + 1, .z, ValidePlace.Yes, SteinInfoIndex, SteinIndex, Quadrant.RU, Me)
+                        Return New TripleX(.x + 1, .y + 1, .z, ValidePlace.Yes, SteinInfoIndex, SteinTypIndex, Quadrant.RU, Me)
                     End If
                 End If
             End With

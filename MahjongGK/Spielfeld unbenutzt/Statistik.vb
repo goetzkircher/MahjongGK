@@ -2,6 +2,9 @@
 Option Explicit On
 Option Infer Off
 Option Strict On
+
+Imports MahjongGK.Contracts
+
 '
 ' SPDX-License-Identifier: GPL-3.0-or-later
 '###########################################################################
@@ -23,7 +26,6 @@ Option Strict On
 '#                                                                         #
 '###########################################################################
 '
-
 #Disable Warning IDE0079
 #Disable Warning IDE1006
 '
@@ -45,7 +47,7 @@ Public Class Statistik
         SollProz152
     End Enum
 
-    Public Sub New(steineVorrat As List(Of SteinIndexEnum), steineSpielfeld As List(Of SteinIndexEnum))
+    Public Sub New(steineVorrat As List(Of SteinTyp), steineSpielfeld As List(Of SteinTyp))
 
         If steineVorrat Is Nothing Then
             _anzahlVorrat = 0
@@ -73,15 +75,15 @@ Public Class Statistik
 
     End Sub
 
-    Private Function WerteBerechnen(steine As List(Of SteinIndexEnum)) As Single(,)
+    Private Function WerteBerechnen(steine As List(Of SteinTyp)) As Single(,)
 
         Dim werte(42, [Enum].GetValues(GetType(StatistikResult)).Length - 1) As Single
 
         ' 1. Absolut zählen
         Dim counts(42) As Integer
         Dim sumcount As Integer
-        For Each sie As SteinIndexEnum In steine
-            If sie <> SteinIndexEnum.ErrorSy Then
+        For Each sie As SteinTyp In steine
+            If sie <> SteinTyp.ErrorSy Then
                 counts(CInt(sie)) += 1
                 sumcount += 1
             End If
@@ -103,7 +105,7 @@ Public Class Statistik
         ' Sondersteine:   8 * 1 oder * 2 = 8 oder 16
         For idx As Integer = 1 To MJ_STEININDEX_MAX
 
-            Dim isNormal As Boolean = (idx <= CInt(SteinIndexEnum.WindNrd))
+            Dim isNormal As Boolean = (idx <= CInt(SteinTyp.WindNrd))
             Dim soll144 As Single
             Dim soll152 As Single
 
@@ -126,7 +128,7 @@ Public Class Statistik
     '' ''' <summary>
     '' ''' Zugriff auf einzelne Werte
     '' ''' </summary>
-    ''Public ReadOnly Property WertVorrat(stein As SteinIndexEnum, res As StatistikResult) As Single
+    ''Public ReadOnly Property WertVorrat(stein As SteinTyp, res As StatistikResult) As Single
     ''    Get
     ''        Return _werteVorrat(CInt(stein), CInt(res))
     ''    End Get
@@ -158,11 +160,10 @@ Public Class Statistik
 
     End Function
 
-
     Public Overloads Function ToString(res As StatistikResult) As String
         Dim sb As New System.Text.StringBuilder
         For i As Integer = 1 To MJ_STEININDEX_MAX
-            sb.AppendLine($"{DirectCast(i, SteinIndexEnum),-8}  {_werteVorrat(i, res):F3}")
+            sb.AppendLine($"{DirectCast(i, SteinTyp),-8}  {_werteVorrat(i, res):F3}")
         Next
         Return sb.ToString()
     End Function
@@ -170,8 +171,7 @@ Public Class Statistik
     ''' <summary>
     ''' Gibt Tabelle als String zurück
     ''' </summary>
-    Public Overloads Function ToString(deltaProz144 As Boolean, Optional arrSpielfeld() As SteinIndexEnum = Nothing) As String
-
+    Public Overloads Function ToString(deltaProz144 As Boolean, Optional arrSpielfeld() As SteinTyp = Nothing) As String
 
         If _anzahlVorrat = 0 AndAlso _anzahlSpielfeld = 0 Then
             Return "Es sind weder Vorratsdaten, noch Spielfelddaten vorhanden. (In Beiden, Stock und Spielfeld, ist die Anzahl der Steine = 0)"
@@ -247,23 +247,23 @@ Public Class Statistik
         sb.AppendLine(("|"))
 
         ' Sortierte Reihenfolge 
-        'Hinweis SteinIndexEnum.ErrorSy dient hier als Platzhalter
-        Dim reihenfolge As SteinIndexEnum() =
+        'Hinweis SteinTyp.ErrorSy dient hier als Platzhalter
+        Dim reihenfolge As SteinTyp() =
         {
-            SteinIndexEnum.Punkt01, SteinIndexEnum.Bambus1, SteinIndexEnum.Symbol1, SteinIndexEnum.DracheR, SteinIndexEnum.BlütePf,
-            SteinIndexEnum.Punkt02, SteinIndexEnum.Bambus2, SteinIndexEnum.Symbol2, SteinIndexEnum.DracheG, SteinIndexEnum.BlüteOr,
-            SteinIndexEnum.Punkt03, SteinIndexEnum.Bambus3, SteinIndexEnum.Symbol3, SteinIndexEnum.DracheW, SteinIndexEnum.BlüteCt,
-            SteinIndexEnum.Punkt04, SteinIndexEnum.Bambus4, SteinIndexEnum.Symbol4, SteinIndexEnum.ErrorSy, SteinIndexEnum.BlüteBa,
-            SteinIndexEnum.Punkt05, SteinIndexEnum.Bambus5, SteinIndexEnum.Symbol5, SteinIndexEnum.ErrorSy, SteinIndexEnum.ErrorSy,
-            SteinIndexEnum.Punkt06, SteinIndexEnum.Bambus6, SteinIndexEnum.Symbol6, SteinIndexEnum.WindOst, SteinIndexEnum.JahrFrl,
-            SteinIndexEnum.Punkt07, SteinIndexEnum.Bambus7, SteinIndexEnum.Symbol7, SteinIndexEnum.WindSüd, SteinIndexEnum.JahrSom,
-            SteinIndexEnum.Punkt08, SteinIndexEnum.Bambus8, SteinIndexEnum.Symbol8, SteinIndexEnum.WindWst, SteinIndexEnum.JahrHer,
-            SteinIndexEnum.Punkt09, SteinIndexEnum.Bambus9, SteinIndexEnum.Symbol9, SteinIndexEnum.WindNrd, SteinIndexEnum.JahrWin
+            SteinTyp.Punkt01, SteinTyp.Bambus1, SteinTyp.Symbol1, SteinTyp.DracheR, SteinTyp.BlütePf,
+            SteinTyp.Punkt02, SteinTyp.Bambus2, SteinTyp.Symbol2, SteinTyp.DracheG, SteinTyp.BlüteOr,
+            SteinTyp.Punkt03, SteinTyp.Bambus3, SteinTyp.Symbol3, SteinTyp.DracheW, SteinTyp.BlüteCt,
+            SteinTyp.Punkt04, SteinTyp.Bambus4, SteinTyp.Symbol4, SteinTyp.ErrorSy, SteinTyp.BlüteBa,
+            SteinTyp.Punkt05, SteinTyp.Bambus5, SteinTyp.Symbol5, SteinTyp.ErrorSy, SteinTyp.ErrorSy,
+            SteinTyp.Punkt06, SteinTyp.Bambus6, SteinTyp.Symbol6, SteinTyp.WindOst, SteinTyp.JahrFrl,
+            SteinTyp.Punkt07, SteinTyp.Bambus7, SteinTyp.Symbol7, SteinTyp.WindSüd, SteinTyp.JahrSom,
+            SteinTyp.Punkt08, SteinTyp.Bambus8, SteinTyp.Symbol8, SteinTyp.WindWst, SteinTyp.JahrHer,
+            SteinTyp.Punkt09, SteinTyp.Bambus9, SteinTyp.Symbol9, SteinTyp.WindNrd, SteinTyp.JahrWin
         }
 
         Dim count As Integer
-        For Each sie As SteinIndexEnum In reihenfolge
-            'If CType(sie, SteinIndexEnum) = SteinIndexEnum.Punkt06 Then
+        For Each sie As SteinTyp In reihenfolge
+            'If CType(sie, SteinTyp) = SteinTyp.Punkt06 Then
             '    Stop
             'End If
             Dim sumAbsVorrat As Single = werte(CInt(sie), StatistikResult.SumAbsVorrat)
@@ -278,7 +278,7 @@ Public Class Statistik
 
             arrDeltaProzent(sie) = prozImVorrat - prozSoll
 
-            If sie = SteinIndexEnum.ErrorSy Then
+            If sie = SteinTyp.ErrorSy Then
                 sb.Append($"{"│",-46}")
             Else
                 sb.Append($"│ {sie.ToString & ":",-8} = {sumAbsVorrat,3} ~ {prozImVorrat,6:F2}% {prozSoll,6:F2}% {"Δ"}={prozImVorrat - prozSoll,7:+0.00;-0.00;0.00}% ")

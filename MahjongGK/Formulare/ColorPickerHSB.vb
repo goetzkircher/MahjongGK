@@ -30,7 +30,6 @@ Option Strict On
 Imports System.ComponentModel
 Imports System.Drawing.Drawing2D
 
-
 '
 ''' <summary>
 ''' HSB-Farbwahl mit breitem Hue-Ring, Reglern für Sättigung/Helligkeit,
@@ -146,7 +145,6 @@ Public NotInheritable Class ColorPickerHSB
     Private ReadOnly btnHueMinus As New Button()
     Private ReadOnly btnHuePlus As New Button()
 
-
     ' ── Konstruktor ────────────────────────────────────────────────────────────
     '
     ''' <summary>Initialisiert die Form inkl. Merkfarben-Raster.</summary>
@@ -159,6 +157,8 @@ Public NotInheritable Class ColorPickerHSB
         Me.MinimizeBox = False
         Me.ShowInTaskbar = False
         Me.KeyPreview = True
+        Me.AutoScaleMode = AutoScaleMode.None
+        Me.TopMost = True
 
         Me.ClientSize = New Size(600, 560)
 
@@ -344,9 +344,15 @@ Public NotInheritable Class ColorPickerHSB
         btnReset.Anchor = AnchorStyles.Bottom Or AnchorStyles.Left
         Me.Controls.Add(btnReset)
 
+        '  tbBri.BringToFront()
+        lblBri.BringToFront()
+
+        btnAbbrechen.BringToFront()
+        btnUebernehmen.BringToFront()
+        btnReset.BringToFront()
+
         ' Anfangsposition (wird im Resize exakt mittig gesetzt)
         PositionHueCenterControls()
-
 
     End Sub
     '
@@ -610,7 +616,6 @@ Public NotInheritable Class ColorPickerHSB
         UpdateHueLabel()
     End Sub
 
-
     ' ── Grauskala-Strip ────────────────────────────────────────────────────────
     '
     ''' <summary>Zeichnet 8 Graustufen-Rechtecke (Schwarz → Weiß).</summary>
@@ -705,7 +710,6 @@ Public NotInheritable Class ColorPickerHSB
         lbl.Text = "—"
         lbl.ForeColor = SystemColors.ControlText
     End Sub
-
 
     ' ── Rendering / Geometrie ──────────────────────────────────────────────────
     '
@@ -1101,7 +1105,6 @@ Public NotInheritable Class ColorPickerHSB
         End If
         MyBase.Dispose(disposing)
     End Sub
-
 
     'Für Stand-Alone Anwendung aktivieren
     '

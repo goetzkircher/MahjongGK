@@ -26,6 +26,8 @@ Option Explicit On
 Option Infer Off
 Option Strict On
 
+Imports MahjongGK.Contracts
+
 Namespace Spielfeld
 
 #Disable Warning IDE0079
@@ -46,7 +48,7 @@ Namespace Spielfeld
         '
         ''' <summary>
         ''' Hiermit wird gesteuert ob und was gerendert wird.
-        ''' In SFLay gibt es Public ReadOnly Property AktRenderMode As AktRenderMode
+        ''' In SFRun gibt es Public ReadOnly Property AktRenderMode As AktRenderMode
         ''' Innerhalb aller Render-Funktionen ist diese Propery zu verwenden.
         ''' 
         ''' HINWEIS:

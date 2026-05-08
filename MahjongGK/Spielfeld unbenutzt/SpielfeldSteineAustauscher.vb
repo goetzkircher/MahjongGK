@@ -2,6 +2,8 @@
 Option Explicit On
 Option Infer Off
 Option Strict On
+Imports MahjongGK.Contracts.GlobalEnum
+
 '
 ' SPDX-License-Identifier: GPL-3.0-or-later
 '###########################################################################
@@ -46,7 +48,7 @@ Public Class SpielfeldSteineAustauscher
     ''' </summary>
     ''' <param name="steininfos"></param>
     ''' <param name="vorrat"></param>
-    Sub New(steininfos As List(Of Spielfeld.SteinInfo), vorrat As List(Of SteinIndexEnum))
+    Sub New(steininfos As List(Of Spielfeld.SteinInfo), vorrat As List(Of SteinTyp))
         Me._steininfos = steininfos
         Me.vorrat = vorrat
         _werkstattJob = False
@@ -69,7 +71,7 @@ Public Class SpielfeldSteineAustauscher
     End Sub
 
     Private ReadOnly _steininfos As List(Of Spielfeld.SteinInfo)
-    Private vorrat As List(Of SteinIndexEnum)
+    Private vorrat As List(Of SteinTyp)
 
     Private _resultOK As Boolean = False
     Private ReadOnly _werkstattJob As Boolean
@@ -110,8 +112,9 @@ Public Class SpielfeldSteineAustauscher
 
         For idx As Integer = 0 To _steininfos.Count - 1
             With _steininfos(idx)
-                .SteinIndex = vorrat(idx)
-                .SteinStatusIst = SteinStatus.I01Normal
+                .SteinTypIndex = vorrat(idx)
+                'TODO
+                '.SteinStatusIst = SteinStatus.I01Normal
                 .IsWerkbankStein = False
             End With
         Next
@@ -144,7 +147,7 @@ Public Class SpielfeldSteineAustauscher
     ''' Steinen im Vorrat übergeben.
     ''' </summary>
     ''' <param name="vorrat"></param>
-    Public Sub SetSteinVorrat(vorrat As List(Of SteinIndexEnum))
+    Public Sub SetSteinVorrat(vorrat As List(Of SteinTyp))
         Me.vorrat = vorrat
         DoJobWerkstattJob()
     End Sub
@@ -155,9 +158,10 @@ Public Class SpielfeldSteineAustauscher
             For idx As Integer = 0 To _steininfos.Count - 1
                 With _steininfos(idx)
                     If _steininfos(idx).IsWerkbankStein Then
-                        .SteinIndex = vorrat(idxSchlepp)
+                        .SteinTypIndex = vorrat(idxSchlepp)
                         idxSchlepp += 1
-                        .SteinStatusIst = SteinStatus.I01Normal
+                        'TODO
+                        '.SteinStatusIst = SteinStatus.I01Normal
                         .IsWerkbankStein = False
                     End If
                 End With

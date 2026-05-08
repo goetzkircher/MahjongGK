@@ -1,0 +1,2 @@
+Das ist die letzte lauffähige Entwicklungsversion mit dem ursprünnglichem Steinsatz.
+Voraussichtlich werde ich den komplett entsorgen und auch die Verwaltung ausbauen. Hier ist sie noch drin.

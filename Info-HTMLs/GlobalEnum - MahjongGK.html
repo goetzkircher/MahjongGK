@@ -1,0 +1,735 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GlobalEnum – MahjongGK</title>
+  <style>
+    :root {
+      --bg: #f5f6f8;
+      --card: #ffffff;
+      --text: #1f2933;
+      --muted: #5f6b7a;
+      --line: #d8dee6;
+      --head: #eef2f7;
+      --code: #0f172a;
+      --accent: #385f8f;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.45;
+      color: var(--text);
+      background: var(--bg);
+    }
+    header {
+      background: linear-gradient(135deg, #26384f, #486b99);
+      color: white;
+      padding: 28px 36px;
+    }
+    header h1 {
+      margin: 0 0 8px 0;
+      font-size: 30px;
+      font-weight: 650;
+    }
+    header p {
+      margin: 0;
+      max-width: 950px;
+      color: #e8edf5;
+    }
+    main {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 22px;
+      padding: 22px;
+      max-width: 1500px;
+      margin: 0 auto;
+    }
+    nav {
+      position: sticky;
+      top: 16px;
+      align-self: start;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 14px;
+      box-shadow: 0 4px 18px rgba(15, 23, 42, 0.06);
+    }
+    nav h2 {
+      margin: 0 0 10px 0;
+      font-size: 17px;
+    }
+    nav a {
+      display: block;
+      padding: 7px 8px;
+      color: var(--accent);
+      text-decoration: none;
+      border-radius: 7px;
+    }
+    nav a:hover { background: var(--head); }
+    .content { min-width: 0; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      margin-bottom: 22px;
+      padding: 20px;
+      box-shadow: 0 4px 18px rgba(15, 23, 42, 0.06);
+      scroll-margin-top: 18px;
+    }
+    h2 {
+      margin: 0 0 8px 0;
+      font-size: 24px;
+      color: #142033;
+    }
+    .summary {
+      margin: 0 0 16px 0;
+      color: var(--muted);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: 8px;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 8px 10px;
+      vertical-align: top;
+    }
+    th {
+      background: var(--head);
+      text-align: left;
+      font-weight: 650;
+    }
+    td:first-child, th:first-child {
+      width: 56px;
+      text-align: right;
+      color: var(--muted);
+    }
+    td:nth-child(2), th:nth-child(2) { width: 280px; }
+    code {
+      font-family: Consolas, "Courier New", monospace;
+      color: var(--code);
+      background: #f3f5f8;
+      padding: 2px 5px;
+      border-radius: 5px;
+    }
+    .raw {
+      white-space: pre;
+      overflow: auto;
+      background: #101826;
+      color: #d8e3f0;
+      padding: 16px;
+      border-radius: 10px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+    details {
+      margin-bottom: 22px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 14px 20px;
+      box-shadow: 0 4px 18px rgba(15, 23, 42, 0.06);
+    }
+    summary {
+      cursor: pointer;
+      font-weight: 650;
+      color: #142033;
+    }
+    @media print {
+      body { background: white; }
+      main { display: block; padding: 0; }
+      nav { display: none; }
+      .card, details { box-shadow: none; page-break-inside: avoid; }
+      header { background: white; color: black; border-bottom: 1px solid #999; }
+      header p { color: black; }
+    }
+    @media (max-width: 900px) {
+      main { display: block; }
+      nav { position: static; margin-bottom: 22px; }
+      td:nth-child(2), th:nth-child(2) { width: auto; }
+    }
+  </style>
+</head>
+<body>
+<header>
+  <h1>GlobalEnum – MahjongGK</h1>
+  <p>Die Enumerationen hier sind verbindlich. Bei eventuellen Schreibfehlern gelten die Schreibweisen aus diesem Dokument.</p>
+</header>
+
+<main>
+  <nav>
+    <h2>Enumerationen</h2>
+    <a href="#AktRenderMode">AktRenderMode</a>
+<a href="#SteinDesign">SteinDesign</a>
+<a href="#SteinSatz">SteinSatz</a>
+<a href="#SteinFont">SteinFont</a>
+<a href="#SteinStatus">SteinStatus</a>
+<a href="#SteinTyp">SteinTyp</a>
+<a href="#SteinTypVersion">SteinTypVersion</a>
+<a href="#SteinFrameVersion">SteinFrameVersion</a>
+<a href="#CacheIndex">CacheIndex</a>
+<a href="#Hue360Mode">Hue360Mode</a>
+<a href="#LightMap">LightMap</a>
+<a href="#SteinValue">SteinValue</a>
+  </nav>
+
+  <div class="content">
+    
+<section class="card" id="AktRenderMode">
+  <h2>AktRenderMode</h2>
+  
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Wert</th>
+        <th>Beschreibung</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>0</td><td><code>None</code></td><td>&nbsp;</td></tr><tr><td>1</td><td><code>Spiel = 2</code></td><td>&nbsp;</td></tr><tr><td>2</td><td><code>Edit = 4</code></td><td>&nbsp;</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="card" id="SteinDesign">
+  <h2>SteinDesign</h2>
+  <p class="summary">Grundsätzlicher Aufbau Ein SteinDesign besteht aus drei Steinsätzen. Es kann beliebig viele SteinDesigns geben, wie werden im Unterverzeichnis SteinDesigns\SteinDesign.Name\und den drei Unterverzeichnissen für den Steinsatz gespeichert</p>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Wert</th>
+        <th>Beschreibung</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>0</td><td><code>[Default]</code></td><td>&nbsp;</td></tr><tr><td>1</td><td><code>UniDunkel</code></td><td>&nbsp;</td></tr><tr><td>2</td><td><code>UniGelbBraun</code></td><td>&nbsp;</td></tr><tr><td>3</td><td><code>Test</code></td><td>&nbsp;</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="card" id="SteinSatz">
+  <h2>SteinSatz</h2>
+  
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Wert</th>
+        <th>Beschreibung</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>0</td><td><code>Light</code></td><td>&nbsp;</td></tr><tr><td>1</td><td><code>Medium</code></td><td>&nbsp;</td></tr><tr><td>2</td><td><code>Dark</code></td><td>&nbsp;</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="card" id="SteinFont">
+  <h2>SteinFont</h2>
+  <p class="summary">Weitere Fonts: siehe http://quivira-font.com/ und https://www.gnu.org/software/freefont/ranges/mahjong.html</p>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Wert</th>
+        <th>Beschreibung</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>0</td><td><code>Segoe</code></td><td>&nbsp;</td></tr><tr><td>1</td><td><code>Noto</code></td><td>&nbsp;</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="card" id="SteinStatus">
+  <h2>SteinStatus</h2>
+  <p class="summary">Der Steinstatus bestimmt das farbliche Aussehen der Steine teilweise mit zusätzlicher Beschriftung oder Durchkreuzung.</p>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Wert</th>
+        <th>Beschreibung</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>0</td><td><code>I00Unsichtbar</code></td><td>Gibt Nothing zurück</td></tr><tr><td>1</td><td><code>I01Normal</code></td><td>Nicht klickbarer (nicht wählbarer) Stein (Das sind die meisten Steine während des Spielens und des Editierens)</td></tr><tr><td>2</td><td><code>I02Selected</code></td><td>&#x27;Der ersten Stein eines Paares, den der Spieler angeklickt hat</td></tr><tr><td>3</td><td><code>I03Selectable</code></td><td>&#x27;einzeln klickbar (wählbar), aber ohne Paarstein</td></tr><tr><td>4</td><td><code>I04Removable</code></td><td>&#x27;klickbar und Teil eines gültigen Paars (oder mehrerer gültiger Steine)</td></tr><tr><td>5</td><td><code>I05Locked</code></td><td>Wenn kein Stein mehr entnehmbar ist. (kräftiges rotes Farbschema)</td></tr><tr><td>6</td><td><code>I06WerkstückStein</code></td><td>Im Editor: Steine aus einem Werkstück. (Ein Werkstück ist eine aus mehreren Steinen zusammengesetzte Figur. Dessen Steine müssen ausgetauscht werden.)</td></tr><tr><td>7</td><td><code>I07MissingSecond</code></td><td>Im Editor, wenn der Partnerstein fehlt. (d.h. der ist noch im Stock)</td></tr><tr><td>8</td><td><code>I08WerkstückEinfügeFehler</code></td><td>Normalgrafik durchgekreuzt.</td></tr><tr><td>9</td><td><code>I09WerkstückZufallsgrafik</code></td><td>Normalgrafik mit halb so großem Symbol</td></tr><tr><td>10</td><td><code>I10Reserve1</code></td><td>Nothing zurückgeben</td></tr><tr><td>11</td><td><code>I11Reserve2</code></td><td>Nothing zurückgeben</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="card" id="SteinTyp">
+  <h2>SteinTyp</h2>
+  <p class="summary">Der Index auf die in Mahjong verwendeten Steine. (In meinem erstem Satz gibt es für jeden Steinstatus ein Verzeichnis und dort für jeden Stein eine PNG-Datei, die die Bizmap des Steines enthält.)</p>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Wert</th>
+        <th>Beschreibung</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>0</td><td><code>ErrorSy = 0</code></td><td>In der TileFactory andere Bedeutung!</td></tr><tr><td>1</td><td><code>Punkt01</code></td><td>&#x27; &lt;summary&gt; &#x27; Der Stein ohne Symbol. &#x27; Gilt für die in der Tilefactory erzeugten Steine. &#x27; Hier wird ein Stein ohne Beschriftung zurückgegeben. &#x27; &lt;/summary&gt;</td></tr><tr><td>2</td><td><code>Punkt02</code></td><td>&nbsp;</td></tr><tr><td>3</td><td><code>Punkt03</code></td><td>&nbsp;</td></tr><tr><td>4</td><td><code>Punkt04</code></td><td>&nbsp;</td></tr><tr><td>5</td><td><code>Punkt05</code></td><td>&nbsp;</td></tr><tr><td>6</td><td><code>Punkt06</code></td><td>&nbsp;</td></tr><tr><td>7</td><td><code>Punkt07</code></td><td>&nbsp;</td></tr><tr><td>8</td><td><code>Punkt08</code></td><td>&nbsp;</td></tr><tr><td>9</td><td><code>Punkt09</code></td><td>&nbsp;</td></tr><tr><td>10</td><td><code>Bambus1</code></td><td>&nbsp;</td></tr><tr><td>11</td><td><code>Bambus2</code></td><td>&nbsp;</td></tr><tr><td>12</td><td><code>Bambus3</code></td><td>&nbsp;</td></tr><tr><td>13</td><td><code>Bambus4</code></td><td>&nbsp;</td></tr><tr><td>14</td><td><code>Bambus5</code></td><td>&nbsp;</td></tr><tr><td>15</td><td><code>Bambus6</code></td><td>&nbsp;</td></tr><tr><td>16</td><td><code>Bambus7</code></td><td>&nbsp;</td></tr><tr><td>17</td><td><code>Bambus8</code></td><td>&nbsp;</td></tr><tr><td>18</td><td><code>Bambus9</code></td><td>&nbsp;</td></tr><tr><td>19</td><td><code>Symbol1</code></td><td>&nbsp;</td></tr><tr><td>20</td><td><code>Symbol2</code></td><td>&nbsp;</td></tr><tr><td>21</td><td><code>Symbol3</code></td><td>&nbsp;</td></tr><tr><td>22</td><td><code>Symbol4</code></td><td>&nbsp;</td></tr><tr><td>23</td><td><code>Symbol5</code></td><td>&nbsp;</td></tr><tr><td>24</td><td><code>Symbol6</code></td><td>&nbsp;</td></tr><tr><td>25</td><td><code>Symbol7</code></td><td>&nbsp;</td></tr><tr><td>26</td><td><code>Symbol8</code></td><td>&nbsp;</td></tr><tr><td>27</td><td><code>Symbol9</code></td><td>&nbsp;</td></tr><tr><td>28</td><td><code>DracheR</code></td><td>&nbsp;</td></tr><tr><td>29</td><td><code>DracheG</code></td><td>&nbsp;</td></tr><tr><td>30</td><td><code>DracheW</code></td><td>&nbsp;</td></tr><tr><td>31</td><td><code>WindOst</code></td><td>&nbsp;</td></tr><tr><td>32</td><td><code>WindSüd</code></td><td>&nbsp;</td></tr><tr><td>33</td><td><code>WindWst</code></td><td>&nbsp;</td></tr><tr><td>34</td><td><code>WindNrd</code></td><td>&nbsp;</td></tr><tr><td>35</td><td><code>BlütePf</code></td><td>&nbsp;</td></tr><tr><td>36</td><td><code>BlüteOr</code></td><td>&nbsp;</td></tr><tr><td>37</td><td><code>BlüteCt</code></td><td>&nbsp;</td></tr><tr><td>38</td><td><code>BlüteBa</code></td><td>&nbsp;</td></tr><tr><td>39</td><td><code>JahrFrl</code></td><td>&nbsp;</td></tr><tr><td>40</td><td><code>JahrSom</code></td><td>&nbsp;</td></tr><tr><td>41</td><td><code>JahrHer</code></td><td>&nbsp;</td></tr><tr><td>42</td><td><code>JahrWin</code></td><td>&nbsp;</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="card" id="SteinTypVersion">
+  <h2>SteinTypVersion</h2>
+  <p class="summary">Hinweis: Es gibt keinen einzigen SteinTyp in mehreren SteinTypVersion gleichzeitig.</p>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Wert</th>
+        <th>Beschreibung</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>0</td><td><code>Normal</code></td><td>Die Standardversion</td></tr><tr><td>1</td><td><code>Winde</code></td><td>wie Normal, aber mit Bezeichnung N, S, W, O in der linken oberen Ecke</td></tr><tr><td>2</td><td><code>Blüten</code></td><td>Anderes Farbschema</td></tr><tr><td>3</td><td><code>JZeiten</code></td><td>Anderes Farbschema</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="card" id="SteinFrameVersion">
+  <h2>SteinFrameVersion</h2>
+  
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Wert</th>
+        <th>Beschreibung</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>0</td><td><code>Standard</code></td><td>Besitzer ist das Cache</td></tr><tr><td>1</td><td><code>MouseSelected</code></td><td>Besitzer ist auch das Cache, das Cache fasst aber nur eine einzige Bitmap, die durch die nächste Anforderung überschrieben wird. &#x27;</td></tr><tr><td>2</td><td><code>MouseOver</code></td><td>Besitzer ist auch das Cache, das Cache fasst aber nur eine einzige Bitmap.</td></tr><tr><td>3</td><td><code>MouseCanDrop</code></td><td>Besitzer ist auch das Cache, das Cache fasst aber nur eine einzige Bitmap.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="card" id="CacheIndex">
+  <h2>CacheIndex</h2>
+  
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Wert</th>
+        <th>Beschreibung</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>0</td><td><code>SpielStein</code></td><td>&nbsp;</td></tr><tr><td>1</td><td><code>EditorStein</code></td><td>&nbsp;</td></tr><tr><td>2</td><td><code>SpielMouseOver</code></td><td>&nbsp;</td></tr><tr><td>3</td><td><code>EditorMouseOver</code></td><td>&nbsp;</td></tr><tr><td>4</td><td><code>SpielSelected</code></td><td>&nbsp;</td></tr><tr><td>5</td><td><code>EditorSelected</code></td><td>&nbsp;</td></tr><tr><td>6</td><td><code>SpielCanDrop</code></td><td>&nbsp;</td></tr><tr><td>7</td><td><code>EditorCanDrop</code></td><td>&nbsp;</td></tr><tr><td>8</td><td><code>UBound = EditorCanDrop</code></td><td>&nbsp;</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="card" id="Hue360Mode">
+  <h2>Hue360Mode</h2>
+  <p class="summary">Gibt an, was zurückgegeben wird, wenn Hue = 360. Hue = 0, Schwarz, Grau wie der B-Wert vorgibt, Weiß oder Graus aus dem B-Wert 100-B</p>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Wert</th>
+        <th>Beschreibung</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>0</td><td><code>Hue0</code></td><td>Behandelt Hue &gt;= 360 als Hue = 0. Das ist der Default</td></tr><tr><td>1</td><td><code>Black360White361</code></td><td>360 ergibt Schwarz 361 ergibt Weiß</td></tr><tr><td>2</td><td><code>Black</code></td><td>Gibt Schwarz zurück</td></tr><tr><td>3</td><td><code>Grey</code></td><td>Gibt einen Grauwert aus dem B-Wert in Prozent zurück</td></tr><tr><td>4</td><td><code>White</code></td><td>Gibt Weiß zurück</td></tr><tr><td>5</td><td><code>GreyReverse</code></td><td>Gibt einen Grauwert aus (100 - B) in Prozent zurück</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="card" id="LightMap">
+  <h2>LightMap</h2>
+  
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Wert</th>
+        <th>Beschreibung</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>0</td><td><code>Diagonal</code></td><td>&nbsp;</td></tr><tr><td>1</td><td><code>Zentral</code></td><td>&nbsp;</td></tr><tr><td>2</td><td><code>RahmenXS</code></td><td>&nbsp;</td></tr><tr><td>3</td><td><code>RahmenS</code></td><td>&nbsp;</td></tr><tr><td>4</td><td><code>RahmenM</code></td><td>&nbsp;</td></tr><tr><td>5</td><td><code>RahmenL</code></td><td>&nbsp;</td></tr><tr><td>6</td><td><code>RahmenXL</code></td><td>&nbsp;</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="card" id="SteinValue">
+  <h2>SteinValue</h2>
+  <p class="summary">Alle echten Daten-Properties von TileColors. AppRoot und die ...Xml-Hilfsproperties sind bewusst nicht enthalten.</p>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Wert</th>
+        <th>Beschreibung</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>0</td><td><code>SteinSatz</code></td><td>&nbsp;</td></tr><tr><td>1</td><td><code>HueBasisNormal</code></td><td>&nbsp;</td></tr><tr><td>2</td><td><code>HueBasisWinde</code></td><td>&nbsp;</td></tr><tr><td>3</td><td><code>HueBasisBlüten</code></td><td>&nbsp;</td></tr><tr><td>4</td><td><code>HueBasisJahrezeiten</code></td><td>&nbsp;</td></tr><tr><td>5</td><td><code>HueFaceFrame</code></td><td>&nbsp;</td></tr><tr><td>6</td><td><code>SatFaceFrame</code></td><td>&nbsp;</td></tr><tr><td>7</td><td><code>BrgFaceFrame</code></td><td>&nbsp;</td></tr><tr><td>8</td><td><code>HueSymbolOutline</code></td><td>&nbsp;</td></tr><tr><td>9</td><td><code>HueSymbolGradientTo</code></td><td>&nbsp;</td></tr><tr><td>10</td><td><code>HueSymbolGradientFrom</code></td><td>&nbsp;</td></tr><tr><td>11</td><td><code>SymbolGradientMode</code></td><td>&nbsp;</td></tr><tr><td>12</td><td><code>SymbolOutlineWidth</code></td><td>&nbsp;</td></tr><tr><td>13</td><td><code>SatI01Normal</code></td><td>&nbsp;</td></tr><tr><td>14</td><td><code>BrgI01Normal</code></td><td>&nbsp;</td></tr><tr><td>15</td><td><code>SatI02Selected</code></td><td>&nbsp;</td></tr><tr><td>16</td><td><code>BrgI02Selected</code></td><td>&nbsp;</td></tr><tr><td>17</td><td><code>SatI03Selectable</code></td><td>&nbsp;</td></tr><tr><td>18</td><td><code>BrgI03Selectable</code></td><td>&nbsp;</td></tr><tr><td>19</td><td><code>SatI04Removable</code></td><td>&nbsp;</td></tr><tr><td>20</td><td><code>BrgI04Removable</code></td><td>&nbsp;</td></tr><tr><td>21</td><td><code>SatI05Locked</code></td><td>&nbsp;</td></tr><tr><td>22</td><td><code>BrgI05Locked</code></td><td>&nbsp;</td></tr><tr><td>23</td><td><code>SatI06WerkstückStein</code></td><td>&nbsp;</td></tr><tr><td>24</td><td><code>BrgI06WerkstückStein</code></td><td>&nbsp;</td></tr><tr><td>25</td><td><code>SatI07MissingSecond</code></td><td>&nbsp;</td></tr><tr><td>26</td><td><code>BrgI07MissingSecond</code></td><td>&nbsp;</td></tr><tr><td>27</td><td><code>SatI08WerkstückEinfügeFehler</code></td><td>&nbsp;</td></tr><tr><td>28</td><td><code>BrgI08WerkstückEinfügeFehler</code></td><td>&nbsp;</td></tr><tr><td>29</td><td><code>SatI09WerkstückZufallsgrafik</code></td><td>&nbsp;</td></tr><tr><td>30</td><td><code>BrgI09WerkstückZufallsgrafik</code></td><td>&nbsp;</td></tr><tr><td>31</td><td><code>DeltaSatBasisToLayerUp</code></td><td>&nbsp;</td></tr><tr><td>32</td><td><code>DeltaBrgBasisToLayerUp</code></td><td>&nbsp;</td></tr><tr><td>33</td><td><code>DeltaSatBasisToLayerDn</code></td><td>&nbsp;</td></tr><tr><td>34</td><td><code>DeltaBrgBasisToLayerDn</code></td><td>&nbsp;</td></tr><tr><td>35</td><td><code>DeltaSatBasisKorrektur</code></td><td>&nbsp;</td></tr><tr><td>36</td><td><code>DeltaBrgBasisKorrektur</code></td><td>&nbsp;</td></tr><tr><td>37</td><td><code>FaceLichtkarte</code></td><td>&nbsp;</td></tr><tr><td>38</td><td><code>ShiftLayer</code></td><td>&nbsp;</td></tr><tr><td>39</td><td><code>ShiftFace</code></td><td>&nbsp;</td></tr><tr><td>40</td><td><code>Kommentar</code></td><td>&nbsp;</td></tr><tr><td>41</td><td><code>FaceBorderColor</code></td><td>&nbsp;</td></tr>
+    </tbody>
+  </table>
+</section>
+
+
+    <details>
+      <summary>Original-VB.NET-Quelltext anzeigen</summary>
+      <pre class="raw">Public Module GlobalEnum
+    &#x27;&#x27;&#x27; &lt;summary&gt;
+    &#x27;&#x27;&#x27; Die Enumerationen hier sind verbindlich.
+    &#x27;&#x27;&#x27; Bei eventuellen Schreibfehlern gelten die Schreibweisen aus diesem Dokument.
+    &#x27;&#x27;&#x27; &lt;/summary&gt;
+
+    Public Enum AktRenderMode
+        None
+        Spiel = 2
+        Edit = 4
+    End Enum
+    &#x27;
+    &#x27;&#x27;&#x27; &lt;summary&gt;
+    &#x27;&#x27;&#x27; Grundsätzlicher Aufbau
+    &#x27;&#x27;&#x27; Ein SteinDesign besteht aus drei Steinsätzen.
+    &#x27;&#x27;&#x27; Es kann beliebig viele SteinDesigns geben, wie werden im
+    &#x27;&#x27;&#x27; Unterverzeichnis SteinDesigns\SteinDesign.Name\und den drei Unterverzeichnissen für den Steinsatz gespeichert
+    &#x27;&#x27;&#x27; &lt;/summary&gt;
+    Public Enum SteinDesign
+        [Default]
+        UniDunkel
+        UniGelbBraun
+        Test
+    End Enum
+
+    Public Enum SteinSatz
+        Light
+        Medium
+        Dark
+    End Enum
+    &#x27;
+    &#x27;&#x27;&#x27; &lt;summary&gt;
+    &#x27;&#x27;&#x27; Weitere Fonts: siehe http://quivira-font.com/ 
+    &#x27;&#x27;&#x27; und https://www.gnu.org/software/freefont/ranges/mahjong.html
+    &#x27;&#x27;&#x27; &lt;/summary&gt;
+    Public Enum SteinFont
+        Segoe
+        Noto
+    End Enum
+
+    &#x27;
+    &#x27;&#x27;&#x27; &lt;summary&gt;
+    &#x27;&#x27;&#x27; Der Steinstatus bestimmt das farbliche Aussehen der Steine
+    &#x27;&#x27;&#x27; teilweise mit zusätzlicher Beschriftung oder Durchkreuzung.
+    &#x27;&#x27;&#x27; &lt;/summary&gt;
+    Public Enum SteinStatus
+        &#x27;&#x27;&#x27; &lt;summary&gt;
+        &#x27;&#x27;&#x27; Gibt Nothing zurück
+        &#x27;&#x27;&#x27; &lt;/summary&gt;
+        I00Unsichtbar
+        &#x27;
+        &#x27;&#x27;&#x27; &lt;summary&gt;
+        &#x27;&#x27;&#x27; Nicht klickbarer (nicht wählbarer) Stein (Das sind die meisten Steine 
+        &#x27;&#x27;&#x27; während des Spielens und des Editierens)
+        &#x27;&#x27;&#x27; &lt;/summary&gt;
+        I01Normal
+        &#x27;
+        &#x27;&#x27;&#x27; &lt;summary&gt;
+        &#x27;&#x27;&#x27; &#x27;Der ersten Stein eines Paares, den der Spieler angeklickt hat
+        &#x27;&#x27;&#x27; &lt;/summary&gt;
+        I02Selected
+        &#x27;
+        &#x27;&#x27;&#x27; &lt;summary&gt;
+        &#x27;&#x27;&#x27; &#x27;einzeln klickbar (wählbar), aber ohne Paarstein
+        &#x27;&#x27;&#x27; &lt;/summary&gt;
+        I03Selectable
+        &#x27;
+        &#x27;&#x27;&#x27; &lt;summary&gt;
+        &#x27;&#x27;&#x27; &#x27;klickbar und Teil eines gültigen Paars (oder mehrerer gültiger Steine)
+        &#x27;&#x27;&#x27; &lt;/summary&gt;
+        I04Removable
+        &#x27;
+        &#x27;&#x27;&#x27; &lt;summary&gt;
+        &#x27;&#x27;&#x27; Wenn kein Stein mehr entnehmbar ist. (kräftiges rotes Farbschema)
+        &#x27;&#x27;&#x27; &lt;/summary&gt;
+        I05Locked
+        &#x27;
+        &#x27;&#x27;&#x27; &lt;summary&gt;
+        &#x27;&#x27;&#x27; Im Editor: Steine aus einem Werkstück. 
+        &#x27;&#x27;&#x27; (Ein Werkstück ist eine aus mehreren Steinen zusammen-
+        &#x27;&#x27;&#x27; gesetzte Figur. Dessen Steine müssen ausgetauscht werden.)
+        &#x27;&#x27;&#x27; &lt;/summary&gt;
+        I06WerkstückStein
+        &#x27;
+        &#x27;&#x27;&#x27; &lt;summary&gt;
+        &#x27;&#x27;&#x27; Im Editor, wenn der Partnerstein fehlt. (d.h. der ist noch im Stock)
+        &#x27;&#x27;&#x27; &lt;/summary&gt;
+        I07MissingSecond
+        &#x27;
+        &#x27;&#x27;&#x27; &lt;summary&gt;
+        &#x27;&#x27;&#x27; Normalgrafik durchgekreuzt.
+        &#x27;&#x27;&#x27; &lt;/summary&gt;
+        I08WerkstückEinfügeFehler
+        &#x27;
+        &#x27;&#x27;&#x27; &lt;summary&gt;
+        &#x27;&#x27;&#x27; Normalgrafik mit halb so großem Symbol
+        &#x27;&#x27;&#x27; &lt;/summary&gt;
+        I09WerkstückZufallsgrafik
+        &#x27;
+        &#x27;&#x27;&#x27; &lt;summary&gt;
+        &#x27;&#x27;&#x27; Nothing zurückgeben
+        &#x27;&#x27;&#x27; &lt;/summary&gt;
+        I10Reserve1
+        &#x27;
+        &#x27;&#x27;&#x27; &lt;summary&gt;
+        &#x27;&#x27;&#x27; Nothing zurückgeben
+        &#x27;&#x27;&#x27; &lt;/summary&gt;
+        I11Reserve2            &#x27; 
+    End Enum
+    &#x27;
+    &#x27;&#x27;&#x27; &lt;summary&gt;
+    &#x27;&#x27;&#x27; Der Index auf die in Mahjong verwendeten Steine.
+    &#x27;&#x27;&#x27; (In meinem erstem Satz gibt es für jeden Steinstatus 
+    &#x27;&#x27;&#x27; ein Verzeichnis und dort für jeden Stein
+    &#x27;&#x27;&#x27; eine PNG-Datei, die die Bizmap des Steines enthält.)
+    &#x27;&#x27;&#x27; &lt;/summary&gt;
+    Public Enum SteinTyp
+        &#x27;
+        &#x27;&#x27;&#x27; &lt;summary&gt;
+        &#x27;&#x27;&#x27; In der TileFactory andere Bedeutung!
+        &#x27;&#x27;&#x27; &lt;/summary&gt;
+        ErrorSy = 0
+        &#x27;
+        &#x27;&#x27;&#x27;&#x27; &lt;summary&gt;
+        &#x27;&#x27;&#x27;&#x27; Der Stein ohne Symbol. 
+        &#x27;&#x27;&#x27;&#x27; Gilt für die in der Tilefactory erzeugten Steine.
+        &#x27;&#x27;&#x27;&#x27; Hier wird ein Stein ohne Beschriftung zurückgegeben.
+        &#x27;&#x27;&#x27;&#x27; &lt;/summary&gt;
+        &#x27;NoSymbo = 0
+        &#x27;&#x27;
+        Punkt01
+        Punkt02
+        Punkt03
+        Punkt04
+        Punkt05
+        Punkt06
+        Punkt07
+        Punkt08
+        Punkt09
+        Bambus1
+        Bambus2
+        Bambus3
+        Bambus4
+        Bambus5
+        Bambus6
+        Bambus7
+        Bambus8
+        Bambus9
+        Symbol1
+        Symbol2
+        Symbol3
+        Symbol4
+        Symbol5
+        Symbol6
+        Symbol7
+        Symbol8
+        Symbol9
+        DracheR
+        DracheG
+        DracheW
+        WindOst
+        WindSüd
+        WindWst
+        WindNrd
+        BlütePf
+        BlüteOr
+        BlüteCt
+        BlüteBa
+        JahrFrl
+        JahrSom
+        JahrHer
+        JahrWin
+    End Enum
+
+    &#x27;
+    &#x27;&#x27;&#x27; &lt;summary&gt;
+    &#x27;&#x27;&#x27; Hinweis: Es gibt keinen einzigen SteinTyp in 
+    &#x27;&#x27;&#x27; mehreren SteinTypVersion gleichzeitig.
+    &#x27;&#x27;&#x27; &lt;/summary&gt;
+    Public Enum SteinTypVersion
+        &#x27;
+        &#x27;&#x27;&#x27; &lt;summary&gt;
+        &#x27;&#x27;&#x27; Die Standardversion
+        &#x27;&#x27;&#x27; &lt;/summary&gt;
+        Normal
+        &#x27;
+        &#x27;&#x27;&#x27; &lt;summary&gt;
+        &#x27;&#x27;&#x27; wie Normal, aber mit Bezeichnung N, S, W, O in der linken oberen Ecke
+        &#x27;&#x27;&#x27; &lt;/summary&gt;
+        Winde
+        &#x27;
+        &#x27;&#x27;&#x27; &lt;summary&gt;
+        &#x27;&#x27;&#x27; Anderes Farbschema
+        &#x27;&#x27;&#x27; &lt;/summary&gt;
+        Blüten
+        &#x27;
+        &#x27;&#x27;&#x27; &lt;summary&gt;
+        &#x27;&#x27;&#x27; Anderes Farbschema
+        &#x27;&#x27;&#x27; &lt;/summary&gt;
+        JZeiten
+
+    End Enum
+
+    Public Enum SteinFrameVersion
+        &#x27;
+        &#x27;&#x27;&#x27; &lt;summary&gt;
+        &#x27;&#x27;&#x27; Besitzer ist das Cache
+        &#x27;&#x27;&#x27; &lt;/summary&gt;
+        Standard &#x27;kommen direkt aus dem Cache
+        &#x27;
+        &#x27;&#x27;&#x27; &lt;summary&gt;
+        &#x27;&#x27;&#x27; Besitzer ist auch das Cache, das Cache fasst aber nur eine einzige Bitmap,
+        &#x27;&#x27;&#x27; die durch die nächste Anforderung überschrieben wird.
+        &#x27;&#x27;&#x27; &lt;/summary&gt;
+        &#x27;&#x27;&#x27; &#x27;
+        MouseSelected
+        &#x27;&#x27;&#x27; &lt;summary&gt;
+        &#x27;&#x27;&#x27; Besitzer ist auch das Cache, das Cache fasst aber nur eine einzige Bitmap.
+        &#x27;&#x27;&#x27; &lt;/summary&gt;
+        MouseOver
+        &#x27;
+        &#x27;&#x27;&#x27; &lt;summary&gt;
+        &#x27;&#x27;&#x27; Besitzer ist auch das Cache, das Cache fasst aber nur eine einzige Bitmap.
+        &#x27;&#x27;&#x27; &lt;/summary&gt;
+        MouseCanDrop
+        &#x27;
+    End Enum
+    Public Enum CacheIndex
+        SpielStein
+        EditorStein
+        SpielMouseOver
+        EditorMouseOver
+        SpielSelected
+        EditorSelected
+        SpielCanDrop
+        EditorCanDrop
+        UBound = EditorCanDrop
+    End Enum
+
+    &#x27;&#x27;&#x27; &lt;summary&gt;
+    &#x27;&#x27;&#x27; Gibt an, was zurückgegeben wird, wenn Hue = 360.
+    &#x27;&#x27;&#x27; Hue = 0, Schwarz, Grau wie der B-Wert vorgibt,
+    &#x27;&#x27;&#x27; Weiß oder Graus aus dem B-Wert 100-B 
+    &#x27;&#x27;&#x27; &lt;/summary&gt;
+    Public Enum Hue360Mode
+        &#x27;
+        &#x27;&#x27;&#x27; &lt;summary&gt;
+        &#x27;&#x27;&#x27; Behandelt Hue &gt;= 360 als Hue = 0.
+        &#x27;&#x27;&#x27; Das ist der Default
+        &#x27;&#x27;&#x27; &lt;/summary&gt;
+        Hue0
+        &#x27;
+        &#x27;&#x27;&#x27; &lt;summary&gt;
+        &#x27;&#x27;&#x27; 360 ergibt Schwarz
+        &#x27;&#x27;&#x27; 361 ergibt Weiß
+        &#x27;&#x27;&#x27; &lt;/summary&gt;
+        Black360White361
+        &#x27;
+        &#x27;&#x27;&#x27; &lt;summary&gt;
+        &#x27;&#x27;&#x27; Gibt Schwarz zurück
+        &#x27;&#x27;&#x27; &lt;/summary&gt;
+        Black
+        &#x27;
+        &#x27;&#x27;&#x27; &lt;summary&gt;
+        &#x27;&#x27;&#x27; Gibt einen Grauwert aus dem B-Wert in Prozent zurück
+        &#x27;&#x27;&#x27; &lt;/summary&gt;
+        Grey
+        &#x27;
+        &#x27;&#x27;&#x27; &lt;summary&gt;
+        &#x27;&#x27;&#x27; Gibt Weiß zurück
+        &#x27;&#x27;&#x27; &lt;/summary&gt;
+        White
+        &#x27;
+        &#x27;&#x27;&#x27; &lt;summary&gt;
+        &#x27;&#x27;&#x27; Gibt einen Grauwert aus (100 - B) in Prozent zurück
+        &#x27;&#x27;&#x27; &lt;/summary&gt;
+        GreyReverse
+    End Enum
+
+    Public Enum LightMap
+        Diagonal
+        Zentral
+        RahmenXS
+        RahmenS
+        RahmenM
+        RahmenL
+        RahmenXL
+    End Enum
+
+    &#x27;&#x27;&#x27; &lt;summary&gt;
+    &#x27;&#x27;&#x27; Alle echten Daten-Properties von TileColors.
+    &#x27;&#x27;&#x27; AppRoot und die ...Xml-Hilfsproperties sind bewusst nicht enthalten.
+    &#x27;&#x27;&#x27; &lt;/summary&gt;
+    Public Enum SteinValue
+        SteinSatz
+        HueBasisNormal
+        HueBasisWinde
+        HueBasisBlüten
+        HueBasisJahrezeiten
+        HueFaceFrame
+        SatFaceFrame
+        BrgFaceFrame
+        HueSymbolOutline
+        HueSymbolGradientTo
+        HueSymbolGradientFrom
+        SymbolGradientMode
+        SymbolOutlineWidth
+        SatI01Normal
+        BrgI01Normal
+        SatI02Selected
+        BrgI02Selected
+        SatI03Selectable
+        BrgI03Selectable
+        SatI04Removable
+        BrgI04Removable
+        SatI05Locked
+        BrgI05Locked
+        SatI06WerkstückStein
+        BrgI06WerkstückStein
+        SatI07MissingSecond
+        BrgI07MissingSecond
+        SatI08WerkstückEinfügeFehler
+        BrgI08WerkstückEinfügeFehler
+        SatI09WerkstückZufallsgrafik
+        BrgI09WerkstückZufallsgrafik
+        DeltaSatBasisToLayerUp
+        DeltaBrgBasisToLayerUp
+        DeltaSatBasisToLayerDn
+        DeltaBrgBasisToLayerDn
+        DeltaSatBasisKorrektur
+        DeltaBrgBasisKorrektur
+        FaceLichtkarte
+        ShiftLayer
+        ShiftFace
+        Kommentar
+        FaceBor derColor
+    End Enum
+
+ End Module
+</pre>
+    </details>
+  </div>
+</main>
+</body>
+</html>

@@ -1,4 +1,8 @@
-﻿'
+﻿Option Compare Text
+Option Explicit On
+Option Infer Off
+Option Strict On
+'
 ' SPDX-License-Identifier: GPL-3.0-or-later
 '###########################################################################
 '#                                                                         #
@@ -20,10 +24,7 @@
 '###########################################################################
 '
 '
-Option Compare Text
-Option Explicit On
-Option Infer Off
-Option Strict On
+Imports MahjongGK.Contracts.GlobalEnum
 
 #Disable Warning IDE0079
 #Disable Warning IDE1006
@@ -81,7 +82,7 @@ Public Class Werkstück
     ''' Steinen im Vorrat übergeben.
     ''' </summary>
     ''' <param name="vorrat"></param>
-    Public Sub SetSteinVorrat(vorrat As List(Of SteinIndexEnum))
+    Public Sub SetSteinVorrat(vorrat As List(Of SteinTyp))
 
         If SteineNeeded <= 0 Then
             _resultOK = False
@@ -125,6 +126,5 @@ Public Class Werkstück
             End If
         End Get
     End Property
-
 
 End Class

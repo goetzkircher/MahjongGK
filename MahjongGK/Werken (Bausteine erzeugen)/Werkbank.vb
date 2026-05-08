@@ -2,6 +2,8 @@
 Option Explicit On
 Option Infer Off
 Option Strict On
+Imports MahjongGK.Contracts.GlobalEnum
+
 '
 ' SPDX-License-Identifier: GPL-3.0-or-later
 '###########################################################################
@@ -96,8 +98,9 @@ Public Class Werkbank
                 For idx As Integer = 0 To SteinInfos.Count - 1
                     With SteinInfos(idx)
                         .IsWerkbankStein = True
-                        .SteinStatusIst = SteinStatus.I09WerkstückZufallsgrafik
-                        .SteinStatusUsed = SteinStatus.I09WerkstückZufallsgrafik
+                        'TODO andere Möglichkeit?
+                        '.SteinStatusIst = SteinStatus.I09WerkstückZufallsgrafik
+                        '.SteinStatusUsed = SteinStatus.I09WerkstückZufallsgrafik
                     End With
                 Next
             End If
@@ -111,12 +114,13 @@ Public Class Werkbank
                     With SteinInfos(idx)
                         If demoMode Then
                             .IsWerkbankStein = False
-                            .SteinStatusIst = SteinStatus.I01Normal
-                            .SteinStatusUsed = SteinStatus.I01Normal
+                            'TODO
+                            '.SteinStatusIst = SteinStatus.I01Normal
+                            '.SteinStatusUsed = SteinStatus.I01Normal
                         Else
                             .IsWerkbankStein = True
-                            .SteinStatusIst = SteinStatus.I09WerkstückZufallsgrafik
-                            .SteinStatusUsed = SteinStatus.I09WerkstückZufallsgrafik
+                            '.SteinStatusIst = SteinStatus.I09WerkstückZufallsgrafik
+                            '.SteinStatusUsed = SteinStatus.I09WerkstückZufallsgrafik
                         End If
                     End With
                 Next
@@ -184,7 +188,7 @@ Public Class Werkbank
     ''' </summary>
     ''' <param name="steinPos3D"></param>
     ''' <returns></returns>
-    Public Function AddSteinToSpielfeld(steinIndex As SteinIndexEnum, steinPos3D As Triple, Optional tmpDebug As Integer = 0) As Boolean
+    Public Function AddSteinToSpielfeld(steinIndex As SteinTyp, steinPos3D As Triple, Optional tmpDebug As Integer = 0) As Boolean
 
         'Der steinInfoIndex wird hier gesichert, obwohl er gleichlautend ist mit dem
         'Index in SteinInfos. Grund: werden später Steine im Editor entfernt, verschieben sich die
@@ -220,14 +224,14 @@ Public Class Werkbank
                             tpl.y = 2
 
                             'SetStein rekursiv, aber mit jetzt gültigen Werten aufrufen
-                            AddSteinToSpielfeld(SteinIndexEnum.ErrorSy, tpl)
+                            AddSteinToSpielfeld(SteinTyp.ErrorSy, tpl)
                             Return False
                         End If
 
                     Case ValidePlace.Yes, ValidePlace.NoFundamentFound
                         ' FoundResult.NoFundament ist in diesem Fall OK, er wird zum freischwebendem Stein.
                         'SetStein rekursiv, aber mit jetzt gültigen Werten aufrufen
-                        AddSteinToSpielfeld(SteinIndexEnum.ErrorSy, tplR)
+                        AddSteinToSpielfeld(SteinTyp.ErrorSy, tplR)
                         Return False
                 End Select
             Loop

@@ -8,6 +8,7 @@ Option Explicit On
 Option Infer Off
 Option Strict On
 
+Imports MahjongGK.Contracts.GlobalEnum
 Imports MahjongGK.Spielfeld
 
 #Disable Warning IDE0079
@@ -36,12 +37,12 @@ Public Class AirJobSelector
     Sub New(sfd As SFDaten, steinInfoIndex As Integer)
         _sfd = sfd
         _steinInfoIndex = steinInfoIndex
-        _steinIndex = SteinIndexEnum.ErrorSy
+        _steinTypIndex = SteinTyp.ErrorSy
         Initialisierung()
     End Sub
-    Sub New(sfd As SFDaten, steinIndex As SteinIndexEnum)
+    Sub New(sfd As SFDaten, steinIndex As SteinTyp)
         _sfd = sfd
-        _steinIndex = steinIndex
+        _steinTypIndex = steinIndex
         _steinInfoIndex = -1
         Initialisierung()
     End Sub
@@ -59,15 +60,15 @@ Public Class AirJobSelector
         End Get
     End Property
 
-    Private _steinIndex As SteinIndexEnum
+    Private _steinTypIndex As SteinTyp
     ''' <summary>
-    ''' Wenn HasSteinInfoIndex False ist, wird SteinIndexEnum.ErrorSy zurückgegeben,
-    ''' (SteinIndexEnum ist der Index auf die Bitmap des Steines) 
+    ''' Wenn HasSteinInfoIndex False ist, wird SteinTyp.ErrorSy zurückgegeben,
+    ''' (SteinTyp ist der Index auf die Bitmap des Steines) 
     ''' </summary>
     ''' <returns></returns>
-    Public ReadOnly Property SteinIndex As SteinIndexEnum
+    Public ReadOnly Property SteinTypIndex As SteinTyp
         Get
-            Return _steinIndex
+            Return _steinTypIndex
         End Get
     End Property
 

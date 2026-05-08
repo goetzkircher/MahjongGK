@@ -1,4 +1,8 @@
-﻿'
+﻿Option Compare Text
+Option Explicit On
+Option Infer Off
+Option Strict On
+'
 ' SPDX-License-Identifier: GPL-3.0-or-later
 '###########################################################################
 '#                                                                         #
@@ -21,10 +25,8 @@
 '
 '
 
-Option Compare Text
-Option Explicit On
-Option Infer Off
-Option Strict On
+Imports MahjongGK.Contracts
+Imports TileFactory
 
 Namespace Spielfeld
 
@@ -291,9 +293,8 @@ Namespace Spielfeld
         ''' und hier angepasst werden kann.
         ''' </summary>
         ''' <param name="outputRect"></param>
-        ''' <param name="aktRenderModeChanged"></param>
-        ''' <param name="forceUpdate"></param>
-        Public Sub UpdateSpielfeldLayout(outputRect As Rectangle, aktRenderModeChanged As Boolean, Optional forceUpdate As Boolean = False)
+        ''' <param name="aktRenderModeOrSteinBasisSizeChanged"></param>
+        Public Sub UpdateSpielfeldLayout(outputRect As Rectangle, aktRenderModeOrSteinBasisSizeChanged As Boolean)
 
             Dim saveToTmpVerz As Boolean = False
 
@@ -302,7 +303,7 @@ Namespace Spielfeld
             'True: es gibt ein gültiges Rect, d.h. es wurde bereits gerendert
             Dim createFrozenBitmap As Boolean = (rxOutput IsNot Nothing AndAlso Not rxOutput.IsEmpty)
 
-            If aktRenderModeChanged Then
+            If aktRenderModeOrSteinBasisSizeChanged Then
                 changed = True
             End If
             '
@@ -311,20 +312,15 @@ Namespace Spielfeld
             'wegen des Widening Operator in RectangleX, der automatisch
             'die Konvertierung vornimmt.
             '
-            'Hier kann eine Abweichung der genutzten Größe
-            'von der vorhandenen Größe eigestellt werden.
-            Const deflate As Integer = 0
-            If changed Or forceUpdate Then
+            If changed Then
                 rxOutput = outputRect
                 rxOutputUsed = rxOutput.DeepCopy
-                rxOutputUsed.Height -= deflate
             Else
                 If rxOutput = outputRect Then
                     Exit Sub
                 Else
                     rxOutput = outputRect
                     rxOutputUsed = rxOutput.DeepCopy
-                    rxOutputUsed.Height -= deflate
                 End If
             End If
 
@@ -411,13 +407,13 @@ Namespace Spielfeld
                 AktLayout = Layout.None
             End If
 
-            'Die Steinabmessungen werden interativ berechnet.
+            'Die Steinabmessungen werden iterativ berechnet.
             'Sie sind abhängig von der Feldgröße in Steinen, der Feldgröße in Pixeln
             'und der Feldhöhe in Pixelverschiebungen je Stein und Ebene und ob oben die Vorratssteine sind.
             'Zusätzlich fließen noch die Paddings rings um das Ausgaberechteck in die Berechnung ein.
             '
             'Startwerte:
-            steinSize = New Size(INI.Images_OrgGrafikSizeWidth, INI.Images_OrgGrafikSizeHeight)
+            steinSize = INI.Tile_BasisSize
             CreateMainLayoutIterativStep() 'Berechnung des Layouts mit dieser Steingröße.
             'Daraus ergibt sich eine neue Steingröße.
             'die "+ 2" ergeben sich aus: Wert aufrunden + 1.
@@ -436,8 +432,13 @@ Namespace Spielfeld
 
                 steinSizeIteration = GetNewSteinSize(shrink)
 
-                offset3DLeftJeEbene = CInt(Math.Max(INI.Rendering_Offset3DFaktorAbsolutX * steinSizeIteration.Width, CDbl(INI.Rendering_Offset3DMinPerLayerX)))
-                offset3DTopJeEbene = CInt(Math.Max(INI.Rendering_Offset3DFaktorAbsolutY * steinSizeIteration.Height, CDbl(INI.Rendering_Offset3DMinPerLayerY)))
+                Dim size As Size = TileFactoryAPI.GetShadowSize(steinSizeIteration, INI.Tile_BasisSize)
+
+                offset3DLeftJeEbene = size.Width
+                offset3DTopJeEbene = size.Height
+
+                'offset3DLeftJeEbene = CInt(Math.Max(INI.Rendering_Offset3DFaktorAbsolutX * steinSizeIteration.Width, CDbl(INI.Rendering_Offset3DMinPerLayerX)))
+                'offset3DTopJeEbene = CInt(Math.Max(INI.Rendering_Offset3DFaktorAbsolutY * steinSizeIteration.Height, CDbl(INI.Rendering_Offset3DMinPerLayerY)))
 
                 offset3DLeftSumme = offset3DLeftJeEbene * _sfd.SFInf.zMax
                 offset3DTopSumme = offset3DTopJeEbene * _sfd.SFInf.zMax
@@ -478,8 +479,8 @@ Namespace Spielfeld
                 steinHeightLastCreated = steinHeight
             End If
 
-            offset3DLeftJeEbene *= INI.Rendering_Offset3DFaktorSignX
-            offset3DTopJeEbene *= INI.Rendering_Offset3DFaktorSignY
+            'offset3DLeftJeEbene *= INI.Rendering_Offset3DFaktorSignX
+            'offset3DTopJeEbene *= INI.Rendering_Offset3DFaktorSignY
 
             If offset3DLeftJeEbene < 0 Then
                 offset3DLeftSumme = 0
@@ -612,29 +613,8 @@ Namespace Spielfeld
             '     b) Sonst Referenzmaße; wenn eine Seite < SRC_MIN, dann auf Original ausweichen
             '     c) Beide Seiten am Ende auf SRC_MAX deckeln
 
-            Dim baseW As Double
-            Dim baseH As Double
-
-            If INI.Images_UseGrafikOrgSize Then
-                baseW = CDbl(INI.Images_OrgGrafikSizeWidth)
-                baseH = CDbl(INI.Images_OrgGrafikSizeHeight)
-            Else
-                Dim refW As Integer = INI.Images_OrgGrafikReferenceSizeWidth
-                Dim refH As Integer = INI.Images_OrgGrafikReferenceSizeHeight
-
-                If refW < MJ_GRAFIK_SRC_MIN_WIDTH_OR_HEIGHT OrElse refH < MJ_GRAFIK_SRC_MIN_WIDTH_OR_HEIGHT Then
-                    ' Referenz zu klein -> Original nehmen
-                    baseW = CDbl(INI.Images_OrgGrafikSizeWidth)
-                    baseH = CDbl(INI.Images_OrgGrafikSizeHeight)
-                ElseIf refW > MJ_GRAFIK_SRC_MAX_WIDTH_OR_HEIGHT OrElse refH > MJ_GRAFIK_SRC_MAX_WIDTH_OR_HEIGHT Then
-                    ' Referenz zu groß -> Original nehmen
-                    baseW = CDbl(INI.Images_OrgGrafikSizeWidth)
-                    baseH = CDbl(INI.Images_OrgGrafikSizeHeight)
-                Else
-                    baseW = CDbl(refW)
-                    baseH = CDbl(refH)
-                End If
-            End If
+            Dim baseW As Double = CDbl(INI.Tile_BasisSize.Width)
+            Dim baseH As Double = CDbl(INI.Tile_BasisSize.Height)
 
             ' --- 2) Seitenverhältnis und längere Seite bestimmen ----------------------------
             '      Hinweis: baseW/baseH sind jetzt valide (>= SRC_MIN, <= SRC_MAX) oder wie Original
@@ -827,7 +807,7 @@ Namespace Spielfeld
 
                     'If fDoStop Then Stop
 
-                    rxBitmapUgrd = New RectangleX(rxOutputUsed)
+                    rxBitmapUgrd = New RectangleX(rxOutputUsed, addHeight:=-1)
                     rxHeader = rxBitmapUgrd.GetRectangleXInside(width:=-1, INI.Rendering_HeaderHeight, align:=RectangleX.Align.Top)
                     rxContent = rxBitmapUgrd.GetRectangleXInside(width:=-1, height:=-1, align:=RectangleX.Align.Center)
                     rxContent.IncTop(rxHeader.Height + 1)

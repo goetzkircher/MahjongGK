@@ -1,4 +1,6 @@
-﻿Namespace Spielfeld
+﻿Imports MahjongGK.Contracts.GlobalEnum
+
+Namespace Spielfeld
 
     'Hinweis: Die Begriffe "AirPlane" und "Plane" verwende ich Synonym,
     'Plane ist eine Instanz oder eine Variable
@@ -60,7 +62,7 @@
         ''' <summary>
         ''' Für Steine aus dem Vorrat.
         ''' </summary>
-        Public Sub CreateNewPlane(stockIndex As Integer, steinIndex As SteinIndexEnum, dragDropAktiv As Boolean, srcRect As Rectangle, insertAt As AirplaneInsertAt)
+        Public Sub CreateNewPlane(stockIndex As Integer, steinIndex As SteinTyp, dragDropAktiv As Boolean, srcRect As Rectangle, insertAt As AirplaneInsertAt)
             Dim plane As New Airplane(_sfd, stockIndex, steinIndex, dragDropAktiv, srcRect)
             AddPlane(plane, insertAt)
         End Sub
@@ -74,13 +76,13 @@
         End Property
 
         ''' <summary>
-        ''' Wenn HasSteinInfoIndex False ist, wird SteinIndexEnum.ErrorSy zurückgegeben,
-        ''' (SteinIndexEnum ist der Index auf die Bitmap des Steines) 
+        ''' Wenn HasSteinInfoIndex False ist, wird SteinTyp.ErrorSy zurückgegeben,
+        ''' (SteinTyp ist der Index auf die Bitmap des Steines) 
         ''' </summary>
         ''' <returns></returns>
-        Public ReadOnly Property AktSteinIndex As SteinIndexEnum
+        Public ReadOnly Property AktSteinIndex As SteinTyp
             Get
-                Return _aktPlane.SteinIndex
+                Return _aktPlane.SteinTypIndex
             End Get
         End Property
 
@@ -190,28 +192,6 @@
                 Return _aktPlane.BmpPlacable
             End Get
         End Property
-
-#End Region
-
-#Region "Dirty"
-
-        Private _isDirty As Boolean
-        '
-        ''' <summary>
-        ''' Wird aus dem Rendermanager heraus aufgerufen und stellt
-        ''' die Renderung sicher. (Kein Überspringen der Renderung
-        ''' zugunsten der Ausgabe der vorherigen Renderung)
-        ''' </summary>
-        ''' <returns></returns>
-        Public Function ConsumePlaneAnimationDirtyFlag() As Boolean
-            Dim value As Boolean = _isDirty
-            _isDirty = False
-            Return value
-        End Function
-
-        Private Sub MakeDirty()
-            _isDirty = True
-        End Sub
 
 #End Region
 
@@ -519,7 +499,7 @@
         '
         '
         ''' <summary>
-        ''' Wird intern oder extern von Poll aufgerufen.
+        ''' Wird intern oder extern von ConsumeAirplanePolling aufgerufen.
         ''' </summary>
         Public Sub ResetNextPlane()
             _aktPlaneIndex = -1
@@ -528,7 +508,7 @@
         ''' <summary>
         ''' Wird in einer DoLoop aufgerufen, bis False zurückgegeben wird.
         ''' Solange True, kann über AktPlane zugegriften werden.
-        ''' Von Poll (aus dem Renderer heraus) wird immer zuerst zurückgesetzt,
+        ''' Von ConsumeAirplanePolling (aus dem Renderer heraus) wird immer zuerst zurückgesetzt,
         ''' sodaß alle Planes durchlaufen werden.
         ''' </summary>
         ''' <returns></returns>
@@ -632,6 +612,8 @@
         Private _klickAreaGroup As AirKlickAreaGroup
         Private _klickIsDragDropKandidat As Boolean
 
+        Private _isDirty As Boolean
+
         Private Enum DragDropJob
             FirstStep
             Active
@@ -643,12 +625,8 @@
             Dispose() ' Disposed die Planes.
         End Sub
         '
-        ''' <summary>
-        ''' Poll wir immer aufgerufen, fragt aber als erstes das Flag _polling ab,
-        ''' das durch Polling_Start gesetzt wird und durch Polling_Pause und 
-        ''' Polling_End gelöscht wird. Polling_End disposed zusätzlich.  
-        ''' </summary>
-        Public Function Poll() As Boolean
+
+        Public Function ConsumeAirplanePolling() As Boolean
 
             'alle in der Region benötigten Werte lokal laden.
             _leftMousePressed = _sfd.SFRun.MousePolling.ConsumeLeftMousePressed()
@@ -687,7 +665,12 @@
             '
             DoRenderstep()
 
-            Return _isDirty
+            If _isDirty Then
+                _isDirty = False
+                Return True
+            Else
+                Return False
+            End If
 
         End Function
 
@@ -822,7 +805,7 @@
                         Dim tpl As Triple = _sfd.SFInf.IsFundamentKandidat(_mousePos)
                         If tpl.IsValideYes Then
                             Dim rect As Rectangle = _sfd.SFInf.GetSteinRenderRect(tpl)
-                            RenderBuffer.AddRenderBitmapTopZOrder(rect, .BmpGhost)
+                            RenderBuffer.AddRenderBitmapTopZOrder(rect, .BmpGhost, insertAtPreviousPos:=True)
                             _aktValideMouseTripl = tpl
                         Else
                             _aktValideMouseTripl.Valide = ValidePlace.NotSet
@@ -836,7 +819,7 @@
                             If .HasSteinInfoIndex Then
                                 'Umsetzen innerhalb des Editors
                                 _sfd.SFInf.RemoveSteinFromSpielfeld(.SteinInfoIndex)
-                                _sfd.SFInf.AddSteinToSpielfeld(.SteinIndex, _aktValideMouseTripl)
+                                _sfd.SFInf.AddSteinToSpielfeld(.SteinTypIndex, _aktValideMouseTripl)
                             End If
                         End If
 
@@ -888,6 +871,10 @@
 
         End Sub
         '
+
+        Private Sub MakeDirty()
+            _isDirty = True
+        End Sub
 
 #End Region
 

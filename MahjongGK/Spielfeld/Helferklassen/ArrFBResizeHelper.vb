@@ -3,6 +3,8 @@ Option Explicit On
 Option Infer Off
 Option Strict On
 
+Imports MahjongGK.Contracts
+
 Namespace Spielfeld
     Public Module ArrFBResizeHelper
 

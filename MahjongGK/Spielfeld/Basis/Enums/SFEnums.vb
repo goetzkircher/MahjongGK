@@ -3,6 +3,8 @@
 'Gespeichert als ...\SFKlassen\SFEnums
 '##############################################################################
 
+Imports MahjongGK.Contracts.GlobalEnum
+
 ''' <summary>
 ''' Pfad: MahjongGK/Spielfeld/Basis
 ''' </summary>
@@ -42,16 +44,16 @@ Public Module SFEnums
 
     End Enum
     '
-    ''' <summary>
-    ''' Der Rendermode mit eingeschränktem Wertebereich:
-    ''' Paused und NoDataLoad sind zusammengefasst zu None.
-    ''' Spiel und Edit bleiben.
-    ''' </summary>
-    Public Enum AktRenderMode
-        None
-        Spiel = 2
-        Edit = 4
-    End Enum
+    '''' <summary>
+    '''' Der Rendermode mit eingeschränktem Wertebereich:
+    '''' Paused und NoDataLoad sind zusammengefasst zu None.
+    '''' Spiel und Edit bleiben.
+    '''' </summary>
+    ''Public Enum AktRenderMode
+    ''    None
+    ''    Spiel = 2
+    ''    Edit = 4
+    ''End Enum
 
     ''' <summary>
     ''' Wandelt RenderMode per Bitmaske in SpielMode um.
@@ -67,94 +69,8 @@ Public Module SFEnums
 
 #Region "Stein-Enums"
 
-    ''' <summary>
-    ''' Die Unterverzeichnisse In "C:\Users\goetz\Documents\Visual Studio\MahjongGK\Eigene Ressourcen Quelle\Mahjongsteine"
-    ''' enthalten jeweils einen kompletten Satz Steine und sie heißen nach dieser Enum.
-    ''' </summary>
-    Public Enum SteinSatz
-        None
-        Satz1
-        Satz2
-    End Enum
-
-    ''' <summary>
-    ''' Im Verzeichnis des aktiven Steinsatzes gibt es für jeden Stein
-    ''' einen Unterordner, der den Status des Steins beschreibt.
-    ''' Diese Enum enthält die möglichen Stati.
-    ''' </summary>
-    Public Enum SteinStatus
-        ''' <summary>
-        ''' Wenn das Programm innerhalb der IDE läuft, kann das Programmverhalten
-        ''' über den Schalter "unsichtbare Steine sichtbar machen" geändert werden.
-        ''' Es werden dann halbtransparente graue Steine mit Rotem Kreis und Indexnummer
-        ''' angezeigt.
-        ''' </summary>
-        I00Unsichtbar          ' nicht sichtbar (Geistergrafik möglich)
-        I01Normal
-        I02Selected           'hier ohne Bedeutung. Der ersten Stein eines Paares, den der Spieler angeklickt hat
-        I03Selectable        ' einzeln klickbar, aber ohne Paarstein
-        I04Removable        ' klickbar und Teil eines gültigen Paars (oder noch weiterer gültiger Steine)
-        I05Locked
-        I06NotUnsed            ' nur für Schwierigkeitslevel-Auswahl
-        I07MissingSecond       ' im Editor, wenn Partnerstein fehlt
-        I08WerkstückEinfügeFehler
-        I09WerkstückZufallsgrafik
-        I10Reserve1            ' Geistergrafik
-        I11Reserve2            ' Geistergrafik
-    End Enum
-    '
-    ''' <summary>
-    ''' Der Index auf die in Mahjong verwendeten Steine.
-    ''' In jedem Verzeichnis des Steinstatus gibt es für jeden Stein
-    ''' eine PNG-Datei, die die Bizmap des Steines enthält.
-    ''' </summary>
-    Public Enum SteinIndexEnum
-        ErrorSy
-        Punkt01
-        Punkt02
-        Punkt03
-        Punkt04
-        Punkt05
-        Punkt06
-        Punkt07
-        Punkt08
-        Punkt09
-        Bambus1
-        Bambus2
-        Bambus3
-        Bambus4
-        Bambus5
-        Bambus6
-        Bambus7
-        Bambus8
-        Bambus9
-        Symbol1
-        Symbol2
-        Symbol3
-        Symbol4
-        Symbol5
-        Symbol6
-        Symbol7
-        Symbol8
-        Symbol9
-        DracheR
-        DracheG
-        DracheW
-        WindOst
-        WindSüd
-        WindWst
-        WindNrd
-        BlütePf
-        BlüteOr
-        BlüteCt
-        BlüteBa
-        JahrFrl
-        JahrSom
-        JahrHer
-        JahrWin
-    End Enum
-
 #End Region
+    'ChagGPT: alles ausgeklammerte mit aufnehmen
     '
     ' StoneStream
     ' |Base144              

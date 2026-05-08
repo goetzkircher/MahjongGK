@@ -69,10 +69,7 @@ Public Class UCtlSpielfeld
         If SFMain.SFDatHasDataAndDoRender Then
             Dim factor As Double = SFMain.SFDat.SFRenMan.RenderTakt.TimeDifferenzFaktor
 
-            SFMain.SFDat.SFRenMan.PaintSpielfeld_Paint(VisibleUserControl.Spielfeld,
-                                            e,
-                                           New Rectangle(0, 0, Me.Width, Me.Height),
-                                           factor)
+            SFMain.SFDat.SFRenMan.PaintUCtlSpielfeld(e, New Rectangle(0, 0, Me.Width, Me.Height), factor)
         Else
             RenderingStartScreen.PaintStartScreen(e.Graphics, New Rectangle(0, 0, Me.Width, Me.Height))
         End If

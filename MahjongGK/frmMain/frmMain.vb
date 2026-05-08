@@ -26,7 +26,11 @@ Option Strict On
 '
 
 Imports System.Drawing.Imaging
+Imports System.IO
+Imports System.Text.RegularExpressions
+Imports MahjongGK.Contracts
 Imports MahjongGK.Spielfeld
+Imports TileFactory
 
 #Disable Warning IDE0079
 #Disable Warning IDE1006
@@ -48,6 +52,8 @@ Public Class frmMain
 
     Private Sub Test1(value As Boolean)
 
+        'SFMain.SFDat.SFInf.UpdateTopSteinInfos()
+        Me.Hide()
         Dim c As New ColorPickerHSB
         c.ShowDialog()
 
@@ -60,6 +66,7 @@ Public Class frmMain
         'Using frm As New frmWebPTest
         '    frm.ShowDialog()
         'End Using
+        UCtlSpielfeldMain.Invalidate()
 
     End Sub
 
@@ -67,9 +74,10 @@ Public Class frmMain
 
         AktVisibleUserControl = VisibleUserControl.Spielfeld
 
-        Dim newSpielfeldInfo As New SFInfo(New Triple(6, 5, 4))
-
-        Dim wbsSF As Werkstück = Umfeld.Werkstück_Pyramide(New Triple(5, 4, 3), True, True, demoMode:=True) ', True, True)
+        'Dim newSpielfeldInfo As New SFInfo(New Triple(MJ_STEINE_MAXX, MJ_STEINE_MAXY, MJ_STEINE_MAXZ))
+        'Dim wbsSF As Werkstück = Umfeld.Werkstück_Pyramide(New Triple(MJ_STEINE_MAXX \ 2, MJ_STEINE_MAXY * 3 \ 2, MJ_STEINE_MAXZ), True, True, demoMode:=True) ', True, True)
+        Dim newSpielfeldInfo As New SFInfo(New Triple(10, 10, 10))
+        Dim wbsSF As Werkstück = Umfeld.Werkstück_Pyramide(New Triple(10, 14, 10), True, True, demoMode:=True) ', True, True)
         'Dim wbsSF As Werkstück = Umfeld.Werkstück_Rechteck(New Triple(5, 6, 10), demoMode:=True) ', True, True)
 
         newSpielfeldInfo.AddWerkstückToSpielfeld(wbsSF, New Triple(1, 1, 0))
@@ -142,6 +150,8 @@ Public Class frmMain
     End Sub
 
     Private Sub frmMain_Load(sender As Object, e As EventArgs) Handles Me.Load
+
+        CheckIniFileWhenStartedInIde()
 
         'Starup 1) Startup-Bounds bestimmen (INI oder zentriert auf einem ausgewählten Screen)
         Dim iniRect As Rectangle = INI.Sonstiges_FrmMainStartupPosition
@@ -236,7 +246,8 @@ Public Class frmMain
 
         'Das Menue wird dynamisch erzeugt, damit es
         'übersichtlicher wird, als die statische Erzeugung im Designer.
-        BuildMenu(Me.MenuStripExMain)
+        ' BuildMenu_ZLV(Me.MenuStripExMain)
+        InitializeMainMenu()
 
         BuildBottomToolStrip()
 
@@ -252,9 +263,6 @@ Public Class frmMain
         'Die INI ist bereits initialisiert, das passiert beim allererstem Zugriff auf einen Wert automatisch.
         'hier geht es um eine Reinitialisierung mit Werten der IniEvents.
         INI.Initialisierung(update:=True, raiseIniEventsDefault:=IniEvents.OnChangeValue)
-
-        'Die Steine Laden
-        Images.SGM.PreloadSteinSatz(INI.Images_PreloadSteinsatz)
 
         '' Obsolet durch 1) Startup-Bounds bestimmen  Me.EnsureLocationVisibleOnAnyScreen()
 
@@ -281,6 +289,12 @@ Public Class frmMain
                 End If
             End Sub
         splashkiller.Start()
+
+        TileFactoryINISettings.Tile_TextUseSegoeUISymbol = INI.Tile_TextUseSegoeUISymbol
+        TileFactory.EnsureRuntimeTileColorsSynchronized(INI.Tile_DontOverwriteExistingTileColorsFiles)
+
+        TileFactoryAPI.Initialisierung()
+        INI.Tile_TileColors_Load()
 
     End Sub
 
@@ -328,11 +342,11 @@ Public Class frmMain
 
 #End Region
 
-#Region "HauptMenue"
+#Region "HauptMenue ZLV"
 
-    ' --- Properties, Felder, Enums ---
-    Private menuEnableBindings As New List(Of Tuple(Of ToolStripMenuItem, Func(Of Boolean)))
-    Private menuVisibleBindings As New List(Of Tuple(Of ToolStripMenuItem, Func(Of Boolean)))
+    '' --- Properties, Felder, Enums ---
+    'Private menuEnableBindings As New List(Of Tuple(Of ToolStripMenuItem, Func(Of Boolean)))
+    'Private menuVisibleBindings As New List(Of Tuple(Of ToolStripMenuItem, Func(Of Boolean)))
 
     Private Sub ChangeVisibleControl(ctrl As VisibleUserControl)
         AktVisibleUserControl = ctrl
@@ -405,9 +419,10 @@ Public Class frmMain
                 If Debugger.IsAttached Then
                     Stop 'Das UserControl existiert noch nicht.
                 End If
+                Exit Property
             End Try
 
-            RefreshMenuStates()
+            'RefreshMenuStates()
 
             Spielfeld.SFMain.SetVisibleUserControl(VisibleUserControls(value), value)
 
@@ -416,169 +431,169 @@ Public Class frmMain
         End Set
     End Property
 
-    ' --- Spezial-Label für rechtsbündige Menüs ---
-    Private Class ToolStripSpringLabel
-        Inherits ToolStripLabel
-        Protected Overrides Sub OnLayout(e As LayoutEventArgs)
-            MyBase.OnLayout(e)
-            If Me.Owner IsNot Nothing Then
-                Dim springSpace As Integer = Me.Owner.DisplayRectangle.Width
-                For Each item As ToolStripItem In Me.Owner.Items
-                    If item IsNot Me AndAlso item.Alignment = ToolStripItemAlignment.Left Then
-                        springSpace -= item.Width
-                    End If
-                Next
-                Me.Width = Math.Max(springSpace, 0)
-            End If
-        End Sub
-    End Class
+    '' --- Spezial-Label für rechtsbündige Menüs ---
+    'Private Class ToolStripSpringLabel
+    '    Inherits ToolStripLabel
+    '    Protected Overrides Sub OnLayout(e As LayoutEventArgs)
+    '        MyBase.OnLayout(e)
+    '        If Me.Owner IsNot Nothing Then
+    '            Dim springSpace As Integer = Me.Owner.DisplayRectangle.Width
+    '            For Each item As ToolStripItem In Me.Owner.Items
+    '                If item IsNot Me AndAlso item.Alignment = ToolStripItemAlignment.Left Then
+    '                    springSpace -= item.Width
+    '                End If
+    '            Next
+    '            Me.Width = Math.Max(springSpace, 0)
+    '        End If
+    '    End Sub
+    'End Class
 
-    ' --- Menüaufbau ---
-    Private Sub BuildMenu(ms As MenuStrip)
+    '' --- Menüaufbau ---
+    'Private Sub BuildMenu_ZLV(ms As MenuStrip)
 
-        ms.Items.Clear()
-        menuEnableBindings.Clear()
-        menuVisibleBindings.Clear()
+    '    ms.Items.Clear()
+    '    menuEnableBindings.Clear()
+    '    menuVisibleBindings.Clear()
 
-        ' === Datei ===
-        Dim mnuDatei As New ToolStripMenuItem("Datei")
-        mnuDatei.DropDownItems.Add(CreateMenuItem("Letzten Spielstand laden", Sub() SpielstandLoad(False)))
-        mnuDatei.DropDownItems.Add(CreateMenuItem("Spielstand laden", Sub() SpielstandLoad(True)))
-        mnuDatei.DropDownItems.Add(New ToolStripSeparator())
-        mnuDatei.DropDownItems.Add(CreateMenuItem("Spielstand speichern", Sub() SpielstandSave(False)))
-        mnuDatei.DropDownItems.Add(CreateMenuItem("Spielstand speichern unter", Sub() SpielstandSave(True)))
-        mnuDatei.DropDownItems.Add(CreateCheckMenuItem("Automatisch speichern",
-                                                       INI.Spielbetrieb_AutoSave,
-                                                       Sub(sender)
-                                                           Dim itm As ToolStripMenuItem = DirectCast(sender, ToolStripMenuItem)
-                                                           INI.Spielbetrieb_AutoSave = itm.Checked
-                                                       End Sub))
-        mnuDatei.DropDownItems.Add(CreateMenuItem("Info", Sub() ShowInfo(Info.AutoSave)))
+    '    ' === Datei ===
+    '    Dim mnuDatei As New ToolStripMenuItem("Datei")
+    '    mnuDatei.DropDownItems.Add(CreateMenuItem("Letzten Spielstand laden", Sub() SpielstandLoad(False)))
+    '    mnuDatei.DropDownItems.Add(CreateMenuItem("Spielstand laden", Sub() SpielstandLoad(True)))
+    '    mnuDatei.DropDownItems.Add(New ToolStripSeparator())
+    '    mnuDatei.DropDownItems.Add(CreateMenuItem("Spielstand speichern", Sub() SpielstandSave(False)))
+    '    mnuDatei.DropDownItems.Add(CreateMenuItem("Spielstand speichern unter", Sub() SpielstandSave(True)))
+    '    mnuDatei.DropDownItems.Add(CreateCheckMenuItem("Automatisch speichern",
+    '                                                   INI.Spielbetrieb_AutoSave,
+    '                                                   Sub(sender)
+    '                                                       Dim itm As ToolStripMenuItem = DirectCast(sender, ToolStripMenuItem)
+    '                                                       INI.Spielbetrieb_AutoSave = itm.Checked
+    '                                                   End Sub))
+    '    mnuDatei.DropDownItems.Add(CreateMenuItem("Info", Sub() ShowInfo(Info.AutoSave)))
 
-        ' === Spiel ===
-        Dim mnuSpiel As New ToolStripMenuItem("Spielfeld")
-        mnuSpiel.DropDownItems.Add(CreateMenuItem("Spielen",
-                                                  Sub() ChangeVisibleControl(VisibleUserControl.Spielfeld),
-                                                   Function() As Boolean
-                                                       Return AktVisibleUserControl <> VisibleUserControl.Spielfeld
-                                                   End Function))
+    '    ' === Spiel ===
+    '    Dim mnuSpiel As New ToolStripMenuItem("Spielfeld")
+    '    mnuSpiel.DropDownItems.Add(CreateMenuItem("Spielen",
+    '                                              Sub() ChangeVisibleControl(VisibleUserControl.Spielfeld),
+    '                                               Function() As Boolean
+    '                                                   Return AktVisibleUserControl <> VisibleUserControl.Spielfeld
+    '                                               End Function))
 
-        mnuSpiel.DropDownItems.Add(CreateMenuItem("Spielfeld wählen",
-                                                  Sub() ChangeVisibleControl(VisibleUserControl.SpielfeldWählen),
-                                                  Function() As Boolean
-                                                      Return AktVisibleUserControl <> VisibleUserControl.SpielfeldWählen
-                                                  End Function))
+    '    mnuSpiel.DropDownItems.Add(CreateMenuItem("Spielfeld wählen",
+    '                                              Sub() ChangeVisibleControl(VisibleUserControl.SpielfeldWählen),
+    '                                              Function() As Boolean
+    '                                                  Return AktVisibleUserControl <> VisibleUserControl.SpielfeldWählen
+    '                                              End Function))
 
-        mnuSpiel.DropDownItems.Add(CreateMenuItem("Spielfeld zufällig wählen", Sub() SelectRandomSpielfeld()))
+    '    mnuSpiel.DropDownItems.Add(CreateMenuItem("Spielfeld zufällig wählen", Sub() SelectRandomSpielfeld()))
 
-        Dim mnuEditor As New ToolStripMenuItem("Editor")
+    '    Dim mnuEditor As New ToolStripMenuItem("Editor")
 
-        Dim editorItem As ToolStripMenuItem = CreateMenuItem("Editor",
-                                                         Sub() ChangeVisibleControl(VisibleUserControl.Spielfeld),
-                                                         Function() As Boolean
-                                                             Return AktVisibleUserControl <> VisibleUserControl.Spielfeld
-                                                         End Function)
+    '    Dim editorItem As ToolStripMenuItem = CreateMenuItem("Editor",
+    '                                                     Sub() ChangeVisibleControl(VisibleUserControl.Spielfeld),
+    '                                                     Function() As Boolean
+    '                                                         Return AktVisibleUserControl <> VisibleUserControl.Spielfeld
+    '                                                     End Function)
 
-        ' Hier wird geprüft, ob der Editor verwendet werden darf
-        menuVisibleBindings.Add(New Tuple(Of ToolStripMenuItem, Func(Of Boolean))(
-                                                    editorItem,
-                                                    Function() As Boolean
-                                                        Return INI.Editor_UsingEditorAllowed
-                                                    End Function
-                                                    ))
-        mnuEditor.DropDownItems.Add(editorItem)
+    '    ' Hier wird geprüft, ob der Editor verwendet werden darf
+    '    menuVisibleBindings.Add(New Tuple(Of ToolStripMenuItem, Func(Of Boolean))(
+    '                                                editorItem,
+    '                                                Function() As Boolean
+    '                                                    Return INI.Editor_UsingEditorAllowed
+    '                                                End Function
+    '                                                ))
+    '    mnuEditor.DropDownItems.Add(editorItem)
 
-        ' === Einstellungen ===
-        Dim mnuEinstellungen As New ToolStripMenuItem("Einstellungen")
-        AddHandler mnuEinstellungen.Click, Sub() ChangeVisibleControl(VisibleUserControl.Einstellungen)
+    '    ' === Einstellungen ===
+    '    Dim mnuEinstellungen As New ToolStripMenuItem("Einstellungen")
+    '    AddHandler mnuEinstellungen.Click, Sub() ChangeVisibleControl(VisibleUserControl.Einstellungen)
 
-        menuEnableBindings.Add(New Tuple(Of ToolStripMenuItem, Func(Of Boolean))(
-                                            mnuEinstellungen,
-                                            Function() As Boolean
-                                                Return AktVisibleUserControl <> VisibleUserControl.Einstellungen
-                                            End Function))
+    '    menuEnableBindings.Add(New Tuple(Of ToolStripMenuItem, Func(Of Boolean))(
+    '                                        mnuEinstellungen,
+    '                                        Function() As Boolean
+    '                                            Return AktVisibleUserControl <> VisibleUserControl.Einstellungen
+    '                                        End Function))
 
-        ' === Rechtsbündiger Teil ===
-        Dim spring As New ToolStripSpringLabel() With {.AutoSize = False}
+    '    ' === Rechtsbündiger Teil ===
+    '    Dim spring As New ToolStripSpringLabel() With {.AutoSize = False}
 
-        ' === Hilfe ===
-        Dim mnuHilfe As New ToolStripMenuItem("Hilfe")
-        mnuHilfe.DropDownItems.Add(CreateMenuItem("Hilfe",
-                                                  Sub() ChangeVisibleControl(VisibleUserControl.Hilfe),
-                                                   Function() As Boolean
-                                                       Return AktVisibleUserControl <> VisibleUserControl.Hilfe
-                                                   End Function))
+    '    ' === Hilfe ===
+    '    Dim mnuHilfe As New ToolStripMenuItem("Hilfe")
+    '    mnuHilfe.DropDownItems.Add(CreateMenuItem("Hilfe",
+    '                                              Sub() ChangeVisibleControl(VisibleUserControl.Hilfe),
+    '                                               Function() As Boolean
+    '                                                   Return AktVisibleUserControl <> VisibleUserControl.Hilfe
+    '                                               End Function))
 
-        mnuHilfe.DropDownItems.Add(CreateMenuItem("About",
-                                                  Sub() ChangeVisibleControl(VisibleUserControl.About),
-                                                   Function() As Boolean
-                                                       Return AktVisibleUserControl <> VisibleUserControl.About
-                                                   End Function))
+    '    mnuHilfe.DropDownItems.Add(CreateMenuItem("About",
+    '                                              Sub() ChangeVisibleControl(VisibleUserControl.About),
+    '                                               Function() As Boolean
+    '                                                   Return AktVisibleUserControl <> VisibleUserControl.About
+    '                                               End Function))
 
-        If INI.Editor_UsingEditorAllowed Then
-            ' --- Menüs hinzufügen ---
-            ms.Items.AddRange({mnuDatei, mnuSpiel, mnuEditor, mnuEinstellungen, spring, mnuHilfe})
-        Else
-            ms.Items.AddRange({mnuDatei, mnuSpiel, mnuEinstellungen, spring, mnuHilfe})
-        End If
+    '    If INI.Editor_UsingEditorAllowed Then
+    '        ' --- Menüs hinzufügen ---
+    '        ms.Items.AddRange({mnuDatei, mnuSpiel, mnuEditor, mnuEinstellungen, spring, mnuHilfe})
+    '    Else
+    '        ms.Items.AddRange({mnuDatei, mnuSpiel, mnuEinstellungen, spring, mnuHilfe})
+    '    End If
 
-    End Sub
+    'End Sub
 
-    ' --- Hilfsfunktionen ---
-    Private Function CreateMenuItem(text As String, action As Action, Optional enabledCondition As Func(Of Boolean) = Nothing) As ToolStripMenuItem
-        Dim itm As New ToolStripMenuItem(text)
-        AddHandler itm.Click, Sub(sender, e) action()
-        If enabledCondition IsNot Nothing Then
-            menuEnableBindings.Add(New Tuple(Of ToolStripMenuItem, Func(Of Boolean))(itm, enabledCondition))
+    '' --- Hilfsfunktionen ---
+    'Private Function CreateMenuItem(text As String, action As Action, Optional enabledCondition As Func(Of Boolean) = Nothing) As ToolStripMenuItem
+    '    Dim itm As New ToolStripMenuItem(text)
+    '    AddHandler itm.Click, Sub(sender, e) action()
+    '    If enabledCondition IsNot Nothing Then
+    '        menuEnableBindings.Add(New Tuple(Of ToolStripMenuItem, Func(Of Boolean))(itm, enabledCondition))
 
-        End If
-        Return itm
-    End Function
+    '    End If
+    '    Return itm
+    'End Function
 
-    Private Function CreateCheckMenuItem(text As String, isChecked As Boolean, onCheckedChanged As Action(Of Object)) As ToolStripMenuItem
-        Dim itm As New ToolStripMenuItem(text) With {.CheckOnClick = True, .Checked = isChecked}
-        AddHandler itm.CheckedChanged,
-            Sub(sender, e)
-                onCheckedChanged(sender)
-            End Sub
-        Return itm
-    End Function
+    'Private Function CreateCheckMenuItem(text As String, isChecked As Boolean, onCheckedChanged As Action(Of Object)) As ToolStripMenuItem
+    '    Dim itm As New ToolStripMenuItem(text) With {.CheckOnClick = True, .Checked = isChecked}
+    '    AddHandler itm.CheckedChanged,
+    '        Sub(sender, e)
+    '            onCheckedChanged(sender)
+    '        End Sub
+    '    Return itm
+    'End Function
 
-    Private Sub RefreshMenuStates()
-        For Each bindingtpl As Tuple(Of ToolStripMenuItem, Func(Of Boolean)) In menuEnableBindings
-            'Debug.WriteLine($"Type von Item2: {bindingtpl.Item2.GetType().FullName}")
-            'Das hier geht nicht, die IDE meckert
-            'Der Wert vom Typ "Func(Of Boolean)" kann nicht in "Boolean" konvertiert werden.
-            'bindingtpl.Item1.Enabled = bindingtpl.Item2()
-            'Nach langer Suche:
-            Dim func As Func(Of Boolean) = bindingtpl.Item2
-            Dim result As Boolean = func()
-            bindingtpl.Item1.Enabled = result
-        Next
-        For Each bindingtpl As Tuple(Of ToolStripMenuItem, Func(Of Boolean)) In menuVisibleBindings
-            'Problem wie oben.
-            Dim func As Func(Of Boolean) = bindingtpl.Item2
-            Dim result As Boolean = func()
-            bindingtpl.Item1.Enabled = result
-        Next
-    End Sub
+    'Private Sub RefreshMenuStates()
+    '    For Each bindingtpl As Tuple(Of ToolStripMenuItem, Func(Of Boolean)) In menuEnableBindings
+    '        'Debug.WriteLine($"Type von Item2: {bindingtpl.Item2.GetType().FullName}")
+    '        'Das hier geht nicht, die IDE meckert
+    '        'Der Wert vom Typ "Func(Of Boolean)" kann nicht in "Boolean" konvertiert werden.
+    '        'bindingtpl.Item1.Enabled = bindingtpl.Item2()
+    '        'Nach langer Suche:
+    '        Dim func As Func(Of Boolean) = bindingtpl.Item2
+    '        Dim result As Boolean = func()
+    '        bindingtpl.Item1.Enabled = result
+    '    Next
+    '    For Each bindingtpl As Tuple(Of ToolStripMenuItem, Func(Of Boolean)) In menuVisibleBindings
+    '        'Problem wie oben.
+    '        Dim func As Func(Of Boolean) = bindingtpl.Item2
+    '        Dim result As Boolean = func()
+    '        bindingtpl.Item1.Enabled = result
+    '    Next
+    'End Sub
 
-    ' --- Platzhalter-Subs ---
-    Private Sub SpielstandLoad(forceDialog As Boolean)
-        MessageBox.Show("SpielstandLoad(" & forceDialog & ")")
-    End Sub
+    '' --- Platzhalter-Subs ---
+    'Private Sub SpielstandLoad(forceDialog As Boolean)
+    '    MessageBox.Show("SpielstandLoad(" & forceDialog & ")")
+    'End Sub
 
-    Private Sub SpielstandSave(forceDialog As Boolean)
-        MessageBox.Show("SpielstandSave(" & forceDialog & ")")
-    End Sub
+    'Private Sub SpielstandSave(forceDialog As Boolean)
+    '    MessageBox.Show("SpielstandSave(" & forceDialog & ")")
+    'End Sub
 
-    Private Sub ShowInfo(infoType As Info)
-        MessageBox.Show("Info: " & infoType.ToString())
-    End Sub
+    'Private Sub ShowInfo(infoType As Info)
+    '    MessageBox.Show("Info: " & infoType.ToString())
+    'End Sub
 
-    Private Sub SelectRandomSpielfeld()
-        MessageBox.Show("Zufälliges Spielfeld wählen")
-    End Sub
+    'Private Sub SelectRandomSpielfeld()
+    '    MessageBox.Show("Zufälliges Spielfeld wählen")
+    'End Sub
 
 #End Region
 
@@ -1241,6 +1256,412 @@ Public Class frmMain
         End If
 
         INI.ToolBox_FormIsVisible = Not INI.ToolBox_FormIsVisible
+
+    End Sub
+
+#End Region
+
+#Region "Menüverwaltung"
+
+    Private Structure StoneMenuSelection
+
+        Public Sub New(font As SteinFont,
+                       design As SteinDesign,
+                       satz As SteinSatz)
+
+            Me.Font = font
+            Me.Design = design
+            Me.Satz = satz
+
+        End Sub
+
+        Public ReadOnly Font As SteinFont
+        Public ReadOnly Design As SteinDesign
+        Public ReadOnly Satz As SteinSatz
+
+    End Structure
+
+    Private Structure StoneDesignMenuSelection
+
+        Public Sub New(font As SteinFont,
+                       design As SteinDesign)
+
+            Me.Font = font
+            Me.Design = design
+
+        End Sub
+
+        Public ReadOnly Font As SteinFont
+        Public ReadOnly Design As SteinDesign
+
+    End Structure
+
+    Private ReadOnly _stoneFontItems As New System.Collections.Generic.List(Of ToolStripMenuItem)
+    Private ReadOnly _stoneDesignItems As New System.Collections.Generic.List(Of ToolStripMenuItem)
+    Private ReadOnly _stoneDesignLeafItems As New System.Collections.Generic.List(Of ToolStripMenuItem)
+
+    Private Sub InitializeMainMenu()
+
+        Dim mnuSpielOeffnen As New ToolStripMenuItem("&Spiel öffnen")
+        Dim mnuHintergrund As New ToolStripMenuItem("&Hintergrund")
+        Dim mnuSteinDesign As New ToolStripMenuItem("S&tein-Design")
+        Dim mnuEinstellungen As New ToolStripMenuItem("&Einstellungen")
+        Dim mnuAbout As New ToolStripMenuItem("&About")
+        Dim mnuHilfe As New ToolStripMenuItem("&Hilfe")
+
+        Dim mnuNeuesSpielOeffnen As New ToolStripMenuItem("&Neues Spiel öffnen")
+        Dim mnuLetztesSpielOeffnen As New ToolStripMenuItem("&Letztes Spiel öffnen")
+        Dim mnuNeuesSpielAnlegen As New ToolStripMenuItem("N&eues Spiel anlegen")
+
+        Dim mnuHintergrundAendern As New ToolStripMenuItem("&Hintergrund ändern")
+        Dim mnuHintergrundAendernUndSpeichern As New ToolStripMenuItem("Hintergrund ändern && &speichern")
+
+        Dim mnuSegoe As New ToolStripMenuItem("&Segoe")
+        Dim mnuNoto As New ToolStripMenuItem("&Noto")
+
+        mnuSegoe.Tag = SteinFont.Segoe
+        mnuNoto.Tag = SteinFont.Noto
+
+        _stoneFontItems.Add(mnuSegoe)
+        _stoneFontItems.Add(mnuNoto)
+
+        Me.MenuStripExMain.SuspendLayout()
+
+        Try
+            Me.MenuStripExMain.Items.Clear()
+            _stoneFontItems.Clear()
+            _stoneDesignItems.Clear()
+            _stoneDesignLeafItems.Clear()
+
+            mnuSegoe.Tag = SteinFont.Segoe
+            mnuNoto.Tag = SteinFont.Noto
+
+            _stoneFontItems.Add(mnuSegoe)
+            _stoneFontItems.Add(mnuNoto)
+
+            AddHandler mnuNeuesSpielOeffnen.Click,
+            Sub(sender As Object, e As EventArgs)
+                Me.AktVisibleUserControl = VisibleUserControl.SpielfeldWählen
+            End Sub
+
+            AddHandler mnuLetztesSpielOeffnen.Click,
+            Sub(sender As Object, e As EventArgs)
+                OpenLastSpiel()
+            End Sub
+
+            AddHandler mnuNeuesSpielAnlegen.Click,
+            Sub(sender As Object, e As EventArgs)
+                OpenNewSpiel()
+            End Sub
+
+            mnuSpielOeffnen.DropDownItems.Add(mnuNeuesSpielOeffnen)
+            mnuSpielOeffnen.DropDownItems.Add(mnuLetztesSpielOeffnen)
+            mnuSpielOeffnen.DropDownItems.Add(New ToolStripSeparator())
+            mnuSpielOeffnen.DropDownItems.Add(mnuNeuesSpielAnlegen)
+
+            AddHandler mnuHintergrundAendern.Click,
+            Sub(sender As Object, e As EventArgs)
+                OpenNewBackGround(False)
+            End Sub
+
+            AddHandler mnuHintergrundAendernUndSpeichern.Click,
+            Sub(sender As Object, e As EventArgs)
+                OpenNewBackGround(True)
+            End Sub
+
+            mnuHintergrund.DropDownItems.Add(mnuHintergrundAendern)
+            mnuHintergrund.DropDownItems.Add(mnuHintergrundAendernUndSpeichern)
+
+            BuildStoneDesignSubMenu(parentMenu:=mnuSegoe, steinFont:=SteinFont.Segoe)
+            BuildStoneDesignSubMenu(parentMenu:=mnuNoto, steinFont:=SteinFont.Noto)
+
+            mnuSteinDesign.DropDownItems.Add(mnuSegoe)
+            mnuSteinDesign.DropDownItems.Add(mnuNoto)
+
+            AddHandler mnuSteinDesign.DropDownOpening,
+            Sub(sender As Object, e As EventArgs)
+                UpdateStoneDesignMenuChecks()
+            End Sub
+
+            AddHandler mnuEinstellungen.Click,
+            Sub(sender As Object, e As EventArgs)
+                Me.AktVisibleUserControl = VisibleUserControl.Einstellungen
+            End Sub
+
+            AddHandler mnuAbout.Click,
+            Sub(sender As Object, e As EventArgs)
+                Me.AktVisibleUserControl = VisibleUserControl.About
+            End Sub
+
+            AddHandler mnuHilfe.Click,
+            Sub(sender As Object, e As EventArgs)
+                Me.AktVisibleUserControl = VisibleUserControl.Hilfe
+            End Sub
+
+            Me.MenuStripExMain.Items.AddRange(
+            New ToolStripItem() {
+                mnuSpielOeffnen,
+                mnuHintergrund,
+                mnuSteinDesign,
+                mnuEinstellungen,
+                mnuAbout,
+                mnuHilfe
+            })
+
+            UpdateStoneDesignMenuChecks()
+
+        Finally
+            Me.MenuStripExMain.ResumeLayout()
+        End Try
+
+    End Sub
+
+    Private Sub BuildStoneDesignSubMenu(parentMenu As ToolStripMenuItem,
+                                        steinFont As SteinFont)
+
+        For Each currentDesign As SteinDesign In [Enum].GetValues(GetType(SteinDesign))
+
+            If Not INI.Tile_AllowTileColorsTestFiles Then
+                If currentDesign.ToString.StartsWith("Test") Then
+                    Continue For
+                End If
+            End If
+
+            Dim mnuDesign As New ToolStripMenuItem(GetEnumDisplayText(currentDesign))
+
+            mnuDesign.Tag = New StoneDesignMenuSelection(
+                font:=steinFont,
+                design:=currentDesign)
+
+            _stoneDesignItems.Add(mnuDesign)
+
+            For Each currentSatz As SteinSatz In [Enum].GetValues(GetType(SteinSatz))
+
+                Dim mnuSatz As New ToolStripMenuItem(GetEnumDisplayText(currentSatz))
+
+                mnuSatz.Tag = New StoneMenuSelection(
+                    font:=steinFont,
+                    design:=currentDesign,
+                    satz:=currentSatz)
+
+                AddHandler mnuSatz.Click, AddressOf OnStoneDesignLeafClick
+
+                mnuDesign.DropDownItems.Add(mnuSatz)
+                _stoneDesignLeafItems.Add(mnuSatz)
+
+            Next
+
+            parentMenu.DropDownItems.Add(mnuDesign)
+
+        Next
+
+    End Sub
+
+    Private Sub OnStoneDesignLeafClick(sender As Object, e As EventArgs)
+
+        Dim clickedItem As ToolStripMenuItem = DirectCast(sender, ToolStripMenuItem)
+        Dim selection As StoneMenuSelection = CType(clickedItem.Tag, StoneMenuSelection)
+
+        INI.Tile_SteinFont = selection.Font
+        INI.Tile_SteinDesign = selection.Design
+        INI.Tile_SteinSatz = selection.Satz
+        INI.Tile_TileColors_Load()
+
+        UpdateStoneDesignMenuChecks()
+
+    End Sub
+
+    Private Sub UpdateStoneDesignMenuChecks()
+
+        For Each currentItem As ToolStripMenuItem In _stoneFontItems
+
+            Dim currentFont As SteinFont = CType(currentItem.Tag, SteinFont)
+
+            currentItem.Checked = (INI.Tile_SteinFont = currentFont)
+
+        Next
+
+        For Each currentItem As ToolStripMenuItem In _stoneDesignItems
+
+            Dim selection As StoneDesignMenuSelection = CType(currentItem.Tag, StoneDesignMenuSelection)
+
+            currentItem.Checked =
+                (INI.Tile_SteinFont = selection.Font) AndAlso
+                (INI.Tile_SteinDesign = selection.Design)
+
+        Next
+
+        For Each currentItem As ToolStripMenuItem In _stoneDesignLeafItems
+
+            Dim selection As StoneMenuSelection = CType(currentItem.Tag, StoneMenuSelection)
+
+            currentItem.Checked =
+                (INI.Tile_SteinFont = selection.Font) AndAlso
+                (INI.Tile_SteinDesign = selection.Design) AndAlso
+                (INI.Tile_SteinSatz = selection.Satz)
+
+        Next
+
+    End Sub
+
+    Private Shared Function GetEnumDisplayText(value As [Enum]) As String
+
+        Return value.ToString().Replace("_"c, " "c)
+
+    End Function
+
+    Private Sub OpenLastSpiel()
+
+    End Sub
+
+    Private Sub OpenNewSpiel()
+
+    End Sub
+
+    Private Sub OpenNewBackGround(save As Boolean)
+
+    End Sub
+
+#End Region
+
+#Region "INI Testen"
+    Private Sub CheckIniFileWhenStartedInIde()
+
+        If Not Debugger.IsAttached Then
+            Return
+        End If
+
+        Dim fullPath As String = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+            "Visual Studio",
+            "MahjongGK",
+            "MahjongGK",
+            "INI",
+            "INI.vb")
+
+        CheckIniManagers(fullPath)
+
+    End Sub
+
+    Private Sub CheckIniManagers(fullPath As String)
+
+        If Not File.Exists(fullPath) Then
+            MessageBox.Show("INI-Datei nicht gefunden:" & Environment.NewLine & fullPath,
+                            "Schwerer Fehler in der INI",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Error)
+            End
+        End If
+
+        Dim text As String = File.ReadAllText(fullPath)
+
+        Dim propertyRegex As New Regex(
+            "(?<header>^\s*(?:Public|Friend|Private)\s+(?:Shared\s+)?Property\s+(?<name>\[?[A-Za-z_][A-Za-z0-9_]*\]?).*?$)(?<body>.*?^\s*End\s+Property\b)",
+            RegexOptions.Multiline Or RegexOptions.Singleline)
+
+        For Each propertyMatch As Match In propertyRegex.Matches(text)
+
+            Dim propertyName As String = propertyMatch.Groups("name").Value
+            propertyName = propertyName.Trim("["c, "]"c)
+
+            Dim body As String = propertyMatch.Groups("body").Value
+
+            Dim getMatch As Match = Regex.Match(body,
+                                                "^\s*Get\b(?<getbody>.*?)(^\s*End\s+Get\b)",
+                                                RegexOptions.Multiline Or RegexOptions.Singleline)
+
+            Dim setMatch As Match = Regex.Match(body,
+                                                "^\s*Set\b.*?$(?<setbody>.*?)(^\s*End\s+Set\b)",
+                                                RegexOptions.Multiline Or RegexOptions.Singleline)
+
+            If Not getMatch.Success Then
+                Continue For
+            End If
+
+            Dim getterText As String = getMatch.Groups("getbody").Value
+            Dim setterText As String = If(setMatch.Success, setMatch.Groups("setbody").Value, "")
+
+            Dim readManager As String = GetSingleIniManager(getterText, "ReadValue", propertyName)
+            Dim writeManager As String = GetSingleIniManager(setterText, "WriteValue", propertyName)
+
+            If readManager = "" Then
+                Continue For
+            End If
+
+            If writeManager = "" Then
+                IniFatal(propertyName,
+                         "Im Getter steht " & readManager & ".ReadValue(...), aber im Setter fehlt die passende WriteValue-Funktion.")
+            End If
+
+            If readManager <> writeManager Then
+                IniFatal(propertyName,
+                         "Getter und Setter greifen auf unterschiedliche INI-Manager zu:" &
+                         Environment.NewLine &
+                         "Getter: " & readManager & ".ReadValue(...)" &
+                         Environment.NewLine &
+                         "Setter: " & writeManager & ".WriteValue(...)")
+            End If
+
+        Next
+
+    End Sub
+
+    Private Function GetSingleIniManager(sourceText As String,
+                                         functionName As String,
+                                         propertyName As String) As String
+
+        Dim qualifiedRegex As New Regex(
+            "(?<manager>[A-Za-z_][A-Za-z0-9_]*)\s*\.\s*" & functionName & "\s*\(",
+            RegexOptions.Multiline)
+
+        Dim unqualifiedRegex As New Regex(
+            "(?<!\.)\b" & functionName & "\s*\(",
+            RegexOptions.Multiline)
+
+        If unqualifiedRegex.IsMatch(sourceText) Then
+            IniFatal(propertyName,
+                     functionName & "(...) ist nicht mit einem INI-Manager qualifiziert.")
+        End If
+
+        Dim managers As New List(Of String)
+
+        For Each m As Match In qualifiedRegex.Matches(sourceText)
+
+            Dim manager As String = m.Groups("manager").Value
+
+            If Not managers.Contains(manager) Then
+                managers.Add(manager)
+            End If
+
+        Next
+
+        If managers.Count = 0 Then
+            Return ""
+        End If
+
+        If managers.Count > 1 Then
+            IniFatal(propertyName,
+                     "Innerhalb derselben Property werden mehrere INI-Manager für " & functionName & "(...) verwendet: " &
+                     String.Join(", ", managers))
+        End If
+
+        Return managers(0)
+
+    End Function
+
+    Private Sub IniFatal(propertyName As String, detail As String)
+
+        MessageBox.Show("Schwerer Fehler in der INI, zuerst beseitigen." &
+                        Environment.NewLine &
+                        "PropertyName: " & propertyName &
+                        Environment.NewLine &
+                        Environment.NewLine &
+                        detail,
+                        "INI-Prüfung",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error)
+
+        End
 
     End Sub
 

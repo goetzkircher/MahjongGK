@@ -100,7 +100,7 @@ Public NotInheritable Class AirRenderBuffer
     ''' Hängt einen neuen Renderdatensatz hinten an.
     ''' Es werden immer gültige Werte übergeben.
     ''' </summary>
-    Public Sub AddRenderBitmapTopZOrder(rect As Rectangle, bmp As Bitmap)
+    Public Sub AddRenderBitmapTopZOrder(rect As Rectangle, bmp As Bitmap, Optional insertAtPreviousPos As Boolean = False)
 
         If _needsClear Then
             ClearInternal()
@@ -111,8 +111,15 @@ Public NotInheritable Class AirRenderBuffer
             ReDim Preserve _renderBitmaps(_renderBitmaps.GetUpperBound(0) + _growStep)
         End If
 
-        _renderRects(_nextFreeIndex) = rect
-        _renderBitmaps(_nextFreeIndex) = bmp
+        If insertAtPreviousPos AndAlso _nextFreeIndex > 0 Then
+            _renderRects(_nextFreeIndex) = _renderRects(_nextFreeIndex - 1)
+            _renderBitmaps(_nextFreeIndex) = _renderBitmaps(_nextFreeIndex - 1)
+            _renderRects(_nextFreeIndex - 1) = rect
+            _renderBitmaps(_nextFreeIndex - 1) = bmp
+        Else
+            _renderRects(_nextFreeIndex) = rect
+            _renderBitmaps(_nextFreeIndex) = bmp
+        End If
 
         _nextFreeIndex += 1
 
@@ -129,21 +136,18 @@ Public NotInheritable Class AirRenderBuffer
     ''' zurückgesetzt. Die eigentlichen Referenzen werden erst vor dem
     ''' nächsten AddRenderBitmapTopZOrder vollständig gelöscht.
     ''' </summary>
-    Public Function GetNextRenderBitmap(ByRef bmp As Bitmap, ByRef rect As Rectangle) As Boolean
+    Public Function GetNextRenderBitmap() As (found As Boolean, bmp As Bitmap, rect As Rectangle)
 
         If _nextReadIndex < _nextFreeIndex Then
-            rect = _renderRects(_nextReadIndex)
-            bmp = _renderBitmaps(_nextReadIndex)
-
             _nextReadIndex += 1
-            Return True
+            Return (True, _renderBitmaps(_nextReadIndex - 1), _renderRects(_nextReadIndex - 1))
         End If
 
         _nextFreeIndex = 0
         _nextReadIndex = 0
         _needsClear = True
 
-        Return False
+        Return (False, Nothing, Rectangle.Empty)
 
     End Function
 

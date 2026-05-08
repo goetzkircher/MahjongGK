@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -78,7 +78,7 @@
     <GenerateManifests>true</GenerateManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <SignAssembly>true</SignAssembly>
+    <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>keys\MahjongGK.snk</AssemblyOriginatorKeyFile>
@@ -149,10 +149,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Bitmaps Eigene Ressourcen\Verwaltung\SteinEntry.vb" />
-    <Compile Include="Bitmaps Eigene Ressourcen\Verwaltung\SteinGrafikManagerClass.vb" />
-    <Compile Include="Bitmaps Eigene Ressourcen\Verwaltung\SteinGrafikManagerModul.vb" />
+    <Compile Include="Bitmaps Eigene Ressourcen\Verwaltung\SteinGrafikManagerClass_ZLV.vb" />
+    <Compile Include="Bitmaps Eigene Ressourcen\Verwaltung\SteinGrafikManagerModul_ZLV.vb" />
     <Compile Include="Bitmaps Eigene Ressourcen\Verwaltung\SteinPack.vb" />
-    <Compile Include="Bitmaps\MahjongSymbolFactory\Einzelne Symbole\UndoRedoBitmapFactory.vb" />
+    <Compile Include="Bitmaps\Einzelne Symbole\UndoRedoBitmapFactory.vb" />
     <Compile Include="INI\IniEnumerationen.vb" />
     <Compile Include="Shared\SonstGlobalEnums.vb" />
     <Compile Include="Spielfeld\Basis\Constants\BitmaskConst.vb" />
@@ -184,7 +184,7 @@
     <Compile Include="Spielfeld\Runtime\Steinflug\AirJobSelector.vb" />
     <Compile Include="Spielfeld\Runtime\Steinflug\AirPlanePosition.vb" />
     <Compile Include="Spielfeld\Runtime\Steinflug\AirRenderBuffer.vb" />
-    <Compile Include="Spielfeld\Runtime\Tooltip\frmTooltipSteinInfo.vb">
+    <Compile Include="Spielfeld\Runtime\frmTooltip\frmTooltipSteinInfo.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="frmMain\frmSplash.Designer.vb">
@@ -215,25 +215,8 @@
     <Compile Include="Formulare\BackgroundSelector.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Bitmaps\MahjongSymbolFactory\ChinesicheUndAndereZeichen.vb" />
-    <Compile Include="Bitmaps\MahjongSymbolFactory\GlyphGradientRenderer.vb" />
-    <Compile Include="Bitmaps\MahjongSymbolFactory\MahjongSymbolEnumerationen.vb" />
-    <Compile Include="Bitmaps\MahjongSymbolFactory\MahjongSymbols.vb" />
-    <Compile Include="Bitmaps\MahjongSymbolFactory\MahjongTileRenderer.vb" />
-    <Compile Include="Bitmaps\MahjongSymbolFactory\IniFile.vb" />
-    <Compile Include="Bitmaps\MahjongSymbolFactory\CreateIniFileTileStylePresetsDefault.vb" />
-    <Compile Include="Bitmaps\MahjongSymbolFactory\MahjongSymbolFactory.vb" />
-    <Compile Include="Bitmaps\MahjongSymbolFactory\SeriesMapping.vb" />
-    <Compile Include="Bitmaps\MahjongSymbolFactory\SeriesPalettes.vb" />
-    <Compile Include="Bitmaps\MahjongSymbolFactory\TileExport.vb" />
-    <Compile Include="Bitmaps\MahjongSymbolFactory\TileRenderSettings.vb" />
-    <Compile Include="Bitmaps\MahjongSymbolFactory\TileRenderSettingsWatcher.vb" />
-    <Compile Include="Bitmaps\MahjongSymbolFactory\TileStyle.vb" />
-    <Compile Include="Bitmaps\MahjongSymbolFactory\TileStyleTuner.vb">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="Bitmaps\Einzelne Symbole\ChinesicheUndAndereZeichen.vb" />
     <Compile Include="Bitmaps\PhotographyVerwaltung\BackgroundZipManager.vb" />
-    <Compile Include="Bitmaps\XML-Container alt\SteinOverlays.vb" />
     <Compile Include="DarkMode\ThemedRenderer.vb" />
     <Compile Include="DarkMode\ThemeImageCache.vb" />
     <Compile Include="DarkMode\ThemeManager.vb" />
@@ -360,8 +343,6 @@
     <Compile Include="frmMain\frmMain.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Bitmaps\XML-Container alt\BitmapContainer.vb" />
-    <Compile Include="Bitmaps\XML-Container alt\ImagesBase64XML.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="My Project\Application.Designer.vb">
       <AutoGen>True</AutoGen>
@@ -480,28 +461,6 @@
     <Content Include="Bitmaps Eigene Ressourcen\Steine_Satz2.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Bitmaps\MahjongSymbolFactory\liesmich.txt" />
-    <Content Include="Bitmaps\XML-Container alt\MahjongImagesSrcBase64_00_Normal.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Bitmaps\XML-Container alt\MahjongImagesSrcBase64_01_Selected.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Bitmaps\XML-Container alt\MahjongImagesSrcBase64_02_Selectable.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Bitmaps\XML-Container alt\MahjongImagesSrcBase64_03_Removable.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Bitmaps\XML-Container alt\MahjongImagesSrcBase64_04_Locked.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Bitmaps\XML-Container alt\MahjongImagesSrcBase64_05_NotUsed.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Bitmaps\XML-Container alt\MahjongImagesSrcBase64_06_MissingSecond.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="Bitmaps Eigene Ressourcen\liesmich1.txt" />
     <Content Include="Bitmaps Eigene Ressourcen\liesmich2.txt" />
     <Content Include="Helfer\Bitmaps.txt" />
@@ -517,6 +476,60 @@
     <None Include="Resources\Dummy48q.png" />
     <Content Include="runtimes\win-x64\native\Magick.Native-Q8-x64.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Spielfeld\TileColors\Default\Noto-Dark.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Spielfeld\TileColors\Default\Noto-Light.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Spielfeld\TileColors\Default\Noto-Medium.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Spielfeld\TileColors\Default\Segoe-Dark.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Spielfeld\TileColors\Default\Segoe-Light.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Spielfeld\TileColors\Default\Segoe-Medium.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Spielfeld\TileColors\UniDunkel\Noto-Dark.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Spielfeld\TileColors\UniDunkel\Noto-Light.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Spielfeld\TileColors\UniDunkel\Noto-Medium.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Spielfeld\TileColors\UniDunkel\Segoe-Dark.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Spielfeld\TileColors\UniDunkel\Segoe-Light.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Spielfeld\TileColors\UniDunkel\Segoe-Medium.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Spielfeld\TileColors\UniGelbBraun\Noto-Dark.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Spielfeld\TileColors\UniGelbBraun\Noto-Light.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Spielfeld\TileColors\UniGelbBraun\Noto-Medium.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Spielfeld\TileColors\UniGelbBraun\Segoe-Dark.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Spielfeld\TileColors\UniGelbBraun\Segoe-Light.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Spielfeld\TileColors\UniGelbBraun\Segoe-Medium.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Thirdparty\liesmich.txt" />
     <Content Include="Thirdparty\Magick\LICENSE.txt" />
@@ -631,6 +644,19 @@
     <Content Include="Textdateien\Eselsbrücken.txt" />
     <Content Include="Textdateien\Mahjong Solitär Überlegungen.txt" />
     <Content Include="Textdateien\Über ChatGPT.txt" />
+    <Content Include="Spielfeld\TileColors\Test\Segoe-Medium.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Spielfeld\TileColors\Test\Noto-Light.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Spielfeld\TileColors\Test\Noto-Dark.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  
+    <Content Include="Spielfeld\TileColors\Test\Segoe-Light.xml"><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></Content>
+  
+    <Content Include="Spielfeld\TileColors\Test\Segoe-Dark.xml"><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></Content>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Comparer\" />
@@ -648,6 +674,16 @@
       <IncludeHash>False</IncludeHash>
       <FileType>File</FileType>
     </PublishFile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\MahjongGKTileFactoryTester\MahjongGKTileFactoryTester\TileFactory\TileFactory.vbproj">
+      <Project>{d9ebcb2b-b1d4-4401-b684-24729f4ea1c6}</Project>
+      <Name>TileFactory</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MahjongGK.Contracts\MahjongGK.Contracts.vbproj">
+      <Project>{19cb0e5e-0f74-4dff-84c8-a6084952e6ba}</Project>
+      <Name>MahjongGK.Contracts</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
 </Project>

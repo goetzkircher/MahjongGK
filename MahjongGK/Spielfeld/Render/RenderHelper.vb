@@ -21,7 +21,6 @@
 '###########################################################################
 '
 Imports System.Drawing.Drawing2D
-Imports System.Drawing.Text
 
 Namespace Spielfeld
 
@@ -223,254 +222,257 @@ Namespace Spielfeld
         End Sub
 
 #Region "DrawOverlaySymbol"
-        '
-        Public Function DrawOverlay(ByVal bmpStein As Bitmap, overlay As OverlayType, ByVal copyBitmap As Boolean) As Bitmap
+        'TODO ZLV Teil der #Region "DrawOverlaySymbol"
 
-            Select Case overlay
+        ''
+        'Public Function DrawOverlay(ByVal bmpStein As Bitmap, overlay As OverlayType, ByVal copyBitmap As Boolean) As Bitmap
 
-                Case OverlayType.EditorRemovable
-                    Return DrawOverlay_EditorRemovable(bmpStein, copyBitmap)
+        '    Select Case overlay
 
-                Case OverlayType.RahmenSteinMouseOver
-                    Return DrawOverlay_RahmenAsymmetrisch(bmpStein, INI.Rendering_MouseOverSteinRahmenColor, copyBitmap)
+        '        Case OverlayType.EditorRemovable
+        '            Return DrawOverlay_RahmenAsymmetrisch(bmpStein, INI.Rendering_PlaceableSteinRahmenColor, copyBitmap)
 
-                Case OverlayType.RahmenSteinSelected
-                    Return DrawOverlay_RahmenAsymmetrisch(bmpStein, INI.Rendering_SelectedSteinRahmenColor, copyBitmap)
+        '        Case OverlayType.RahmenSteinMouseOver
+        '            Return DrawOverlay_RahmenAsymmetrisch(bmpStein, INI.Rendering_MouseOverSteinRahmenColor, copyBitmap)
 
-                Case OverlayType.RahmenSteinPlaceable
-                    Return DrawOverlay_RahmenAsymmetrisch(bmpStein, INI.Rendering_PlaceableSteinRahmenColor, copyBitmap)
+        '        Case OverlayType.RahmenSteinSelected
+        '            Return DrawOverlay_RahmenAsymmetrisch(bmpStein, INI.Rendering_SelectedSteinRahmenColor, copyBitmap)
 
-            End Select
+        '        Case OverlayType.RahmenSteinPlaceable
+        '            Return DrawOverlay_RahmenAsymmetrisch(bmpStein, INI.Rendering_PlaceableSteinRahmenColor, copyBitmap)
 
-            Return Nothing
+        '    End Select
 
-        End Function
+        '    Return Nothing
 
-        ''' <summary>
-        ''' Erstellt wahlweise eine Kopie der Stein-Bitmap und zeichnet darauf die
-        ''' Editor-Markierung "entnehmbar", oder zeichnet direkt in die übergebene Bitmap.
-        ''' </summary>
-        ''' <param name="bmpStein">
-        ''' Bitmap des Steins.
-        ''' </param>
-        ''' <param name="copyBitmap">
-        ''' True  = Es wird eine neue Bitmap erzeugt und zurückgegeben.
-        '''         Diese Rückgabe muß vom Aufrufer disposed werden.
-        ''' False = Es wird direkt auf bmpStein gezeichnet und dieselbe Instanz zurückgegeben.
-        '''         Keine zusätzliche Dispose-Pflicht für die Rückgabe.
-        ''' </param>
-        ''' <returns>
-        ''' Entweder eine neue Bitmap oder dieselbe übergebene Bitmap.
-        ''' </returns>
-        Private Function DrawOverlay_EditorRemovable(ByVal bmpStein As Bitmap,
-                                             ByVal copyBitmap As Boolean) As Bitmap
+        'End Function
 
-            If bmpStein Is Nothing Then
-                Return Nothing
-            End If
+        ''''' <summary>
+        ''''' Erstellt wahlweise eine Kopie der Stein-Bitmap und zeichnet darauf die
+        ''''' Editor-Markierung "entnehmbar", oder zeichnet direkt in die übergebene Bitmap.
+        ''''' </summary>
+        ''''' <param name="bmpStein">
+        ''''' Bitmap des Steins.
+        ''''' </param>
+        ''''' <param name="copyBitmap">
+        ''''' True  = Es wird eine neue Bitmap erzeugt und zurückgegeben.
+        '''''         Diese Rückgabe muß vom Aufrufer disposed werden.
+        ''''' False = Es wird direkt auf bmpStein gezeichnet und dieselbe Instanz zurückgegeben.
+        '''''         Keine zusätzliche Dispose-Pflicht für die Rückgabe.
+        ''''' </param>
+        ''''' <returns>
+        ''''' Entweder eine neue Bitmap oder dieselbe übergebene Bitmap.
+        ''''' </returns>
+        ''''Private Function DrawOverlay_EditorRemovable(ByVal bmpStein As Bitmap,
+        '   '''                                     ByVal copyBitmap As Boolean) As Bitmap
 
-            '--------------------------------------------------
-            ' Faktoren zum einfachen Nachjustieren
-            '--------------------------------------------------
-            Const SYMBOL_TEXT As String = "✓"
-            'Const SYMBOL_TEXT As String = "●"
-            'Const SYMBOL_TEXT As String = "↑"
-            'Const SYMBOL_TEXT As String = "▲"
+        ''''    If bmpStein Is Nothing Then
+        ''''        Return Nothing
+        ''''    End If
 
-            Const FONT_NAME As String = "Segoe UI Symbol"
+        ''''    --------------------------------------------------
+        ''''     Faktoren zum einfachen Nachjustieren
+        ''''    --------------------------------------------------
+        ''''    Const SYMBOL_TEXT As String = "✓"
+        ''''    Const SYMBOL_TEXT As String = "●"
+        ''''    Const SYMBOL_TEXT As String = "↑"
+        ''''    Const SYMBOL_TEXT As String = "▲"
 
-            Const SIZE_FACTOR As Single = 0.4F
-            Const OFFSET_X_FACTOR As Single = 0.08F
-            Const OFFSET_Y_FACTOR As Single = 0.02F
+        ''''    Const FONT_NAME As String = "Segoe UI Symbol"
 
-            Const SYMBOL_ALPHA As Integer = 128
-            Const SYMBOL_R As Integer = 0
-            Const SYMBOL_G As Integer = 160
-            Const SYMBOL_B As Integer = 0
+        ''''    Const SIZE_FACTOR As Single = 0.4F
+        ''''    Const OFFSET_X_FACTOR As Single = 0.08F
+        ''''    Const OFFSET_Y_FACTOR As Single = 0.02F
 
-            '--------------------------------------------------
-            ' Ziel-Bitmap festlegen
-            '--------------------------------------------------
-            Dim bmpOut As Bitmap
+        ''''    Const SYMBOL_ALPHA As Integer = 128
+        ''''    Const SYMBOL_R As Integer = 0
+        ''''    Const SYMBOL_G As Integer = 160
+        ''''    Const SYMBOL_B As Integer = 0
 
-            If copyBitmap Then
-                bmpOut = New Bitmap(bmpStein)
-            Else
-                bmpOut = bmpStein
-            End If
+        ''''    --------------------------------------------------
+        ''''     Ziel-Bitmap festlegen
+        ''''    --------------------------------------------------
+        ''''    Dim bmpOut As Bitmap
 
-            Dim minEdge As Integer = Math.Min(bmpOut.Width, bmpOut.Height)
+        ''''    If copyBitmap Then
+        ''''        bmpOut = New Bitmap(bmpStein)
+        ''''    Else
+        ''''        bmpOut = bmpStein
+        ''''    End If
 
-            Dim fntSize As Single = CSng(minEdge) * SIZE_FACTOR
-            If fntSize < 6.0F Then
-                fntSize = 6.0F
-            End If
+        ''''    Dim minEdge As Integer = Math.Min(bmpOut.Width, bmpOut.Height)
 
-            Dim x As Single = CSng(bmpOut.Width) * OFFSET_X_FACTOR
-            Dim y As Single = CSng(bmpOut.Height) * OFFSET_Y_FACTOR
+        ''''    Dim fntSize As Single = CSng(minEdge) * SIZE_FACTOR
+        ''''    If fntSize < 6.0F Then
+        ''''        fntSize = 6.0F
+        ''''    End If
 
-            Using gfx As Graphics = Graphics.FromImage(bmpOut),
-          br As New SolidBrush(Color.FromArgb(SYMBOL_ALPHA, SYMBOL_R, SYMBOL_G, SYMBOL_B)),
-          fnt As New Font(FONT_NAME, fntSize, FontStyle.Bold, GraphicsUnit.Pixel)
+        ''''    Dim x As Single = CSng(bmpOut.Width) * OFFSET_X_FACTOR
+        ''''    Dim y As Single = CSng(bmpOut.Height) * OFFSET_Y_FACTOR
 
-                gfx.SmoothingMode = SmoothingMode.AntiAlias
-                gfx.TextRenderingHint = TextRenderingHint.AntiAliasGridFit
+        ''''    Using gfx As Graphics = Graphics.FromImage(bmpOut),
+        ''''  br As New SolidBrush(Color.FromArgb(SYMBOL_ALPHA, SYMBOL_R, SYMBOL_G, SYMBOL_B)),
+        ''''  fnt As New Font(FONT_NAME, fntSize, FontStyle.Bold, GraphicsUnit.Pixel)
 
-                gfx.DrawString(SYMBOL_TEXT, fnt, br, x, y)
+        ''''        gfx.SmoothingMode = SmoothingMode.AntiAlias
+        ''''        gfx.TextRenderingHint = TextRenderingHint.AntiAliasGridFit
 
-            End Using
+        ''''        gfx.DrawString(SYMBOL_TEXT, fnt, br, x, y)
 
-            Return bmpOut
+        ''''    End Using
 
-        End Function
+        ''''    Return bmpOut
 
-        '
-        ''' <summary>
-        ''' Erstellt wahlweise eine Kopie der Stein-Bitmap und zeichnet darauf
-        ''' einen asymmetrischen, leicht gerundeten Overlay-Rahmen, oder zeichnet
-        ''' direkt in die übergebene Bitmap.
-        ''' Rechts und unten bleibt der 3D-Bereich ausgespart.
-        ''' Alle Maße werden relativ aus Breite/Höhe der Bitmap berechnet.
-        ''' </summary>
-        ''' <param name="bmpStein">
-        ''' Bitmap des Steins.
-        ''' </param>
-        ''' <param name="overlayColor">
-        ''' Farbe des Overlay-Rahmens.
-        ''' </param>
-        ''' <param name="copyBitmap">
-        ''' True  = Es wird eine neue Bitmap erzeugt und zurückgegeben.
-        '''         Diese Rückgabe muß vom Aufrufer disposed werden.
-        ''' False = Es wird direkt auf bmpStein gezeichnet und dieselbe Instanz zurückgegeben.
-        '''         Keine zusätzliche Dispose-Pflicht für die Rückgabe.
-        ''' </param>
-        ''' <returns>
-        ''' Entweder eine neue Bitmap oder dieselbe übergebene Bitmap.
-        ''' </returns>
-        Private Function DrawOverlay_RahmenAsymmetrisch(ByVal bmpStein As Bitmap,
-                                                ByVal overlayColor As Color,
-                                                ByVal copyBitmap As Boolean) As Bitmap
+        ''''End Function
 
-            If bmpStein Is Nothing Then
-                Return Nothing
-            End If
+        ''
+        '''' <summary>
+        '''' Erstellt wahlweise eine Kopie der Stein-Bitmap und zeichnet darauf
+        '''' einen asymmetrischen, leicht gerundeten Overlay-Rahmen, oder zeichnet
+        '''' direkt in die übergebene Bitmap.
+        '''' Rechts und unten bleibt der 3D-Bereich ausgespart.
+        '''' Alle Maße werden relativ aus Breite/Höhe der Bitmap berechnet.
+        '''' </summary>
+        '''' <param name="bmpStein">
+        '''' Bitmap des Steins.
+        '''' </param>
+        '''' <param name="overlayColor">
+        '''' Farbe des Overlay-Rahmens.
+        '''' </param>
+        '''' <param name="copyBitmap">
+        '''' True  = Es wird eine neue Bitmap erzeugt und zurückgegeben.
+        ''''         Diese Rückgabe muß vom Aufrufer disposed werden.
+        '''' False = Es wird direkt auf bmpStein gezeichnet und dieselbe Instanz zurückgegeben.
+        ''''         Keine zusätzliche Dispose-Pflicht für die Rückgabe.
+        '''' </param>
+        '''' <returns>
+        '''' Entweder eine neue Bitmap oder dieselbe übergebene Bitmap.
+        '''' </returns>
+        'Public Function DrawOverlay_RahmenAsymmetrisch(ByVal bmpStein As Bitmap,
+        '                                        ByVal overlayColor As Color,
+        '                                        ByVal copyBitmap As Boolean) As Bitmap
 
-            Dim bmpOut As Bitmap
+        '    If bmpStein Is Nothing Then
+        '        Return Nothing
+        '    End If
 
-            If copyBitmap Then
-                bmpOut = New Bitmap(bmpStein)
-            Else
-                bmpOut = bmpStein
-            End If
+        '    Dim bmpOut As Bitmap
 
-            If bmpOut.Width < 4 OrElse bmpOut.Height < 4 Then
-                Return bmpOut
-            End If
+        '    If copyBitmap Then
+        '        bmpOut = New Bitmap(bmpStein)
+        '    Else
+        '        bmpOut = bmpStein
+        '    End If
 
-            '------------------------------------------------------------
-            ' Faktoren für die Geometrie
-            '------------------------------------------------------------
-            Const INSET_LEFT_FACTOR As Single = 0.035F
-            Const INSET_TOP_FACTOR As Single = 0.03F
-            Const INSET_RIGHT_FACTOR As Single = 0.165F
-            Const INSET_BOTTOM_FACTOR As Single = 0.12F
+        '    If bmpOut.Width < 4 OrElse bmpOut.Height < 4 Then
+        '        Return bmpOut
+        '    End If
 
-            Const RADIUS_FACTOR As Single = 0.05F
-            Const PEN_WIDTH_FACTOR As Single = 0.04F
+        '    '------------------------------------------------------------
+        '    ' Faktoren für die Geometrie
+        '    '------------------------------------------------------------
+        '    Const INSET_LEFT_FACTOR As Single = 0.035F
+        '    Const INSET_TOP_FACTOR As Single = 0.03F
+        '    Const INSET_RIGHT_FACTOR As Single = 0.165F
+        '    Const INSET_BOTTOM_FACTOR As Single = 0.12F
 
-            Dim bmpW As Integer = bmpOut.Width
-            Dim bmpH As Integer = bmpOut.Height
-            Dim minSide As Integer = Math.Min(bmpW, bmpH)
+        '    Const RADIUS_FACTOR As Single = 0.05F
+        '    Const PEN_WIDTH_FACTOR As Single = 0.04F
 
-            Dim insetLeft As Single = CSng(bmpW) * INSET_LEFT_FACTOR
-            Dim insetTop As Single = CSng(bmpH) * INSET_TOP_FACTOR
-            Dim insetRight As Single = CSng(bmpW) * INSET_RIGHT_FACTOR
-            Dim insetBottom As Single = CSng(bmpH) * INSET_BOTTOM_FACTOR
+        '    Dim bmpW As Integer = bmpOut.Width
+        '    Dim bmpH As Integer = bmpOut.Height
+        '    Dim minSide As Integer = Math.Min(bmpW, bmpH)
 
-            Dim radius As Single = CSng(minSide) * RADIUS_FACTOR
-            Dim penWidth As Single = CSng(minSide) * PEN_WIDTH_FACTOR
+        '    Dim insetLeft As Single = CSng(bmpW) * INSET_LEFT_FACTOR
+        '    Dim insetTop As Single = CSng(bmpH) * INSET_TOP_FACTOR
+        '    Dim insetRight As Single = CSng(bmpW) * INSET_RIGHT_FACTOR
+        '    Dim insetBottom As Single = CSng(bmpH) * INSET_BOTTOM_FACTOR
 
-            If radius < 1.5F Then
-                radius = 1.5F
-            End If
+        '    Dim radius As Single = CSng(minSide) * RADIUS_FACTOR
+        '    Dim penWidth As Single = CSng(minSide) * PEN_WIDTH_FACTOR
 
-            If penWidth < 1.0F Then
-                penWidth = 1.0F
-            End If
+        '    If radius < 1.5F Then
+        '        radius = 1.5F
+        '    End If
 
-            ' Kontur-Rechteck des sichtbaren Steinbereichs
-            Dim x0 As Single = insetLeft + penWidth * 0.5F
-            Dim y0 As Single = insetTop + penWidth * 0.5F
-            Dim x1 As Single = CSng(bmpW) - insetRight - penWidth * 0.5F
-            Dim y1 As Single = CSng(bmpH) - insetBottom - penWidth * 0.5F
+        '    If penWidth < 1.0F Then
+        '        penWidth = 1.0F
+        '    End If
 
-            If x1 <= x0 + 2.0F Then
-                x1 = x0 + 2.0F
-            End If
+        '    ' Kontur-Rechteck des sichtbaren Steinbereichs
+        '    Dim x0 As Single = insetLeft + penWidth * 0.5F
+        '    Dim y0 As Single = insetTop + penWidth * 0.5F
+        '    Dim x1 As Single = CSng(bmpW) - insetRight - penWidth * 0.5F
+        '    Dim y1 As Single = CSng(bmpH) - insetBottom - penWidth * 0.5F
 
-            If y1 <= y0 + 2.0F Then
-                y1 = y0 + 2.0F
-            End If
+        '    If x1 <= x0 + 2.0F Then
+        '        x1 = x0 + 2.0F
+        '    End If
 
-            Dim maxRadiusX As Single = (x1 - x0) * 0.5F
-            Dim maxRadiusY As Single = (y1 - y0) * 0.5F
-            Dim maxRadius As Single = Math.Min(maxRadiusX, maxRadiusY)
+        '    If y1 <= y0 + 2.0F Then
+        '        y1 = y0 + 2.0F
+        '    End If
 
-            If radius > maxRadius Then
-                radius = maxRadius
-            End If
+        '    Dim maxRadiusX As Single = (x1 - x0) * 0.5F
+        '    Dim maxRadiusY As Single = (y1 - y0) * 0.5F
+        '    Dim maxRadius As Single = Math.Min(maxRadiusX, maxRadiusY)
 
-            Dim d As Single = radius * 2.0F
+        '    If radius > maxRadius Then
+        '        radius = maxRadius
+        '    End If
 
-            Using gfx As Graphics = Graphics.FromImage(bmpOut),
-          pen As New Pen(overlayColor, penWidth)
+        '    Dim d As Single = radius * 2.0F
 
-                gfx.SmoothingMode = SmoothingMode.AntiAlias
-                gfx.PixelOffsetMode = PixelOffsetMode.HighQuality
+        '    Using gfx As Graphics = Graphics.FromImage(bmpOut),
+        '  pen As New Pen(overlayColor, penWidth)
 
-                pen.LineJoin = LineJoin.Round
-                pen.StartCap = LineCap.Round
-                pen.EndCap = LineCap.Round
+        '        gfx.SmoothingMode = SmoothingMode.AntiAlias
+        '        gfx.PixelOffsetMode = PixelOffsetMode.HighQuality
 
-                Using gp As New GraphicsPath()
+        '        pen.LineJoin = LineJoin.Round
+        '        pen.StartCap = LineCap.Round
+        '        pen.EndCap = LineCap.Round
 
-                    gp.StartFigure()
+        '        Using gp As New GraphicsPath()
 
-                    ' Obere Kante
-                    gp.AddLine(x0 + radius, y0, x1 - radius, y0)
+        '            gp.StartFigure()
 
-                    ' Ecke rechts oben
-                    gp.AddArc(x1 - d, y0, d, d, 270.0F, 90.0F)
+        '            ' Obere Kante
+        '            gp.AddLine(x0 + radius, y0, x1 - radius, y0)
 
-                    ' Rechte Kante
-                    gp.AddLine(x1, y0 + radius, x1, y1 - radius)
+        '            ' Ecke rechts oben
+        '            gp.AddArc(x1 - d, y0, d, d, 270.0F, 90.0F)
 
-                    ' Ecke rechts unten
-                    gp.AddArc(x1 - d, y1 - d, d, d, 0.0F, 90.0F)
+        '            ' Rechte Kante
+        '            gp.AddLine(x1, y0 + radius, x1, y1 - radius)
 
-                    ' Untere Kante
-                    gp.AddLine(x1 - radius, y1, x0 + radius, y1)
+        '            ' Ecke rechts unten
+        '            gp.AddArc(x1 - d, y1 - d, d, d, 0.0F, 90.0F)
 
-                    ' Ecke links unten
-                    gp.AddArc(x0, y1 - d, d, d, 90.0F, 90.0F)
+        '            ' Untere Kante
+        '            gp.AddLine(x1 - radius, y1, x0 + radius, y1)
 
-                    ' Linke Kante
-                    gp.AddLine(x0, y1 - radius, x0, y0 + radius)
+        '            ' Ecke links unten
+        '            gp.AddArc(x0, y1 - d, d, d, 90.0F, 90.0F)
 
-                    ' Ecke links oben
-                    gp.AddArc(x0, y0, d, d, 180.0F, 90.0F)
+        '            ' Linke Kante
+        '            gp.AddLine(x0, y1 - radius, x0, y0 + radius)
 
-                    gp.CloseFigure()
+        '            ' Ecke links oben
+        '            gp.AddArc(x0, y0, d, d, 180.0F, 90.0F)
 
-                    gfx.DrawPath(pen, gp)
+        '            gp.CloseFigure()
 
-                End Using
+        '            gfx.DrawPath(pen, gp)
 
-            End Using
+        '        End Using
 
-            Return bmpOut
+        '    End Using
 
-        End Function
+        '    Return bmpOut
+
+        'End Function
+        '/ZLV
 
         Public Function DrawOverlay_Außenrahmen2D(ByVal bmpSrc As Bitmap,
                                           ByVal rahmenbreite As Integer,

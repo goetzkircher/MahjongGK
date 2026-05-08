@@ -21,7 +21,7 @@ Namespace Spielfeld
             Public SampleHash As Long
 
             Public Overloads Function Equals(ByVal other As BitmapFingerprint) As Boolean _
-        Implements IEquatable(Of BitmapFingerprint).Equals
+                        Implements IEquatable(Of BitmapFingerprint).Equals
 
                 Return Width = other.Width AndAlso
                Height = other.Height AndAlso
@@ -92,7 +92,7 @@ Namespace Spielfeld
             Dim data As BitmapData = bmp.LockBits(rect, ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb)
 
             Try
-                Dim hash As Long = 17L
+                Dim hash64 As Long = 17L
                 Dim stride As Integer = data.Stride
                 Dim basePtr As IntPtr = data.Scan0
 
@@ -131,7 +131,8 @@ Namespace Spielfeld
                                            (CLng(gg) << 8) Or
                                            CLng(bb)
 
-                        hash = MixFingerprintHash(hash, argb)
+                        Dim argb64 As Long = CLng(argb) And &HFFFFFFFFL ' unsigned 32-bit value
+                        hash64 = (hash64 * 31L) Xor argb64
                     Next
                 Next
 
@@ -178,10 +179,10 @@ Namespace Spielfeld
                                           (CLng(avgG) << 8) Or
                                           CLng(avgB)
 
-                    hash = MixFingerprintHash(hash, avgArgb)
+                    hash64 = (hash64 * 31L) Xor (CLng(avgArgb) And &HFFFFFFFFL) ' unsigned 32-bit value
                 End If
 
-                fp.SampleHash = hash
+                fp.SampleHash = CInt(hash64 And &HFFFFFFFFL)
                 Return fp
 
             Finally

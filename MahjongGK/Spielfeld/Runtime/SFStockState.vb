@@ -1,4 +1,8 @@
-﻿'
+﻿Option Compare Text
+Option Explicit On
+Option Infer Off
+Option Strict On
+'
 ' SPDX-License-Identifier: GPL-3.0-or-later
 '###########################################################################
 '#                                                                         #
@@ -19,10 +23,8 @@
 '#                                                                         #
 '###########################################################################
 '
-Option Compare Text
-Option Explicit On
-Option Infer Off
-Option Strict On
+Imports MahjongGK.Contracts.GlobalEnum
+
 '
 #Disable Warning IDE0079
 #Disable Warning IDE1006
@@ -102,10 +104,10 @@ Namespace Spielfeld
 
         Private _ghostIdx As Integer = -1
         Private _selectedStockSteinIdx As Integer = -1
-        Private _moveSelectedSteinIndex As SteinIndexEnum
+        Private _moveSelectedSteinIndex As SteinTyp
         Private _moveBmpGhost As Bitmap = Nothing
         Private _moveBmpSelected As Bitmap = Nothing
-        Private _moveBmpPlaceable As Bitmap = Nothing
+        Private _moveBmpCanDrop As Bitmap = Nothing
         Private _selectedMouseAnkerPos As Point
         Private _hasSelectedMouseAnkerPos As Boolean
 
@@ -172,11 +174,11 @@ Namespace Spielfeld
         End Property
         Public ReadOnly Property MoveBmpPlaceable As Bitmap
             Get
-                Return _moveBmpPlaceable
+                Return _moveBmpCanDrop
             End Get
         End Property
 
-        Public ReadOnly Property MoveSelectedSteinIndex As SteinIndexEnum
+        Public ReadOnly Property MoveSelectedSteinIndex As SteinTyp
             Get
                 Return _moveSelectedSteinIndex
             End Get
@@ -192,7 +194,7 @@ Namespace Spielfeld
 
             _hasSelectedMouseAnkerPos = False
             _moveBmpGhost?.Dispose() : _moveBmpGhost = Nothing
-            _moveBmpPlaceable?.Dispose() : _moveBmpPlaceable = Nothing
+            _moveBmpCanDrop?.Dispose() : _moveBmpCanDrop = Nothing
             _moveBmpSelected?.Dispose() : _moveBmpSelected = Nothing
             _ghostIdx = -1
 
@@ -217,10 +219,14 @@ Namespace Spielfeld
                     _ghostIdx = aktIdx
                     _selectedStockSteinIdx = aktIdx
                     _moveSelectedSteinIndex = _sfd.SFInf.Generator.Stock(_ghostIdx)
-                    Dim bmp As Bitmap = Images.SGM.GetStein(_moveSelectedSteinIndex, SteinStatus.I01Normal, _sfd.SFLay.steinSize, _sfd.SFRun.AktRenderMode)
-                    _moveBmpGhost = MjGDI.CreateGhostBitmap(bmp, INI.Editor_GhostBitmap_Alpha, INI.Editor_GhostBitmap_BrightnessFactor)
-                    _moveBmpPlaceable = DrawOverlay(bmp, OverlayType.RahmenSteinPlaceable, copyBitmap:=True)
-                    _moveBmpSelected = DrawOverlay(bmp, OverlayType.RahmenSteinSelected, copyBitmap:=True)
+
+                    Dim request As New TileFactory.TileRequest(_sfd.SFRun.AktRenderMode, INI.Tile_TileColors, steinTyp:=_moveSelectedSteinIndex, SteinStatus.I01Normal, SteinFrameVersion.Standard, _sfd.SFLay.steinSize, INI.Tile_BasisSize, ghost:=True)
+                    _moveBmpGhost = TileFactory.GetTile(request)
+                    request.SetSteinFrameVersion(SteinFrameVersion.MouseCanDrop, ghost:=False)
+                    _moveBmpCanDrop = TileFactory.GetTile(request)
+                    request.SetSteinFrameVersion(SteinFrameVersion.MouseSelected, ghost:=False)
+                    _moveBmpSelected = TileFactory.GetTile(request)
+
                     Return aktIdx
                 Else
                     aktXMin += _sfd.SFLay.steinWidth

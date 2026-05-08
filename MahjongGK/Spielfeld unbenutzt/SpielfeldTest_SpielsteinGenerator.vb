@@ -5,6 +5,7 @@ Option Strict On
 
 #Const TEST_STUBS = False ' <- auf False stellen, wenn die echten Enums/INI/Funktionen vorhanden sind
 
+Imports MahjongGK.Contracts.GlobalEnum
 Imports MahjongGK.Spielfeld
 
 Public Module SpielfeldTest_SpielsteinGenerator
@@ -40,7 +41,7 @@ Public Module SpielfeldTest_SpielsteinGenerator
         ' Ziehe 10 Steine (jeweils RemoveAt an exakt dem Index)
         For i As Integer = 1 To 10
             Dim idx As Integer = Math.Min(gen.Stock.Count - 1, 5)
-            Dim s As SteinIndexEnum = gen.GetSelectedStein(idx)
+            Dim s As SteinTyp = gen.GetSelectedStein(idx)
             Debug.WriteLine($"Zug {i}: Index={idx}, Stein={s}, Rest={gen.Stock.Count}")
         Next
 
@@ -77,7 +78,7 @@ Public Module SpielfeldTest_SpielsteinGenerator
 
         ' Ziehe 25 Steine → danach Refill anstoßen
         For i As Integer = 1 To 25
-            Dim s As SteinIndexEnum = gen.GetSelectedStein(0)
+            Dim s As SteinTyp = gen.GetSelectedStein(0)
         Next
         Debug.WriteLine($"Nach 25 Ziehungen: Count={gen.Stock.Count}")
 
@@ -97,13 +98,13 @@ Public Module SpielfeldTest_SpielsteinGenerator
         Debug.WriteLine($"Nach Shuffle (erste 12): {Dump(gen.Stock, 12)}")
 
         ' Insert links von Index 3
-        Dim testStein As SteinIndexEnum = SteinIndexEnum.Punkt01
+        Dim testStein As SteinTyp = SteinTyp.Punkt01
         gen.InsertLeftFromSelectedStein(index:=3, sie:=testStein)
         Debug.WriteLine($"Nach Insert links von 3 (erste 8): {Dump(gen.Stock, 8)}")
 
         ' GetSelectedStein löscht exakt an Position
-        Dim old As SteinIndexEnum = gen.Stock(3)
-        Dim got As SteinIndexEnum = gen.GetSelectedStein(3)
+        Dim old As SteinTyp = gen.Stock(3)
+        Dim got As SteinTyp = gen.GetSelectedStein(3)
         Debug.WriteLine($"Vorher an Pos 3: {old}, GetSelected(3)={got} → OK={old.Equals(got)}")
     End Sub
 
@@ -114,9 +115,9 @@ Public Module SpielfeldTest_SpielsteinGenerator
         ' Künstlich ein paar Steine duplizieren/entfernen, um ungerade Häufigkeit zu erzwingen
         ' Wir nehmen einige Normal-Steine und löschen ihren Partner
         ' (Vereinfachung: wir erzwingen garantiert ungerade Counts)
-        EnsureOddCount(gen.Stock, SteinIndexEnum.Punkt01)
-        EnsureOddCount(gen.Stock, SteinIndexEnum.Bambus3)
-        EnsureOddCount(gen.Stock, SteinIndexEnum.Symbol7)
+        EnsureOddCount(gen.Stock, SteinTyp.Punkt01)
+        EnsureOddCount(gen.Stock, SteinTyp.Bambus3)
+        EnsureOddCount(gen.Stock, SteinTyp.Symbol7)
 
         Dim hasWitwenVorher As Boolean = gen.VorratHasStrohWitwen(windsAreInOneClickGroup:=False)
         Debug.WriteLine($"HasStrohwitwen (vorher, nur berechnet): {hasWitwenVorher}")
@@ -150,10 +151,9 @@ Public Module SpielfeldTest_SpielsteinGenerator
 
     End Sub
 
-
     ' --- Helpers -------------------------------------------------------------
 
-    Private Function Dump(list As List(Of SteinIndexEnum), Optional take As Integer = 10) As String
+    Private Function Dump(list As List(Of SteinTyp), Optional take As Integer = 10) As String
         If list Is Nothing OrElse list.Count = 0 Then Return "(leer)"
         Dim n As Integer = Math.Min(list.Count, take)
         Dim parts As New List(Of String)(n)
@@ -163,10 +163,10 @@ Public Module SpielfeldTest_SpielsteinGenerator
         Return String.Join(", ", parts)
     End Function
 
-    Private Sub EnsureOddCount(vorrat As List(Of SteinIndexEnum), sie As SteinIndexEnum)
+    Private Sub EnsureOddCount(vorrat As List(Of SteinTyp), sie As SteinTyp)
         ' Zähle sie
         Dim c As Integer = 0
-        For Each s As SteinIndexEnum In vorrat
+        For Each s As SteinTyp In vorrat
             If s = sie Then c += 1
         Next
         If (c And 1) = 0 Then

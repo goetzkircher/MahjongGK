@@ -27,10 +27,10 @@ Option Strict On
 #Disable Warning IDE0079
 #Disable Warning IDE1006
 
-
 Imports System.IO
 Imports System.Text
 Imports System.Xml.Serialization
+Imports MahjongGK.Contracts.GlobalEnum
 
 Public Class frmGfxCompiler
 
@@ -41,11 +41,17 @@ Public Class frmGfxCompiler
         WerkstückEinfügefehler
         WerkstückZufallsgrafik
     End Enum
+
+    'wird nicht mehr gebraucht
+    Private Enum SteinSatzOld
+        None
+        Satz1
+    End Enum
+
     Private Class StatusDir
         Public Property Name As String
         Public Property Path As String
     End Class
-
 
     Private ReadOnly _rootAndere As String =
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
@@ -114,9 +120,8 @@ Public Class frmGfxCompiler
         Dim packs As New List(Of GfxPack)
         Dim packFiles As New List(Of String)
 
-
-        For Each s As SteinSatz In DirectCast([Enum].GetValues(GetType(SteinSatz)), SteinSatz())
-            If s = SteinSatz.None Then
+        For Each s As SteinSatzOld In DirectCast([Enum].GetValues(GetType(SteinSatzOld)), SteinSatzOld())
+            If s = SteinSatzOld.None Then
                 Continue For
             End If
             Try
@@ -138,7 +143,6 @@ Public Class frmGfxCompiler
 
         WriteMjGfxModule(packs, packFiles)
     End Sub
-
 
     Private Function CompileBasis(basisName As String, basisDir As String, outFile As String) As GfxPack
         Log($"Kompiliere Basis: {basisName} aus {basisDir}")
@@ -216,7 +220,6 @@ Public Class frmGfxCompiler
     ' ──────────────────────────────────────────────────────────────────────────
     Private Sub btnCompileSteine_Click(sender As Object, e As EventArgs) Handles btnCompileSteine.Click
 
-
         Try
             If Not Directory.Exists(_rootSteine) Then
                 Throw New DirectoryNotFoundException("Mahjongsteine-Root fehlt: " & _rootSteine & " - btnCompileSteine_Click")
@@ -230,12 +233,12 @@ Public Class frmGfxCompiler
 
             For Each Dir As String In satzDirs
                 Dim satzName As String = Path.GetFileName(Dir)
-                Dim satz As SteinSatz
-                If Not [Enum].TryParse(Of SteinSatz)(satzName, ignoreCase:=True, result:=satz) Then
-                    Log($"Überspringe Ordner (kein gültiger SteinSatz): {Dir}  - btnCompileSteine_Click")
+                Dim satz As SteinSatzOld
+                If Not [Enum].TryParse(Of SteinSatzOld)(satzName, ignoreCase:=True, result:=satz) Then
+                    Log($"Überspringe Ordner (kein gültiger SteinSatzOld): {Dir}  - btnCompileSteine_Click")
                     Continue For
                 End If
-                If satz <> SteinSatz.None Then
+                If satz <> SteinSatzOld.None Then
                     Dim outFile As String = Path.Combine(_rootOutput, $"Steine_{satz}.xml")
                     CompileSteinSatz(Dir, satz, outFile)
                     Log($"OK: {outFile}")
@@ -247,7 +250,7 @@ Public Class frmGfxCompiler
 
     End Sub
 
-    Private Sub CompileSteinSatz(satzDir As String, steinSatz As SteinSatz, outFile As String)
+    Private Sub CompileSteinSatz(satzDir As String, steinSatz As SteinSatzOld, outFile As String)
 
         Log($"Kompiliere Steinsatz: {steinSatz} aus {satzDir}")
 
@@ -267,8 +270,7 @@ Public Class frmGfxCompiler
         Dim pack As New SteinPack With {.SteinSatz = steinSatz.ToString()}
         Dim refW As Integer = 0, refH As Integer = 0
         Dim allIndexNames As HashSet(Of String) =
-             [Enum].GetNames(GetType(SteinIndexEnum)).ToHashSet(StringComparer.OrdinalIgnoreCase)
-
+             [Enum].GetNames(GetType(SteinTyp)).ToHashSet(StringComparer.OrdinalIgnoreCase)
 
         'zuerst nach der Größe suchen
         For Each sd As StatusDir In statusDirs
@@ -295,7 +297,6 @@ Public Class frmGfxCompiler
 
         For Each sd As StatusDir In statusDirs
 
-
             'Status aus dem Verzeichnisnamen rückgewinnen
             Dim steinStatus As SteinStatus = DirectCast([Enum].Parse(GetType(SteinStatus), sd.Name, ignoreCase:=True), SteinStatus)
 
@@ -308,7 +309,6 @@ Public Class frmGfxCompiler
             Dim pngs As List(Of String) = Directory.EnumerateFiles(sd.Path, "*.png", SearchOption.TopDirectoryOnly).ToList()
             ' Validierung: es dürfen nur Dateinamen sein, die Enum-Namen exakt treffen
             Dim indexFound As New HashSet(Of String)(StringComparer.OrdinalIgnoreCase)
-
 
             For Each file As String In pngs
 
@@ -354,7 +354,7 @@ Public Class frmGfxCompiler
                     Case SteinStatus.I00Unsichtbar
                         AddSteinStatusGhosts(pack, indexFound, size, steinStatus, Geistertyp.Unsichtbar)
 
-                    Case SteinStatus.I06NotUnsed
+                    Case SteinStatus.I06WerkstückStein
                         AddSteinStatusGhosts(pack, indexFound, size, steinStatus, Geistertyp.NotUsed)
 
                     Case SteinStatus.I08WerkstückEinfügeFehler
@@ -385,7 +385,6 @@ Public Class frmGfxCompiler
             ser.Serialize(fs, pack)
         End Using
     End Sub
-
 
     ''Private Function TryParseSetNumberFromDirName(dir As DirectoryInfo, ByRef setNo As Integer) As Boolean
     ''    setNo = 0
@@ -421,7 +420,7 @@ Public Class frmGfxCompiler
     ''End Sub
 
     ' ''' Ermittelt die numerische Enum-ID aus dem Namen (z. B. "Bambus3" → 42).
-    ' ''' Passe "SteinIndexEnum" an deinen Enumtyp an.
+    ' ''' Passe "SteinTyp" an deinen Enumtyp an.
     ''Private Function TryGetEnumNumericValue(enumType As Type, name As String, ByRef value As Integer) As Boolean
     ''    value = 0
     ''    If enumType Is Nothing OrElse Not enumType.IsEnum Then Return False
@@ -440,7 +439,7 @@ Public Class frmGfxCompiler
         Dim lob As New List(Of Bitmap)
 
         ' For Each steinStatus As SteinStatus In DirectCast([Enum].GetValues(GetType(SteinStatus)), SteinStatus())
-        For Each sie As SteinIndexEnum In DirectCast([Enum].GetValues(GetType(SteinIndexEnum)), SteinIndexEnum())
+        For Each sie As SteinTyp In DirectCast([Enum].GetValues(GetType(SteinTyp)), SteinTyp())
 
             Dim bmp As Bitmap = CreateGhostBitmap(size, INI.GfxCompiler_GhostBasisColor(steinStatus), useRectangle:=False, steinStatus, geistertyp)
             lob.Add(bmp)
@@ -461,7 +460,6 @@ Public Class frmGfxCompiler
         ''MjDebug.DebugStep.WaitForStep()
 
     End Sub
-
 
     ' Zeichnet eine einzelne Geistergrafik.
     ' - Hintergrund: transparent
@@ -986,7 +984,6 @@ Public Class frmGfxCompiler
         sb.AppendLine("    End Function")
         sb.AppendLine()
 
-
         ' Resize (hochwertig)
         sb.AppendLine("    Private Function ResizeImageCrisp(portSrcEnum As Bitmap, w As Integer, h As Integer) As Bitmap")
         sb.AppendLine("        If portSrcEnum Is Nothing Then Throw New ArgumentNullException(NameOf(portSrcEnum))")
@@ -1047,7 +1044,6 @@ Public Class frmGfxCompiler
         sb.AppendLine("        Return portDstEnum")
         sb.AppendLine("    End Function")
         sb.AppendLine()
-
 
         ' Inflate GZip (Base64)
         sb.AppendLine("    Private Function InflateGZipFromBase64(b64 As String) As Byte()")
@@ -1157,7 +1153,5 @@ Public Class frmGfxCompiler
         ' Wenn nicht unterhalb, nur Dateiname (robust)
         Return Path.GetFileName(p)
     End Function
-
-
 
 End Class

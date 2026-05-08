@@ -1,4 +1,7 @@
-﻿Namespace Spielfeld
+﻿Imports MahjongGK.Contracts.GlobalEnum
+Imports TileFactory
+
+Namespace Spielfeld
 
     ''' <summary>
     ''' Klasse, die für den Steinflug einen einzelnen fliegenden Stein hält.
@@ -25,7 +28,7 @@
             _steinInfoIndex = steinInfoIndex
             _dragDropAktiv = dragDropAktiv
             _dragDropFirstStep = dragDropAktiv
-            _steinIndex = sfd.SFInf.SteinInfos(steinInfoIndex).SteinIndex
+            _steinTypIndex = sfd.SFInf.SteinInfos(steinInfoIndex).SteinTypIndex
             _stockIndex = -1
             _srcPos3D = sfd.SFInf.SteinInfos(steinInfoIndex).Pos3D
             Initialisierung(srcRect:=Nothing) 'holt sich srcRect aus den SteinInfos
@@ -41,13 +44,13 @@
         ''' <param name="stockIndex"></param>
         ''' <param name="steinIndex"></param>
         ''' <param name="srcRect"></param>
-        Sub New(sfd As SFDaten, stockIndex As Integer, steinIndex As SteinIndexEnum, dragDropAktiv As Boolean, srcRect As Rectangle)
+        Sub New(sfd As SFDaten, stockIndex As Integer, steinIndex As SteinTyp, dragDropAktiv As Boolean, srcRect As Rectangle)
             _sfd = sfd
             _steinInfoIndex = -1
             _stockIndex = stockIndex
             _dragDropAktiv = dragDropAktiv
             _dragDropFirstStep = dragDropAktiv
-            _steinIndex = steinIndex
+            _steinTypIndex = steinIndex
             _srcPos3D = Nothing
             Initialisierung(srcRect)
         End Sub
@@ -63,41 +66,42 @@
 #Region "Initialisierung"
 
         Private Sub Initialisierung(srcRect As Rectangle)
+            '
+            'Da beliebig viele Airplanes gleichzeitig fliegen können, müssen die
+            'Bitmaps Eigentum der Planes sein, d.h. es müssen DeepCopies gemacht werden.
+            DisposeOwnedBitmaps()
 
-            Dim bmpStein As Bitmap
+            Dim request As TileRequest
 
             If _steinInfoIndex >= 0 Then
                 'Stein aus dem Feld
-                With _sfd.SFInf.SteinInfos(_steinInfoIndex)
-                    bmpStein = Images.SGM.GetStein(.SteinIndex, .SteinStatusUsed, _sfd.SFLay.steinSize, _sfd.SFRun.AktRenderMode)
-                End With
+                'TODO Fliegt der immer als Normal?
+                request = New TileRequest(_sfd.SFRun.AktRenderMode, INI.Tile_TileColors, _sfd.SFInf.SteinInfos(_steinInfoIndex).SteinTypIndex, SteinStatus.I01Normal, SteinFrameVersion.Standard, _sfd.SFLay.steinSize, INI.Tile_BasisSize)
+                _bmpOrg = TileFactory.GetTileDeepCopy(request)
             Else
                 'Stein aus dem Vorrat
-                'Falls _steinIndex ungültig ist. wird die Errorgrafik erzeugt
-                bmpStein = Images.SGM.GetStein(_steinIndex, SteinStatus.I01Normal, _sfd.SFLay.steinSize, _sfd.SFRun.AktRenderMode)
+                'Falls _steinTypIndex ungültig ist. wird die Errorgrafik erzeugt
+                request = New TileRequest(_sfd.SFRun.AktRenderMode, INI.Tile_TileColors, _steinTypIndex, SteinStatus.I01Normal, SteinFrameVersion.Standard, _sfd.SFLay.steinSize, INI.Tile_BasisSize)
+                _bmpOrg = TileFactory.GetTileDeepCopy(request)
             End If
 
-            With bmpStein
-                _bmpOrg = .Clone(New Rectangle(0, 0, .Width, .Height), .PixelFormat)
-            End With
+            request.SetSteinFrameVersion(SteinFrameVersion.Standard, ghost:=True)
+            _bmpGhost = TileFactory.GetTileDeepCopy(request)
+            '
+            request.SetSteinFrameVersion(SteinFrameVersion.MouseSelected, ghost:=False)
+            _bmpSelected = TileFactory.GetTileDeepCopy(request)
 
-            CreateBitmaps()
+            request.SetSteinFrameVersion(SteinFrameVersion.MouseCanDrop, ghost:=False)
+            _bmpCanDrop = TileFactory.GetTileDeepCopy(request)
 
             If _steinInfoIndex >= 0 Then
                 _JobSelector = New AirJobSelector(_sfd, _steinInfoIndex)
-                _SrcRect = _sfd.SFInf.SteinInfos(_steinInfoIndex).RectStein
+                _srcRect = _sfd.SFInf.SteinInfos(_steinInfoIndex).RectStein
             Else
-                _JobSelector = New AirJobSelector(_sfd, _steinIndex)
-                _SrcRect = srcRect
+                _JobSelector = New AirJobSelector(_sfd, _steinTypIndex)
+                _srcRect = srcRect
             End If
 
-        End Sub
-
-        Private Sub CreateBitmaps()
-            DisposeOwnedBitmaps(disposeBmpOrg:=False)
-            _bmpGhost = MjGDI.CreateGhostBitmap(_bmpOrg, INI.Editor_GhostBitmap_Alpha, INI.Editor_GhostBitmap_BrightnessFactor)
-            _bmpSelected = DrawOverlay(_bmpOrg, OverlayType.RahmenSteinSelected, copyBitmap:=True)
-            _bmpPlacable = DrawOverlay(_bmpOrg, OverlayType.RahmenSteinPlaceable, copyBitmap:=True)
         End Sub
 
         Public Sub SetDstRect(steinInfoIndex As Integer)
@@ -195,10 +199,10 @@
         Private _bmpOrg As Bitmap = Nothing
         Private _bmpGhost As Bitmap = Nothing
         Private _bmpSelected As Bitmap = Nothing
-        Private _bmpPlacable As Bitmap = Nothing
+        Private _bmpCanDrop As Bitmap = Nothing
         Private _steinInfoIndex As Integer
         Private _stockIndex As Integer
-        Private _steinIndex As SteinIndexEnum
+        Private _steinTypIndex As SteinTyp
         Private _srcRect As Rectangle
         Private _srcPos3D As Triple
         'ja
@@ -210,13 +214,13 @@
         End Property
 
         ''' <summary>
-        ''' Wenn HasSteinInfoIndex False ist, wird SteinIndexEnum.ErrorSy zurückgegeben,
-        ''' (SteinIndexEnum ist der Index auf die Bitmap des Steines) 
+        ''' Wenn HasSteinInfoIndex False ist, wird SteinTyp.ErrorSy zurückgegeben,
+        ''' (SteinTyp ist der Index auf die Bitmap des Steines) 
         ''' </summary>
         ''' <returns></returns>
-        Public ReadOnly Property SteinIndex As SteinIndexEnum
+        Public ReadOnly Property SteinTypIndex As SteinTyp
             Get
-                Return _steinIndex
+                Return _steinTypIndex
             End Get
         End Property
 
@@ -285,7 +289,7 @@
         '
         Public ReadOnly Property SrcPos3D As Triple
             Get
-                Return _SrcPos3D
+                Return _srcPos3D
             End Get
         End Property
 
@@ -295,7 +299,7 @@
         ''' <returns></returns>
         Public ReadOnly Property SrcRect As Rectangle
             Get
-                Return _SrcRect
+                Return _srcRect
             End Get
         End Property
 
@@ -323,7 +327,7 @@
         '
         Public ReadOnly Property BmpPlacable As Bitmap
             Get
-                Return _bmpPlacable
+                Return _bmpCanDrop
             End Get
         End Property
 
@@ -408,36 +412,21 @@
         ''' zurückgesetzt. Die eigentlichen Referenzen werden erst vor
         ''' dem nächsten Add vollständig gelöscht.
         ''' </summary>
-        ''' <param name="rect">
-        ''' Zielrechteck der Bitmap.
-        ''' </param>
-        ''' <param name="bmp">
-        ''' Zu rendernde Bitmap.
-        ''' </param>
         ''' <returns>
-        ''' True, wenn ein Eintrag vorhanden war, sonst False.
+        ''' True, wenn ein Eintrag vorhanden war sowie die Bitmap mit Rectangle, sonst False.
         ''' </returns>
-        Public Function NextRenderBitmap(ByRef rect As Rectangle,
-                                         ByRef bmp As Bitmap) As Boolean
+        Public Function NextRenderBitmap() As (found As Boolean, bmp As Bitmap, rect As Rectangle)
 
             If _nextReadRenderBitmapIndex < _nextFreeRenderBitmapIndex Then
-
-                rect = _renderRect(_nextReadRenderBitmapIndex)
-                bmp = _renderBitmap(_nextReadRenderBitmapIndex)
-
                 _nextReadRenderBitmapIndex += 1
-                Return True
+                Return (True, _renderBitmap(_nextReadRenderBitmapIndex), _renderRect(_nextReadRenderBitmapIndex))
+            Else
+                _nextFreeRenderBitmapIndex = 0
+                _nextReadRenderBitmapIndex = 0
+                _renderBitmapNeedsClear = True
 
+                Return (False, Nothing, Rectangle.Empty)
             End If
-
-            rect = Rectangle.Empty
-            bmp = Nothing
-
-            _nextFreeRenderBitmapIndex = 0
-            _nextReadRenderBitmapIndex = 0
-            _renderBitmapNeedsClear = True
-
-            Return False
 
         End Function
 
@@ -561,13 +550,11 @@
             End If
         End Sub
 
-        Private Sub DisposeOwnedBitmaps(disposeBmpOrg As Boolean)
+        Private Sub DisposeOwnedBitmaps()
 
-            If disposeBmpOrg Then
-                If _bmpOrg IsNot Nothing Then
-                    _bmpOrg.Dispose()
-                    _bmpOrg = Nothing
-                End If
+            If _bmpOrg IsNot Nothing Then
+                _bmpOrg.Dispose()
+                _bmpOrg = Nothing
             End If
 
             If _bmpGhost IsNot Nothing Then
@@ -580,9 +567,9 @@
                 _bmpSelected = Nothing
             End If
 
-            If _bmpPlacable IsNot Nothing Then
-                _bmpPlacable.Dispose()
-                _bmpPlacable = Nothing
+            If _bmpCanDrop IsNot Nothing Then
+                _bmpCanDrop.Dispose()
+                _bmpCanDrop = Nothing
             End If
 
         End Sub
@@ -592,7 +579,7 @@
             If _disposed Then
                 Return
             End If
-            DisposeOwnedBitmaps(disposeBmpOrg:=True)
+            DisposeOwnedBitmaps()
 
             GC.SuppressFinalize(Me)
 

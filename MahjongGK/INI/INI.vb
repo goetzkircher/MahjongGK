@@ -20,10 +20,16 @@
 '###########################################################################
 '
 Imports System.Globalization
+Imports System.IO
 Imports System.Reflection
+Imports MahjongGK.Contracts
+Imports MahjongGK.Contracts.GlobalEnum
 Imports MahjongGK.Spielfeld
+Imports TileFactory
 
 Public Module INI
+
+#Region "Kopf"
 
     '' Kopiervorlage für die Pfad/ Dateinamen-Enumeration
     '' (Die verwendeten Enumerationen sind in Shared/Enumerationen)
@@ -217,6 +223,8 @@ Public Module INI
     'Byte, Integer, Long, Single, Double, Decimal, Date, Enumerationen
     'Color, Point, PointF, Size, SizeF, Rectangle, RechtangleF
     'und Font
+
+#End Region
 
 #Region "Kopiervorlagen"
 
@@ -691,18 +699,18 @@ Public Module INI
     '--- ENUM ---
     '------------
     '
-    'Public Property Kopier_VorlageBeispiel As TileSetInUse
+    'Public Property Kopier_VorlageBeispiel As SteinSatz
     '    Get
-    '        Dim [Default] As String = TileSetInUse.InternalSet.ToString
+    '        Dim [Default] As String = SteinSatz.InternalSet.ToString
     '        Dim comment As String = Nothing
     '        Dim zRetVal As String = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-    '        Dim result As TileSetInUse
-    '        If Not [Enum].TryParse(Of TileSetInUse)(zRetVal, True, result) Then
-    '            result = TileSetInUse.InternalSet
+    '        Dim result As SteinSatz
+    '        If Not [Enum].TryParse(Of SteinSatz)(zRetVal, True, result) Then
+    '            result = SteinSatz.InternalSet
     '        End If
     '        Return result
     '    End Get
-    '    Set(value As TileSetInUse)
+    '    Set(value As SteinSatz)
     '        BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
     '    End Set
     'End Property
@@ -992,39 +1000,7 @@ Public Module INI
         End Set
     End Property
     '
-    Private _Editor_GhostBitmap_Alpha As Single?
-    Public Property Editor_GhostBitmap_Alpha As Single
-        Get
-            If Not _Editor_GhostBitmap_Alpha.HasValue Then
-                Dim [Default] As Single = 0.5F
-                Dim comment As String = "Beim Drag-Drop der Steine bleibt eine ""Geisterbitmap"" am ursprünglichem Ort. Hier der Alpha-Wert. Default: 0.5F "
-                _Editor_GhostBitmap_Alpha = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-            End If
-            Return _Editor_GhostBitmap_Alpha.Value
-        End Get
-        Set(value As Single)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
-            _Editor_GhostBitmap_Alpha = Nothing
-            _Rendering_ConsumeDoRendering = True
-        End Set
-    End Property
-    '
-    Private _Editor_GhostBitmap_BrightnessFactor As Single?
-    Public Property Editor_GhostBitmap_BrightnessFactor As Single
-        Get
-            If Not _Editor_GhostBitmap_BrightnessFactor.HasValue Then
-                Dim [Default] As Single = 0.7F
-                Dim comment As String = "Die Helligkeit der Geistergrafik. Default: 0.7F"
-                _Editor_GhostBitmap_BrightnessFactor = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-            End If
-            Return _Editor_GhostBitmap_BrightnessFactor.Value
-        End Get
-        Set(value As Single)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
-            _Editor_GhostBitmap_BrightnessFactor = Nothing
-            _Rendering_ConsumeDoRendering = True
-        End Set
-    End Property
+
     '
     Private _Editor_ShowGrid As Boolean?
     Public Property Editor_ShowGrid As Boolean
@@ -1194,25 +1170,52 @@ Public Module INI
         End Set
     End Property
 
+    Private _Spielbetrieb_WindsAreInOneClickGroup As Boolean?
     Public Property Spielbetrieb_WindsAreInOneClickGroup As Boolean
         Get
-            Dim [Default] As Boolean = False
-            Dim comment As String = "Wenn True ist das eine starke Spielregelvereinfachung:" &
-                                    "~Die 4 Winde können in beliebiger Kombination paarweise entnommen werden."
-            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            If IsNothing(_Spielbetrieb_WindsAreInOneClickGroup) Then
+                Dim [Default] As Boolean = False
+                Dim comment As String = "Wenn True ist das eine Spielregelvereinfachung:" &
+                                        "~Die 4 Winde können in beliebiger Kombination paarweise entnommen werden."
+                _Spielbetrieb_WindsAreInOneClickGroup = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            End If
+            Return CBool(_Spielbetrieb_WindsAreInOneClickGroup)
         End Get
         Set(value As Boolean)
             BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+            _Spielbetrieb_WindsAreInOneClickGroup = Nothing
         End Set
     End Property
+
+    Private _Spielbetrieb_ShowSelectableStones As Boolean?
     Public Property Spielbetrieb_ShowSelectableStones As Boolean
         Get
-            Dim [Default] As Boolean = False
-            Dim comment As String = "Wenn True werden alle selektierbaren Steine in anderer Farbe dargestellt. Satz1: False"
-            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            If IsNothing(_Spielbetrieb_ShowSelectableStones) Then
+                Dim [Default] As Boolean = True
+                Dim comment As String = "Wenn True werden alle selektierbaren Steine in anderer Farbe dargestellt."
+                _Spielbetrieb_ShowSelectableStones = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            End If
+            Return CBool(_Spielbetrieb_ShowSelectableStones)
         End Get
         Set(value As Boolean)
             BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+            _Spielbetrieb_ShowSelectableStones = Nothing
+        End Set
+    End Property
+
+    Private _Spielbetrieb_ShowRemovableStones As Boolean?
+    Public Property Spielbetrieb_ShowRemovableStones As Boolean
+        Get
+            If IsNothing(_Spielbetrieb_ShowRemovableStones) Then
+                Dim [Default] As Boolean = True
+                Dim comment As String = "Wenn True werden alle entnehmbaren Steine in anderer Farbe dargestellt."
+                _Spielbetrieb_ShowRemovableStones = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            End If
+            Return CBool(_Spielbetrieb_ShowRemovableStones)
+        End Get
+        Set(value As Boolean)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+            _Spielbetrieb_ShowRemovableStones = Nothing
         End Set
     End Property
 
@@ -1643,7 +1646,7 @@ Public Module INI
                     [Default] = IniManager.CvtHexStringToColor("FFFFFFFF")
                 Case SteinStatus.I05Locked
                     [Default] = IniManager.CvtHexStringToColor("FFD8D8D8")
-                Case SteinStatus.I06NotUnsed
+                Case SteinStatus.I06WerkstückStein
                     [Default] = IniManager.CvtHexStringToColor("FF000000")
                 Case SteinStatus.I07MissingSecond
                     [Default] = IniManager.CvtHexStringToColor("FFFFBF00")
@@ -2117,167 +2120,6 @@ Public Module INI
 
 #Region "Rendering.ini"
 
-    Public Property Images_PreloadSteinsatz As SteinSatz
-        Get
-            Dim [Default] As String = SteinSatz.Satz1.ToString
-            Dim comment As String = "Der Steinsatz, der beim Programmstart geladen wird."
-            Dim zRetVal As String = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-            Dim result As SteinSatz
-            If Not [Enum].TryParse(Of SteinSatz)(zRetVal, True, result) Then
-                result = SteinSatz.Satz1
-            End If
-            Return result
-        End Get
-        Set(value As SteinSatz)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
-        End Set
-    End Property
-
-    Public Property Images_OrgGrafikSteinsatz As SteinSatz
-        Get
-            Dim [Default] As String = SteinSatz.None.ToString
-            Dim comment As String = "Wird vom Programm verwaltet. Der aktuell geladene Steinsatz."
-            Dim zRetVal As String = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-            Dim result As SteinSatz
-            If Not [Enum].TryParse(Of SteinSatz)(zRetVal, True, result) Then
-                result = SteinSatz.None
-            End If
-            Return result
-        End Get
-        Set(value As SteinSatz)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
-        End Set
-    End Property
-
-    Private _ImagesOrgGrafikSizeWidth As Integer?
-    Public Property Images_OrgGrafikSizeWidth As Integer
-        Get
-            If Not _ImagesOrgGrafikSizeWidth.HasValue Then
-                Dim [Default] As Integer = -1
-                Dim comment As String = "Wird vom Programm verwaltet. Breite vom aktuell geladenen Steinsatz."
-                _ImagesOrgGrafikSizeWidth = Rendering.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-                _ImagesOrgGrafikSizeWidth = Math.Max(60, Math.Min(600, _ImagesOrgGrafikSizeWidth.Value))
-            End If
-            Return _ImagesOrgGrafikSizeWidth.Value
-        End Get
-        Set(value As Integer)
-            Rendering.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
-            _ImagesOrgGrafikSizeWidth = Nothing
-        End Set
-    End Property
-
-    Private _ImagesOrgGrafikSizeHeight As Integer?
-    Public Property Images_OrgGrafikSizeHeight As Integer
-        Get
-            If Not _ImagesOrgGrafikSizeHeight.HasValue Then
-                Dim [Default] As Integer = -1
-                Dim comment As String = "Wird vom Programm verwaltet. Höhe vom aktuell geladenen Steinsatz."
-                _ImagesOrgGrafikSizeHeight = Rendering.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-                _ImagesOrgGrafikSizeHeight = Math.Max(60, Math.Min(600, _ImagesOrgGrafikSizeHeight.Value))
-            End If
-            Return _ImagesOrgGrafikSizeHeight.Value
-        End Get
-        Set(value As Integer)
-            Rendering.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
-            _ImagesOrgGrafikSizeHeight = Nothing
-        End Set
-    End Property
-
-    Private _ImagesOrgGrafikReferenceSizeWidth As Integer?
-    Public Property Images_OrgGrafikReferenceSizeWidth As Integer
-        Get
-            If Not _ImagesOrgGrafikReferenceSizeWidth.HasValue Then
-                Dim [Default] As Integer = 198
-                Dim comment As String = "Die Originalgröße der Grafiken bezieht das Programm aus den Grafiken selber. Die Referenzgröße bestimmt" &
-                                        "~die maximale Größe der verwendeten Steine und das Seitenverhältniss. Satz1 Breite: 198, Höhe: 252." &
-                                        $"~Ist einer der Werte kleiner {MJ_GRAFIK_SRC_MIN_WIDTH_OR_HEIGHT}, werden die OrgGrafikSize-Werte genommen. Gültige Werte 0 bis {MJ_GRAFIK_SRC_MAX_WIDTH_OR_HEIGHT} Pixel." &
-                                        "~Das Seitenverhältnis ist von 1:2 bis 2:1 begrenzt."
-
-                _ImagesOrgGrafikReferenceSizeWidth = Rendering.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-                _ImagesOrgGrafikReferenceSizeWidth = Math.Max(60, Math.Min(600, _ImagesOrgGrafikReferenceSizeWidth.Value))
-            End If
-            Return _ImagesOrgGrafikReferenceSizeWidth.Value
-        End Get
-        Set(value As Integer)
-            Rendering.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
-            _ImagesOrgGrafikReferenceSizeWidth = Nothing
-        End Set
-    End Property
-
-    Private _ImagesOrgGrafikReferenceSizeHeight As Integer?
-    Public Property Images_OrgGrafikReferenceSizeHeight As Integer
-        Get
-            If Not _ImagesOrgGrafikReferenceSizeHeight.HasValue Then
-                Dim [Default] As Integer = 252
-                Dim comment As String = "Wie vor, die Höhe."
-                _ImagesOrgGrafikReferenceSizeHeight = Rendering.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-                _ImagesOrgGrafikReferenceSizeHeight = Math.Max(60, Math.Min(600, _ImagesOrgGrafikReferenceSizeHeight.Value))
-            End If
-            Return _ImagesOrgGrafikReferenceSizeHeight.Value
-        End Get
-        Set(value As Integer)
-            Rendering.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
-            _ImagesOrgGrafikReferenceSizeHeight = Nothing
-        End Set
-    End Property
-
-    Private _ImagesUseGrafikOrgSize As Boolean?
-    Public Property Images_UseGrafikOrgSize As Boolean
-        Get
-            If IsNothing(_ImagesUseGrafikOrgSize) Then
-                Dim [Default] As Boolean = False
-                Dim comment As String = "Wenn dieses Flag auf True steht, wird die maximale Größe und das Seitenverhältniss aus den Original-" &
-                                        "~Abmessungen der Grafiken bezogen. Satz1: False"
-                _ImagesUseGrafikOrgSize = Rendering.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-            End If
-            Return CBool(_ImagesUseGrafikOrgSize)
-        End Get
-        Set(value As Boolean)
-            Rendering.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
-            _ImagesUseGrafikOrgSize = Nothing
-        End Set
-    End Property
-
-    Public ReadOnly Property Images_OrgGrafikUsedSizeWidth As Integer
-        Get
-            If Images_UseGrafikOrgSize Then
-                Return Images_OrgGrafikSizeWidth
-            Else
-                Return Images_OrgGrafikReferenceSizeWidth
-            End If
-        End Get
-    End Property
-
-    Public ReadOnly Property Images_OrgGrafikUsedSizeHeight As Integer
-        Get
-            If Images_UseGrafikOrgSize Then
-                Return Images_OrgGrafikSizeHeight
-            Else
-                Return Images_OrgGrafikReferenceSizeHeight
-            End If
-        End Get
-    End Property
-    '  Public Enum TileSetInUse
-
-    Public Property Rendering_TileSetInUse As TileSetInUse
-        Get
-            Dim [Default] As String = TileSetInUse.InternalSet.ToString
-            Dim comment As String = "Das Programm ist vorgesehen für die Verwendung beliebiger und beliebig vieler Sätze an Mahjongsteinen" &
-                                    "~in beliebigen Breiten/Höhenverhältnissen. Die Programmlogik ist noch nicht implementiert. Deshalb ist" &
-                                    "~derzeit nur der Satz1 möglich: ""InternalSet"" (Wenn implementiert, ändert sich dieser Text hier!)" &
-                                    "~Wenn jemand Lust hat die Grafiken beizusteuern: MahjongGK@t-online.de"
-            Dim zRetVal As String = Rendering.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-            Dim result As TileSetInUse
-            If Not [Enum].TryParse(Of TileSetInUse)(zRetVal, True, result) Then
-                result = TileSetInUse.InternalSet
-            End If
-            Return result
-        End Get
-        Set(value As TileSetInUse)
-            Rendering.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
-        End Set
-    End Property
-
     Private _Rendering_RenderTimerIntervalWorking As Integer?
     Public Property Rendering_RenderTimerIntervalWorking As Integer
         Get
@@ -2361,116 +2203,6 @@ Public Module INI
             Else
                 Return Drawing2D.InterpolationMode.HighQualityBilinear
             End If
-        End Get
-    End Property
-
-    Private _Rendering_Offset3DMaxX As Integer?
-    Public Property Rendering_Offset3DMaxX As Integer
-        Get
-            If Not _Rendering_Offset3DMaxX.HasValue Then
-                Dim [Default] As Integer = 30
-                Dim comment As String = "Die Gesamt-Verschiebung eines 10 Steine hohen Stapels in X und Y Richtung in Pixel um den" &
-                                        "~3D-Effekt zu erreichen, bei maximaler Steingröße. Erlaubt: -100 bis +100. Bei = 0 gibt es keinen" &
-                                        "~3D-Effekt, wenn Offset3DMinPerLayerX/Y auch auf 0 steht. Satz1: 30"
-                _Rendering_Offset3DMaxX = Rendering.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-                _Rendering_Offset3DMaxX = Math.Max(-200, Math.Min(200, _Rendering_Offset3DMaxX.Value))
-            End If
-            Return _Rendering_Offset3DMaxX.Value
-        End Get
-        Set(value As Integer)
-            Rendering.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
-            _Rendering_Offset3DMaxX = Nothing
-        End Set
-    End Property
-
-    Private _Rendering_Offset3DMaxY As Integer?
-    Public Property Rendering_Offset3DMaxY As Integer
-        Get
-            If Not _Rendering_Offset3DMaxY.HasValue Then
-                Dim [Default] As Integer = 30
-                Dim comment As String = Nothing
-                _Rendering_Offset3DMaxY = Rendering.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-                _Rendering_Offset3DMaxY = Math.Max(-60, Math.Min(60, _Rendering_Offset3DMaxY.Value))
-            End If
-            Return _Rendering_Offset3DMaxY.Value
-        End Get
-        Set(value As Integer)
-            Rendering.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
-            _Rendering_Offset3DMaxY = Nothing
-        End Set
-    End Property
-
-    Private _Rendering_Offset3DMinPerLayerX As Integer?
-    Public Property Rendering_Offset3DMinPerLayerX As Integer
-        Get
-            If Not _Rendering_Offset3DMinPerLayerX.HasValue Then
-                Dim [Default] As Integer = 3
-                Dim comment As String = "Die Mindest-Verschiebung je Stein in Pixel, unabhängig von der Steingröße." &
-                                        "~Erlaubt: 0 bis 5. Die 0 nur verwenden, wenn Rendering_Offset3DMaxX auch auf 0 steht. Satz1: 1"
-                _Rendering_Offset3DMinPerLayerX = Rendering.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-                _Rendering_Offset3DMinPerLayerX = Math.Max(0, Math.Min(5, _Rendering_Offset3DMinPerLayerX.Value))
-            End If
-            Return _Rendering_Offset3DMinPerLayerX.Value
-        End Get
-        Set(value As Integer)
-            Rendering.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
-            _Rendering_Offset3DMinPerLayerX = Nothing
-        End Set
-    End Property
-
-    Private _Rendering_Offset3DMinPerLayerY As Integer?
-    Public Property Rendering_Offset3DMinPerLayerY As Integer
-        Get
-            If Not _Rendering_Offset3DMinPerLayerY.HasValue Then
-                Dim [Default] As Integer = 3
-                Dim comment As String = Nothing
-                _Rendering_Offset3DMinPerLayerY = Rendering.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-                _Rendering_Offset3DMinPerLayerY = Math.Max(0, Math.Min(5, _Rendering_Offset3DMinPerLayerY.Value))
-            End If
-            Return _Rendering_Offset3DMinPerLayerY.Value
-        End Get
-        Set(value As Integer)
-            Rendering.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
-            _Rendering_Offset3DMinPerLayerY = Nothing
-        End Set
-    End Property
-
-    '---------------------------
-    Public ReadOnly Property Rendering_Offset3DFaktorAbsolutX As Double
-        Get
-            Try
-                Return Math.Abs(Rendering_Offset3DMaxX / 10 / Images_OrgGrafikUsedSizeWidth)
-            Catch ex As Exception
-                Return 30 / 10 / 198
-            End Try
-        End Get
-    End Property
-    Public ReadOnly Property Rendering_Offset3DFaktorAbsolutY As Double
-        Get
-            Try
-                Return Math.Abs(Rendering_Offset3DMaxY / 10 / Images_OrgGrafikUsedSizeHeight)
-            Catch ex As Exception
-                Return 30 / 10 / 252
-            End Try
-        End Get
-    End Property
-
-    Public ReadOnly Property Rendering_Offset3DFaktorSignX As Integer
-        Get
-            Try
-                Return Math.Sign(Rendering_Offset3DMaxX)
-            Catch ex As Exception
-                Return 1
-            End Try
-        End Get
-    End Property
-    Public ReadOnly Property Rendering_Offset3DFaktorSignY As Integer
-        Get
-            Try
-                Return Math.Sign(Rendering_Offset3DMaxY)
-            Catch ex As Exception
-                Return 1
-            End Try
         End Get
     End Property
 
@@ -2625,12 +2357,12 @@ Public Module INI
             If Not _Rendering_SteinFlugGeschwindigkeit.HasValue Then
                 Dim [Default] As Double = 36
                 Dim comment As String = "Die Anzahl der Pixel je Frame, die der Stein weiterkommt. Default: 36"
-                _Rendering_SteinFlugGeschwindigkeit = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+                _Rendering_SteinFlugGeschwindigkeit = Rendering.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
             End If
             Return _Rendering_SteinFlugGeschwindigkeit.Value
         End Get
         Set(value As Double)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+            Rendering.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
             _Rendering_SteinFlugGeschwindigkeit = Nothing
         End Set
     End Property
@@ -2714,7 +2446,7 @@ Public Module INI
             '    Return False
             'End If
             If IsNothing(_Rendering_DrawRenderRect) Then
-                Dim [Default] As Boolean = True ' Debugger.IsAttached
+                Dim [Default] As Boolean = False ' Debugger.IsAttached
                 Dim comment As String = "Für die Programmentwicklung zur Kontrolle der Lage der rxRectangle. Nur innerhalb der IDE verwendbar."
                 _Rendering_DrawRenderRect = Rendering.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
             End If
@@ -2735,12 +2467,12 @@ Public Module INI
             If Not _Rendering_HeaderHeight.HasValue Then
                 Dim [Default] As Integer = 30
                 Dim comment As String = Nothing
-                _Rendering_HeaderHeight = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+                _Rendering_HeaderHeight = Rendering.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
             End If
             Return _Rendering_HeaderHeight.Value
         End Get
         Set(value As Integer)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+            Rendering.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
             _Rendering_HeaderHeight = Nothing
             _Rendering_ConsumeDoRendering = True
         End Set
@@ -2782,6 +2514,222 @@ Public Module INI
         End Set
     End Property
 
+#End Region
+
+#Region "Tile"
+
+    'alles was 'Stein' heißt bezieht sich auf die alten Steine,
+    'die als png-Dateien vorliegen/vorlagen (will ich will alles ausbauen),
+    'alles was Tile heißt, auf die neuen Steine, die komplett bei Gebrauch
+    'erzeugt werden in der TileFactory.
+    '
+    '
+    '
+    'Wichtig für Rendering_AktTileColor:
+    'In der Tilefactory gilt: wenn sich die Instanz geändert hat,
+    'wid angenommen, irgendwelche Farben hätten sich geändert und
+    'das Cache wird neu aufgebaut. ===> Die Instanz nur ändern, 
+    'wenn sich wirklich was ändern.
+    '()
+
+    Private _Tile_AktTileColor As TileColors
+    Public ReadOnly Property Tile_TileColors As TileColors
+        Get
+            Return _Tile_AktTileColor
+        End Get
+    End Property
+    '
+    '
+    ''' <summary>
+    ''' Läd die aktuelle Instanz der TileColors von der Festplatte.
+    ''' Es wird der Satz geladen, der durch
+    ''' INI.Tile_SteinDesign und INI.Tile_SteinSatz
+    ''' definiert ist.
+    ''' </summary>
+    Public Sub Tile_TileColors_Load()
+
+        If INI.Tile_SteinDesign.ToString.StartsWith("Test") Then
+            If Not Tile_AllowTileColorsTestFiles Then
+                INI.Tile_SteinDesign = SteinDesign.Default
+            End If
+        End If
+
+        Dim fullpath As String = TileColors.GetFullPathOnlyForLoading(INI.Tile_SteinDesign, INI.Tile_SteinSatz, INI.Tile_SteinFont, useDevelopmentPath:=False)
+
+        If File.Exists(fullpath) Then
+            Try
+                _Tile_AktTileColor = TileColors.Load(INI.Tile_SteinDesign, INI.Tile_SteinSatz, INI.Tile_SteinFont)
+            Catch ex As Exception
+                _Tile_AktTileColor = New TileColors
+            End Try
+        Else
+            INI.Tile_SteinDesign = SteinDesign.Default
+            INI.Tile_SteinSatz = SteinSatz.Medium
+            INI.Tile_SteinFont = SteinFont.Segoe
+            Try
+                _Tile_AktTileColor = TileColors.Load(INI.Tile_SteinDesign, INI.Tile_SteinSatz, INI.Tile_SteinFont)
+            Catch ex As Exception
+                _Tile_AktTileColor = New TileColors
+            End Try
+        End If
+
+        _tile_BasisSize = _Tile_AktTileColor.GetTileBasisSize
+        If _tile_BasisSize.Width < 120 OrElse _tile_BasisSize.Height < 120 Then
+            _tile_BasisSize = New Size(200, 242)
+        End If
+
+        _tile_BasisSizeChanged = True
+
+    End Sub
+
+    Private _tile_BasisSize As Size
+    Private _tile_BasisSizeChanged As Boolean
+    Private _tile_lastBasisSize As Size
+
+    Public ReadOnly Property Tile_BasisSize As Size
+        Get
+            Return _tile_BasisSize
+        End Get
+    End Property
+    '
+    ''' <summary>
+    ''' Gibt auch True zurück, wenn ein neuer Steinsatz geladen wurde.
+    ''' </summary>
+    ''' <returns></returns>
+    Public Function Tile_ConsumeSteinSatzOrBasisSizeChanged() As Boolean
+        Dim retval As Boolean = _tile_BasisSizeChanged
+        If _tile_lastBasisSize <> _tile_BasisSize Then
+            retval = True
+            _tile_lastBasisSize = _tile_BasisSize
+        End If
+        _tile_BasisSizeChanged = False
+        Return retval
+    End Function
+
+    Public Property Tile_SteinDesign As SteinDesign
+        Get
+            Dim [Default] As String = SteinDesign.Default.ToString
+            Dim comment As String = Nothing
+            Dim zRetVal As String = Rendering.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            Dim result As SteinDesign
+            If Not [Enum].TryParse(Of SteinDesign)(zRetVal, True, result) Then
+                result = SteinDesign.Default
+            End If
+            Return result
+        End Get
+        Set(value As SteinDesign)
+            Rendering.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+        End Set
+    End Property
+
+    Public Property Tile_SteinSatz As SteinSatz
+        Get
+            Dim [Default] As String = SteinSatz.Medium.ToString
+            Dim comment As String = Nothing
+            Dim zRetVal As String = Rendering.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            Dim result As SteinSatz
+            If Not [Enum].TryParse(Of SteinSatz)(zRetVal, True, result) Then
+                result = SteinSatz.Medium
+            End If
+            Return result
+        End Get
+        Set(value As SteinSatz)
+            Rendering.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+        End Set
+    End Property
+
+    Public Property Tile_SteinFont As SteinFont
+        Get
+            Dim [Default] As String = SteinFont.Segoe.ToString
+            Dim comment As String = Nothing
+            Dim zRetVal As String = Rendering.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            Dim result As SteinFont
+            If Not [Enum].TryParse(Of SteinFont)(zRetVal, True, result) Then
+                result = SteinFont.Segoe
+            End If
+            Return result
+        End Get
+        Set(value As SteinFont)
+            Rendering.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+        End Set
+    End Property
+
+    Public Property Tile_DontOverwriteExistingTileColorsFiles As Boolean
+        Get
+            Dim [Default] As Boolean = False
+            Dim comment As String = "Das ist eine Hintertüre. Normal werden (manuell) geänderte TileColorFiles (Die" &
+                                    "~stehen in: [Benutzer]\MahjongGK\SteinDesigns) beim Programmstart überschrieben."
+            Return Rendering.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As Boolean)
+            Rendering.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+        End Set
+    End Property
+
+    Public Property Tile_AllowTileColorsTestFiles As Boolean
+        Get
+            Dim [Default] As Boolean = Debugger.IsAttached
+            Dim comment As String = "Ermöglicht es auf ausgewählten Rechnern testweise neue TileColors.xml auszuprobieren." &
+                                    "~Es müssen aber auch andere Daten vorhanden sein, sonst erscheint SteinDesign.Default."
+            Return Rendering.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As Boolean)
+            Rendering.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+        End Set
+    End Property
+
+    Public Property Tile_TextUseSegoeUISymbol As Boolean
+        Get
+            Dim [Default] As Boolean = False
+            Dim comment As String = "In der linken oberen Ecke der Steine stehen (nicht immer) Buchstaben oder Symbole" &
+                                    "~Per Default werden diese in Arial geschrieben. Ist dieser Schalter ein, werden" &
+                                    "~""echte"" Symbole genommmen und in andererem Font gerendert. Ausprobieren." &
+                                    "~Wird erst nach Neustart des Programms wirksam."
+            Return Rendering.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As Boolean)
+            Rendering.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+        End Set
+    End Property
+
+    ''Private _Tile_SpaceBetweenWidth As Double?
+    ''Public Property Tile_SpaceBetweenWidth As Double
+    ''    Get
+    ''        If Not _Tile_SpaceBetweenWidth.HasValue Then
+    ''            Dim [Default] As Double = 10
+    ''            Dim comment As String = $"Zwischenraum zwischen den Steinen bezogen auf eine Steinbreite von {GlobalConstants.MJ_GRAFIK_STEIN_BASIS_WIDTH} Pixel." &
+    ''                                    "~Steine darunter werden etwas sichtbar. Möglicher Werte: 0 bis 10 Pixel. DEfault 0 Pixel"
+    ''            _Tile_SpaceBetweenWidth = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+    ''            If _Tile_SpaceBetweenWidth > 0 Then
+    ''                _Tile_SpaceBetweenWidth /= GlobalConstants.MJ_GRAFIK_STEIN_BASIS_WIDTH_DBL
+    ''            End If
+    ''        End If
+    ''        Return _Tile_SpaceBetweenWidth.Value
+    ''    End Get
+    ''    Set(value As Double)
+    ''        BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+    ''        _Tile_SpaceBetweenWidth = Nothing
+    ''    End Set
+    ''End Property
+
+    ''Private _Tile_SpaceBetweenHeight As Double?
+    ''Public Property Tile_SpaceBetweenHeight As Double
+    ''    Get
+    ''        If Not _Tile_SpaceBetweenHeight.HasValue Then
+    ''            Dim [Default] As Double = 10
+    ''            Dim comment As String = $"Wie vor für die Höhe bezogen auf {GlobalConstants.MJ_GRAFIK_STEIN_BASIS_HEIGHT} Pixel."
+    ''            _Tile_SpaceBetweenHeight = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+    ''            If _Tile_SpaceBetweenHeight > 0 Then
+    ''                _Tile_SpaceBetweenHeight /= GlobalConstants.MJ_GRAFIK_STEIN_BASIS_HEIGHT_DBL
+    ''            End If
+    ''        End If
+    ''        Return _Tile_SpaceBetweenHeight.Value
+    ''    End Get
+    ''    Set(value As Double)
+    ''        BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+    ''        _Tile_SpaceBetweenHeight = Nothing
+    ''    End Set
+    ''End Property
 #End Region
 
 #Region "Ini Editieren"

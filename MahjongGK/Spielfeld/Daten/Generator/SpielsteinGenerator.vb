@@ -29,6 +29,7 @@ Option Strict On
 #Disable Warning IDE1006
 
 Imports System.Xml.Serialization
+Imports MahjongGK.Contracts
 
 Namespace Spielfeld
 
@@ -47,7 +48,7 @@ Namespace Spielfeld
     '    Season
     'End Enum
 
-    'Public Enum SteinIndexEnum
+    'Public Enum SteinTyp
     '    Dummy
     '    Punkt1
     '    Punkt2
@@ -162,7 +163,6 @@ Namespace Spielfeld
             End If
         End Sub
 
-
 #End Region
 
 #Region "Deklarationen"
@@ -230,7 +230,7 @@ Namespace Spielfeld
         ''' Die Vorratskiste, in der sich die Steine befinden. 
         ''' </summary>
         ''' <returns></returns>
-        Public Property Stock As List(Of SteinIndexEnum)
+        Public Property Stock As List(Of SteinTyp)
         Public ReadOnly Property StockAktCount As Integer
             Get
                 If IsNothing(Stock) Then
@@ -336,30 +336,30 @@ Namespace Spielfeld
 
 #Region "statisch"
         '
-        Public Shared ReadOnly NORMALS As SteinIndexEnum() = {
-            SteinIndexEnum.Punkt01, SteinIndexEnum.Punkt02, SteinIndexEnum.Punkt03, SteinIndexEnum.Punkt04, SteinIndexEnum.Punkt05,
-            SteinIndexEnum.Punkt06, SteinIndexEnum.Punkt07, SteinIndexEnum.Punkt08, SteinIndexEnum.Punkt09,
-            SteinIndexEnum.Bambus1, SteinIndexEnum.Bambus2, SteinIndexEnum.Bambus3, SteinIndexEnum.Bambus4, SteinIndexEnum.Bambus5,
-            SteinIndexEnum.Bambus6, SteinIndexEnum.Bambus7, SteinIndexEnum.Bambus8, SteinIndexEnum.Bambus9,
-            SteinIndexEnum.Symbol1, SteinIndexEnum.Symbol2, SteinIndexEnum.Symbol3, SteinIndexEnum.Symbol4, SteinIndexEnum.Symbol5,
-            SteinIndexEnum.Symbol6, SteinIndexEnum.Symbol7, SteinIndexEnum.Symbol8, SteinIndexEnum.Symbol9,
-            SteinIndexEnum.DracheR, SteinIndexEnum.DracheG, SteinIndexEnum.DracheW,
-            SteinIndexEnum.WindOst, SteinIndexEnum.WindSüd, SteinIndexEnum.WindWst, SteinIndexEnum.WindNrd
+        Public Shared ReadOnly NORMALS As SteinTyp() = {
+            SteinTyp.Punkt01, SteinTyp.Punkt02, SteinTyp.Punkt03, SteinTyp.Punkt04, SteinTyp.Punkt05,
+            SteinTyp.Punkt06, SteinTyp.Punkt07, SteinTyp.Punkt08, SteinTyp.Punkt09,
+            SteinTyp.Bambus1, SteinTyp.Bambus2, SteinTyp.Bambus3, SteinTyp.Bambus4, SteinTyp.Bambus5,
+            SteinTyp.Bambus6, SteinTyp.Bambus7, SteinTyp.Bambus8, SteinTyp.Bambus9,
+            SteinTyp.Symbol1, SteinTyp.Symbol2, SteinTyp.Symbol3, SteinTyp.Symbol4, SteinTyp.Symbol5,
+            SteinTyp.Symbol6, SteinTyp.Symbol7, SteinTyp.Symbol8, SteinTyp.Symbol9,
+            SteinTyp.DracheR, SteinTyp.DracheG, SteinTyp.DracheW,
+            SteinTyp.WindOst, SteinTyp.WindSüd, SteinTyp.WindWst, SteinTyp.WindNrd
         } ' = 34
 
-        Public Shared ReadOnly FLOWERS As SteinIndexEnum() = {
-        SteinIndexEnum.BlütePf, SteinIndexEnum.BlüteOr, SteinIndexEnum.BlüteCt, SteinIndexEnum.BlüteBa
+        Public Shared ReadOnly FLOWERS As SteinTyp() = {
+        SteinTyp.BlütePf, SteinTyp.BlüteOr, SteinTyp.BlüteCt, SteinTyp.BlüteBa
         } ' = 4
 
-        Public Shared ReadOnly SEASONS As SteinIndexEnum() = {
-        SteinIndexEnum.JahrFrl, SteinIndexEnum.JahrSom, SteinIndexEnum.JahrHer, SteinIndexEnum.JahrWin
+        Public Shared ReadOnly SEASONS As SteinTyp() = {
+        SteinTyp.JahrFrl, SteinTyp.JahrSom, SteinTyp.JahrHer, SteinTyp.JahrWin
         } ' = 4
 
 #End Region
 
 #Region "Öffentliches"
 
-        Public Function GetGroup(ByVal idx As SteinIndexEnum) As SteinRndGruppe
+        Public Function GetGroup(ByVal idx As SteinTyp) As SteinRndGruppe
             Dim i As Integer
             For i = 0 To NORMALS.Length - 1
                 If NORMALS(i) = idx Then Return SteinRndGruppe.Normal
@@ -384,14 +384,13 @@ Namespace Spielfeld
         ''' </summary>
         Public Sub CheckAndRefillVorrat(Optional refillStoneSet As Boolean = False)
 
-            If Stock Is Nothing Then Stock = New List(Of SteinIndexEnum)()
+            If Stock Is Nothing Then Stock = New List(Of SteinTyp)()
 
             Dim genmod As (isStoneSet As Boolean, isBase152 As Boolean, count As Integer) = GetValueFromGeneratorModi(_GeneratorModus)
 
             If _VorratStopNachschub AndAlso Not refillStoneSet AndAlso Not genmod.isStoneSet Then
                 Exit Sub
             End If
-
 
             If genmod.isStoneSet Then
                 If Stock.Count > 0 AndAlso Not refillStoneSet Then
@@ -405,7 +404,7 @@ Namespace Spielfeld
 
             InitGenerator()
 
-            Dim stones As List(Of SteinIndexEnum)
+            Dim stones As List(Of SteinTyp)
 
             If genmod.isStoneSet Then
                 '-- endlicher Vorrat aus N Sets)
@@ -430,11 +429,11 @@ Namespace Spielfeld
         ''' </summary>
         ''' <param name="index"></param>
         ''' <returns></returns>
-        Public Function GetSelectedStein(index As Integer) As SteinIndexEnum
+        Public Function GetSelectedStein(index As Integer) As SteinTyp
             If index < 0 OrElse Stock Is Nothing OrElse Stock.Count = 0 OrElse index > Stock.Count - 1 Then
-                Return SteinIndexEnum.ErrorSy 'Die Fehlergrafik
+                Return SteinTyp.ErrorSy 'Die Fehlergrafik
             Else
-                Dim retval As SteinIndexEnum = Stock(index)
+                Dim retval As SteinTyp = Stock(index)
                 Stock.RemoveAt(index)  ' <- exakt diese Position löschen
                 Return retval
             End If
@@ -448,7 +447,7 @@ Namespace Spielfeld
         ''' </summary>
         ''' <param name="index"></param>
         ''' <param name="sie"></param>
-        Public Sub InsertLeftFromSelectedStein(index As Integer, sie As SteinIndexEnum)
+        Public Sub InsertLeftFromSelectedStein(index As Integer, sie As SteinTyp)
 
             If Stock.Count = 0 Then
                 Stock.Add(sie)
@@ -484,7 +483,7 @@ Namespace Spielfeld
 
             For idx1 = Stock.Count - 1 To idxTo Step -1
                 Dim idx2 As Integer = GetZufallszahl(idxTo, idx1 + 1)
-                Dim tmp As SteinIndexEnum = Stock(idx1)
+                Dim tmp As SteinTyp = Stock(idx1)
                 Stock(idx1) = Stock(idx2)
                 Stock(idx2) = tmp
             Next
@@ -497,7 +496,7 @@ Namespace Spielfeld
 
         ''' <summary>
         ''' Wertet den aktuellen Vorrat aus
-        ''' Liefert je SteinIndexEnum einen Single:
+        ''' Liefert je SteinTyp einen Single:
         '''   Vorkomma  = absolute Anzahl des Steins in Vorrat,
         '''   Nachkomma = Anteil (0..0.999) auf 3 Nachkommastellen gerundet.
         ''' Sonderfall: Liegt der Anteil bei 1.000 (100 %), wird er auf 0.999 gesetzt.
@@ -541,7 +540,6 @@ Namespace Spielfeld
             Return result
         End Function
 
-
         '
         ''' <summary>
         ''' Erzeugt eine kompakte String-Darstellung der Statistik.
@@ -563,7 +561,7 @@ Namespace Spielfeld
                 Return "(keine Daten)"
             End If
 
-            For idx As SteinIndexEnum = 0 To CType(MJ_STEININDEX_MAX, SteinIndexEnum)
+            For idx As SteinTyp = 0 To CType(MJ_STEININDEX_MAX, SteinTyp)
                 Dim absCount As Integer
                 Dim ratio As Single
                 ParseStatisticValue(stats(idx), absCount, ratio)
@@ -571,7 +569,7 @@ Namespace Spielfeld
                 If (Not onlyNonZero) OrElse absCount > 0 Then
                     Dim label As String
                     If showEnumName Then
-                        Dim name As String = CType(idx, SteinIndexEnum).ToString()
+                        Dim name As String = CType(idx, SteinTyp).ToString()
                         'label = String.Format("{0,2} {1,-16}", idx, name)
                         label = String.Format("{0,-8}", name)
                     Else
@@ -590,13 +588,13 @@ Namespace Spielfeld
                     sb.Append(piece)
                     col += 1
                     If itemsPerLine = 9 Then
-                        If idx = SteinIndexEnum.ErrorSy OrElse
-                            idx = SteinIndexEnum.Punkt09 OrElse
-                            idx = SteinIndexEnum.Bambus9 OrElse
-                            idx = SteinIndexEnum.Symbol9 OrElse
-                            idx = SteinIndexEnum.DracheW OrElse
-                            idx = SteinIndexEnum.WindNrd OrElse
-                            idx = SteinIndexEnum.BlüteBa OrElse
+                        If idx = SteinTyp.ErrorSy OrElse
+                            idx = SteinTyp.Punkt09 OrElse
+                            idx = SteinTyp.Bambus9 OrElse
+                            idx = SteinTyp.Symbol9 OrElse
+                            idx = SteinTyp.DracheW OrElse
+                            idx = SteinTyp.WindNrd OrElse
+                            idx = SteinTyp.BlüteBa OrElse
                             col >= itemsPerLine Then
 
                             sb.AppendLine()
@@ -640,12 +638,11 @@ Namespace Spielfeld
             If ratio >= 1.0F Then ratio = 0.999F ' Sicherheitsnetz, sollte aus Statistic() schon so kommen
         End Sub
 
-
 #End Region
 
 #Region "Strohwitwen"
 
-        Private ReadOnly _VorratStrohWitwen As New List(Of SteinIndexEnum)
+        Private ReadOnly _VorratStrohWitwen As New List(Of SteinTyp)
 
         ''' <summary>
         ''' Entfernt alls Paare aus dem Vorrat, sodaß anschließend nur noch Strohwitwen darin sind.
@@ -663,7 +660,7 @@ Namespace Spielfeld
             Return Stock.Count
         End Function
 
-        Public ReadOnly Property VorratStrohWitwen(windsAreInOneClickGroup As Boolean) As List(Of SteinIndexEnum)
+        Public ReadOnly Property VorratStrohWitwen(windsAreInOneClickGroup As Boolean) As List(Of SteinTyp)
             Get
                 CreateVorratStrohWitwen(windsAreInOneClickGroup)
                 Return _VorratStrohWitwen
@@ -688,7 +685,7 @@ Namespace Spielfeld
             Dim counts(MJ_STEININDEX_MAX) As Integer
 
             For i As Integer = 0 To Stock.Count - 1
-                Dim idx As Integer = GetSteinClickGruppe(CType(Stock(i), SteinIndexEnum), windsAreInOneClickGroup)
+                Dim idx As Integer = SFInfo.GetSteinClickGruppe(CType(Stock(i), SteinTyp), windsAreInOneClickGroup)
                 If idx >= 0 AndAlso idx <= MJ_STEININDEX_MAX Then
                     counts(idx) += 1
                 End If
@@ -696,13 +693,13 @@ Namespace Spielfeld
 
             ' ---- Sonderfall Fehlergrafik (0): bei Vorkommen immer genau einmal aufnehmen
             If counts(0) > 0 Then
-                _VorratStrohWitwen.Add(CType(0, SteinIndexEnum))
+                _VorratStrohWitwen.Add(CType(0, SteinTyp))
             End If
 
             ' ---- Alle anderen: nur bei ungerader Häufigkeit je einmal aufnehmen
             For idx As Integer = 1 To MJ_STEININDEX_MAX
                 If (counts(idx) And 1) <> 0 Then
-                    _VorratStrohWitwen.Add(CType(idx, SteinIndexEnum))
+                    _VorratStrohWitwen.Add(CType(idx, SteinTyp))
                 End If
             Next
         End Sub
@@ -760,7 +757,6 @@ Namespace Spielfeld
 
 #End Region
 
-
 #Region "Klassen für die Steinerzeugung"
 
         'Anmerkung von ChatGPT zu den Zufallsgeneratoren
@@ -768,7 +764,6 @@ Namespace Spielfeld
         'Guid.NewGuid().GetHashCode() (gut für Streuung). Das ist bewusst gemischt – nur Hinweis: deterministische
         'Runs sind damit nicht 100% reproduzierbar. Wenn Du deterministisch testen willst, gib überall Random aus
         'GeneratorConfig rein.
-
 
         Public Class GeneratorConfig
 
@@ -805,7 +800,6 @@ Namespace Spielfeld
             Public Property RndShuffle As Random
         End Class
 
-
         ' --- Statistik für gewichteten Modus -----------------------------------------
         Public Class PackStats
             Public Property TotalPacks As Integer
@@ -815,9 +809,9 @@ Namespace Spielfeld
         End Class
 
         Public Structure Pack
-            Public ReadOnly A As SteinIndexEnum
-            Public ReadOnly B As SteinIndexEnum
-            Public Sub New(ByVal a As SteinIndexEnum, ByVal b As SteinIndexEnum)
+            Public ReadOnly A As SteinTyp
+            Public ReadOnly B As SteinTyp
+            Public Sub New(ByVal a As SteinTyp, ByVal b As SteinTyp)
                 Me.A = a
                 Me.B = b
             End Sub
@@ -880,7 +874,7 @@ Namespace Spielfeld
                     Dim i As Integer
                     For i = 0 To NORMALS.Length - 1
                         ' ergibt 34 Steinpaare, also 68 Steine.
-                        Dim idx As SteinIndexEnum = NORMALS(i)
+                        Dim idx As SteinTyp = NORMALS(i)
                         packs.Add(New Pack(idx, idx))
                         packs.Add(New Pack(idx, idx))
                     Next
@@ -916,7 +910,7 @@ Namespace Spielfeld
 
             Private Sub AddFlowers(packs As List(Of Pack))
                 ' Flowers: 4 Einzelsteine => 2 Packs
-                Dim arr As SteinIndexEnum() = CType(FLOWERS.Clone(), SteinIndexEnum())
+                Dim arr As SteinTyp() = CType(FLOWERS.Clone(), SteinTyp())
                 ShuffleInPlace(arr)
                 packs.Add(New Pack(arr(0), arr(1)))
                 packs.Add(New Pack(arr(2), arr(3)))
@@ -924,12 +918,11 @@ Namespace Spielfeld
 
             Private Sub AddSeasons(packs As List(Of Pack))
                 ' Seasons: 4 Einzelsteine => 2 Packs
-                Dim arr As SteinIndexEnum() = CType(SEASONS.Clone(), SteinIndexEnum())
+                Dim arr As SteinTyp() = CType(SEASONS.Clone(), SteinTyp())
                 ShuffleInPlace(arr)
                 packs.Add(New Pack(arr(0), arr(1)))
                 packs.Add(New Pack(arr(2), arr(3)))
             End Sub
-
 
             Private Sub ShuffleInPlace(Of T)(ByVal list As IList(Of T))
                 Dim i As Integer
@@ -975,7 +968,7 @@ Namespace Spielfeld
             ''' INI.Spielfeld_StandardMengeSteinPaareJePortion angegebn.
             ''' </summary>
             ''' <returns></returns>
-            Public Function BuildPacksetOfStones() As List(Of SteinIndexEnum)
+            Public Function BuildPacksetOfStones() As List(Of SteinTyp)
 
                 If _stoneSet IsNot Nothing Then
                     Return BuildPortionStones(9999)
@@ -984,7 +977,7 @@ Namespace Spielfeld
                 End If
             End Function
 
-            Public Function BuildPortionStones(ByVal packsPerPortion As Integer) As List(Of SteinIndexEnum)
+            Public Function BuildPortionStones(ByVal packsPerPortion As Integer) As List(Of SteinTyp)
 
                 If packsPerPortion = 0 Then
                     Throw New Exception("packsPerPortion darf nicht 0 sein.(Hinweis: UseStoneSet mit überprüfen.)")
@@ -1002,7 +995,7 @@ Namespace Spielfeld
                     portionPacks.Add(p)
                 Next
 
-                Dim tiles As New List(Of SteinIndexEnum)(portionPacks.Count * 2)
+                Dim tiles As New List(Of SteinTyp)(portionPacks.Count * 2)
                 Dim k As Integer
                 For k = 0 To portionPacks.Count - 1
                     tiles.Add(portionPacks(k).A)
@@ -1060,21 +1053,21 @@ Namespace Spielfeld
                 ' Pack + Statistik
                 Select Case choice.Kind
                     Case SteinRndGruppe.Normal
-                        Dim idx As SteinIndexEnum = NORMALS(choice.NormalIndex)
+                        Dim idx As SteinTyp = NORMALS(choice.NormalIndex)
                         _stats.NormalPackCount(choice.NormalIndex) += 1
                         _stats.TotalPacks += 1
                         Return New Pack(idx, idx)
 
                     Case SteinRndGruppe.Flower
-                        Dim a As SteinIndexEnum = RandomOf(FLOWERS, _cfg.RndSelect)
-                        Dim b As SteinIndexEnum = RandomOf(FLOWERS, _cfg.RndSelect)
+                        Dim a As SteinTyp = RandomOf(FLOWERS, _cfg.RndSelect)
+                        Dim b As SteinTyp = RandomOf(FLOWERS, _cfg.RndSelect)
                         _stats.FlowerPackCount += 1
                         _stats.TotalPacks += 1
                         Return New Pack(a, b)
 
                     Case SteinRndGruppe.Season
-                        Dim a2 As SteinIndexEnum = RandomOf(SEASONS, _cfg.RndSelect)
-                        Dim b2 As SteinIndexEnum = RandomOf(SEASONS, _cfg.RndSelect)
+                        Dim a2 As SteinTyp = RandomOf(SEASONS, _cfg.RndSelect)
+                        Dim b2 As SteinTyp = RandomOf(SEASONS, _cfg.RndSelect)
                         _stats.SeasonPackCount += 1
                         _stats.TotalPacks += 1
                         Return New Pack(a2, b2)
@@ -1092,7 +1085,7 @@ Namespace Spielfeld
                 Return v
             End Function
 
-            Private Shared Function RandomOf(ByVal arr As SteinIndexEnum(), ByVal rnd As Random) As SteinIndexEnum
+            Private Shared Function RandomOf(ByVal arr As SteinTyp(), ByVal rnd As Random) As SteinTyp
                 Return arr(rnd.Next(arr.Length))
             End Function
 
@@ -1121,7 +1114,6 @@ Namespace Spielfeld
                 Return Kandidats(Kandidats.Count - 1) ' Fallback
             End Function
         End Class
-
 
     End Class
 

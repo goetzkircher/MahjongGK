@@ -29,6 +29,7 @@ Option Strict On
 #Disable Warning IDE1006
 
 '
+Imports MahjongGK.Contracts.GlobalEnum
 Imports MahjongGK.Spielfeld
 
 #Disable Warning IDE0079
@@ -58,7 +59,7 @@ Public Class SpielsteinGeneratorValuesForXml
     '
     Public Property StockStopNachschubXmlOnly As Boolean
     Public Property StockNoSortAreaEndIndex As Integer
-    Public Property Stock As List(Of SteinIndexEnum)
+    Public Property Stock As List(Of SteinTyp)
 
     Public Sub CopySpielsteinGeneratorValues_To_SpielsteinGenerator(gen As SpielsteinGenerator)
 

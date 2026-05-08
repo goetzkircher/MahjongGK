@@ -99,7 +99,10 @@ Public Class RectangleX
         Me.New(rect)
         Me.Padding = padding
     End Sub
-
+    Public Sub New(rect As Rectangle, Optional addX As Integer = 0, Optional addY As Integer = 0, Optional addWidth As Integer = 0, Optional addHeight As Integer = 0)
+        Me.New(rect.X + addX, rect.Y + addY, rect.Width + addWidth, rect.Height + addHeight)
+        Padding = New PaddingValues(0)
+    End Sub
 #End Region
 
 #Region "Wie Rectangle – Properties & Konvertierung"

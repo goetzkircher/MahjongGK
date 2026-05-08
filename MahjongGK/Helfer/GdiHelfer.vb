@@ -48,43 +48,6 @@ Namespace MjGDI
             Return result
 
         End Function
-        '
-        Public Function CreateGhostBitmap(source As Bitmap,
-                                  alpha As Single,
-                                  brightnessFactor As Single) As Bitmap
-
-            Dim result As New Bitmap(source.Width, source.Height, PixelFormat.Format32bppArgb)
-
-            Using gfx As Graphics = Graphics.FromImage(result)
-                Using ia As New ImageAttributes()
-
-                    Dim cm As New ColorMatrix(New Single()() {
-                New Single() {brightnessFactor, 0.0F, 0.0F, 0.0F, 0.0F},
-                New Single() {0.0F, brightnessFactor, 0.0F, 0.0F, 0.0F},
-                New Single() {0.0F, 0.0F, brightnessFactor, 0.0F, 0.0F},
-                New Single() {0.0F, 0.0F, 0.0F, alpha, 0.0F},
-                New Single() {0.0F, 0.0F, 0.0F, 0.0F, 1.0F}
-            })
-
-                    ia.SetColorMatrix(cm)
-
-                    gfx.DrawImage(
-                source,
-                New Rectangle(0, 0, result.Width, result.Height),
-                0,
-                0,
-                source.Width,
-                source.Height,
-                GraphicsUnit.Pixel,
-                ia)
-
-                End Using
-            End Using
-
-            Return result
-
-        End Function
-
 
         ''' <summary>
         ''' Erzeugt eine neue aufgehellte Bitmap-Kopie (additiver Offset auf RGB).
@@ -305,7 +268,6 @@ Namespace MjGDI
         '    Freigeben von Bitmaps vorhanden.
         ' ============================================================================
 
-
         '────────────────────────────────────────────────────────────────────────
         ' Delegate erlaubt ByRef-Ausgaben für per-Pixel-Operationen
         '────────────────────────────────────────────────────────────────────────
@@ -491,8 +453,6 @@ Namespace MjGDI
             End If
         End Function
 
-
-
         ' ─────────────────────────────────────────────────────────────────────────
         ' 5) ShrinkBitmap:
         '    - 0 bei einer Dimension erlaubt → proportional berechnen
@@ -532,7 +492,6 @@ Namespace MjGDI
             If steps > maxSteps Then steps = maxSteps
             Return steps
         End Function
-
 
         ''' <summary>
         ''' Verkleinert oder vergrößert eine Bitmap.
@@ -697,7 +656,6 @@ Namespace MjGDI
             bmp = curBmp
             Return True
         End Function
-
 
         '────────────────────────────────────────────────────────────────────────
         ' 6) Speichern (PNG) & Laden (ohne Dateisperre)
@@ -941,7 +899,6 @@ Namespace MjGDI
             Return dst
         End Function
 
-
         Private Const DEFAULT_STEPS As Integer = -1 'automatische Festlegung
 
         ''' <summary>
@@ -1026,7 +983,6 @@ Namespace MjGDI
             End Try
         End Function
 
-
         ' ────────────────────────────────────────────────────────────────
         ' Interna
         ' ────────────────────────────────────────────────────────────────
@@ -1072,7 +1028,6 @@ Namespace MjGDI
 
             Return original
         End Function
-
 
         ''' <summary>
         ''' Erzeugt eine rote Fehler-Bitmap mit Dateinamen und optional Fehlermeldung.
@@ -1223,8 +1178,6 @@ Namespace MjGDI
             If h < 0.0 Then h += 360.0
         End Sub
 
-
     End Module
-
 
 End Namespace

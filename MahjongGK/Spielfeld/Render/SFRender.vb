@@ -2,6 +2,8 @@
 Option Explicit On
 Option Infer Off
 Option Strict On
+Imports MahjongGK.Contracts.GlobalEnum
+Imports TileFactory
 
 '
 ' SPDX-License-Identifier: GPL-3.0-or-later
@@ -67,7 +69,6 @@ Namespace Spielfeld
         Private _rectOutputOrg As Rectangle
         Private _rectOutputUsed As Rectangle
         Private _timeDifferenzFaktor As Double
-        Private _arrTopSteinTriple() As Triple
 
         ''' <summary>
         ''' Der Hauptverteiler zum Rendern. Hier sind die Basisfunktionen angesiedelt
@@ -77,7 +78,7 @@ Namespace Spielfeld
         ''' <param name="PaintEventGfx"></param>
         ''' <param name="rectOutput"></param>
         ''' <param name="timeDifferenzFaktor"></param>
-        Public Sub RenderVerteiler(PaintEventGfx As Graphics, rectOutput As Rectangle, timeDifferenzFaktor As Double)
+        Public Sub RenderingDistributor(PaintEventGfx As Graphics, rectOutput As Rectangle, timeDifferenzFaktor As Double)
 
             'Es wird grundsätzlich in den Backpuffer gezeichnet, der am Ende dann auf das Control geplittet wird.
             _sfd.SFRun.CreateBackbufferAndGfx()
@@ -88,8 +89,6 @@ Namespace Spielfeld
             _rectOutputOrg = rectOutput
             _rectOutputUsed = _sfd.SFLay.rxOutputUsed
             _timeDifferenzFaktor = timeDifferenzFaktor
-
-            _arrTopSteinTriple = _sfd.SFInf.GetAllTopSteinTriple
 
             'Den Zeichenknecht des Background-Backbuffers setzen
             _sfd.SFLay.rxOutputUsed?.SetGfx(_backBufferGfx)
@@ -192,24 +191,6 @@ Namespace Spielfeld
 
             End If
 
-            Paint_UndoRedo()
-
-            'Hier sind Ausgaben angesiedelt, die in der Z-Order ganz oben aufliegen
-
-            Dim bmpBuffer As Bitmap = Nothing
-            Dim rectBuffer As Rectangle
-
-            Dim buffer As AirRenderBuffer = _sfd.SFAir.RenderBuffer
-            If buffer.RenderBitmapIsAvailable Then
-                Do
-                    If buffer.GetNextRenderBitmap(bmpBuffer, rectBuffer) Then
-                        _backBufferGfx.DrawImage(bmpBuffer, rectBuffer)
-                    Else
-                        Exit Do
-                    End If
-                Loop
-            End If
-
             PaintEventGfx.DrawImageUnscaled(_sfd.SFRun.Backbuffer, rectOutput.Location)
 
         End Sub
@@ -254,9 +235,11 @@ Namespace Spielfeld
                                 'Dim left As Integer = _sfd.SteinOnStange_Left(x, z)
                                 'Dim top As Integer = _sfd.SteinOnStange_Top(y, z)
                                 ''Debug
-                                'debugInfo &= $"x={x},y={y},z={z},arrFB-SteinIdx={ _sfd.AktSpielfeldInfo.GetIndexStein(x, y, z)},SII={aktSteinInfo.SteinInfoIndex},SI={aktSteinInfo.SteinIndex}|"
+                                'debugInfo &= $"x={x},y={y},z={z},arrFB-SteinIdx={ _sfd.AktSpielfeldInfo.GetIndexStein(x, y, z)},SII={aktSteinInfo.SteinInfoIndex},SI={aktSteinInfo.SteinTypIndex}|"
                                 ''/Debug
-                                Dim bmpStein As Bitmap = Images.SGM.GetStein(.SteinIndex, .SteinStatusUsed, _sfd.SFLay.steinSize, _sfd.SFRun.AktRenderMode)
+                                Dim request As New TileRequest(_sfd.SFRun.AktRenderMode, INI.Tile_TileColors, aktSteinInfo.SteinTypIndex, aktSteinInfo.SteinStatus, SteinFrameVersion.Standard, _sfd.SFLay.steinSize, INI.Tile_BasisSize)
+
+                                Dim bmpStein As Bitmap = TileFactory.GetTile(request)
 
                                 If Not IsNothing(bmpStein) Then
                                     _backBufferGfx.DrawImage(bmpStein, .RectStein)
@@ -275,8 +258,6 @@ Namespace Spielfeld
             _sfd.SFRun.HScrollBarStock.PaintHScroll(_backBufferGfx, enabled:=True)
 
             Dim aktSteinInfo As SteinInfo
-            Dim bmpStein As Bitmap = Nothing
-            Dim rectStein As Rectangle
 
             'Dim Kandidat As Triple
             'If _sfd.SFRun.EditorStockValues.StockSelectedSteinJob = SelectedSteinJob.MouseMove Then
@@ -286,6 +267,10 @@ Namespace Spielfeld
             'End If
 
             Dim toggleVergleichsflag As Boolean = _sfd.SFInf.GetFirstToggleFlagValue
+
+            'Außerhalb der Schleife deklarieren
+            Dim bmpSteinDC As Bitmap = Nothing
+            Dim bmpStein As Bitmap = Nothing
 
             With _sfd.SFInf
 
@@ -317,43 +302,72 @@ Namespace Spielfeld
                             If plane IsNot Nothing AndAlso plane.RenderBitmapIsAvailable Then
                                 'mindestens eine animierte oder an der Maus hängende Bitmap ist vorhanden
                                 Do
-                                    Dim found As Boolean = plane.NextRenderBitmap(rectStein, bmpStein)
-                                    If found Then
-                                        _backBufferGfx.DrawImage(bmpStein, rectStein)
+                                    Dim nrb As (found As Boolean, bmp As Bitmap, rect As Rectangle) = plane.NextRenderBitmap()
+                                    If nrb.found Then
+                                        _backBufferGfx.DrawImage(nrb.bmp, nrb.rect)
+
                                     Else
                                         Exit Do
                                     End If
                                 Loop
                             Else
-                                'die normale Bitmap rendern
-                                With aktSteinInfo
+                                Dim tsi As TopSteinInfo = _sfd.SFInf.GetTopSteinInfo(x, y, z)
+
+                                If tsi IsNot Nothing Then
+                                    'Zeichnet alle obersten Steine
+
+                                    '    If tsi.MissingSecond Then
+                                    '        bmpSteinDC = Bitmap32DeepCopy(Images.SGM.GetStein(aktSteinInfo.SteinTypIndex, tsi.SteinStatus, _sfd.SFLay.steinSize, _sfd.SFRun.AktRenderMode))
+                                    '        Dim gfx As Graphics = Graphics.FromImage(bmpSteinDC)
+
+                                    '        Dim fnt As Font = New Font("Arial", 10.0F, FontStyle.Bold)
+                                    '        gfx.DrawString(tsi.MissingSecondText, fnt, Brushes.Black, New PointF(_sfd.SFLay.steinWidth \ 8, _sfd.SFLay.steinHeight \ 8))
+                                    '        fnt.Dispose()
+                                    '        _backBufferGfx.DrawImage(bmpSteinDC, aktSteinInfo.RectStein)
+                                    '        bmpSteinDC.Dispose()
+                                    '        bmpSteinDC = Nothing
+                                    '    End If
+
+                                    Dim request As New TileRequest(_sfd.SFRun.AktRenderMode, INI.Tile_TileColors, tsi.SteinTypIndex, tsi.SteinStatus, SteinFrameVersion.Standard, _sfd.SFLay.steinSize, INI.Tile_BasisSize)
+                                    bmpStein = TileFactory.GetTile(request)
+
+                                    _backBufferGfx.DrawImage(bmpStein, aktSteinInfo.RectStein)
+
+                                Else
+                                    'Zeichnet alle Steine, die nicht die obersten Steine sind.
+                                    Dim request As New TileRequest(_sfd.SFRun.AktRenderMode, INI.Tile_TileColors, aktSteinInfo.SteinTypIndex, SteinStatus.I01Normal, SteinFrameVersion.Standard, _sfd.SFLay.steinSize, INI.Tile_BasisSize)
+                                    bmpStein = TileFactory.GetTile(request)
+
+                                    _backBufferGfx.DrawImage(bmpStein, aktSteinInfo.RectStein)
+
+                                    ''_backBufferGfx.FillRectangle(Brushes.White, aktSteinInfo.RectStein)
+
+                                    'End If
 
                                     'Dim left As Integer = _sfd.SteinOnStange_Left(x, z)
                                     'Dim top As Integer = _sfd.SteinOnStange_Top(y, z)
                                     ''Debug
-                                    'debugInfo &= $"x={x},y={y},z={z},arrFB-SteinIdx={ _sfd.AktSpielfeldInfo.GetIndexStein(x, y, z)},SII={aktSteinInfo.SteinInfoIndex},SI={aktSteinInfo.SteinIndex}|"
+                                    'debugInfo &= $"x={x},y={y},z={z},arrFB-SteinIdx={ _sfd.AktSpielfeldInfo.GetIndexStein(x, y, z)},SII={aktSteinInfo.SteinInfoIndex},SI={aktSteinInfo.SteinTypIndex}|"
                                     ''/Debug
-                                    bmpStein = Images.SGM.GetStein(.SteinIndex, .SteinStatusUsed, _sfd.SFLay.steinSize, _sfd.SFRun.AktRenderMode)
 
-                                    If Not IsNothing(bmpStein) Then
+                                    'If Not IsNothing(bmpStein) Then
 
-                                        If ContainsTripl(x, y, z, _arrTopSteinTriple) Then
-                                            bmpStein = DrawOverlay(bmpStein, OverlayType.RahmenSteinMouseOver, copyBitmap:=True)
-                                        End If
+                                    '    'If ContainsTripl(x, y, z, _arrTopSteinTriple) Then
+                                    '    '    bmpStein = DrawOverlay(bmpStein, OverlayType.RahmenSteinMouseOver, copyBitmap:=True)
+                                    '    'End If
 
-                                        ''Je nach .SteinStatusUsed kann die Bitmap Nothing sein.
-                                        'If Kandidat.IsEqual(x, y, z) Then
-                                        '    'eine ungültige Position hat die Werte (0,0,0), die es auf den Spielfeld nicht gibt,
-                                        '    'deshalb keine gesonderte Abfrage auf "ungültig" nötig.
-                                        '    bmpStein = DrawOverlay(bmpStein, OverlayType.RahmenSteinMouseOver, copyBitmap:=True)
-                                        '    _backBufferGfx.DrawImage(bmpStein, .RectStein)
-                                        '    bmpStein.Dispose()
-                                        'Else
-                                        _backBufferGfx.DrawImage(bmpStein, .RectStein)
-                                        'End If
-                                    End If
+                                    '    ''Je nach .SteinStatusUsed kann die Bitmap Nothing sein.
+                                    '    'If Kandidat.IsEqual(x, y, z) Then
+                                    '    '    'eine ungültige Position hat die Werte (0,0,0), die es auf den Spielfeld nicht gibt,
+                                    '    '    'deshalb keine gesonderte Abfrage auf "ungültig" nötig.
+                                    '    '    bmpStein = DrawOverlay(bmpStein, OverlayType.RahmenSteinMouseOver, copyBitmap:=True)
+                                    '    '    _backBufferGfx.DrawImage(bmpStein, .RectStein)
+                                    '    '    bmpStein.Dispose()
+                                    '    'Else
+                                    '    'End If
+                                    'End If
 
-                                End With
+                                End If
                             End If
                         Next
                     Next
@@ -362,6 +376,23 @@ Namespace Spielfeld
             End With
 
             PaintStock()
+
+            Paint_UndoRedo()
+
+            'Hier sind Ausgaben angesiedelt, die in der Z-Order ganz oben aufliegen
+
+            Dim buffer As AirRenderBuffer = _sfd.SFAir.RenderBuffer
+            If buffer.RenderBitmapIsAvailable Then
+                Do
+                    Dim nrb As (found As Boolean, bmp As Bitmap, rect As Rectangle) = buffer.GetNextRenderBitmap
+                    If nrb.found Then
+                        _backBufferGfx.DrawImage(nrb.bmp, nrb.rect)
+                        DebugDrawKreuz(_backBufferGfx, nrb.rect)
+                    Else
+                        Exit Do
+                    End If
+                Loop
+            End If
         End Sub
 
         Private Sub PaintGrid()
@@ -521,7 +552,10 @@ Namespace Spielfeld
                         'ZLVxxx 
                         'ZLVxxx Else
                         'ZLVxxx 
-                        bmpStein = Images.SGM.GetStein(index:=_sfd.SFInf.Generator.Stock(idx), status:=SteinStatus.I01Normal, _sfd.SFLay.steinSize, _sfd.SFRun.AktRenderMode)
+
+                        Dim request As New TileRequest(_sfd.SFRun.AktRenderMode, INI.Tile_TileColors, steinTyp:=_sfd.SFInf.Generator.Stock(idx), SteinStatus.I01Normal, SteinFrameVersion.Standard, _sfd.SFLay.steinSize, INI.Tile_BasisSize)
+                        bmpStein = TileFactory.GetTile(request)
+
                         'ZLVxxx End If
 
                         Dim rectAusgabe As Rectangle = New Rectangle(xOffset + .OffsetLeft, _sfd.SFLay.rxStock.Top, bmpStein.Width, bmpStein.Height)
@@ -607,8 +641,30 @@ Namespace Spielfeld
 
         End Sub
 
-#Region "Helfer"
+#Region "DebugHelfer"
 
+        Private Sub DebugDrawKreuz(gfx As Graphics, rect As Rectangle)
+            'Debug-Kreuz im Zielrechteck zeichnen
+            Using pWhite As New Pen(Color.White, 1.0F),
+                  pBlack As New Pen(Color.Black, 1.0F)
+
+                'weißes Kreuz
+                _backBufferGfx.DrawLine(pWhite, rect.Left, rect.Top, rect.Right - 1, rect.Bottom - 1)
+                _backBufferGfx.DrawLine(pWhite, rect.Right - 1, rect.Top, rect.Left, rect.Bottom - 1)
+
+                'schwarzes Kreuz leicht versetzt
+                _backBufferGfx.DrawLine(pBlack, rect.Left + 1, rect.Top, rect.Right - 1, rect.Bottom - 2)
+                _backBufferGfx.DrawLine(pBlack, rect.Right - 2, rect.Top, rect.Left, rect.Bottom - 1)
+
+            End Using
+        End Sub
+
+#End Region
+
+#Region "Helfer"
+        Private Function Bitmap32DeepCopy(bmp As Bitmap) As Bitmap
+            Return bmp.Clone(New Rectangle(0, 0, bmp.Width, bmp.Height), bmp.PixelFormat)
+        End Function
 #End Region
     End Class
 End Namespace

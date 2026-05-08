@@ -1,0 +1,987 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SFEnums – MahjongGK</title>
+  <style>
+    :root {
+      --bg: #f5f6f8;
+      --card: #ffffff;
+      --text: #1f2933;
+      --muted: #5f6b7a;
+      --line: #d8dee6;
+      --head: #eef2f7;
+      --code: #0f172a;
+      --accent: #385f8f;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.45;
+      color: var(--text);
+      background: var(--bg);
+    }
+    header {
+      background: linear-gradient(135deg, #26384f, #486b99);
+      color: white;
+      padding: 28px 36px;
+    }
+    header h1 {
+      margin: 0 0 8px 0;
+      font-size: 30px;
+      font-weight: 650;
+    }
+    header p {
+      margin: 0;
+      max-width: 950px;
+      color: #e8edf5;
+    }
+    main {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 22px;
+      padding: 22px;
+      max-width: 1500px;
+      margin: 0 auto;
+    }
+    nav {
+      position: sticky;
+      top: 16px;
+      align-self: start;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 14px;
+      box-shadow: 0 4px 18px rgba(15, 23, 42, 0.06);
+    }
+    nav h2 {
+      margin: 0 0 10px 0;
+      font-size: 17px;
+    }
+    nav a {
+      display: block;
+      padding: 7px 8px;
+      color: var(--accent);
+      text-decoration: none;
+      border-radius: 7px;
+    }
+    nav a:hover { background: var(--head); }
+    .content { min-width: 0; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      margin-bottom: 22px;
+      padding: 20px;
+      box-shadow: 0 4px 18px rgba(15, 23, 42, 0.06);
+      scroll-margin-top: 18px;
+    }
+    h2 {
+      margin: 0 0 8px 0;
+      font-size: 24px;
+      color: #142033;
+    }
+    .summary {
+      margin: 0 0 16px 0;
+      color: var(--muted);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: 8px;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 8px 10px;
+      vertical-align: top;
+    }
+    th {
+      background: var(--head);
+      text-align: left;
+      font-weight: 650;
+    }
+    td:first-child, th:first-child {
+      width: 56px;
+      text-align: right;
+      color: var(--muted);
+    }
+    td:nth-child(2), th:nth-child(2) { width: 330px; }
+    code {
+      font-family: Consolas, "Courier New", monospace;
+      color: var(--code);
+      background: #f3f5f8;
+      padding: 2px 5px;
+      border-radius: 5px;
+    }
+    .raw {
+      white-space: pre;
+      overflow: auto;
+      background: #101826;
+      color: #d8e3f0;
+      padding: 16px;
+      border-radius: 10px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+    details {
+      margin-bottom: 22px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 14px 20px;
+      box-shadow: 0 4px 18px rgba(15, 23, 42, 0.06);
+    }
+    summary {
+      cursor: pointer;
+      font-weight: 650;
+      color: #142033;
+    }
+    @media print {
+      body { background: white; }
+      main { display: block; padding: 0; }
+      nav { display: none; }
+      .card, details { box-shadow: none; page-break-inside: avoid; }
+      header { background: white; color: black; border-bottom: 1px solid #999; }
+      header p { color: black; }
+    }
+    @media (max-width: 900px) {
+      main { display: block; }
+      nav { position: static; margin-bottom: 22px; }
+      td:nth-child(2), th:nth-child(2) { width: auto; }
+    }
+  </style>
+</head>
+<body>
+<header>
+  <h1>SFEnums – MahjongGK</h1>
+  <p>Pfad: MahjongGK/Spielfeld/Basis</p>
+</header>
+
+<main>
+  <nav>
+    <h2>Enumerationen</h2>
+    <a href="#RenderMode">RenderMode</a>
+<a href="#GeneratorModus">GeneratorModus</a>
+<a href="#SteinRndGruppe">SteinRndGruppe</a>
+<a href="#VisiblePart">VisiblePart</a>
+<a href="#Direction">Direction</a>
+<a href="#Move">Move</a>
+<a href="#PositionEnum">PositionEnum</a>
+<a href="#Animation">Animation</a>
+<a href="#Verdeckt">Verdeckt</a>
+<a href="#Sichtbar">Sichtbar</a>
+<a href="#Quadrant">Quadrant</a>
+<a href="#SichtbarResult">SichtbarResult</a>
+<a href="#UpdateSrc">UpdateSrc</a>
+<a href="#RenderingEnum">RenderingEnum</a>
+<a href="#EditorFileCmd">EditorFileCmd</a>
+<a href="#WerkbkFileCmd">WerkbkFileCmd</a>
+<a href="#BasisformEnum">BasisformEnum</a>
+<a href="#PlatzhalterEditor">PlatzhalterEditor</a>
+<a href="#PlatzhalterWerkbank">PlatzhalterWerkbank</a>
+<a href="#Layout">Layout</a>
+<a href="#FreeSide">FreeSide</a>
+  </nav>
+
+  <div class="content">
+    
+<section class="card" id="RenderMode">
+  <h2>RenderMode</h2>
+  <p class="summary">Hinweis: Bei Änderungen RenderMode, SpielMode und CvtRenderToSpielMode aufeinander abstimmen. Die sind voneinander abhängig.</p>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Wert</th>
+        <th>Beschreibung</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>0</td><td><code>NoRendering = 0</code></td><td>Entweder tatsächlich keine Daten geladen oder den Rendermode auf diesen Mode gesetzt. Unterscheidbar durch: Keine_Daten_geladen = _sfd.SFInfo.xMax = 0</td></tr><tr><td>1</td><td><code>Paused = 1</code></td><td>Das ist eine bewusste Pause, nicht die,die durch Untätigkeit geschaltet wird und sich automatisch ausschaltet.</td></tr><tr><td>2</td><td><code>Spiel = 2</code></td><td>Das Spielfeld wird gerendert. Das ist das Startsignal, nachdem ein Spiel geladen oder neu angelegt wurde. Es kann also angelegt, dann per Programmcode erzeugt werden und dann durch ändern des RenderMode gestartet werden.</td></tr><tr><td>3</td><td><code>Edit = 4</code></td><td>Wie Spielfeld, nur auf den EditorMode bezogen.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="card" id="GeneratorModus">
+  <h2>GeneratorModus</h2>
+  <p class="summary">Public Function GetValueFromGeneratorModi(genmod As GeneratorModi) As (isStoneSet As Boolean, isBase152 As Boolean, count As Integer)</p>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Wert</th>
+        <th>Beschreibung</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>0</td><td><code>None = -1</code></td><td>&nbsp;</td></tr><tr><td>1</td><td><code>StoneStream_Base144_Continuous = 0</code></td><td>&nbsp;</td></tr><tr><td>2</td><td><code>StoneStream_Base152_Continuous = 4</code></td><td>&nbsp;</td></tr><tr><td>3</td><td><code>StoneStream_Base144_Low = 1</code></td><td>&nbsp;</td></tr><tr><td>4</td><td><code>StoneStream_Base152_Low = 5</code></td><td>&nbsp;</td></tr><tr><td>5</td><td><code>StoneStream_Base144_Medium = 2</code></td><td>&nbsp;</td></tr><tr><td>6</td><td><code>StoneStream_Base152_Medium = 6</code></td><td>&nbsp;</td></tr><tr><td>7</td><td><code>StoneStream_Base144_Height = 3</code></td><td>&nbsp;</td></tr><tr><td>8</td><td><code>StoneStream_Base152_Height = 7</code></td><td>&nbsp;</td></tr><tr><td>9</td><td><code>StoneSet_072 = 8</code></td><td>&nbsp;</td></tr><tr><td>10</td><td><code>StoneSet_076 = 12</code></td><td>&nbsp;</td></tr><tr><td>11</td><td><code>StoneSet_144 = 9</code></td><td>&nbsp;</td></tr><tr><td>12</td><td><code>StoneSet_152 = 13</code></td><td>&nbsp;</td></tr><tr><td>13</td><td><code>StoneSet_216 = 10</code></td><td>&nbsp;</td></tr><tr><td>14</td><td><code>StoneSet_228 = 14</code></td><td>&nbsp;</td></tr><tr><td>15</td><td><code>StoneSet_288 = 11</code></td><td>&nbsp;</td></tr><tr><td>16</td><td><code>StoneSet_304 = 15</code></td><td>&nbsp;</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="card" id="SteinRndGruppe">
+  <h2>SteinRndGruppe</h2>
+  
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Wert</th>
+        <th>Beschreibung</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>0</td><td><code>Normal</code></td><td>&nbsp;</td></tr><tr><td>1</td><td><code>Flower</code></td><td>&nbsp;</td></tr><tr><td>2</td><td><code>Season</code></td><td>&nbsp;</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="card" id="VisiblePart">
+  <h2>VisiblePart</h2>
+  
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Wert</th>
+        <th>Beschreibung</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>0</td><td><code>none</code></td><td>nicht sichtbar</td></tr><tr><td>1</td><td><code>OL</code></td><td>oben links, linke oberstes Viertel sichtbar</td></tr><tr><td>2</td><td><code>OM</code></td><td>oben Mitte, obere Hälfte sichtbar</td></tr><tr><td>3</td><td><code>[OR]</code></td><td>oben rechts, rechtes oberstes Viertel sichtbar</td></tr><tr><td>4</td><td><code>ML</code></td><td>Mitte links, linke Hälfte sichtbar</td></tr><tr><td>5</td><td><code>MM</code></td><td>Mitte Mitte, alles sichtbar</td></tr><tr><td>6</td><td><code>MR</code></td><td>Mitte rechts, rechte Hälfte sichtbar</td></tr><tr><td>7</td><td><code>UL</code></td><td>unten links, linkes unterstes Viertel sichtbar</td></tr><tr><td>8</td><td><code>UM</code></td><td>unten Mitte, untere Hälfte sichtbar</td></tr><tr><td>9</td><td><code>UR</code></td><td>unten rechts, rechtes unterstes Viertel sichtbar</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="card" id="Direction">
+  <h2>Direction</h2>
+  <p class="summary">Richtung der Suche nach einem freiem Platz für einen Stein ausgehend von einer Ausgangsstellung.</p>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Wert</th>
+        <th>Beschreibung</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>0</td><td><code>Up</code></td><td>&nbsp;</td></tr><tr><td>1</td><td><code>UpRight</code></td><td>&nbsp;</td></tr><tr><td>2</td><td><code>Right</code></td><td>&nbsp;</td></tr><tr><td>3</td><td><code>DownRight</code></td><td>&nbsp;</td></tr><tr><td>4</td><td><code>Down</code></td><td>&nbsp;</td></tr><tr><td>5</td><td><code>DownLeft</code></td><td>&nbsp;</td></tr><tr><td>6</td><td><code>Left</code></td><td>&nbsp;</td></tr><tr><td>7</td><td><code>UpLeft</code></td><td>&nbsp;</td></tr><tr><td>8</td><td><code>RightUp = UpRight</code></td><td>&nbsp;</td></tr><tr><td>9</td><td><code>RightDown = DownRight</code></td><td>&nbsp;</td></tr><tr><td>10</td><td><code>LeftDown = DownLeft</code></td><td>&nbsp;</td></tr><tr><td>11</td><td><code>LeftUp = UpLeft</code></td><td>&nbsp;</td></tr><tr><td>12</td><td><code>LBnd = Up</code></td><td>um in einer ForNext-Schleife alle Himmelsrichtungen durchzugehen.</td></tr><tr><td>13</td><td><code>UBnd = UpLeft</code></td><td>&nbsp;</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="card" id="Move">
+  <h2>Move</h2>
+  
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Wert</th>
+        <th>Beschreibung</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>0</td><td><code>NoMove</code></td><td>&nbsp;</td></tr><tr><td>1</td><td><code>LeftOrUp</code></td><td>&nbsp;</td></tr><tr><td>2</td><td><code>RightOrDown</code></td><td>&nbsp;</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="card" id="PositionEnum">
+  <h2>PositionEnum</h2>
+  
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Wert</th>
+        <th>Beschreibung</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>0</td><td><code>EckeLO</code></td><td>Die linke obere Ecke des Spielfeldes</td></tr><tr><td>1</td><td><code>EckeRO</code></td><td>Die rechte obere Ecke des Spielfeld</td></tr><tr><td>2</td><td><code>EckeRU</code></td><td>Die rechte untere Ecke des Spielfeldes</td></tr><tr><td>3</td><td><code>EckeLU</code></td><td>Die linke untere Ecke des Spielfeldes</td></tr><tr><td>4</td><td><code>MitteO</code></td><td>Die Mitte oben des Spielfeldes</td></tr><tr><td>5</td><td><code>MitteR</code></td><td>Die Mitte rechts des Spielfeldes</td></tr><tr><td>6</td><td><code>MitteU</code></td><td>Die Mitte unten des Spielfeldes</td></tr><tr><td>7</td><td><code>MitteL</code></td><td>Die Mitte Links des Spielfeldes</td></tr><tr><td>8</td><td><code>CenterLO</code></td><td>Vom Zentrum nach links oben mittig</td></tr><tr><td>9</td><td><code>CenterRO</code></td><td>Vom Zentrum nach rechts oben mittig</td></tr><tr><td>10</td><td><code>CenterRU</code></td><td>Vom Zentrum nach rechts unten mittig</td></tr><tr><td>11</td><td><code>CenterLU</code></td><td>Vom Zentrum nach links unten mittig</td></tr><tr><td>12</td><td><code>UBndWithoutCenter = CenterLU</code></td><td>Für For-Next Schleifen um geradzahlige Schleifenwerte zu erreichen. (Paarweise Steinverlegung)</td></tr><tr><td>13</td><td><code>Center</code></td><td>Die Mitte rechts des Spielfeldes</td></tr><tr><td>14</td><td><code>LBnd = EckeLO</code></td><td>Für For-Next Schleifen</td></tr><tr><td>15</td><td><code>UBnd = Center</code></td><td>Für For-Next Schleifen</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="card" id="Animation">
+  <h2>Animation</h2>
+  
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Wert</th>
+        <th>Beschreibung</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>0</td><td><code>None</code></td><td>&nbsp;</td></tr><tr><td>1</td><td><code>Erscheinen</code></td><td>&nbsp;</td></tr><tr><td>2</td><td><code>Verblassen</code></td><td>&nbsp;</td></tr><tr><td>3</td><td><code>Wachsen</code></td><td>&nbsp;</td></tr><tr><td>4</td><td><code>ErscheinenOhneUGrd</code></td><td>&nbsp;</td></tr><tr><td>5</td><td><code>VerschwindenUniUGrdfarbe</code></td><td>&nbsp;</td></tr><tr><td>6</td><td><code>Schrumpfen</code></td><td>&nbsp;</td></tr><tr><td>7</td><td><code>TaumelSchrumpfen</code></td><td>&nbsp;</td></tr><tr><td>8</td><td><code>WachsenPauseVerblassen</code></td><td>&nbsp;</td></tr><tr><td>9</td><td><code>DehnSchrumpfen</code></td><td>&nbsp;</td></tr><tr><td>10</td><td><code>DehnRotierSchrumpfen</code></td><td>&nbsp;</td></tr><tr><td>11</td><td><code>DehnTaumelSchrumpfen</code></td><td>&nbsp;</td></tr><tr><td>12</td><td><code>Test</code></td><td>&nbsp;</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="card" id="Verdeckt">
+  <h2>Verdeckt</h2>
+  
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Wert</th>
+        <th>Beschreibung</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>0</td><td><code>Keine = 0</code></td><td>0000</td></tr><tr><td>1</td><td><code>LinksOben = 1</code></td><td>0001</td></tr><tr><td>2</td><td><code>RechtsOben = 2</code></td><td>0010</td></tr><tr><td>3</td><td><code>LinksUnten = 4</code></td><td>0100</td></tr><tr><td>4</td><td><code>RechtsUnten = 8</code></td><td>1000</td></tr><tr><td>5</td><td><code>Alle = 15</code></td><td>1111</td></tr><tr><td>6</td><td><code>OhneLinksOben = 14</code></td><td>1110</td></tr><tr><td>7</td><td><code>OhneRechtsOben = 13</code></td><td>1101</td></tr><tr><td>8</td><td><code>OhneLinksUnten = 11</code></td><td>1011</td></tr><tr><td>9</td><td><code>OhneRechtsUnten = 7</code></td><td>0111</td></tr><tr><td>10</td><td><code>NurLinks = 5</code></td><td>0101</td></tr><tr><td>11</td><td><code>NurRechts = 10</code></td><td>1010</td></tr><tr><td>12</td><td><code>NurOben = 3</code></td><td>0011</td></tr><tr><td>13</td><td><code>NurUnten = 12</code></td><td>1100</td></tr><tr><td>14</td><td><code>LinksObenRechtsUnten = 6</code></td><td>0110</td></tr><tr><td>15</td><td><code>LinksUntenRechtsOben = 9</code></td><td>1001</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="card" id="Sichtbar">
+  <h2>Sichtbar</h2>
+  <p class="summary">Die Umkehrung ist diese Enumeration</p>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Wert</th>
+        <th>Beschreibung</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>0</td><td><code>Keine = 15</code></td><td>1111</td></tr><tr><td>1</td><td><code>LinksOben = 14</code></td><td>1110</td></tr><tr><td>2</td><td><code>RechtsOben = 13</code></td><td>1101</td></tr><tr><td>3</td><td><code>LinksUnten = 11</code></td><td>1011</td></tr><tr><td>4</td><td><code>RechtsUnten = 7</code></td><td>0111</td></tr><tr><td>5</td><td><code>Alle = 0</code></td><td>0000</td></tr><tr><td>6</td><td><code>OhneLinksOben = 1</code></td><td>0001</td></tr><tr><td>7</td><td><code>OhneRechtsOben = 2</code></td><td>0010</td></tr><tr><td>8</td><td><code>OhneLinksUnten = 4</code></td><td>0100</td></tr><tr><td>9</td><td><code>OhneRechtsUnten = 8</code></td><td>1000</td></tr><tr><td>10</td><td><code>NurLinks = 10</code></td><td>1010</td></tr><tr><td>11</td><td><code>NurRechts = 5</code></td><td>0101</td></tr><tr><td>12</td><td><code>NurOben = 12</code></td><td>1100</td></tr><tr><td>13</td><td><code>NurUnten = 3</code></td><td>0011</td></tr><tr><td>14</td><td><code>LinksObenRechtsUnten = 9</code></td><td>1001</td></tr><tr><td>15</td><td><code>LinksUntenRechtsOben = 6</code></td><td>0110</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="card" id="Quadrant">
+  <h2>Quadrant</h2>
+  
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Wert</th>
+        <th>Beschreibung</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>0</td><td><code>none</code></td><td>&nbsp;</td></tr><tr><td>1</td><td><code>LO = 1</code></td><td>Auch _RectQuadrant(0)</td></tr><tr><td>2</td><td><code>RO = 2</code></td><td>Auch _RectQuadrant(1)</td></tr><tr><td>3</td><td><code>LU = 4</code></td><td>Auch _RectQuadrant(2)</td></tr><tr><td>4</td><td><code>RU = 8</code></td><td>Auch _RectQuadrant(3)</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="card" id="SichtbarResult">
+  <h2>SichtbarResult</h2>
+  
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Wert</th>
+        <th>Beschreibung</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>0</td><td><code>None</code></td><td>&nbsp;</td></tr><tr><td>1</td><td><code>Full</code></td><td>&nbsp;</td></tr><tr><td>2</td><td><code>Only3DArea</code></td><td>&nbsp;</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="card" id="UpdateSrc">
+  <h2>UpdateSrc</h2>
+  
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Wert</th>
+        <th>Beschreibung</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>0</td><td><code>Initialisierung</code></td><td>&nbsp;</td></tr><tr><td>1</td><td><code>PaintSpielfeld_UpdteSpielfeld_IsSet</code></td><td>&nbsp;</td></tr><tr><td>2</td><td><code>PaintEvent</code></td><td>&nbsp;</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="card" id="RenderingEnum">
+  <h2>RenderingEnum</h2>
+  <p class="summary">ZLV</p>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Wert</th>
+        <th>Beschreibung</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>0</td><td><code>None</code></td><td>&nbsp;</td></tr><tr><td>1</td><td><code>Spielfeld</code></td><td>&nbsp;</td></tr><tr><td>2</td><td><code>Editor</code></td><td>&nbsp;</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="card" id="EditorFileCmd">
+  <h2>EditorFileCmd</h2>
+  <p class="summary">Datei-Menü getrennt für Editor/Werkbank (unterschiedlich erweiterbar)</p>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Wert</th>
+        <th>Beschreibung</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>0</td><td><code>LadenInterne</code></td><td>&nbsp;</td></tr><tr><td>1</td><td><code>LadenEigene</code></td><td>&nbsp;</td></tr><tr><td>2</td><td><code>Speichern</code></td><td>&nbsp;</td></tr><tr><td>3</td><td><code>SpeichernUnter</code></td><td>&nbsp;</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="card" id="WerkbkFileCmd">
+  <h2>WerkbkFileCmd</h2>
+  
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Wert</th>
+        <th>Beschreibung</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>0</td><td><code>LadenInterne</code></td><td>&nbsp;</td></tr><tr><td>1</td><td><code>LadenEigene</code></td><td>&nbsp;</td></tr><tr><td>2</td><td><code>Speichern</code></td><td>&nbsp;</td></tr><tr><td>3</td><td><code>Speichern_unter</code></td><td>&nbsp;</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="card" id="BasisformEnum">
+  <h2>BasisformEnum</h2>
+  <p class="summary">Werkbank: Basisformen</p>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Wert</th>
+        <th>Beschreibung</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>0</td><td><code>Linie</code></td><td>&nbsp;</td></tr><tr><td>1</td><td><code>Winkel</code></td><td>&nbsp;</td></tr><tr><td>2</td><td><code>UForm</code></td><td>&nbsp;</td></tr><tr><td>3</td><td><code>Rechteck</code></td><td>&nbsp;</td></tr><tr><td>4</td><td><code>Kreis</code></td><td>&nbsp;</td></tr><tr><td>5</td><td><code>Pyramide</code></td><td>&nbsp;</td></tr><tr><td>6</td><td><code>Kegel</code></td><td>&nbsp;</td></tr><tr><td>7</td><td><code>Zufall</code></td><td>&nbsp;</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="card" id="PlatzhalterEditor">
+  <h2>PlatzhalterEditor</h2>
+  <p class="summary">Platzhalter</p>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Wert</th>
+        <th>Beschreibung</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>0</td><td><code>Item1</code></td><td>&nbsp;</td></tr><tr><td>1</td><td><code>Item2</code></td><td>&nbsp;</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="card" id="PlatzhalterWerkbank">
+  <h2>PlatzhalterWerkbank</h2>
+  
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Wert</th>
+        <th>Beschreibung</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>0</td><td><code>Item1</code></td><td>&nbsp;</td></tr><tr><td>1</td><td><code>Item2</code></td><td>&nbsp;</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="card" id="Layout">
+  <h2>Layout</h2>
+  
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Wert</th>
+        <th>Beschreibung</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>0</td><td><code>None</code></td><td>&nbsp;</td></tr><tr><td>1</td><td><code>SplfldWithHeaderAndHistNone</code></td><td>&nbsp;</td></tr><tr><td>2</td><td><code>SplfldWithHeaderAndSmallHist</code></td><td>&nbsp;</td></tr><tr><td>3</td><td><code>SplfldWithHeaderAndHistLeft</code></td><td>&nbsp;</td></tr><tr><td>4</td><td><code>SplfldWithHeaderAndHistRight</code></td><td>&nbsp;</td></tr><tr><td>5</td><td><code>EditorWithHeader</code></td><td>&nbsp;</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="card" id="FreeSide">
+  <h2>FreeSide</h2>
+  
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Wert</th>
+        <th>Beschreibung</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>0</td><td><code>None</code></td><td>0000</td></tr><tr><td>1</td><td><code>Left = 1</code></td><td>0001</td></tr><tr><td>2</td><td><code>Right = 2</code></td><td>0010</td></tr><tr><td>3</td><td><code>Both = 3</code></td><td>0011</td></tr>
+    </tbody>
+  </table>
+</section>
+
+
+    <details>
+      <summary>Original-VB.NET-Quelltext anzeigen</summary>
+      <pre class="raw">&#x27;
+&#x27;##############################################################################
+&#x27;Gespeichert als ...\SFKlassen\SFEnums
+&#x27;##############################################################################
+
+Imports MahjongGK.Contracts.GlobalEnum
+
+&#x27;&#x27;&#x27; &lt;summary&gt;
+&#x27;&#x27;&#x27; Pfad: MahjongGK/Spielfeld/Basis
+&#x27;&#x27;&#x27; &lt;/summary&gt;
+Public Module SFEnums
+
+    &#x27;&#x27;&#x27; &lt;summary&gt;
+    &#x27;&#x27;&#x27; Hinweis: Bei Änderungen RenderMode, SpielMode und CvtRenderToSpielMode
+    &#x27;&#x27;&#x27; aufeinander abstimmen. Die sind voneinander abhängig.
+    &#x27;&#x27;&#x27; &lt;/summary&gt;
+    Public Enum RenderMode
+        &#x27;
+        &#x27;&#x27;&#x27; &lt;summary&gt;
+        &#x27;&#x27;&#x27; Entweder tatsächlch keine Daten geladen oder
+        &#x27;&#x27;&#x27; den Rendermode auf diesen Mode gesetzt.
+        &#x27;&#x27;&#x27; Unterscheidbar durch: Keine_Daten_geladen = _sfd.SFInfo.xMax = 0  
+        &#x27;&#x27;&#x27; &lt;/summary&gt;
+        NoRendering = 0
+        &#x27;
+        &#x27;&#x27;&#x27; &lt;summary&gt;
+        &#x27;&#x27;&#x27; Das ist eine bewußte Pause, nicht die,die durch Untätigkeit 
+        &#x27;&#x27;&#x27; geschaltet wird und sich automatisch ausschaltet. 
+        &#x27;&#x27;&#x27; &lt;/summary&gt;
+        Paused = 1
+        &#x27;
+        &#x27;&#x27;&#x27; &lt;summary&gt;
+        &#x27;&#x27;&#x27; Das Spielfeld wird gerendert. Das ist das Startsignal, nachdem
+        &#x27;&#x27;&#x27; ein Spiel geladen oder neu angelegt wurde. Es kann also angelegt,
+        &#x27;&#x27;&#x27; dann per Programmcode erzeugt werden und dann durch ändern des
+        &#x27;&#x27;&#x27; RenderMode gestartet werden.
+        &#x27;&#x27;&#x27; &lt;/summary&gt;
+        Spiel = 2
+        &#x27;
+        &#x27;&#x27;&#x27; &lt;summary&gt;
+        &#x27;&#x27;&#x27; Wie Spielfeld, nur auf den EditorMode bezogen.
+        &#x27;&#x27;&#x27; &lt;/summary&gt;
+        Edit = 4
+
+    End Enum
+    &#x27;
+    &#x27;&#x27;&#x27;&#x27; &lt;summary&gt;
+    &#x27;&#x27;&#x27;&#x27; Der Rendermode mit eingeschränktem Wertebereich:
+    &#x27;&#x27;&#x27;&#x27; Paused und NoDataLoad sind zusammengefasst zu None.
+    &#x27;&#x27;&#x27;&#x27; Spiel und Edit bleiben.
+    &#x27;&#x27;&#x27;&#x27; &lt;/summary&gt;
+    &#x27;&#x27;Public Enum AktRenderMode
+    &#x27;&#x27;    None
+    &#x27;&#x27;    Spiel = 2
+    &#x27;&#x27;    Edit = 4
+    &#x27;&#x27;End Enum
+
+    &#x27;&#x27;&#x27; &lt;summary&gt;
+    &#x27;&#x27;&#x27; Wandelt RenderMode per Bitmaske in SpielMode um.
+    &#x27;&#x27;&#x27; Paused und NoDataLoaded werden zu None.
+    &#x27;&#x27;&#x27; &lt;/summary&gt;
+    Public Function CvtToAktRenderMode(ByVal rm As RenderMode) As AktRenderMode
+
+        Return CType(CInt(rm) And 6, AktRenderMode)
+
+    End Function
+
+    &#x27;Zentrale Deklaration programmweit geltender Enumerationen
+
+#Region &quot;Stein-Enums&quot;
+
+#End Region
+    &#x27;ChagGPT: alles ausgeklammerte mit aufnehmen
+    &#x27;
+    &#x27; StoneStream
+    &#x27; |Base144              
+    &#x27; ||Count HightBit
+    &#x27; |||Count LowBit
+    &#x27; ||||
+    &#x27; 0000 = 0   = GeneratorModi.StoneStream_Base144_Continuous    unendlicher Steinstrom mit 144er Steinverteilung
+    &#x27; 0001 = 1   = GeneratorModi.StoneStream_Base144_Low           Der zahlenmäßige Wert von Low, Medium und High 
+    &#x27; 0010 = 2   = GeneratorModi.StoneStream_Base144_Medium        ist in der INI hinterlegt und fei definierbar.
+    &#x27; 0011 = 3   = GeneratorModi.StoneStream_Base144_Height
+    &#x27; |Base152
+    &#x27; ||Count HightBit
+    &#x27; |||Count LowBit
+    &#x27; ||||  
+    &#x27; 0100 = 4    = GeneratorModi.StoneStream_Base152_Continuous   unendlicher Steinstrom mit 152er Steinverteilung 
+    &#x27; 0101 = 5    = GeneratorModi.StoneStream_Base152_Low
+    &#x27; 0110 = 6    = GeneratorModi.StoneStream_Base152_Medium
+    &#x27; 0111 = 7    = GeneratorModi.StoneStream_Base152_Heigh
+    &#x27;
+    &#x27; StoneSet
+    &#x27; |Base144 
+    &#x27; ||Count HightBit
+    &#x27; |||Count LowBit
+    &#x27; ||||
+    &#x27; 1000 = 8    = GeneratorModi.StoneSet_072  = 1 * 72
+    &#x27; 1001 = 9    = GeneratorModi.StoneSet_144  = 2 * 72
+    &#x27; 1010 = 10   = GeneratorModi.StoneSet_216  = 3 * 72
+    &#x27; 1011 = 11   = GeneratorModi.StoneSet_288  = 4 * 72
+    &#x27; |Base152
+    &#x27; ||Count HightBit
+    &#x27; |||Count LowBit
+    &#x27; ||||
+    &#x27; 1100 = 12   = GeneratorModi.StoneSet_076  = 1 * 76
+    &#x27; 1101 = 13   = GeneratorModi.StoneSet_152  = 2 * 76
+    &#x27; 1110 = 14   = GeneratorModi.StoneSet_228  = 3 * 76
+    &#x27; 1111 = 15   = GeneratorModi.StoneSet_304  = 4 * 76
+    &#x27;
+    &#x27; Konvertierung siehe: (im Spielsteingenerator)
+    &#x27; Public Function GetGeneratorModi(isStoneSet As Boolean,
+    &#x27;                                     isBase152 As Boolean,
+    &#x27;                                     count As Integer) As GeneratorModi
+    &#x27; Public Function GetValueFromGeneratorModi(genmod As GeneratorModi) As (isStoneSet As Boolean,
+    &#x27;                                                                            isBase152 As Boolean,
+    &#x27;                                                                            count As Integer)
+
+    Public Enum GeneratorModus
+        None = -1
+        StoneStream_Base144_Continuous = 0
+        StoneStream_Base152_Continuous = 4
+        StoneStream_Base144_Low = 1
+        StoneStream_Base152_Low = 5
+        StoneStream_Base144_Medium = 2
+        StoneStream_Base152_Medium = 6
+        StoneStream_Base144_Height = 3
+        StoneStream_Base152_Height = 7
+        StoneSet_072 = 8
+        StoneSet_076 = 12
+        StoneSet_144 = 9
+        StoneSet_152 = 13
+        StoneSet_216 = 10
+        StoneSet_228 = 14
+        StoneSet_288 = 11
+        StoneSet_304 = 15
+    End Enum
+
+    Public Enum SteinRndGruppe
+        Normal
+        Flower
+        Season
+    End Enum
+
+    Public Enum VisiblePart
+        none &#x27; nicht sichtbar
+        OL &#x27; oben links, linke oberstes Viertel sichtbar
+        OM &#x27; oben Mitte, obere Hälfte sichtbar
+        [OR] &#x27; oben rechts, rechtes oberstes Viertel sichtbar
+        ML &#x27; Mitte links, linke Hälfte sichtbar
+        MM &#x27; Mitte Mitte, alles sichtbar
+        MR &#x27; Mitte rechts, rechte Hälfte sichtbar
+        UL &#x27; unten links, linkes unterstes Viertel sichtbar
+        UM &#x27; unten Mitte, untere Hälfte sichtbar
+        UR &#x27; unten rechts, rechtes unterstes Viertel sichtbar
+    End Enum
+    &#x27;
+    &#x27;&#x27;&#x27; &lt;summary&gt;
+    &#x27;&#x27;&#x27; Richtung der Suche nach einem freiem Platz für einen
+    &#x27;&#x27;&#x27; Stein ausgehend von einer Ausgangsstellung.
+    &#x27;&#x27;&#x27; &lt;/summary&gt;
+    Public Enum Direction
+        Up
+        UpRight
+        Right
+        DownRight
+        Down
+        DownLeft
+        Left
+        UpLeft
+        RightUp = UpRight
+        RightDown = DownRight
+        LeftDown = DownLeft
+        LeftUp = UpLeft
+        LBnd = Up    &#x27;um in einer ForNext-Schleife alle Himmelsrichtungen durchzugehen.
+        UBnd = UpLeft
+    End Enum
+
+    Public Enum Move
+        NoMove
+        LeftOrUp
+        RightOrDown
+    End Enum
+
+    Public Enum PositionEnum
+        &#x27;
+        &#x27;&#x27;&#x27; &lt;summary&gt;
+        &#x27;&#x27;&#x27; Die linke obere Ecke des Spielfeldes
+        &#x27;&#x27;&#x27; &lt;/summary&gt;
+        EckeLO
+        &#x27;
+        &#x27;&#x27;&#x27; &lt;summary&gt;
+        &#x27;&#x27;&#x27; Die rechte obere Ecke des Spielfeld
+        &#x27;&#x27;&#x27; &lt;/summary&gt;
+        EckeRO
+        &#x27;
+        &#x27;&#x27;&#x27; &lt;summary&gt;
+        &#x27;&#x27;&#x27; Die rechte untere Ecke des Spielfeldes
+        &#x27;&#x27;&#x27; &lt;/summary&gt;
+        EckeRU
+        &#x27;
+        &#x27;&#x27;&#x27; &lt;summary&gt;
+        &#x27;&#x27;&#x27; Die linke untere Ecke des Spielfeldes
+        &#x27;&#x27;&#x27; &lt;/summary&gt;
+        EckeLU
+        &#x27;
+        &#x27;&#x27;&#x27; &lt;summary&gt;
+        &#x27;&#x27;&#x27; Die Mitte oben des Spielfeldes
+        &#x27;&#x27;&#x27; &lt;/summary&gt;
+        MitteO
+        &#x27;
+        &#x27;&#x27;&#x27; &lt;summary&gt;
+        &#x27;&#x27;&#x27; Die Mitte rechts des Spielfeldes
+        &#x27;&#x27;&#x27; &lt;/summary&gt;
+        MitteR
+        &#x27;
+        &#x27;&#x27;&#x27; &lt;summary&gt;
+        &#x27;&#x27;&#x27; Die Mitte unten des Spielfeldes
+        &#x27;&#x27;&#x27; &lt;/summary&gt;
+        MitteU
+        &#x27;
+        &#x27;&#x27;&#x27; &lt;summary&gt;
+        &#x27;&#x27;&#x27; Die Mitte Links des Spielfeldes
+        &#x27;&#x27;&#x27; &lt;/summary&gt;
+        MitteL
+        &#x27;
+        &#x27;&#x27;&#x27; &lt;summary&gt;
+        &#x27;&#x27;&#x27; Vom Zentrum nach links oben mittig
+        &#x27;&#x27;&#x27; &lt;/summary&gt;
+        CenterLO
+        &#x27;
+        &#x27;&#x27;&#x27; &lt;summary&gt;
+        &#x27;&#x27;&#x27; Vom Zentrum nach rechts oben mittig
+        &#x27;&#x27;&#x27; &lt;/summary&gt;
+        CenterRO
+        &#x27;
+        &#x27;&#x27;&#x27; &lt;summary&gt;
+        &#x27;&#x27;&#x27; Vom Zentrum nach rechts unten mittig
+        &#x27;&#x27;&#x27; &lt;/summary&gt;
+        CenterRU
+        &#x27;
+        &#x27;&#x27;&#x27; &lt;summary&gt;
+        &#x27;&#x27;&#x27; Vom Zentrum nach links unten mittig
+        &#x27;&#x27;&#x27; &lt;/summary&gt;
+        CenterLU
+        &#x27;
+        &#x27;&#x27;&#x27; &lt;summary&gt;
+        &#x27;&#x27;&#x27; Für For-Next Schleifen um geradzahlige Schleifenwerte zu erreichen.
+        &#x27;&#x27;&#x27; (Paarweise Steinverlegung)
+        &#x27;&#x27;&#x27; &lt;/summary&gt;
+        UBndWithoutCenter = CenterLU
+        &#x27;
+        &#x27;&#x27;&#x27; &lt;summary&gt;
+        &#x27;&#x27;&#x27; Die Mitte rechts des Spielfeldes
+        &#x27;&#x27;&#x27; &lt;/summary&gt;
+        Center
+        &#x27;
+        &#x27;&#x27;&#x27; &lt;summary&gt;
+        &#x27;&#x27;&#x27; Für For-Next Schleifen
+        &#x27;&#x27;&#x27; &lt;/summary&gt;
+        LBnd = EckeLO
+        &#x27;
+        &#x27;&#x27;&#x27; &lt;summary&gt;
+        &#x27;&#x27;&#x27; Für For-Next Schleifen
+        &#x27;&#x27;&#x27; &lt;/summary&gt;
+        UBnd = Center
+
+    End Enum
+
+    Public Enum Animation
+        None
+        Erscheinen
+        Verblassen
+        Wachsen
+        ErscheinenOhneUGrd
+        VerschwindenUniUGrdfarbe
+        Schrumpfen
+        TaumelSchrumpfen
+        WachsenPauseVerblassen
+        DehnSchrumpfen
+        DehnRotierSchrumpfen
+        DehnTaumelSchrumpfen
+        &#x27;ZweiBilderSchrumpfen
+        &#x27;ZweiBilderDehnSchrumpfen
+        &#x27;ZweiBilderDehnRotierSchrumpfen
+        &#x27;ZweiBilderDehnTaumelSchrumpfen
+        &#x27;ZweiBilderDehnZufallsanimation
+        &#x27;ZweiBilderErscheinenOhneUGrd
+        &#x27;ZweiBilderVerschwindenUniUGrdfarbe
+        Test
+    End Enum
+
+    Public Enum Verdeckt
+        Keine = 0  &#x27;0000
+        LinksOben = 1  &#x27;0001
+        RechtsOben = 2  &#x27;0010
+        LinksUnten = 4  &#x27;0100
+        RechtsUnten = 8  &#x27;1000
+        Alle = 15 &#x27;1111
+        OhneLinksOben = 14 &#x27;1110
+        OhneRechtsOben = 13 &#x27;1101
+        OhneLinksUnten = 11 &#x27;1011 
+        OhneRechtsUnten = 7  &#x27;0111
+        NurLinks = 5  &#x27;0101
+        NurRechts = 10 &#x27;1010
+        NurOben = 3  &#x27;0011
+        NurUnten = 12 &#x27;1100
+        LinksObenRechtsUnten = 6 &#x27;0110
+        LinksUntenRechtsOben = 9 &#x27;1001
+    End Enum
+
+    &#x27;Die Umkehrung ist diese Enumeration
+
+    Public Enum Sichtbar
+        Keine = 15 &#x27;1111
+        LinksOben = 14 &#x27;1110
+        RechtsOben = 13 &#x27;1101
+        LinksUnten = 11 &#x27;1011
+        RechtsUnten = 7  &#x27;0111
+        Alle = 0  &#x27;0000
+        OhneLinksOben = 1  &#x27;0001
+        OhneRechtsOben = 2  &#x27;0010
+        OhneLinksUnten = 4  &#x27;0100 
+        OhneRechtsUnten = 8  &#x27;1000
+        NurLinks = 10 &#x27;1010
+        NurRechts = 5  &#x27;0101
+        NurOben = 12 &#x27;1100
+        NurUnten = 3  &#x27;0011
+        LinksObenRechtsUnten = 9 &#x27;1001
+        LinksUntenRechtsOben = 6 &#x27;0110
+    End Enum
+
+    Public Enum Quadrant
+        none
+        &#x27;
+        &#x27;&#x27;&#x27; &lt;summary&gt;
+        &#x27;&#x27;&#x27; Auch _RectQuadrant(0)
+        &#x27;&#x27;&#x27; &lt;/summary&gt;
+        LO = 1
+        &#x27;
+        &#x27;&#x27;&#x27; &lt;summary&gt;
+        &#x27;&#x27;&#x27; Auch _RectQuadrant(1)
+        &#x27;&#x27;&#x27; &lt;/summary&gt;
+        RO = 2
+        &#x27;
+        &#x27;&#x27;&#x27; &lt;summary&gt;
+        &#x27;&#x27;&#x27; Auch _RectQuadrant(2)
+        &#x27;&#x27;&#x27; &lt;/summary&gt;
+        LU = 4
+        &#x27;
+        &#x27;&#x27;&#x27; &lt;summary&gt;
+        &#x27;&#x27;&#x27; Auch _RectQuadrant(3)
+        &#x27;&#x27;&#x27; &lt;/summary&gt;
+        RU = 8
+    End Enum
+
+    Public Enum SichtbarResult
+        None
+        Full
+        Only3DArea
+    End Enum
+
+    Public Enum UpdateSrc
+        Initialisierung
+        PaintSpielfeld_UpdteSpielfeld_IsSet
+        PaintEvent
+    End Enum
+
+    &#x27;ZLV
+    Public Enum RenderingEnum
+        None
+        Spielfeld
+        Editor
+    End Enum
+
+    &#x27; Datei-Menü getrennt für Editor/Werkbank (unterschiedlich erweiterbar)
+    Public Enum EditorFileCmd
+        LadenInterne
+        LadenEigene
+        Speichern
+        SpeichernUnter
+    End Enum
+
+    Public Enum WerkbkFileCmd
+        LadenInterne
+        LadenEigene
+        Speichern
+        Speichern_unter
+    End Enum
+
+    &#x27; Werkbank: Basisformen
+    Public Enum BasisformEnum
+        Linie
+        Winkel
+        UForm
+        Rechteck
+        Kreis
+        Pyramide
+        Kegel
+        Zufall
+    End Enum
+
+    &#x27; Platzhalter
+    Public Enum PlatzhalterEditor
+        Item1
+        Item2
+    End Enum
+
+    Public Enum PlatzhalterWerkbank
+        Item1
+        Item2
+    End Enum
+
+    Public Enum Layout
+        None
+        SplfldWithHeaderAndHistNone
+        SplfldWithHeaderAndSmallHist
+        SplfldWithHeaderAndHistLeft
+        SplfldWithHeaderAndHistRight
+        EditorWithHeader
+    End Enum
+
+    Public Enum FreeSide
+        None        &#x27;0000
+        Left = 1    &#x27;0001
+        Right = 2   &#x27;0010
+        Both = 3    &#x27;0011
+    End Enum
+
+End Module</pre>
+    </details>
+  </div>
+</main>
+</body>
+</html>

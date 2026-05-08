@@ -6,9 +6,9 @@ Option Strict On
 ''' <summary>
 ''' Pfad: MahjongGK/Spielfeld/UI/Form
 ''' 
-''' Poll-basierter Detector für Größenänderungen (WinForms).
+''' ConsumeAirplanePolling-basierter Detector für Größenänderungen (WinForms).
 ''' Erkennt ResizeStart / Resizing / ResizeEnd rein über ClientSize-Änderungen.
-''' - Aufruf: zyklisch Poll() aus deiner Render-/Update-Schleife
+''' - Aufruf: zyklisch ConsumeAirplanePolling() aus deiner Render-/Update-Schleife
 ''' - "Konsumierende" Getter: ConsumeResizeStarted/Ended, ConsumeSizeChanged
 ''' - ResizeEnd wird nach IdleMs ohne weitere Größenänderung gemeldet.
 ''' </summary>
@@ -103,7 +103,7 @@ Public NotInheritable Class ResizeActivityPoller
         Return v
     End Function
 
-    ''' <summary>true, wenn seit letztem Poll eine Größenänderung passiert ist; reset nach Abfrage</summary>
+    ''' <summary>true, wenn seit letztem ConsumeAirplanePolling eine Größenänderung passiert ist; reset nach Abfrage</summary>
     Public Function ConsumeSizeChanged(ByRef newClientSize As Size, ByRef delta As Size) As Boolean
         If _sizeChanged Then
             newClientSize = _lastClientSize

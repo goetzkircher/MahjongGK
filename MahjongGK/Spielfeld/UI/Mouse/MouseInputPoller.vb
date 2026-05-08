@@ -120,7 +120,7 @@ Public NotInheritable Class MouseInputPoller
 
     '
     ''' <summary>
-    ''' True genau in dem Poll-Durchlauf, in dem sich die Maus
+    ''' True genau in dem ConsumeAirplanePolling-Durchlauf, in dem sich die Maus
     ''' während eines aktiven DragDrop bewegt hat.
     ''' </summary>
     Private _dragMoved As Boolean
@@ -162,7 +162,7 @@ Public NotInheritable Class MouseInputPoller
 
     '
     ''' <summary>
-    ''' Positionsänderung seit dem letzten Poll.
+    ''' Positionsänderung seit dem letzten ConsumeAirplanePolling.
     ''' </summary>
     Private _delta As Point
 
@@ -205,14 +205,14 @@ Public NotInheritable Class MouseInputPoller
 
     '
     ''' <summary>
-    ''' Flanke outside -> inside seit letztem Poll.
+    ''' Flanke outside -> inside seit letztem ConsumeAirplanePolling.
     ''' Nicht konsumierend.
     ''' </summary>
     Private _entered As Boolean
 
     '
     ''' <summary>
-    ''' Flanke inside -> outside seit letztem Poll.
+    ''' Flanke inside -> outside seit letztem ConsumeAirplanePolling.
     ''' Nicht konsumierend.
     ''' </summary>
     Private _left As Boolean
@@ -317,7 +317,7 @@ Public NotInheritable Class MouseInputPoller
     ''' Aktualisiert den Zustand.
     ''' 
     ''' Rückgabe:
-    ''' True, wenn sich seit dem letzten Poll() etwas geändert hat,
+    ''' True, wenn sich seit dem letzten ConsumeAirplanePolling() etwas geändert hat,
     ''' das für die weitere Auswertung relevant sein kann.
     ''' </summary>
     Public Function Poll() As Boolean
@@ -352,7 +352,7 @@ Public NotInheritable Class MouseInputPoller
         Dim leftChangedGlobal As Boolean = (lNow <> _leftDown)
         Dim rightChangedGlobal As Boolean = (rNow <> _rightDown)
 
-        ' Änderungsflags pro Poll neu aufbauen
+        ' Änderungsflags pro ConsumeAirplanePolling neu aufbauen
         _leftChanged = False
         _rightChanged = False
 
@@ -505,7 +505,7 @@ Public NotInheritable Class MouseInputPoller
 
     '
     ''' <summary>
-    ''' True, wenn seit dem letzten Poll() eine für das Target relevante
+    ''' True, wenn seit dem letzten ConsumeAirplanePolling() eine für das Target relevante
     ''' Änderung der linken Taste festgestellt wurde.
     ''' Nicht konsumierend.
     ''' </summary>
@@ -541,7 +541,7 @@ Public NotInheritable Class MouseInputPoller
 
     '
     ''' <summary>
-    ''' True, wenn seit dem letzten Poll() eine für das Target relevante
+    ''' True, wenn seit dem letzten ConsumeAirplanePolling() eine für das Target relevante
     ''' Änderung der rechten Taste festgestellt wurde.
     ''' Nicht konsumierend.
     ''' </summary>
@@ -633,7 +633,7 @@ Public NotInheritable Class MouseInputPoller
 
     '
     ''' <summary>
-    ''' True, wenn sich die geführte Mausposition seit dem letzten Poll()
+    ''' True, wenn sich die geführte Mausposition seit dem letzten ConsumeAirplanePolling()
     ''' geändert hat.
     ''' Nur relevant, solange der Cursor effektiv über dem Target ist.
     ''' </summary>
@@ -676,7 +676,7 @@ Public NotInheritable Class MouseInputPoller
 
     '
     ''' <summary>
-    ''' Positionsdifferenz seit dem letzten Poll().
+    ''' Positionsdifferenz seit dem letzten ConsumeAirplanePolling().
     ''' </summary>
     Public Function MousePosDelta() As Point
 
@@ -700,7 +700,7 @@ Public NotInheritable Class MouseInputPoller
 
     '
     ''' <summary>
-    ''' True, wenn seit dem letzten Poll() ein Übergang
+    ''' True, wenn seit dem letzten ConsumeAirplanePolling() ein Übergang
     ''' von außerhalb nach innerhalb stattgefunden hat.
     ''' Nicht konsumierend.
     ''' </summary>
@@ -712,7 +712,7 @@ Public NotInheritable Class MouseInputPoller
 
     '
     ''' <summary>
-    ''' True, wenn seit dem letzten Poll() ein Übergang
+    ''' True, wenn seit dem letzten ConsumeAirplanePolling() ein Übergang
     ''' von innerhalb nach außerhalb stattgefunden hat.
     ''' Nicht konsumierend.
     ''' </summary>
@@ -762,7 +762,7 @@ Public NotInheritable Class MouseInputPoller
 
     '
     ''' <summary>
-    ''' True genau in dem Poll-Durchlauf, in dem sich die Maus
+    ''' True genau in dem ConsumeAirplanePolling-Durchlauf, in dem sich die Maus
     ''' während eines aktiven DragDrop bewegt hat.
     ''' </summary>
     Public Function DragDropMoved() As Boolean

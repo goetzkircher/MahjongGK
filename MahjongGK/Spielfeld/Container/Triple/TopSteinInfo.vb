@@ -3,6 +3,8 @@ Option Explicit On
 Option Infer Off
 Option Strict On
 
+Imports MahjongGK.Contracts.GlobalEnum
+
 #Disable Warning IDE0079
 #Disable Warning IDE1006
 
@@ -24,7 +26,7 @@ Public Class TopSteinInfo
     End Sub
 
     Public Overrides Function ToString() As String
-        Return $"(X={x}, Y={y}, Z={z}, Valide={Valide}, SteinInfoIndex={SteinInfoIndex}, SteinIndex={SteinIndex}, Quadrant={Quadrant}, FreeSide={FreeSide})"
+        Return $"(X={x}, Y={y}, Z={z}, Valide={Valide}, SteinInfoIndex={SteinInfoIndex}, SteinTypIndex={SteinTypIndex}, Quadrant={Quadrant}, FreeSide={FreeSide})"
     End Function
 
     Public Overloads Function ToTriple() As Triple
@@ -52,5 +54,5 @@ Public Class TopSteinInfo
     Public Property SteinStatus As SteinStatus
 
     Public Property SteinClickGruppe As Integer
-
+    '
 End Class
