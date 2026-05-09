@@ -653,10 +653,12 @@
     <Content Include="Spielfeld\TileColors\Test\Noto-Dark.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-  
-    <Content Include="Spielfeld\TileColors\Test\Segoe-Light.xml"><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></Content>
-  
-    <Content Include="Spielfeld\TileColors\Test\Segoe-Dark.xml"><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></Content>
+    <Content Include="Spielfeld\TileColors\Test\Segoe-Light.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Spielfeld\TileColors\Test\Segoe-Dark.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Comparer\" />
@@ -676,13 +678,13 @@
     </PublishFile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\MahjongGKTileFactoryTester\MahjongGKTileFactoryTester\TileFactory\TileFactory.vbproj">
-      <Project>{d9ebcb2b-b1d4-4401-b684-24729f4ea1c6}</Project>
-      <Name>TileFactory</Name>
-    </ProjectReference>
     <ProjectReference Include="..\MahjongGK.Contracts\MahjongGK.Contracts.vbproj">
       <Project>{19cb0e5e-0f74-4dff-84c8-a6084952e6ba}</Project>
       <Name>MahjongGK.Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TileFactory\TileFactory.vbproj">
+      <Project>{d9ebcb2b-b1d4-4401-b684-24729f4ea1c6}</Project>
+      <Name>TileFactory</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
