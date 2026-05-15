@@ -14,7 +14,7 @@ Public Module TileTextur
 
     Public Function CreateMaterialTextureMap(lightMap As Bitmap, texVal As FaceTexturValues, faktorTileBasisHeightToAktHeight As Double) As Single(,)
 
-        Debug.Print(texVal.ToString)
+        'Debug.Print(texVal.ToString)
 
         With texVal
             If lightMap Is Nothing Then Throw New ArgumentNullException(NameOf(lightMap))

@@ -33,25 +33,6 @@ Namespace Spielfeld
 
     '''<summary>
     ''' Pfad: MahjongGK/Spielfeld/Render
-    '''
-    ''' Hält die globalen Renderressourcen und renderbezogenen Laufzeitwerte. 
-    ''' 
-    ''' SFRen bündelt alles, was für die tatsächliche Ausgabe und das Rendering 
-    ''' global benötigt wird. Dazu gehören insbesondere: 
-    ''' 
-    ''' - Backbuffer und Graphics, 
-    ''' - Kennzeichen, ob der Backbuffer bereits Inhalt hat, 
-    ''' - globale Renderzähler und Aktivitätsflags, 
-    ''' - Startscreen- und ähnliche Bildcaches, 
-    ''' - globale Hilfsobjekte zur Renderdiagnose oder Debug-Ausgabe. 
-    ''' 
-    ''' SFRen enthält nur die globalen Renderressourcen selbst, 
-    ''' nicht aber feldbezogene Rendermetriken wie Steinbreiten oder 3D-Offsets, 
-    ''' sofern diese zu genau einem konkreten Spielfeld gehören. 
-    ''' Solche Werte gehören bevorzugt nach SFRun. 
-    ''' 
-    ''' Diese Klasse beschreibt also die technische Renderumgebung, 
-    ''' nicht das fachliche Spielfeldmodell. 
     ''' </summary> 
     Public Class SFRender
 
@@ -78,7 +59,7 @@ Namespace Spielfeld
         ''' <param name="PaintEventGfx"></param>
         ''' <param name="rectOutput"></param>
         ''' <param name="timeDifferenzFaktor"></param>
-        Public Sub RenderingDistributor(PaintEventGfx As Graphics, rectOutput As Rectangle, timeDifferenzFaktor As Double)
+        Public Sub RenderingHauptverteiler(PaintEventGfx As Graphics, rectOutput As Rectangle, timeDifferenzFaktor As Double)
 
             'Es wird grundsätzlich in den Backpuffer gezeichnet, der am Ende dann auf das Control geplittet wird.
             _sfd.SFRun.CreateBackbufferAndGfx()
@@ -183,9 +164,10 @@ Namespace Spielfeld
                 Paint_Editor()
 
                 If INI.Editor_ShowFrmTooltipSteinInfo Then
-                    _sfd.SFRun.EditorFrmTooltipSteinInfo.UpdateInfo(_sfd.SFInf.GetSteinToolTipInfos(_sfd.SFRun.MousePolling.MousePos),
-                                                           _sfd.SFRun.MousePolling.MousePos,
-                                                           _sfd.SFLay.rxStageAvailable.ToRectangle)
+                    _sfd.SFRun.EditorFrmTooltipSteinInfo.UpdateInfo(
+                        _sfd.SFInf.GetSteinToolTipInfos(_sfd.SFRun.MousePolling.MousePos),
+                        _sfd.SFRun.MousePolling.MousePos,
+                        _sfd.SFLay.rxStageAvailable.ToRectangle)
 
                 End If
 
@@ -232,11 +214,6 @@ Namespace Spielfeld
 
                             With aktSteinInfo
 
-                                'Dim left As Integer = _sfd.SteinOnStange_Left(x, z)
-                                'Dim top As Integer = _sfd.SteinOnStange_Top(y, z)
-                                ''Debug
-                                'debugInfo &= $"x={x},y={y},z={z},arrFB-SteinIdx={ _sfd.AktSpielfeldInfo.GetIndexStein(x, y, z)},SII={aktSteinInfo.SteinInfoIndex},SI={aktSteinInfo.SteinTypIndex}|"
-                                ''/Debug
                                 Dim request As New TileRequest(_sfd.SFRun.AktRenderMode, INI.Tile_TileColors, aktSteinInfo.SteinTypIndex, aktSteinInfo.SteinStatus, SteinFrameVersion.Standard, _sfd.SFLay.steinSize, INI.Tile_BasisSize)
 
                                 Dim bmpStein As Bitmap = TileFactory.GetTile(request)
@@ -258,13 +235,6 @@ Namespace Spielfeld
             _sfd.SFRun.HScrollBarStock.PaintHScroll(_backBufferGfx, enabled:=True)
 
             Dim aktSteinInfo As SteinInfo
-
-            'Dim Kandidat As Triple
-            'If _sfd.SFRun.EditorStockValues.StockSelectedSteinJob = SelectedSteinJob.MouseMove Then
-            '    Kandidat = _sfd.SFInf.IsFundamentKandidat(_sfd.SFRun.MousePolling.MousePos)
-            'Else
-            '    Kandidat = New Triple()
-            'End If
 
             Dim toggleVergleichsflag As Boolean = _sfd.SFInf.GetFirstToggleFlagValue
 
@@ -293,81 +263,25 @@ Namespace Spielfeld
                             '
                             'als bearbeitet markieren
                             .ToggleToggleFlag(x, y, z)
-                            '
 
                             aktSteinInfo = .SteinInfos(.GetSteinInfoIndex(x, y, z))
 
-                            Dim plane As Airplane = _sfd.SFAir.GetPlaneFromSteinInfoIndex(aktSteinInfo.SteinInfoIndex)
+                            Dim tsi As TopSteinInfo = _sfd.SFInf.GetTopSteinInfo(x, y, z)
 
-                            If plane IsNot Nothing AndAlso plane.RenderBitmapIsAvailable Then
-                                'mindestens eine animierte oder an der Maus hängende Bitmap ist vorhanden
-                                Do
-                                    Dim nrb As (found As Boolean, bmp As Bitmap, rect As Rectangle) = plane.NextRenderBitmap()
-                                    If nrb.found Then
-                                        _backBufferGfx.DrawImage(nrb.bmp, nrb.rect)
+                            If tsi IsNot Nothing Then
 
-                                    Else
-                                        Exit Do
-                                    End If
-                                Loop
+                                Dim request As New TileRequest(_sfd.SFRun.AktRenderMode, INI.Tile_TileColors, tsi.SteinTypIndex, tsi.SteinStatus, SteinFrameVersion.Standard, _sfd.SFLay.steinSize, INI.Tile_BasisSize)
+                                bmpStein = TileFactory.GetTile(request)
+
+                                _backBufferGfx.DrawImage(bmpStein, aktSteinInfo.RectStein)
+
                             Else
-                                Dim tsi As TopSteinInfo = _sfd.SFInf.GetTopSteinInfo(x, y, z)
+                                'Zeichnet alle Steine, die nicht die obersten Steine sind.
+                                Dim request As New TileRequest(_sfd.SFRun.AktRenderMode, INI.Tile_TileColors, aktSteinInfo.SteinTypIndex, SteinStatus.I01Normal, SteinFrameVersion.Standard, _sfd.SFLay.steinSize, INI.Tile_BasisSize)
+                                bmpStein = TileFactory.GetTile(request)
 
-                                If tsi IsNot Nothing Then
-                                    'Zeichnet alle obersten Steine
+                                _backBufferGfx.DrawImage(bmpStein, aktSteinInfo.RectStein)
 
-                                    '    If tsi.MissingSecond Then
-                                    '        bmpSteinDC = Bitmap32DeepCopy(Images.SGM.GetStein(aktSteinInfo.SteinTypIndex, tsi.SteinStatus, _sfd.SFLay.steinSize, _sfd.SFRun.AktRenderMode))
-                                    '        Dim gfx As Graphics = Graphics.FromImage(bmpSteinDC)
-
-                                    '        Dim fnt As Font = New Font("Arial", 10.0F, FontStyle.Bold)
-                                    '        gfx.DrawString(tsi.MissingSecondText, fnt, Brushes.Black, New PointF(_sfd.SFLay.steinWidth \ 8, _sfd.SFLay.steinHeight \ 8))
-                                    '        fnt.Dispose()
-                                    '        _backBufferGfx.DrawImage(bmpSteinDC, aktSteinInfo.RectStein)
-                                    '        bmpSteinDC.Dispose()
-                                    '        bmpSteinDC = Nothing
-                                    '    End If
-
-                                    Dim request As New TileRequest(_sfd.SFRun.AktRenderMode, INI.Tile_TileColors, tsi.SteinTypIndex, tsi.SteinStatus, SteinFrameVersion.Standard, _sfd.SFLay.steinSize, INI.Tile_BasisSize)
-                                    bmpStein = TileFactory.GetTile(request)
-
-                                    _backBufferGfx.DrawImage(bmpStein, aktSteinInfo.RectStein)
-
-                                Else
-                                    'Zeichnet alle Steine, die nicht die obersten Steine sind.
-                                    Dim request As New TileRequest(_sfd.SFRun.AktRenderMode, INI.Tile_TileColors, aktSteinInfo.SteinTypIndex, SteinStatus.I01Normal, SteinFrameVersion.Standard, _sfd.SFLay.steinSize, INI.Tile_BasisSize)
-                                    bmpStein = TileFactory.GetTile(request)
-
-                                    _backBufferGfx.DrawImage(bmpStein, aktSteinInfo.RectStein)
-
-                                    ''_backBufferGfx.FillRectangle(Brushes.White, aktSteinInfo.RectStein)
-
-                                    'End If
-
-                                    'Dim left As Integer = _sfd.SteinOnStange_Left(x, z)
-                                    'Dim top As Integer = _sfd.SteinOnStange_Top(y, z)
-                                    ''Debug
-                                    'debugInfo &= $"x={x},y={y},z={z},arrFB-SteinIdx={ _sfd.AktSpielfeldInfo.GetIndexStein(x, y, z)},SII={aktSteinInfo.SteinInfoIndex},SI={aktSteinInfo.SteinTypIndex}|"
-                                    ''/Debug
-
-                                    'If Not IsNothing(bmpStein) Then
-
-                                    '    'If ContainsTripl(x, y, z, _arrTopSteinTriple) Then
-                                    '    '    bmpStein = DrawOverlay(bmpStein, OverlayType.RahmenSteinMouseOver, copyBitmap:=True)
-                                    '    'End If
-
-                                    '    ''Je nach .SteinStatusUsed kann die Bitmap Nothing sein.
-                                    '    'If Kandidat.IsEqual(x, y, z) Then
-                                    '    '    'eine ungültige Position hat die Werte (0,0,0), die es auf den Spielfeld nicht gibt,
-                                    '    '    'deshalb keine gesonderte Abfrage auf "ungültig" nötig.
-                                    '    '    bmpStein = DrawOverlay(bmpStein, OverlayType.RahmenSteinMouseOver, copyBitmap:=True)
-                                    '    '    _backBufferGfx.DrawImage(bmpStein, .RectStein)
-                                    '    '    bmpStein.Dispose()
-                                    '    'Else
-                                    '    'End If
-                                    'End If
-
-                                End If
                             End If
                         Next
                     Next
@@ -379,20 +293,25 @@ Namespace Spielfeld
 
             Paint_UndoRedo()
 
-            'Hier sind Ausgaben angesiedelt, die in der Z-Order ganz oben aufliegen
-
-            Dim buffer As AirRenderBuffer = _sfd.SFAir.RenderBuffer
-            If buffer.RenderBitmapIsAvailable Then
-                Do
-                    Dim nrb As (found As Boolean, bmp As Bitmap, rect As Rectangle) = buffer.GetNextRenderBitmap
-                    If nrb.found Then
-                        _backBufferGfx.DrawImage(nrb.bmp, nrb.rect)
-                        DebugDrawKreuz(_backBufferGfx, nrb.rect)
-                    Else
-                        Exit Do
-                    End If
-                Loop
+            'Hier sind Ausgaben angesiedelt, die in der Z-Order ganz oben aufliegen.
+            'Reihenfolge beachten, bestimmt die Z-Order innerhalb der SpecialBmps..
+            Dim values As (has As Boolean, bmp As Bitmap, rect As Rectangle)
+            '
+            values = _sfd.SFMouse.GetSpecialBmps(SpecialBmps.AtEditorSrcPos)
+            If values.has Then
+                _backBufferGfx.DrawImage(values.bmp, values.rect)
             End If
+            '
+            values = _sfd.SFMouse.GetSpecialBmps(SpecialBmps.AtEditorCanDropPos)
+            If values.has Then
+                _backBufferGfx.DrawImage(values.bmp, values.rect)
+            End If
+            '
+            values = _sfd.SFMouse.GetSpecialBmps(SpecialBmps.AtEditorMousePos)
+            If values.has Then
+                _backBufferGfx.DrawImage(values.bmp, values.rect)
+            End If
+
         End Sub
 
         Private Sub PaintGrid()
@@ -516,128 +435,34 @@ Namespace Spielfeld
 
         Private Sub PaintStock()
 
-            If _sfd.SFInf.Generator.StockAktCount = 0 Then
-                _sfd.SFRun.HScrollBarStock.SetRange(0)
-                Return
-            Else
-                _sfd.SFRun.EditorStockValues.SetHScrollBarValue(_sfd.SFRun.HScrollBarStock.GetValue)
-            End If
-
-            'ZLVxxx If _sfd.SFRun.EditorStockMouseAnkerVerschiebung_HasValue Then
-            'ZLVxxx     _sfd.SFRun.EditorStockDeltaMouseToGhost = _sfd.SFRun.EditorStockMouseAnkerVerschiebung.NewMouseAnkerPos
-            'ZLVxxx End If
-
             Dim stockAktUBnd As Integer = _sfd.SFInf.Generator.StockAktUBnd
-            Dim xOffset As Integer = 0
             Dim bmpStein As Bitmap
 
-            With _sfd.SFRun.EditorStockValues
+            With _sfd.SFStock
                 'Rendern der horizontalen Steinleiste.
                 For idx As Integer = .SteinVisibleAktFistIdx To .SteinVisibleAktLastIdx
                     If idx >= _sfd.SFInf.Generator.Stock.Count Then
                         Exit For
                     Else
-                        'ZLVxxx If idx = _sfd.SFRun.EditorStockValues.GhostIdx AndAlso
-                        'ZLVxxx     _sfd.SFRun.EditorStockValues.StockSelectedSteinJob = SelectedSteinJob.MouseMove AndAlso
-                        'ZLVxxx     _sfd.SFRun.MousePolling.LeftMouseChanged = True AndAlso
-                        'ZLVxxx     _sfd.SFRun.MousePolling.LeftMouseDown = True Then
-                        'ZLVxxx 
-                        'ZLVxxx     bmpStein = _sfd.SFRun.EditorStockValues.MoveBmpGhost
-                        'ZLVxxx     _sfd.SFRun.EditorStockGhostRect = New Rectangle(xOffset + .OffsetLeft, _sfd.SFLay.rxStock.Top, bmpStein.Width, bmpStein.Height)
-                        'ZLVxxx     _sfd.SFRun.EditorStockDeltaMouseToGhost = New Point(_sfd.SFRun.MousePolling.MousePos.X - xOffset, _sfd.SFRun.MousePolling.MousePos.Y - _sfd.SFLay.rxStock.Top)
-                        'ZLVxxx     _sfd.SFRun.EditorStockMouseAnkerVerschiebung = New MouseAnkerVerschiebung(_sfd, _sfd.SFRun.EditorStockDeltaMouseToGhost)
-                        'ZLVxxx 
-                        'ZLVxxx ElseIf idx = _sfd.SFRun.EditorStockValues.GhostIdx Then
-                        'ZLVxxx     bmpStein = _sfd.SFRun.EditorStockValues.MoveBmpGhost
-                        'ZLVxxx 
-                        'ZLVxxx Else
-                        'ZLVxxx 
 
                         Dim request As New TileRequest(_sfd.SFRun.AktRenderMode, INI.Tile_TileColors, steinTyp:=_sfd.SFInf.Generator.Stock(idx), SteinStatus.I01Normal, SteinFrameVersion.Standard, _sfd.SFLay.steinSize, INI.Tile_BasisSize)
                         bmpStein = TileFactory.GetTile(request)
 
-                        'ZLVxxx End If
-
-                        Dim rectAusgabe As Rectangle = New Rectangle(xOffset + .OffsetLeft, _sfd.SFLay.rxStock.Top, bmpStein.Width, bmpStein.Height)
-
-                        'ZLVxxx If Not _sfd.SFRun.MousePolling.LeftMouseDown AndAlso rectAusgabe.Contains(_sfd.SFRun.MousePolling.MousePos) Then
-                        'ZLVxxx     bmpStein = DrawOverlay(bmpStein, OverlayType.RahmenSteinMouseOver, copyBitmap:=True)
-                        'ZLVxxx     _backBufferGfx.DrawImage(bmpStein, rectAusgabe)
-                        'ZLVxxx     bmpStein.Dispose()
-                        'ZLVxxx Else
+                        Dim rectAusgabe As Rectangle = _sfd.SFStock.GetRectFromStockSteinIdx(idx)
                         _backBufferGfx.DrawImage(bmpStein, rectAusgabe)
-                        'ZLVxxx End If
-
-                        xOffset += _sfd.SFLay.steinWidth
                     End If
                 Next
                 '
                 '
-                Dim pos3D As New Triple
-
-                'ZLVxxx If .StockSelectedSteinJob = SelectedSteinJob.MouseMove Then
-                'ZLVxxx     Dim ptCur As Point = New Point(_sfd.SFRun.MousePolling.MousePos.X - _sfd.SFRun.EditorStockDeltaMouseToGhost.X, _sfd.SFRun.MousePolling.MousePos.Y - _sfd.SFRun.EditorStockDeltaMouseToGhost.Y)
-                'ZLVxxx 
-                'ZLVxxx     pos3D = _sfd.SFInf.IsFundamentKandidat(_sfd.SFRun.MousePolling.MousePos)
-                'ZLVxxx 
-                'ZLVxxx     If pos3D.IsValideYes Then
-                'ZLVxxx         _sfd.SFRun.EditorSteinDoPlaceAtPosTriple = pos3D
-                'ZLVxxx         _sfd.SFRun.EditorSteinDoPlace_SteinIndex = .MoveSelectedSteinIndex
-                'ZLVxxx 
-                'ZLVxxx         'Die GhostBmp ist vom Steinvorrat und wird beim Klick auf einen Stein im Vorrat erzeugt,
-                'ZLVxxx         'wird aber erst überschrieben, wenn die Nächste erzeugt wird und kann daher hier verwendet werden. 
-                'ZLVxxx 
-                'ZLVxxx         _backBufferGfx.DrawImage(_sfd.SFRun.EditorStockValues.MoveBmpGhost, _sfd.SFInf.GetSteinRenderRect(pos3D))
-                'ZLVxxx         bmpStein = _sfd.SFRun.EditorStockValues.MoveBmpPlaceable
-                'ZLVxxx     Else
-                'ZLVxxx         bmpStein = _sfd.SFRun.EditorStockValues.MoveBmpSelected
-                'ZLVxxx         'löschen, sonst fliegt der Stein nicht zurück, sondern wird auf
-                'ZLVxxx         'dem zuletzt gefundenem gültigem Platz abgelegt.
-                'ZLVxxx         _sfd.SFRun.EditorSteinDoPlaceAtPosTriple = New Triple
-                'ZLVxxx     End If
-                'ZLVxxx     'zuletzt als oberstes den an die Maus gekoppelten Stein
-                'ZLVxxx     _backBufferGfx.DrawImage(bmpStein, ptCur)
-                'ZLVxxx End If
-
-                'XXXzlv If .StockSelectedSteinJob = SelectedSteinJob.ChoiseInsertOrFlyBack Then
-                'XXXzlv     'Hier Entscheidung
-                'XXXzlv     If _sfd.SFRun.EditorSteinDoPlaceAtPosTriple.IsValideYes Then
-                'XXXzlv 
-                'XXXzlv         .StockSelectedSteinJob = SelectedSteinJob.Insert_Do
-                'XXXzlv 
-                'XXXzlv     Else
-                'XXXzlv         .StockSelectedSteinJob = SelectedSteinJob.FlyBack_Do
-                'XXXzlv     End If
-                'XXXzlv End If
-                'XXXzlv 
-                'XXXzlv If .StockSelectedSteinJob = SelectedSteinJob.FlyBack_Do Then
-                'XXXzlv 
-                'XXXzlv     Dim ptCur As Point = _sfd.SFRun.EditorStockSteinFlugValues.GetNextPoint(_timeDifferenzFaktor)
-                'XXXzlv 
-                'XXXzlv     Dim idx As Integer = _sfd.SFRun.EditorStockValues.GhostIdx
-                'XXXzlv     If idx = -1 Then
-                'XXXzlv         idx = _sfd.SFRun.EditorStockValues.SelectedStockSteinIdx
-                'XXXzlv     End If
-                'XXXzlv     bmpStein = Images.SGM.GetStein(index:=_sfd.SFInf.Generator.Stock(idx),
-                'XXXzlv                             status:=SteinStatus.I01Normal,
-                'XXXzlv                            _sfd.SFLay.steinSize,
-                'XXXzlv                            _sfd.SFRun.AktRenderMode)
-                'XXXzlv 
-                'XXXzlv     _backBufferGfx.DrawImage(bmpStein, ptCur)
-                'XXXzlv     If _sfd.SFRun.EditorStockSteinFlugValues.IsFinished Then
-                'XXXzlv         .StockSelectedSteinJob = SelectedSteinJob.FlyBack_Done
-                'XXXzlv     End If
-                'XXXzlv End If
-                'XXXzlv 
-                'XXXzlv If .StockSelectedSteinJob = SelectedSteinJob.Insert_Do Then
-                'XXXzlv 
-                'XXXzlv     _sfd.SFInf.AddSteinToSpielfeld(_sfd.SFRun.EditorSteinDoPlace_SteinIndex, _sfd.SFRun.EditorSteinDoPlaceAtPosTriple)
-                'XXXzlv 
-                'XXXzlv     _sfd.SFRun.EditorSteinDoPlaceAtPosTriple = New Triple
-                'XXXzlv     .StockSelectedSteinJob = SelectedSteinJob.Insert_Done
-                'XXXzlv End If
 
             End With
+
+            Dim values As (has As Boolean, bmp As Bitmap, rect As Rectangle)
+            '
+            values = _sfd.SFMouse.GetSpecialBmps(SpecialBmps.AtStockCanDropPos)
+            If values.has Then
+                _backBufferGfx.DrawImage(values.bmp, values.rect)
+            End If
 
         End Sub
 

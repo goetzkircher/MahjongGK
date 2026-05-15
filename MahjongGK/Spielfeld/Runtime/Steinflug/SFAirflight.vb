@@ -1,4 +1,17 @@
-﻿Imports MahjongGK.Contracts.GlobalEnum
+﻿'Kannst du meiner Erinnerung auffrishen und mir einen Einstieg geben, wie die Klasse funktioniert?
+'Ich habe die vor zwei Monaten angefangen zu programmieren und, dann die Tilefactory geschrieben und finde mich jetzt nicht mehr zurecht.
+
+Option Compare Text
+Option Explicit On
+Option Infer Off
+Option Strict On
+
+#Disable Warning IDE0079
+#Disable Warning IDE1006
+#Disable Warning IDE0031
+#Disable Warning IDE0017
+
+Imports MahjongGK.Contracts.GlobalEnum
 
 Namespace Spielfeld
 
@@ -48,24 +61,6 @@ Namespace Spielfeld
         Private ReadOnly _sfd As SFDaten
 
 #End Region
-
-        '
-        ''' <summary>
-        ''' Für Steine aus dem Feld.
-        ''' </summary>
-        ''' <param name="steinInfoIndex"></param>
-        Public Sub CreateNewPlane(steinInfoIndex As Integer, dragDropAktiv As Boolean, insertAt As AirplaneInsertAt)
-            Dim plane As New Airplane(_sfd, steinInfoIndex, dragDropAktiv)
-            AddPlane(plane, insertAt)
-        End Sub
-        '
-        ''' <summary>
-        ''' Für Steine aus dem Vorrat.
-        ''' </summary>
-        Public Sub CreateNewPlane(stockIndex As Integer, steinIndex As SteinTyp, dragDropAktiv As Boolean, srcRect As Rectangle, insertAt As AirplaneInsertAt)
-            Dim plane As New Airplane(_sfd, stockIndex, steinIndex, dragDropAktiv, srcRect)
-            AddPlane(plane, insertAt)
-        End Sub
 
 #Region "ReadOnly Properties"
 
@@ -630,7 +625,7 @@ Namespace Spielfeld
 
             'alle in der Region benötigten Werte lokal laden.
             _leftMousePressed = _sfd.SFRun.MousePolling.ConsumeLeftMousePressed()
-            _leftMouseReleased = _sfd.SFRun.MousePolling.ConsumeLeftMousePressed()
+            _leftMouseReleased = _sfd.SFRun.MousePolling.ConsumeLeftMouseReleased()
             _mousePos = _sfd.SFRun.MousePolling.MousePos
             _klickArea = AirGetKlickArea(_mousePos, _sfd.SFLay)
             _klickAreaGroup = AirGetKlickAreaGroup(_klickArea)
@@ -653,7 +648,6 @@ Namespace Spielfeld
                     DoKlickEditor()
 
                 ElseIf _klickArea = AirKlickArea.Stock Then
-                    DoKlickStock()
 
                 ElseIf _klickAreaGroup = AirKlickAreaGroup.Historybox Then
                     DoKlickHistorboxes()
@@ -762,12 +756,11 @@ Namespace Spielfeld
                 Exit Sub
             End If
             '
-            'Die Deklaration erzeugt auch die benötigten Bitmaps, holt sich das
-            'Ausgaberechteck usw.
-            Dim plane As New Airplane(_sfd, steinInfoIndex, dragDropAktiv:=True)
+            'Die Deklaration erzeugt auch die benötigten Bitmaps, holt sich das Ausgaberechteck usw.
+            Dim plane As Airplane = Airplane.CreateEditorDragDropAirplane(_sfd, steinInfoIndex)
             Try
-                _sfd.SFAir.AddPlane(plane, AirplaneInsertAt.First)
-                'Hier muss nachgezogen werden.
+                '   _sfd.SFAir.AddPlane(plane, AirplaneInsertAt.First)
+                'Hier muss gestartet werden.
                 _sfd.SFRun.MousePolling.StartDragDrop()
             Catch ex As Exception
                 'es gibt bereits eine DragDrop-Instanz
@@ -778,7 +771,7 @@ Namespace Spielfeld
                 Exit Sub
             End Try
             '
-            plane.PlanePosition = New AirPlanePosition(plane.SrcRect, _mousePos, _sfd.SFLay.rxStageUsed)
+            plane.MouseAnkerPosition = New MouseAnkerPosition(plane.SrcRect, _mousePos, _sfd.SFLay.rxStageUsed)
 
         End Sub
 
@@ -793,14 +786,14 @@ Namespace Spielfeld
 
                         .AddRenderSteinInfoIndexZOrder(.SrcRect, .BmpGhost)
                         'Andernfalls blitzt der Geist einen Rendertakt lang auf.
-                        RenderBuffer.AddRenderBitmapTopZOrder(.PlanePosition.GetAktRectPlane(_mousePos), .BmpSelected)
+                        RenderBuffer.AddRenderBitmapTopZOrder(.MouseAnkerPosition.GetAktRectPlane(_mousePos), .BmpSelected)
 
                     Case DragDropJob.Active
                         ' Z-Order-Problem
                         '.AddRenderSteinInfoIndexZOrder(.SrcRect, .BmpGhost)
 
                         RenderBuffer.AddRenderBitmapTopZOrder(.SrcRect, .BmpGhost)
-                        RenderBuffer.AddRenderBitmapTopZOrder(.PlanePosition.GetAktRectPlane(_mousePos), .BmpSelected)
+                        RenderBuffer.AddRenderBitmapTopZOrder(.MouseAnkerPosition.GetAktRectPlane(_mousePos), .BmpSelected)
 
                         Dim tpl As Triple = _sfd.SFInf.IsFundamentKandidat(_mousePos)
                         If tpl.IsValideYes Then
@@ -820,22 +813,41 @@ Namespace Spielfeld
                                 'Umsetzen innerhalb des Editors
                                 _sfd.SFInf.RemoveSteinFromSpielfeld(.SteinInfoIndex)
                                 _sfd.SFInf.AddSteinToSpielfeld(.SteinTypIndex, _aktValideMouseTripl)
+                                'alte Instanz löschen
+                                RemoveAktPlane()
+                            Else
+                                'Stein aus dem Vorrat ablegen
+                                Stop
+                                RemoveAktPlane()
                             End If
+                        Else
+                            'Ungültige Position ==> zurückfliegen
+                            Stop
+                            RemoveAktPlane()
+                            'Die Deklaration erzeugt auch die benötigten Bitmaps, holt sich das Ausgaberechteck usw.
+                            Dim plane As Airplane = Airplane.CreateEditorFlyBackInsideEditorAirplane(_sfd, .SteinInfoIndex)
+
+                            Try
+                                '    _sfd.SFAir.AddPlane(plane, AirplaneInsertAt.First)
+
+                            Catch ex As Exception
+                                'es gibt bereits eine DragDrop-Instanz
+                                If Debugger.IsAttached Then
+                                    Stop 'Programmierfehler
+                                End If
+                                'Andernfalls ignorieren und abbrechen.
+                                Exit Sub
+                            End Try
+
+                            '
                         End If
 
-                        'Neue Instanz zum Ablegen oder zurückfliegen erstellen
-
-                        'alte Instanz löschen
-                        RemoveAktPlane()
                 End Select
             End With
             MakeDirty()
         End Sub
 
         '----------------------------------------------------------------------
-        Private Sub DoKlickStock()
-
-        End Sub
 
         Private Sub DoRenderstepStock(job As DragDropJob)
             With _aktPlane
@@ -858,6 +870,9 @@ Namespace Spielfeld
 
         '----------------------------------------------------------------------
         '
+        Private Sub DoKlickStock()
+
+        End Sub
         Private Sub DoKlickHistorboxes()
 
         End Sub

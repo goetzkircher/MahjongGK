@@ -128,9 +128,9 @@ Public Module KompassDotFactory
     End Structure
 
     Private Function GetLightPalette() As Palette
-#Disable Warning IDE0017 ' Initialisierung von Objekten vereinfachen
+#Disable Warning IDE0017 ' InitDragDropBitmaps von Objekten vereinfachen
         Dim p As New Palette
-#Enable Warning IDE0017 ' Initialisierung von Objekten vereinfachen
+#Enable Warning IDE0017 ' InitDragDropBitmaps von Objekten vereinfachen
         ' Vorgaben
         p.Normal = Color.FromArgb(&HFF404040)
         p.Selected = Color.FromArgb(&HFF008000)
@@ -148,9 +148,9 @@ Public Module KompassDotFactory
     End Function
 
     Private Function GetDarkPalette() As Palette
-#Disable Warning IDE0017 ' Initialisierung von Objekten vereinfachen
+#Disable Warning IDE0017 ' InitDragDropBitmaps von Objekten vereinfachen
         Dim p As New Palette
-#Enable Warning IDE0017 ' Initialisierung von Objekten vereinfachen
+#Enable Warning IDE0017 ' InitDragDropBitmaps von Objekten vereinfachen
         p.Normal = Color.FromArgb(&HFFD6D6D6)
         p.Selected = Color.FromArgb(&HFF33CC33)
         p.MouseOver = Color.FromArgb(&HFF66B2FF)

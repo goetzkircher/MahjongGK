@@ -112,6 +112,7 @@
     <Compile Include="TileSymbolFactory_ZLV.vb" />
     <Compile Include="TileSymbolRenderer_ZLV.vb" />
     <Compile Include="TileSymbolRenderer.vb" />
+    <Compile Include="TileTextRenderer.vb" />
     <Compile Include="TileTextur.vb" />
     <Compile Include="tmp.vb" />
   </ItemGroup>

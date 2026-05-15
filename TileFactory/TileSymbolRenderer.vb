@@ -25,7 +25,6 @@ Option Strict On
 '
 Imports System.Drawing
 Imports System.Drawing.Drawing2D
-Imports MahjongGK.Contracts
 
 '
 #Disable Warning IDE0079
@@ -68,20 +67,16 @@ Public Module TileSymbolRenderer
                     '    CInt(layout.FaceInnerRect.Width * 0.24R),
                     '    CInt(layout.FaceInnerRect.Height * 0.16R))
                     'End With
-                    Dim left As Integer = CInt(10 * layout.FaktorBasisWidthToAktWidth * colors.GetFaktorTextOffsetLeft)
-                    Dim top As Integer = CInt(10 * layout.FaktorBasisHeightToAktHeight * colors.GetFaktorTextOffsetTop)
+
                     '
-                    'Exponent 1.0 = linear, zu stark
-                    'Exponent 0.5 = Wurzel, deutlich ruhiger
-                    'Exponent 0.6–0.75 = oft optisch guter Kompromiss
-                    Const CORNER_MARK_SCALE_EXPONENT As Double = 0.7R
 
-                    Dim fontScale As Double = Math.Pow(layout.FaktorBasisWidthToAktWidth, CORNER_MARK_SCALE_EXPONENT)
-                    Dim fontSize As Single = CSng((layout.SteinBasisSize.Width) * fontScale * 0.1R * CDbl(trv.FaktorTextSize))
-
-                    Dim pt As New Point(left, top)
-
-                    RenderTextAtPoint(gfx, pt, trv.Text, trv.FontFamilyName, trv.FontStyle, trv.TextColor, fontSize)
+                    Dim pt As New Point(trv.Left, trv.Top)
+                    RenderTextAtPoint(gfx, pt, trv.FontSize, colors, trv)
+                    'If trv.UseUgrd AndAlso trv.TextUgrdDiameter > 0 Then
+                    '    RenderTextAtPoint(gfx, pt, trv.FontSize, colors, trv)
+                    'Else
+                    '    RenderTextAtPoint(gfx, pt, trv.Text, trv.FontFamilyName, trv.FontStyle, trv.TextColor, trv.FontSize)
+                    'End If
 
                 End If
 
@@ -271,6 +266,25 @@ Public Module TileSymbolRenderer
 
     End Sub
 
+    Private Sub RenderTextAtPoint(
+            g As Graphics,
+            targetPoint As Point,
+            fontsize As Single,
+            colors As TileColors,
+            trv As TileColors.TextRenderValues)
+
+        Dim bmp As Bitmap = GetTileTextBitmap(trv)
+
+        Dim oldCompositingMode As Drawing2D.CompositingMode = g.CompositingMode
+
+        Try
+            g.CompositingMode = Drawing2D.CompositingMode.SourceOver
+            g.DrawImageUnscaled(bmp, targetPoint)
+        Finally
+            g.CompositingMode = oldCompositingMode
+        End Try
+
+    End Sub
     '
     ''' <summary>
     ''' Sucht eine brauchbare Fontgröße, die möglichst groß in die SymbolRect passt.
@@ -293,6 +307,10 @@ Public Module TileSymbolRenderer
         If startSize < 6.0F Then startSize = 6.0F
 
         Dim factor As Single = CSng(faktorSymbolSize)
+
+        'Die Konstante vergrößert das Segeo-Symbol auf die Defaultgröße
+        factor *= 1.15F
+
         If factor <= 0.5F Then factor = 0.5F
 
         Dim testSize As Single = startSize
@@ -325,17 +343,10 @@ Public Module TileSymbolRenderer
 
         With layout.SymbolRect
 
-            Dim offtop As Decimal = colors.GetFaktorSymbolOffsetTop
-            Dim offleft As Decimal = colors.GetFaktorSymbolOffsetLeft
-
-            'Note: Anpassung SteinFont.Noto OffsetTop
-            If colors.SteinFont = SteinFont.Noto Then
-                offtop += 3.5D
-            End If
-            '
-            '       10 =  0 Pixel Verschiebung auf dem Basisstein als Basis.
-            Dim addX As Integer = CInt(10 * layout.FaktorBasisWidthToAktWidth * offleft)
-            Dim addY As Integer = CInt(10 * layout.FaktorBasisHeightToAktHeight * offtop)
+            'Die beiden < 1-Faktoren zentrieren das Segeo-Symbol bei den OffsetTop und OffsetLeft-
+            'Faktoren von 1 auf die Defaultposition.
+            Dim addY As Integer = CInt(.Width * -0.35 * colors.GetFaktorSymbolOffsetTop / 20)
+            Dim addX As Integer = CInt(.Height * 0.6 * colors.GetFaktorSymbolOffsetLeft / 20)
 
             drawRect = RectangleF.FromLTRB(
                 CSng(.Left + addX),

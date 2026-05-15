@@ -385,7 +385,7 @@ Namespace Spielfeld
             ElseIf _sfd.SFRun.AktRenderMode = AktRenderMode.Edit Then
                 AktLayout = Layout.EditorWithHeader
 
-                'Initialisierung den Spielsteingenerators
+                'InitDragDropBitmaps den Spielsteingenerators
                 With _sfd.SFInf
                     If IsNothing(.Generator) Then
                         If IsNothing(.GeneratorValuesForXml) Then
@@ -468,7 +468,7 @@ Namespace Spielfeld
             rxStageUsed = rxStageAvailable.GetRectangleXInside(summeWidth, summeHeight, align:=RectangleX.Align.Center, usePadding:=True)
 
             rxStageUsed?.SetDrawBoundsAndContentDebug(Style)
-            ' Initialisierung der RectangleX-Felder/Eigenschaften mit Debug-Namen
+            ' InitDragDropBitmaps der RectangleX-Felder/Eigenschaften mit Debug-Namen
             ' Nur für Debug/Diagnose
             RectangleXDebugBinder.BindNames(_sfd.SFLay)
 
@@ -524,18 +524,14 @@ Namespace Spielfeld
                     Else
                         _sfd.SFRun.HScrollBarStock.RectHScrollbar = rxStockScrollbar.ToRectangle
                     End If
-                    If IsNothing(_sfd.SFRun.EditorStockValues) Then
-                        _sfd.SFRun.EditorStockValues = New SFStockState(_sfd)
-                    End If
 
-                    With _sfd.SFRun.EditorStockValues
+                    With _sfd.SFStock
                         If .LastSteinWidth <> steinWidth OrElse
                             .LastRxStockWidth <> rxStockScrollbar.WidthInside Then
 
                             .LastSteinWidth = steinWidth
                             .LastRxStockWidth = rxStockScrollbar.WidthInside
                             .ClearAndSetStartvalues()
-                            .UpdateSteineVisibleMaxCount()
                         End If
                     End With
                 Case Else

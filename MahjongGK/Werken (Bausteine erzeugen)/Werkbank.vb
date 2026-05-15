@@ -31,7 +31,7 @@ Imports MahjongGK.Contracts.GlobalEnum
 
 Public Class Werkbank
 
-#Region "Konstruktor und Initialisierung"
+#Region "Konstruktor und InitDragDropBitmaps"
 
     Sub New()
 

@@ -15,19 +15,30 @@ Namespace Spielfeld
         Sub New()
 
         End Sub
+
+        Public Shared Function CreateEditorDragDropAirplane(sfd As SFDaten, steinInfoIndex As Integer) As Airplane
+            Return New Airplane(sfd, steinInfoIndex, dragDrop:=True)
+        End Function
+        Public Shared Function CreateEditorFlyBackInsideEditorAirplane(sfd As SFDaten, steinInfoIndex As Integer) As Airplane
+            Dim plane As New Airplane(sfd, steinInfoIndex, dragDrop:=False)
+            Dim ptZiel As Point = sfd.SFInf.SteinInfos(steinInfoIndex).RectStein.Location
+            Dim ptStart As Point = sfd.SFRun.MousePolling.MousePos
+            Dim pfp As New AirplanesFlightPath(ptStart, ptZiel, sfd.SFLay.steinSize, PlaneFlightPath.Zufall, 20, ptStartIsMouseAnkerPos:=True)
+            plane.PlanesFlightPath = pfp
+            Return plane
+        End Function
+
         '
         ''' <summary>
-        ''' Überladung für eine Stein aus dem Spielfeld
-        ''' dragDropExpected bedeutet, daß DragDrop grundsätzlich erwartet wird.
-        ''' Wenn True, führt das weitere Adden eines Airplanes zur List(Of Airplane)
+        ''' Überladung für eine Stein aus dem Spielfeld für DragDrop
         ''' </summary>
         ''' <param name="sfd"></param>
         ''' <param name="steinInfoIndex"></param>
-        Sub New(sfd As SFDaten, steinInfoIndex As Integer, dragDropAktiv As Boolean)
+        Sub New(sfd As SFDaten, steinInfoIndex As Integer, dragDrop As Boolean)
             _sfd = sfd
+            _dragDropAktiv = dragDrop
+            _dragDropFirstStep = dragDrop
             _steinInfoIndex = steinInfoIndex
-            _dragDropAktiv = dragDropAktiv
-            _dragDropFirstStep = dragDropAktiv
             _steinTypIndex = sfd.SFInf.SteinInfos(steinInfoIndex).SteinTypIndex
             _stockIndex = -1
             _srcPos3D = sfd.SFInf.SteinInfos(steinInfoIndex).Pos3D
@@ -36,20 +47,18 @@ Namespace Spielfeld
         End Sub
         '
         ''' <summary>
-        ''' Überladung für eine Stein aus dem Vorrat
-        ''' dragDropExpected bedeutet, daß DragDrop grundsätzlich erwartet wird.
-        ''' Wenn True, führt das weitere Adden eines Airplanes zur List(Of Airplane)
+        ''' Überladung für eine Stein aus dem Vorrat für DragDrop
         ''' </summary>
         ''' <param name="sfd"></param>
         ''' <param name="stockIndex"></param>
         ''' <param name="steinIndex"></param>
         ''' <param name="srcRect"></param>
-        Sub New(sfd As SFDaten, stockIndex As Integer, steinIndex As SteinTyp, dragDropAktiv As Boolean, srcRect As Rectangle)
+        Sub New(sfd As SFDaten, stockIndex As Integer, steinIndex As SteinTyp, srcRect As Rectangle, dragDrop As Boolean)
             _sfd = sfd
             _steinInfoIndex = -1
             _stockIndex = stockIndex
-            _dragDropAktiv = dragDropAktiv
-            _dragDropFirstStep = dragDropAktiv
+            _dragDropAktiv = dragDrop
+            _dragDropFirstStep = dragDrop
             _steinTypIndex = steinIndex
             _srcPos3D = Nothing
             Initialisierung(srcRect)
@@ -59,11 +68,21 @@ Namespace Spielfeld
 
 #End Region
 
-#Region "Deklarationen"
+#Region "AirplanesFlightPath"
+
+        Private _PlanesFlightPath As AirplanesFlightPath = Nothing
+        Public Property PlanesFlightPath As AirplanesFlightPath
+            Get
+                Return _PlanesFlightPath
+            End Get
+            Set(value As AirplanesFlightPath)
+                _PlanesFlightPath = value
+            End Set
+        End Property
 
 #End Region
 
-#Region "Initialisierung"
+#Region "InitDragDropBitmaps"
 
         Private Sub Initialisierung(srcRect As Rectangle)
             '
@@ -75,13 +94,12 @@ Namespace Spielfeld
 
             If _steinInfoIndex >= 0 Then
                 'Stein aus dem Feld
-                'TODO Fliegt der immer als Normal?
-                request = New TileRequest(_sfd.SFRun.AktRenderMode, INI.Tile_TileColors, _sfd.SFInf.SteinInfos(_steinInfoIndex).SteinTypIndex, SteinStatus.I01Normal, SteinFrameVersion.Standard, _sfd.SFLay.steinSize, INI.Tile_BasisSize)
+                request = New TileRequest(_sfd.SFRun.AktRenderMode, INI.Tile_TileColors, _sfd.SFInf.SteinInfos(_steinInfoIndex).SteinTypIndex, SteinStatus.I02Selected, SteinFrameVersion.Standard, _sfd.SFLay.steinSize, INI.Tile_BasisSize)
                 _bmpOrg = TileFactory.GetTileDeepCopy(request)
             Else
                 'Stein aus dem Vorrat
                 'Falls _steinTypIndex ungültig ist. wird die Errorgrafik erzeugt
-                request = New TileRequest(_sfd.SFRun.AktRenderMode, INI.Tile_TileColors, _steinTypIndex, SteinStatus.I01Normal, SteinFrameVersion.Standard, _sfd.SFLay.steinSize, INI.Tile_BasisSize)
+                request = New TileRequest(_sfd.SFRun.AktRenderMode, INI.Tile_TileColors, _steinTypIndex, SteinStatus.I02Selected, SteinFrameVersion.Standard, _sfd.SFLay.steinSize, INI.Tile_BasisSize)
                 _bmpOrg = TileFactory.GetTileDeepCopy(request)
             End If
 
@@ -125,7 +143,7 @@ Namespace Spielfeld
         ''' Instanz der AirPlanePosition leicht im Zugriff ist.
         ''' </summary>
         ''' <returns></returns>
-        Public Property PlanePosition As AirPlanePosition = Nothing
+        Public Property MouseAnkerPosition As MouseAnkerPosition = Nothing
         '
         ''' <summary>
         ''' Wird über den Konstruktor gesetzt
@@ -167,31 +185,31 @@ Namespace Spielfeld
         Public Sub IncRenderCallsCounter()
             _renderCallsCounter += 1
         End Sub
+        ''
+        '''' <summary>
+        '''' Die Anzahl der Animationsschritte bis zu Fertigstellung.
+        '''' </summary>
+        '''' <returns></returns>
+        'Public Property AnimationMaxSteps As Integer
+        '    Get
+        '        Return _animationMaxSteps
+        '    End Get
+        '    Set(value As Integer)
+        '        _animationMaxSteps = value
+        '    End Set
+        'End Property
         '
-        ''' <summary>
-        ''' Die Anzahl der Animationsschritte bis zu Fertigstellung.
-        ''' </summary>
-        ''' <returns></returns>
-        Public Property AnimationMaxSteps As Integer
-            Get
-                Return _animationMaxSteps
-            End Get
-            Set(value As Integer)
-                _animationMaxSteps = value
-            End Set
-        End Property
-        '
-        ''' <summary>
-        ''' Wenn AnimationMaxSteps nicht gesetzt ist immer False.
-        ''' Wenn gesetzt, True wenn RenderCallsCounter >= AnimationMaxSteps
-        ''' </summary>
-        ''' <returns></returns>
-        Public Function AnimationIsRedy() As Boolean
-            If _animationMaxSteps = 0 Then
-                Return False
-            End If
-            Return _renderCallsCounter >= _animationMaxSteps
-        End Function
+        '''' <summary>
+        '''' Wenn AnimationMaxSteps nicht gesetzt ist immer False.
+        '''' Wenn gesetzt, True wenn RenderCallsCounter >= AnimationMaxSteps
+        '''' </summary>
+        '''' <returns></returns>
+        'Public Function AnimationIsRedy() As Boolean
+        '    If _animationMaxSteps = 0 Then
+        '        Return False
+        '    End If
+        '    Return _renderCallsCounter >= _animationMaxSteps
+        'End Function
 #End Region
 
 #Region "ReadOnly-Properties"

@@ -268,7 +268,7 @@ Public Module AirEnumerationen
         Outside
     End Enum
 
-    Public Enum AirFlugWeg
+    Public Enum PlaneFlightPath
         Direkt = 0
         KurveOben = 1
         KurveUnten = 2

@@ -36,7 +36,7 @@ Public Class BuddySlider
 
 
     ' -------------------
-    ' Initialisierung
+    ' InitDragDropBitmaps
     ' -------------------
     Public Sub New()
         SetStyle(ControlStyles.AllPaintingInWmPaint Or

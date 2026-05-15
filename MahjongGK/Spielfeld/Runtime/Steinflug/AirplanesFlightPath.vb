@@ -31,7 +31,7 @@ Option Strict On
 ''' <summary>
 ''' Pfad: MahjongGK\Spielfeld\Runtime\Steinflug
 ''' </summary>
-Public NotInheritable Class Airplanes_Flugweg
+Public NotInheritable Class AirplanesFlightPath
 
     Sub New()
 
@@ -42,7 +42,7 @@ Public NotInheritable Class Airplanes_Flugweg
     Private ReadOnly _ptStart As Point
     Private ReadOnly _ptZiel As Point
     Private ReadOnly _steinSize As Size
-    Private ReadOnly _weg As AirFlugWeg
+    Private ReadOnly _flightPath As PlaneFlightPath
 
     '
     ''' <summary>
@@ -50,13 +50,15 @@ Public NotInheritable Class Airplanes_Flugweg
     ''' Der tatsächliche Fortschritt pro Render-Schritt ergibt sich aus:
     ''' Geschwindigkeit * timeDifferenzFaktor
     ''' </summary>
-    Private ReadOnly _geschwindigkeitProFrame As Double
+    Private ReadOnly _speedPerFrame As Double
 
     Private ReadOnly _startF As PointF
     Private ReadOnly _zielF As PointF
     Private ReadOnly _control1 As PointF
     Private ReadOnly _control2 As PointF
 
+    Private ReadOnly _steinWidthHalf As Integer
+    Private ReadOnly _steinHeightHalf As Integer
     '
     ''' <summary>
     ''' Geschätzte Pfadlänge in Pixel.
@@ -74,29 +76,47 @@ Public NotInheritable Class Airplanes_Flugweg
 
     '
     ''' <summary>
-    ''' Erzeugt einen Flug eines Mahjongsteins von Start nach Ziel.
-    ''' geschwindigkeitProFrame = Pixel pro Soll-Frame.
+    ''' Erzeugt eine Flugroute eines Mahjongsteins von Start nach Ziel.
+    ''' speedPerFrame = Pixel pro Soll-Frame.
     ''' </summary>
     Public Sub New(ByVal ptStart As Point,
                    ByVal ptZiel As Point,
                    ByVal steinSize As Size,
-                   ByVal weg As AirFlugWeg,
-                   ByVal geschwindigkeitProFrame As Double)
+                   ByVal flightPath As PlaneFlightPath,
+                   ByVal speedPerFrame As Double,
+                   Optional ptStartIsMouseAnkerPos As Boolean = False)
 
-        _ptStart = ptStart
-        _ptZiel = ptZiel
-        _steinSize = steinSize
+        _steinWidthHalf = steinSize.Width \ 2
+        _steinHeightHalf = steinSize.Height \ 2
 
-        If geschwindigkeitProFrame <= 0.0 Then
-            _geschwindigkeitProFrame = 1.0
+        If ptStartIsMouseAnkerPos Then
+            With ptStart
+                'auf die Ecke links oben umrechnen
+                _ptStart = New Point(.X - _steinWidthHalf \ 2, .Y - _steinHeightHalf \ 2)
+            End With
         Else
-            _geschwindigkeitProFrame = geschwindigkeitProFrame
+            _ptStart = ptStart
+        End If
+        '
+        'Auf Steinmitte umrechnen, damit die Flugroute immer entlang der Stenmitte verläuft.
+        '(bei sich drehenden Steinen wichtig)
+        With ptStart
+            _ptStart = New Point(.X + _steinWidthHalf, .Y + _steinHeightHalf)
+        End With
+        With ptZiel
+            _ptZiel = New Point(.X + _steinWidthHalf, .Y + _steinHeightHalf)
+        End With
+
+        If speedPerFrame <= 0.0 Then
+            _speedPerFrame = 1.0
+        Else
+            _speedPerFrame = speedPerFrame
         End If
 
-        If weg = AirFlugWeg.Zufall Then
-            _weg = CType(_rnd.Next(0, 6), AirFlugWeg)
+        If flightPath = PlaneFlightPath.Zufall Then
+            _flightPath = CType(_rnd.Next(0, 6), PlaneFlightPath)
         Else
-            _weg = weg
+            _flightPath = flightPath
         End If
 
         _startF = New PointF(CSng(ptStart.X), CSng(ptStart.Y))
@@ -104,26 +124,41 @@ Public NotInheritable Class Airplanes_Flugweg
 
         Dim c1 As PointF
         Dim c2 As PointF
-        BerechneSteuerpunkte(c1, c2)
+        ComputeControlPoints(c1, c2)
         _control1 = c1
         _control2 = c2
 
-        _pathLength = Math.Max(1.0, SchaetzePfadlaenge())
+        _pathLength = Math.Max(1.0, EstimatedPathLength())
 
         _t = 0.0
         _isFinished = False
         _lastPoint = ptStart
     End Sub
 
-    Public ReadOnly Property PtStart As Point
+    Public ReadOnly Property PtCenterStart As Point
         Get
             Return _ptStart
         End Get
     End Property
 
-    Public ReadOnly Property PtZiel As Point
+    Public ReadOnly Property PtCenterZiel As Point
         Get
             Return _ptZiel
+        End Get
+    End Property
+    Public ReadOnly Property PtLeftUpStart As Point
+        Get
+            With _ptStart
+                Return New Point(.X - _steinWidthHalf, .Y - _steinHeightHalf)
+            End With
+        End Get
+    End Property
+
+    Public ReadOnly Property PtLeftUpZiel As Point
+        Get
+            With _ptZiel
+                Return New Point(.X - _steinWidthHalf, .Y - _steinHeightHalf)
+            End With
         End Get
     End Property
 
@@ -133,15 +168,15 @@ Public NotInheritable Class Airplanes_Flugweg
         End Get
     End Property
 
-    Public ReadOnly Property Weg As AirFlugWeg
+    Public ReadOnly Property AirPlaneFlightPath As PlaneFlightPath
         Get
-            Return _weg
+            Return _flightPath
         End Get
     End Property
 
-    Public ReadOnly Property GeschwindigkeitProFrame As Double
+    Public ReadOnly Property SpeedPerFrame As Double
         Get
-            Return _geschwindigkeitProFrame
+            Return _speedPerFrame
         End Get
     End Property
 
@@ -152,7 +187,7 @@ Public NotInheritable Class Airplanes_Flugweg
     ''' </summary>
     Public ReadOnly Property RenderCountEstimate As Integer
         Get
-            Return Math.Max(1, CInt(Math.Ceiling(_pathLength / _geschwindigkeitProFrame)) + 2)
+            Return Math.Max(1, CInt(Math.Ceiling(_pathLength / _speedPerFrame)) + 2)
         End Get
     End Property
 
@@ -174,22 +209,29 @@ Public NotInheritable Class Airplanes_Flugweg
         End Get
     End Property
 
-    Public ReadOnly Property CurrentPoint As Point
+    Public ReadOnly Property CurrentCenterPoint As Point
         Get
             Return _lastPoint
+        End Get
+    End Property
+    Public ReadOnly Property CurrentLeftUpPoint As Point
+        Get
+            With _lastPoint
+                Return New Point(.X - _steinWidthHalf, .Y - _steinHeightHalf)
+            End With
         End Get
     End Property
 
     '
     ''' <summary>
-    ''' Liefert die nächste Position für den aktuellen Render-Schritt.
+    ''' Liefert die nächste Center-Position für den aktuellen Render-Schritt.
     ''' timeDifferenzFaktor = tatsächliche Zeit / Soll-Frame-Zeit
     ''' Beispiel:
     ''' Soll = 25 ms
     ''' Ist = 50 ms
     ''' Faktor = 2.0
     ''' </summary>
-    Public Function GetNextPoint(ByVal timeDifferenzFaktor As Double) As Point
+    Public Function GetNextCenterPoint(ByVal timeDifferenzFaktor As Double) As Point
 
         If _isFinished Then
             Return _ptZiel
@@ -199,7 +241,7 @@ Public NotInheritable Class Airplanes_Flugweg
             Return _lastPoint
         End If
 
-        Dim pixelSchritt As Double = _geschwindigkeitProFrame * timeDifferenzFaktor
+        Dim pixelSchritt As Double = _speedPerFrame * timeDifferenzFaktor
 
         If pixelSchritt <= 0.0 Then
             Return _lastPoint
@@ -219,6 +261,50 @@ Public NotInheritable Class Airplanes_Flugweg
 
         _lastPoint = New Point(CInt(Math.Round(pt.X)), CInt(Math.Round(pt.Y)))
         Return _lastPoint
+    End Function
+
+    Public Function GetNextLeftUpPoint(ByVal timeDifferenzFaktor As Double) As Point
+
+        If _isFinished Then
+            With _ptZiel
+                Return New Point(.X - _steinWidthHalf, .Y - _steinHeightHalf)
+            End With
+
+        End If
+
+        If timeDifferenzFaktor <= 0.0 Then
+            With _lastPoint
+                Return New Point(.X - _steinWidthHalf, .Y - _steinHeightHalf)
+            End With
+        End If
+
+        Dim pixelSchritt As Double = _speedPerFrame * timeDifferenzFaktor
+
+        If pixelSchritt <= 0.0 Then
+            With _lastPoint
+                Return New Point(.X - _steinWidthHalf, .Y - _steinHeightHalf)
+            End With
+        End If
+
+        Dim deltaT As Double = pixelSchritt / _pathLength
+        _t += deltaT
+
+        If _t >= 1.0 Then
+            _t = 1.0
+            _lastPoint = _ptZiel
+            _isFinished = True
+            With _lastPoint
+                Return New Point(.X - _steinWidthHalf, .Y - _steinHeightHalf)
+            End With
+        End If
+
+        Dim pt As PointF = EvalPoint(_t)
+
+        _lastPoint = New Point(CInt(Math.Round(pt.X)), CInt(Math.Round(pt.Y)))
+        With _lastPoint
+            Return New Point(.X - _steinWidthHalf, .Y - _steinHeightHalf)
+        End With
+
     End Function
 
     '
@@ -241,7 +327,7 @@ Public NotInheritable Class Airplanes_Flugweg
         _lastPoint = _ptZiel
     End Sub
 
-    Private Sub BerechneSteuerpunkte(ByRef control1 As PointF, ByRef control2 As PointF)
+    Private Sub ComputeControlPoints(ByRef control1 As PointF, ByRef control2 As PointF)
 
         Dim dx As Single = _zielF.X - _startF.X
         Dim dy As Single = _zielF.Y - _startF.Y
@@ -259,29 +345,29 @@ Public NotInheritable Class Airplanes_Flugweg
         Dim bogenHoehe As Single = Math.Max(40.0F, dist * 0.25F)
         Dim zickZackHoehe As Single = Math.Max(25.0F, dist * 0.18F)
 
-        Select Case _weg
+        Select Case _flightPath
 
-            Case AirFlugWeg.Direkt
+            Case PlaneFlightPath.Direkt
                 control1 = New PointF(_startF.X + dx / 3.0F, _startF.Y + dy / 3.0F)
                 control2 = New PointF(_startF.X + dx * 2.0F / 3.0F, _startF.Y + dy * 2.0F / 3.0F)
 
-            Case AirFlugWeg.KurveOben
+            Case PlaneFlightPath.KurveOben
                 control1 = New PointF(_startF.X + dx / 3.0F, _startF.Y + dy / 3.0F - bogenHoehe)
                 control2 = New PointF(_startF.X + dx * 2.0F / 3.0F, _startF.Y + dy * 2.0F / 3.0F - bogenHoehe)
 
-            Case AirFlugWeg.KurveUnten
+            Case PlaneFlightPath.KurveUnten
                 control1 = New PointF(_startF.X + dx / 3.0F, _startF.Y + dy / 3.0F + bogenHoehe)
                 control2 = New PointF(_startF.X + dx * 2.0F / 3.0F, _startF.Y + dy * 2.0F / 3.0F + bogenHoehe)
 
-            Case AirFlugWeg.BogenLinks
+            Case PlaneFlightPath.BogenLinks
                 control1 = New PointF(_startF.X + dx / 3.0F + nx * bogenHoehe, _startF.Y + dy / 3.0F + ny * bogenHoehe)
                 control2 = New PointF(_startF.X + dx * 2.0F / 3.0F + nx * bogenHoehe, _startF.Y + dy * 2.0F / 3.0F + ny * bogenHoehe)
 
-            Case AirFlugWeg.BogenRechts
+            Case PlaneFlightPath.BogenRechts
                 control1 = New PointF(_startF.X + dx / 3.0F - nx * bogenHoehe, _startF.Y + dy / 3.0F - ny * bogenHoehe)
                 control2 = New PointF(_startF.X + dx * 2.0F / 3.0F - nx * bogenHoehe, _startF.Y + dy * 2.0F / 3.0F - ny * bogenHoehe)
 
-            Case AirFlugWeg.ZickZack
+            Case PlaneFlightPath.ZickZack
                 control1 = New PointF(_startF.X + dx * 0.25F + nx * zickZackHoehe, _startF.Y + dy * 0.25F + ny * zickZackHoehe)
                 control2 = New PointF(_startF.X + dx * 0.75F - nx * zickZackHoehe, _startF.Y + dy * 0.75F - ny * zickZackHoehe)
 
@@ -315,7 +401,7 @@ Public NotInheritable Class Airplanes_Flugweg
         Return New PointF(CSng(x), CSng(y))
     End Function
 
-    Private Function SchaetzePfadlaenge() As Double
+    Private Function EstimatedPathLength() As Double
 
         Const SEGMENTS As Integer = 32
 

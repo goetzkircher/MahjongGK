@@ -9,6 +9,7 @@ Imports System.IO
 Imports System.Runtime.InteropServices
 Imports System.Text
 Imports System.Text.RegularExpressions
+Imports MahjongGK.Spielfeld
 
 ''' <summary>
 ''' Ein einfacher, fokussierter Editor für die Bearbeitung der Basis.ini im Projekt MahjongGK.
@@ -17,7 +18,6 @@ Imports System.Text.RegularExpressions
 ''' Er kann nur innerhalb der IDE aufgerufen werden links unten im FrmMain Klick auf "INI"</summary>
 Public Class FrmIniEditor
     Inherits Form
-
 
     'INI Editor(MahjongGK)
 
@@ -60,7 +60,6 @@ Public Class FrmIniEditor
     'Weiteres nicht nötig.
     Private _iniIniFileNames() As String = {"Basis.ini", "ToolBox.ini", "Rendering.ini"}
 
-
     Private ReadOnly _rtb As New RichTextBox()
     Private ReadOnly _menu As New MenuStrip()
 
@@ -97,8 +96,6 @@ Public Class FrmIniEditor
     Private _darkMode As Boolean = INI.IfRunningInIDE_IniEditorDarkmode
     Private _scheme As ColorScheme = ColorScheme.DarkDefault
 
-
-
     Private _isDirty As Boolean
 
     <DllImport("user32.dll", CharSet:=CharSet.Auto, EntryPoint:="SendMessageW")>
@@ -115,7 +112,6 @@ Public Class FrmIniEditor
         Me.StartPosition = FormStartPosition.CenterScreen
         Me.Icon = My.Resources.MahjongGK
         Me.KeyPreview = True
-
 
         ' Zielgröße 1400x650 – an Arbeitsbereich anpassen
         Dim work As Rectangle = Screen.PrimaryScreen.WorkingArea
@@ -146,7 +142,6 @@ Public Class FrmIniEditor
 
         _lblMark.BringToFront()
 
-
         AddHandler _rtb.TextChanged, AddressOf Rtb_TextChanged
         AddHandler Me.FormClosing, AddressOf Frm_FormClosing
         AddHandler Me.Shown, AddressOf Frm_Shown
@@ -169,7 +164,6 @@ Public Class FrmIniEditor
             _iniFullSavePath = _iniFullLoadPath & ".tmp"
         End Try
     End Sub
-
 
     Dim _IniFileChanged As Boolean
     ReadOnly Property IniFileChanged As Boolean
@@ -215,8 +209,6 @@ Public Class FrmIniEditor
             New ToolStripSeparator(), ' <-- das ist der Trennstrich
             _miFont
         })
-
-
 
         AddHandler _miColSection.Click, Sub() SetTypingColor(_scheme.SectionColor)
         AddHandler _miColComment.Click, Sub() SetTypingColor(_scheme.CommentColor)
@@ -270,7 +262,6 @@ Public Class FrmIniEditor
 
         _menu.Items.Add(miSelIni)
         ' <<< Ende SelINI-Menü <<<
-
 
         ' In ToolStripControlHost packen
         Dim host1 As New ToolStripControlHost(_cboKeys) With {
@@ -407,7 +398,6 @@ Public Class FrmIniEditor
                 ' → abgebrochen
         End Select
 
-
     End Sub
     Private Sub SaveIniFile(Optional reset As Boolean = False)
 
@@ -427,12 +417,12 @@ Public Class FrmIniEditor
         If _isDirty Then
             Try
                 Dim fullpath As String = Nothing
-                ''TODO SFD-Anpassung
-                ''If Spielfeld.SFD.AktRendering = RenderingEnum.None OrElse reset = True Then
-                ''    fullpath = _iniFullLoadPath
-                ''Else
-                ''    fullpath = _iniFullSavePath
-                ''End If
+
+                If SFMain.RenderMode = RenderingEnum.None OrElse reset = True Then
+                    fullpath = _iniFullLoadPath
+                Else
+                    fullpath = _iniFullSavePath
+                End If
                 Directory.CreateDirectory(Path.GetDirectoryName(fullpath))
                 Using sw As New StreamWriter(fullpath, append:=False, encoding:=New UTF8Encoding(encoderShouldEmitUTF8Identifier:=True))
                     sw.Write(_rtb.Text)
@@ -646,7 +636,6 @@ Public Class FrmIniEditor
 
     Private Sub FillCboSections()
 
-
         _cboSektion.Items.Clear()
         _cboSektion.Items.Add("[Alle Sektionen]")
         ' Text aus RichTextBox zeilenweise durchgehen
@@ -736,7 +725,6 @@ Public Class FrmIniEditor
             End If
         Next
     End Sub
-
 
     ' Zentriert die aktuelle Caret-Position vertikal im sichtbaren Bereich.
     ' offsetLinesBelowCenter: >0 = Zeile etwas UNTER die Mitte schieben (mehr Platz für Kommentar oben)
@@ -837,7 +825,6 @@ Public Class FrmIniEditor
 
         ' Neu (Unicode-freundlich, erlaubt Umlaute und Bindestrich):
         Dim reKey As New Regex("^\s*([-\p{L}\p{M}\p{N}_\.\(\)]+)\s*(=)\s*(.*)$", RegexOptions.Compiled)
-
 
         For Each ln As String In lines
             ' 1) Section

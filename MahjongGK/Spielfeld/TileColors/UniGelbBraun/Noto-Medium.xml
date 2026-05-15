@@ -9,14 +9,77 @@
   <HueSymbolGradientFrom>235</HueSymbolGradientFrom>
   <HueSymbolGradientTo>235</HueSymbolGradientTo>
   <HueSymbolOutline>99</HueSymbolOutline>
-  <SatFaceFrameBlüten>100</SatFaceFrameBlüten>
+  <CloudGrainKoppeln>false</CloudGrainKoppeln>
+  <DebugFaceFrameEditorCanDrop>true</DebugFaceFrameEditorCanDrop>
+  <DebugFaceFrameEditorMouseOver>false</DebugFaceFrameEditorMouseOver>
+  <DebugFaceFrameEditorMouseSelected>false</DebugFaceFrameEditorMouseSelected>
+  <DebugShowFaceFrameMouse>false</DebugShowFaceFrameMouse>
+  <DeltaHueLayerBlüten>0</DeltaHueLayerBlüten>
+  <DeltaHueLayerJZeiten>0</DeltaHueLayerJZeiten>
+  <DeltaHueLayerNormal>0</DeltaHueLayerNormal>
+  <DeltaHueLayerWinde>0</DeltaHueLayerWinde>
+  <DonotInsertSymbol>false</DonotInsertSymbol>
+  <DShiftNormalBlüten>0</DShiftNormalBlüten>
+  <DShiftNormalJZeiten>0</DShiftNormalJZeiten>
+  <DShiftNormalNormal>0</DShiftNormalNormal>
+  <DShiftNormalWinde>0</DShiftNormalWinde>
+  <DShiftRemovableBlüten>0</DShiftRemovableBlüten>
+  <DShiftRemovableJZeiten>0</DShiftRemovableJZeiten>
+  <DShiftRemovableNormal>0</DShiftRemovableNormal>
+  <DShiftRemovableWinde>0</DShiftRemovableWinde>
+  <DShiftSelectableBlüten>0</DShiftSelectableBlüten>
+  <DShiftSelectableJZeiten>0</DShiftSelectableJZeiten>
+  <DShiftSelectableNormal>0</DShiftSelectableNormal>
+  <DShiftSelectableWinde>0</DShiftSelectableWinde>
+  <DShiftSelectedBlüten>0</DShiftSelectedBlüten>
+  <DShiftSelectedJZeiten>0</DShiftSelectedJZeiten>
+  <DShiftSelectedNormal>0</DShiftSelectedNormal>
+  <DShiftSelectedWinde>0</DShiftSelectedWinde>
+  <FaceACloudSteinStatusNormal>0</FaceACloudSteinStatusNormal>
+  <FaceACloudSteinStatusRemovable>0</FaceACloudSteinStatusRemovable>
+  <FaceACloudSteinStatusSelectable>0</FaceACloudSteinStatusSelectable>
+  <FaceACloudSteinStatusSelected>0</FaceACloudSteinStatusSelected>
+  <FaceAGrainSteinStatusNormal>0</FaceAGrainSteinStatusNormal>
+  <FaceAGrainSteinStatusRemovable>0</FaceAGrainSteinStatusRemovable>
+  <FaceAGrainSteinStatusSelectable>0</FaceAGrainSteinStatusSelectable>
+  <FaceAGrainSteinStatusSelected>0</FaceAGrainSteinStatusSelected>
   <BrgFaceFrameBlüten>100</BrgFaceFrameBlüten>
-  <SatFaceFrameJZeiten>90</SatFaceFrameJZeiten>
+  <SatFaceFrameBlüten>100</SatFaceFrameBlüten>
+  <FaceFrameEditorCanDrop>FFBDB76B</FaceFrameEditorCanDrop>
+  <FaceFrameEditorMouseOver>FFFFFFFF</FaceFrameEditorMouseOver>
+  <FaceFrameEditorMouseSelected>FFF0E68C</FaceFrameEditorMouseSelected>
   <BrgFaceFrameJZeiten>100</BrgFaceFrameJZeiten>
+  <SatFaceFrameJZeiten>90</SatFaceFrameJZeiten>
   <SatFaceFrameNormal>100</SatFaceFrameNormal>
   <BrgFaceFrameNormal>100</BrgFaceFrameNormal>
-  <SatFaceFrameWinde>95</SatFaceFrameWinde>
   <BrgFaceFrameWinde>30</BrgFaceFrameWinde>
+  <SatFaceFrameWinde>95</SatFaceFrameWinde>
+  <FaceICloudSteinStatusNormal>0</FaceICloudSteinStatusNormal>
+  <FaceICloudSteinStatusRemovable>0</FaceICloudSteinStatusRemovable>
+  <FaceICloudSteinStatusSelectable>0</FaceICloudSteinStatusSelectable>
+  <FaceICloudSteinStatusSelected>0</FaceICloudSteinStatusSelected>
+  <FaceIGrainSteinStatusNormal>0</FaceIGrainSteinStatusNormal>
+  <FaceIGrainSteinStatusRemovable>0</FaceIGrainSteinStatusRemovable>
+  <FaceIGrainSteinStatusSelectable>0</FaceIGrainSteinStatusSelectable>
+  <FaceIGrainSteinStatusSelected>0</FaceIGrainSteinStatusSelected>
+  <FaceUseInnerAreaSteinStatusNormal>false</FaceUseInnerAreaSteinStatusNormal>
+  <FaceUseInnerAreaSteinStatusRemovable>false</FaceUseInnerAreaSteinStatusRemovable>
+  <FaceUseInnerAreaSteinStatusSelectable>false</FaceUseInnerAreaSteinStatusSelectable>
+  <FaceUseInnerAreaSteinStatusSelected>false</FaceUseInnerAreaSteinStatusSelected>
+  <FaktorFaceFrameRadius>0</FaktorFaceFrameRadius>
+  <FaktorOutlineIsZeroIfTileWidthLowerAs>100</FaktorOutlineIsZeroIfTileWidthLowerAs>
+  <FaktorSymbolOffsetLeft>1</FaktorSymbolOffsetLeft>
+  <FaktorSymbolOffsetTop>1</FaktorSymbolOffsetTop>
+  <FaktorSymbolOutlineWidth>0</FaktorSymbolOutlineWidth>
+  <FaktorSymbolSize>1</FaktorSymbolSize>
+  <FaktorTextOffsetLeft>1</FaktorTextOffsetLeft>
+  <FaktorTextOffsetTop>1</FaktorTextOffsetTop>
+  <FaktorTextSize>0.95</FaktorTextSize>
+  <DBrgGhost>0</DBrgGhost>
+  <DSatGhost>0</DSatGhost>
+  <DHueGhost>0</DHueGhost>
+  <AlphaGhost>255</AlphaGhost>
+  <GhostUseFastMethode>true</GhostUseFastMethode>
   <SatI01NormalBlüten>40</SatI01NormalBlüten>
   <BrgI01NormalBlüten>100</BrgI01NormalBlüten>
   <SatI01NormalJZeiten>40</SatI01NormalJZeiten>
@@ -25,22 +88,22 @@
   <BrgI01NormalNormal>100</BrgI01NormalNormal>
   <SatI01NormalWinde>40</SatI01NormalWinde>
   <BrgI01NormalWinde>100</BrgI01NormalWinde>
-  <SatI02SelectedBlüten>-50</SatI02SelectedBlüten>
   <BrgI02SelectedBlüten>15</BrgI02SelectedBlüten>
-  <SatI02SelectedJZeiten>-45</SatI02SelectedJZeiten>
+  <SatI02SelectedBlüten>-50</SatI02SelectedBlüten>
   <BrgI02SelectedJZeiten>15</BrgI02SelectedJZeiten>
-  <SatI02SelectedNormal>-50</SatI02SelectedNormal>
+  <SatI02SelectedJZeiten>-45</SatI02SelectedJZeiten>
   <BrgI02SelectedNormal>15</BrgI02SelectedNormal>
-  <SatI02SelectedWinde>-50</SatI02SelectedWinde>
+  <SatI02SelectedNormal>-50</SatI02SelectedNormal>
   <BrgI02SelectedWinde>15</BrgI02SelectedWinde>
-  <SatI03SelectableBlüten>-25</SatI03SelectableBlüten>
+  <SatI02SelectedWinde>-50</SatI02SelectedWinde>
   <BrgI03SelectableBlüten>10</BrgI03SelectableBlüten>
+  <SatI03SelectableBlüten>-25</SatI03SelectableBlüten>
   <SatI03SelectableJZeiten>-25</SatI03SelectableJZeiten>
   <BrgI03SelectableJZeiten>10</BrgI03SelectableJZeiten>
   <SatI03SelectableNormal>-25</SatI03SelectableNormal>
   <BrgI03SelectableNormal>10</BrgI03SelectableNormal>
-  <SatI03SelectableWinde>-25</SatI03SelectableWinde>
   <BrgI03SelectableWinde>10</BrgI03SelectableWinde>
+  <SatI03SelectableWinde>-25</SatI03SelectableWinde>
   <SatI04RemovableBlüten>-40</SatI04RemovableBlüten>
   <BrgI04RemovableBlüten>5</BrgI04RemovableBlüten>
   <SatI04RemovableJZeiten>-40</SatI04RemovableJZeiten>
@@ -51,22 +114,22 @@
   <BrgI04RemovableWinde>5</BrgI04RemovableWinde>
   <SatI05LockedBlüten>0</SatI05LockedBlüten>
   <BrgI05LockedBlüten>0</BrgI05LockedBlüten>
-  <SatI05LockedJZeiten>0</SatI05LockedJZeiten>
   <BrgI05LockedJZeiten>0</BrgI05LockedJZeiten>
+  <SatI05LockedJZeiten>0</SatI05LockedJZeiten>
   <SatI05LockedNormal>0</SatI05LockedNormal>
   <BrgI05LockedNormal>0</BrgI05LockedNormal>
   <SatI05LockedWinde>0</SatI05LockedWinde>
   <BrgI05LockedWinde>0</BrgI05LockedWinde>
-  <SatI06WerkstückSteinBlüten>0</SatI06WerkstückSteinBlüten>
   <BrgI06WerkstückSteinBlüten>0</BrgI06WerkstückSteinBlüten>
+  <SatI06WerkstückSteinBlüten>0</SatI06WerkstückSteinBlüten>
   <SatI06WerkstückSteinJZeiten>0</SatI06WerkstückSteinJZeiten>
   <BrgI06WerkstückSteinJZeiten>0</BrgI06WerkstückSteinJZeiten>
   <SatI06WerkstückSteinNormal>0</SatI06WerkstückSteinNormal>
   <BrgI06WerkstückSteinNormal>0</BrgI06WerkstückSteinNormal>
-  <SatI06WerkstückSteinWinde>0</SatI06WerkstückSteinWinde>
   <BrgI06WerkstückSteinWinde>0</BrgI06WerkstückSteinWinde>
-  <SatI07MissingSecondBlüten>0</SatI07MissingSecondBlüten>
+  <SatI06WerkstückSteinWinde>0</SatI06WerkstückSteinWinde>
   <BrgI07MissingSecondBlüten>0</BrgI07MissingSecondBlüten>
+  <SatI07MissingSecondBlüten>0</SatI07MissingSecondBlüten>
   <SatI07MissingSecondJZeiten>0</SatI07MissingSecondJZeiten>
   <BrgI07MissingSecondJZeiten>0</BrgI07MissingSecondJZeiten>
   <SatI07MissingSecondNormal>0</SatI07MissingSecondNormal>
@@ -77,18 +140,28 @@
   <BrgI08WerkstückEinfügeFehlerBlüten>0</BrgI08WerkstückEinfügeFehlerBlüten>
   <SatI08WerkstückEinfügeFehlerJZeiten>0</SatI08WerkstückEinfügeFehlerJZeiten>
   <BrgI08WerkstückEinfügeFehlerJZeiten>0</BrgI08WerkstückEinfügeFehlerJZeiten>
-  <SatI08WerkstückEinfügeFehlerNormal>0</SatI08WerkstückEinfügeFehlerNormal>
   <BrgI08WerkstückEinfügeFehlerNormal>0</BrgI08WerkstückEinfügeFehlerNormal>
-  <SatI08WerkstückEinfügeFehlerWinde>0</SatI08WerkstückEinfügeFehlerWinde>
+  <SatI08WerkstückEinfügeFehlerNormal>0</SatI08WerkstückEinfügeFehlerNormal>
   <BrgI08WerkstückEinfügeFehlerWinde>0</BrgI08WerkstückEinfügeFehlerWinde>
+  <SatI08WerkstückEinfügeFehlerWinde>0</SatI08WerkstückEinfügeFehlerWinde>
   <SatI09WerkstückZufallsgrafikBlüten>0</SatI09WerkstückZufallsgrafikBlüten>
   <BrgI09WerkstückZufallsgrafikBlüten>0</BrgI09WerkstückZufallsgrafikBlüten>
   <SatI09WerkstückZufallsgrafikJZeiten>0</SatI09WerkstückZufallsgrafikJZeiten>
   <BrgI09WerkstückZufallsgrafikJZeiten>0</BrgI09WerkstückZufallsgrafikJZeiten>
-  <SatI09WerkstückZufallsgrafikNormal>0</SatI09WerkstückZufallsgrafikNormal>
   <BrgI09WerkstückZufallsgrafikNormal>0</BrgI09WerkstückZufallsgrafikNormal>
+  <SatI09WerkstückZufallsgrafikNormal>0</SatI09WerkstückZufallsgrafikNormal>
   <SatI09WerkstückZufallsgrafikWinde>0</SatI09WerkstückZufallsgrafikWinde>
   <BrgI09WerkstückZufallsgrafikWinde>0</BrgI09WerkstückZufallsgrafikWinde>
+  <InsertFaceFramAlways>false</InsertFaceFramAlways>
+  <InsertFaceFrameNever>false</InsertFaceFrameNever>
+  <InsertFaceFramOnlyMouseOver>true</InsertFaceFramOnlyMouseOver>
+  <InsertFaceFramOnlyNormaleOne>false</InsertFaceFramOnlyNormaleOne>
+  <InsertTextBlumen>true</InsertTextBlumen>
+  <InsertTextDrachen>true</InsertTextDrachen>
+  <InsertTextJZeiten>true</InsertTextJZeiten>
+  <InsertTextWinde>true</InsertTextWinde>
+  <LayerACloud>0</LayerACloud>
+  <LayerAGrain>0</LayerAGrain>
   <SatLayerDnBlüten>100</SatLayerDnBlüten>
   <BrgLayerDnBlüten>70</BrgLayerDnBlüten>
   <SatLayerDnJZeiten>100</SatLayerDnJZeiten>
@@ -129,56 +202,6 @@
   <BrgLayerUpNormal>80</BrgLayerUpNormal>
   <SatLayerUpWinde>100</SatLayerUpWinde>
   <BrgLayerUpWinde>80</BrgLayerUpWinde>
-  <SatSymbolGradientFrom>100</SatSymbolGradientFrom>
-  <BrgSymbolGradientFrom>100</BrgSymbolGradientFrom>
-  <SatSymbolGradientTo>70</SatSymbolGradientTo>
-  <BrgSymbolGradientTo>100</BrgSymbolGradientTo>
-  <SatSymbolOutLine>100</SatSymbolOutLine>
-  <BrgSymbolOutline>100</BrgSymbolOutline>
-  <DBrgSummenÄnderungAdd>0</DBrgSummenÄnderungAdd>
-  <DBrgSummenÄnderungMul>0.95</DBrgSummenÄnderungMul>
-  <DBrgSummenÄnderungMultiplikation>true</DBrgSummenÄnderungMultiplikation>
-  <DebugFaceFrameEditorCanDrop>true</DebugFaceFrameEditorCanDrop>
-  <DebugFaceFrameEditorMouseOver>false</DebugFaceFrameEditorMouseOver>
-  <DebugFaceFrameEditorMouseSelected>false</DebugFaceFrameEditorMouseSelected>
-  <DebugShowFaceFrameMouse>false</DebugShowFaceFrameMouse>
-  <DeltaHueLayerBlüten>0</DeltaHueLayerBlüten>
-  <DeltaHueLayerJZeiten>0</DeltaHueLayerJZeiten>
-  <DeltaHueLayerNormal>0</DeltaHueLayerNormal>
-  <DeltaHueLayerWinde>0</DeltaHueLayerWinde>
-  <DrawGhost>false</DrawGhost>
-  <DSatSummenÄnderung>1</DSatSummenÄnderung>
-  <DShiftNormalBlüten>0</DShiftNormalBlüten>
-  <DShiftNormalJZeiten>0</DShiftNormalJZeiten>
-  <DShiftNormalNormal>0</DShiftNormalNormal>
-  <DShiftNormalWinde>0</DShiftNormalWinde>
-  <DShiftRemovableBlüten>0</DShiftRemovableBlüten>
-  <DShiftRemovableJZeiten>0</DShiftRemovableJZeiten>
-  <DShiftRemovableNormal>0</DShiftRemovableNormal>
-  <DShiftRemovableWinde>0</DShiftRemovableWinde>
-  <DShiftSelectableBlüten>0</DShiftSelectableBlüten>
-  <DShiftSelectableJZeiten>0</DShiftSelectableJZeiten>
-  <DShiftSelectableNormal>0</DShiftSelectableNormal>
-  <DShiftSelectableWinde>0</DShiftSelectableWinde>
-  <DShiftSelectedBlüten>0</DShiftSelectedBlüten>
-  <DShiftSelectedJZeiten>0</DShiftSelectedJZeiten>
-  <DShiftSelectedNormal>0</DShiftSelectedNormal>
-  <DShiftSelectedWinde>0</DShiftSelectedWinde>
-  <FaceFrameEditorCanDrop>FFBDB76B</FaceFrameEditorCanDrop>
-  <FaceFrameEditorMouseOver>FFFFFFFF</FaceFrameEditorMouseOver>
-  <FaceFrameEditorMouseSelected>FFF0E68C</FaceFrameEditorMouseSelected>
-  <FaktorFaceFrameRadius>0</FaktorFaceFrameRadius>
-  <FaktorSymbolOffsetLeft>0.25</FaktorSymbolOffsetLeft>
-  <FaktorSymbolOffsetTop>-0.04</FaktorSymbolOffsetTop>
-  <FaktorSymbolOutlineWidth>0</FaktorSymbolOutlineWidth>
-  <FaktorSymbolSize>1.30</FaktorSymbolSize>
-  <FaktorTextOffsetLeft>1.55</FaktorTextOffsetLeft>
-  <FaktorTextOffsetTop>0.55</FaktorTextOffsetTop>
-  <FaktorTextSize>0.95</FaktorTextSize>
-  <InsertFaceFramAlways>false</InsertFaceFramAlways>
-  <InsertFaceFrameNever>false</InsertFaceFrameNever>
-  <InsertFaceFramOnlyMouseOver>true</InsertFaceFramOnlyMouseOver>
-  <InsertFaceFramOnlyNormaleOne>false</InsertFaceFramOnlyNormaleOne>
   <ShiftLayerNormalBlüten>0</ShiftLayerNormalBlüten>
   <ShiftLayerNormalJZeiten>0</ShiftLayerNormalJZeiten>
   <ShiftLayerNormalNormal>0</ShiftLayerNormalNormal>
@@ -199,9 +222,35 @@
   <ShiftLightMapSteinStatusRemovable>60</ShiftLightMapSteinStatusRemovable>
   <ShiftLightMapSteinStatusSelectable>60</ShiftLightMapSteinStatusSelectable>
   <ShiftLightMapSteinStatusSelected>70</ShiftLightMapSteinStatusSelected>
-  <SymbolDontInsert>false</SymbolDontInsert>
+  <StatusLoadingOK>true</StatusLoadingOK>
+  <DSatSummenÄnderung>1</DSatSummenÄnderung>
+  <DBrgSummenÄnderungAdd>0</DBrgSummenÄnderungAdd>
+  <DBrgSummenÄnderungMul>0.95</DBrgSummenÄnderungMul>
+  <DBrgSummenÄnderungMultiplikation>true</DBrgSummenÄnderungMultiplikation>
+  <SymbolColBlauerDrache>00FFFFFF</SymbolColBlauerDrache>
+  <SymbolColBlüten>00FFFFFF</SymbolColBlüten>
+  <SymbolColGrünerDrache>00FFFFFF</SymbolColGrünerDrache>
+  <SymbolColJZeiten>00FFFFFF</SymbolColJZeiten>
+  <SymbolColRoterDrache>00FFFFFF</SymbolColRoterDrache>
+  <SymbolColWinde>00FFFFFF</SymbolColWinde>
+  <SatSymbolGradientFrom>100</SatSymbolGradientFrom>
+  <BrgSymbolGradientFrom>100</BrgSymbolGradientFrom>
+  <BrgSymbolGradientTo>100</BrgSymbolGradientTo>
+  <SatSymbolGradientTo>70</SatSymbolGradientTo>
+  <SymbolGradientToKoppeln>false</SymbolGradientToKoppeln>
+  <BrgSymbolOutline>100</BrgSymbolOutline>
+  <SatSymbolOutLine>100</SatSymbolOutLine>
   <TextColor>FF000000</TextColor>
-  <TextDontInsert>true</TextDontInsert>
+  <TextFontStyleBold>true</TextFontStyleBold>
+  <TextSymbole>NSOW▲✿✱!</TextSymbole>
+  <TextUgrdBorderColor>00FFFFFF</TextUgrdBorderColor>
+  <TextUgrdCenterColor>00FFFFFF</TextUgrdCenterColor>
+  <TextUgrdColor>00FFFFFF</TextUgrdColor>
+  <TextUgrdDiameter>0</TextUgrdDiameter>
+  <TileBasisHeight>230</TileBasisHeight>
+  <TileBasisWidth>200</TileBasisWidth>
+  <TilesSpaceBetweenHeight>0</TilesSpaceBetweenHeight>
+  <TilesSpaceBetweenWidth>0</TilesSpaceBetweenWidth>
   <UsedFontNotoSansSymbol2>true</UsedFontNotoSansSymbol2>
   <UsedFontSegeoUISymbol>false</UsedFontSegeoUISymbol>
   <SymbolGradientMode>BackwardDiagonal</SymbolGradientMode>

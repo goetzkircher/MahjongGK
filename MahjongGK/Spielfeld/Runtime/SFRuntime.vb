@@ -214,17 +214,6 @@ Namespace Spielfeld
 
 #End Region
 
-#Region "Editor - Vorrat / Ghost / Flug / Mausanker"
-
-        Public Property EditorStockValues As SFStockState = Nothing
-        'ZLVxxx Public Property EditorStockGhostRect As Rectangle
-        'ZLVxxx Public Property EditorStockDeltaMouseToGhost As Point
-        'ZLVxxx Public Property EditorStockSteinFlugValues As Airplanes_Flugweg = Nothing
-        'ZLVxxx Public Property EditorStockMouseAnkerVerschiebung As MouseAnkerVerschiebung = Nothing
-        'ZLVxxx Public Property EditorStockMouseAnkerVerschiebung_HasValue As Boolean
-
-#End Region
-
 #Region "Editor - ausstehende Aktionen"
 
         ''' <summary>

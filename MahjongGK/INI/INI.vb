@@ -945,22 +945,22 @@ Public Module INI
         End Set
     End Property
 
-    Private _Editor_SortSpacerWidthPercent As Integer?
-    Public Property Editor_SortSpacerWidthPercent As Integer
+    Private _Editor_SortSpacerWidth As Integer?
+    Public Property Editor_SortSpacerWidth As Integer
         Get
-            If Not _Editor_SortSpacerWidthPercent.HasValue Then
+            If Not _Editor_SortSpacerWidth.HasValue Then
                 Dim [Default] As Integer = 10
-                Dim comment As String = "Breite des Zwischenraumes in Prozent der Spielsteinbreite im Steinvorrat ab welchem Stein neu gemischt wird."
-                _Editor_SortSpacerWidthPercent = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+                Dim comment As String = "Breite des Zwischenraumes im Steinvorrat ab welchem Stein neu gemischt wird."
+                _Editor_SortSpacerWidth = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
                 'muss hier das .Value dahinter?
-                If _Editor_SortSpacerWidthPercent < 0 Then _Editor_SortSpacerWidthPercent = 0
-                If _Editor_SortSpacerWidthPercent > 100 Then _Editor_SortSpacerWidthPercent = 100
+                If _Editor_SortSpacerWidth < 0 Then _Editor_SortSpacerWidth = 0
+                If _Editor_SortSpacerWidth > 100 Then _Editor_SortSpacerWidth = 100
             End If
-            Return _Editor_SortSpacerWidthPercent.Value
+            Return _Editor_SortSpacerWidth.Value
         End Get
         Set(value As Integer)
             BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
-            _Editor_SortSpacerWidthPercent = Nothing
+            _Editor_SortSpacerWidth = Nothing
         End Set
     End Property
 
@@ -980,6 +980,25 @@ Public Module INI
         Set(value As Integer)
             BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
             _Editor_SpaceFramesToOpenOrClose = Nothing
+        End Set
+    End Property
+
+    Private _Editor_SortMinIndex As Integer?
+    Public Property Editor_SortMinIndex As Integer
+        Get
+            If Not _Editor_SortMinIndex.HasValue Then
+                Dim [Default] As Integer = 10
+                Dim comment As String = "Index, ab dem die Steine im Vorrat gemischt werden. Default: 10, Maximum 100, Abschalten durch 0."
+                _Editor_SortMinIndex = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+                'muss hier das .Value dahinter?
+                If _Editor_SortMinIndex < 0 Then _Editor_SortMinIndex = 0
+                If _Editor_SortMinIndex > 100 Then _Editor_SortMinIndex = 100
+            End If
+            Return _Editor_SortMinIndex.Value
+        End Get
+        Set(value As Integer)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+            _Editor_SortMinIndex = Nothing
         End Set
     End Property
 
@@ -1513,6 +1532,16 @@ Public Module INI
         End Set
     End Property
 
+    Public Property Sonstiges_FrmMainStartMaximized As Boolean
+        Get
+            Dim [Default] As Boolean = False
+            Dim comment As String = "Der WindowsState beim Programmende, der beim nächsten Start wiederhergestellt wird."
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As Boolean)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+        End Set
+    End Property
 #End Region
 
 #Region "IfRunningInIDE_... Properties"
@@ -2732,6 +2761,10 @@ Public Module INI
     ''End Property
 #End Region
 
+#Region "Nicht gespeicherte Daten"
+
+#End Region
+
 #Region "Ini Editieren"
 
     ''' <summary>
@@ -3034,7 +3067,7 @@ Public Module INI
 
 #End Region
 
-#Region "Initialisierung"
+#Region "InitDragDropBitmaps"
 
     ''' <summary>
     ''' Schaltet InitialisierungAktiv für alle IniManager um.
@@ -3112,7 +3145,7 @@ Public Module INI
         End Set
     End Property
 
-#Region "Initialisierung der Default-Werte"
+#Region "InitDragDropBitmaps der Default-Werte"
 
     ' Liefert alle Werte eines Enum-Typs als Object()-Array
     Private Function GetEnumValues(t As Type) As Object()

@@ -208,6 +208,7 @@ Public Class TileColors
         "DBrgGhost",
         "DHueGhost",
         "DSatGhost",
+        "FaktorOutlineIsZeroIfTileSizeLowerAs",
         "FaktorSymbolOffsetLeft",
         "FaktorSymbolOffsetTop",
         "FaktorSymbolOutlineWidth",
@@ -223,8 +224,14 @@ Public Class TileColors
         "InsertTextDrachen",
         "InsertTextJZeiten",
         "InsertTextWinde",
+        "TextColor",
+        "TextFondStyleBoldOnlySizeGreaterThan",
         "TextFontStyleBold",
         "TextSymbole",
+        "TextUgrdBorderColor",
+        "TextUgrdCenterColor",
+        "TextUgrdColor",
+        "TextUgrdDiameter",
         "TileBasisHeight",
         "TileBasisWidth"
     }
@@ -339,7 +346,6 @@ Public Class TileColors
         "FaceLightMapSelectable",
         "FaceLightMapSelected",
         "FaktorFaceFrameRadius",
-        "FaktorOutlineIsZeroIfTileWidthLowerAs",
         "HueBasisBlüten",
         "HueBasisJZeiten",
         "HueBasisNormal",
@@ -443,13 +449,6 @@ Public Class TileColors
     }
 
     Public Property CloudGrainKoppeln As Boolean = False
-    Public Property CopyAll As Boolean = False
-    Public Property CopyAllSegeoToAllNoto As Boolean = False
-    Public Property CopyColors As Boolean = False
-    Public Property CopyNonColors As Boolean = False
-    Public Property CopyNotoMediumToLightAndDark As Boolean = False
-    Public Property CopySegeoMediumToLightAndDark As Boolean = False
-    Public Property CopySegeoMediumToNotoMedium As Boolean = False
     Public Property DebugFaceFrameEditorCanDrop As Boolean = False
     Public Property DebugFaceFrameEditorMouseOver As Boolean = True
     Public Property DebugFaceFrameEditorMouseSelected As Boolean = False
@@ -643,15 +642,15 @@ Public Class TileColors
     Public Property FaceAGrainSteinStatusRemovable As Decimal = 0D
     Public Property FaceAGrainSteinStatusSelectable As Decimal = 0D
     Public Property FaceAGrainSteinStatusSelected As Decimal = 0D
-    Public Property SatFaceFrameBlüten As Integer = 100
     Public Property BrgFaceFrameBlüten As Integer = 100
+    Public Property SatFaceFrameBlüten As Integer = 100
     Public Property FaceFrameEditorCanDrop As String = "FF3CB371"
     Public Property FaceFrameEditorMouseOver As String = "FFFFFFFF"
     Public Property FaceFrameEditorMouseSelected As String = "FFADFF2F"
     Public Property BrgFaceFrameJZeiten As Integer = 100
     Public Property SatFaceFrameJZeiten As Integer = 90
-    Public Property BrgFaceFrameNormal As Integer = 100
     Public Property SatFaceFrameNormal As Integer = 100
+    Public Property BrgFaceFrameNormal As Integer = 100
     Public Property BrgFaceFrameWinde As Integer = 30
     Public Property SatFaceFrameWinde As Integer = 95
     Public Property FaceICloudSteinStatusNormal As Decimal = 0D
@@ -667,7 +666,7 @@ Public Class TileColors
     Public Property FaceUseInnerAreaSteinStatusSelectable As Boolean = False
     Public Property FaceUseInnerAreaSteinStatusSelected As Boolean = False
     Public Property FaktorFaceFrameRadius As Decimal = 0D
-    Public Property FaktorOutlineIsZeroIfTileWidthLowerAs As Decimal = 100D
+    Public Property FaktorOutlineIsZeroIfTileSizeLowerAs As Decimal = 100D
     Public Property FaktorSymbolOffsetLeft As Decimal = 1D
     Public Property FaktorSymbolOffsetTop As Decimal = 1D
     Public Property FaktorSymbolOutlineWidth As Decimal = 0D
@@ -700,8 +699,8 @@ Public Class TileColors
     Public Property SatI03SelectableBlüten As Integer = 10
     Public Property BrgI03SelectableJZeiten As Integer = 10
     Public Property SatI03SelectableJZeiten As Integer = 10
-    Public Property SatI03SelectableNormal As Integer = 10
     Public Property BrgI03SelectableNormal As Integer = 10
+    Public Property SatI03SelectableNormal As Integer = 10
     Public Property BrgI03SelectableWinde As Integer = 10
     Public Property SatI03SelectableWinde As Integer = 10
     Public Property SatI04RemovableBlüten As Integer = -15
@@ -714,34 +713,34 @@ Public Class TileColors
     Public Property BrgI04RemovableWinde As Integer = 5
     Public Property BrgI05LockedBlüten As Integer = 0
     Public Property SatI05LockedBlüten As Integer = 0
-    Public Property BrgI05LockedJZeiten As Integer = 0
     Public Property SatI05LockedJZeiten As Integer = 0
-    Public Property SatI05LockedNormal As Integer = 0
+    Public Property BrgI05LockedJZeiten As Integer = 0
     Public Property BrgI05LockedNormal As Integer = 0
-    Public Property BrgI05LockedWinde As Integer = 0
+    Public Property SatI05LockedNormal As Integer = 0
     Public Property SatI05LockedWinde As Integer = 0
+    Public Property BrgI05LockedWinde As Integer = 0
     Public Property BrgI06WerkstückSteinBlüten As Integer = 0
     Public Property SatI06WerkstückSteinBlüten As Integer = 0
-    Public Property BrgI06WerkstückSteinJZeiten As Integer = 0
     Public Property SatI06WerkstückSteinJZeiten As Integer = 0
-    Public Property SatI06WerkstückSteinNormal As Integer = 0
+    Public Property BrgI06WerkstückSteinJZeiten As Integer = 0
     Public Property BrgI06WerkstückSteinNormal As Integer = 0
+    Public Property SatI06WerkstückSteinNormal As Integer = 0
     Public Property BrgI06WerkstückSteinWinde As Integer = 0
     Public Property SatI06WerkstückSteinWinde As Integer = 0
-    Public Property SatI07MissingSecondBlüten As Integer = 0
     Public Property BrgI07MissingSecondBlüten As Integer = 0
-    Public Property SatI07MissingSecondJZeiten As Integer = 0
+    Public Property SatI07MissingSecondBlüten As Integer = 0
     Public Property BrgI07MissingSecondJZeiten As Integer = 0
-    Public Property SatI07MissingSecondNormal As Integer = 0
+    Public Property SatI07MissingSecondJZeiten As Integer = 0
     Public Property BrgI07MissingSecondNormal As Integer = 0
-    Public Property BrgI07MissingSecondWinde As Integer = 0
+    Public Property SatI07MissingSecondNormal As Integer = 0
     Public Property SatI07MissingSecondWinde As Integer = 0
+    Public Property BrgI07MissingSecondWinde As Integer = 0
     Public Property SatI08WerkstückEinfügeFehlerBlüten As Integer = 0
     Public Property BrgI08WerkstückEinfügeFehlerBlüten As Integer = 0
-    Public Property SatI08WerkstückEinfügeFehlerJZeiten As Integer = 0
     Public Property BrgI08WerkstückEinfügeFehlerJZeiten As Integer = 0
-    Public Property SatI08WerkstückEinfügeFehlerNormal As Integer = 0
+    Public Property SatI08WerkstückEinfügeFehlerJZeiten As Integer = 0
     Public Property BrgI08WerkstückEinfügeFehlerNormal As Integer = 0
+    Public Property SatI08WerkstückEinfügeFehlerNormal As Integer = 0
     Public Property BrgI08WerkstückEinfügeFehlerWinde As Integer = 0
     Public Property SatI08WerkstückEinfügeFehlerWinde As Integer = 0
     Public Property SatI09WerkstückZufallsgrafikBlüten As Integer = 0
@@ -750,16 +749,16 @@ Public Class TileColors
     Public Property BrgI09WerkstückZufallsgrafikJZeiten As Integer = 0
     Public Property BrgI09WerkstückZufallsgrafikNormal As Integer = 0
     Public Property SatI09WerkstückZufallsgrafikNormal As Integer = 0
-    Public Property SatI09WerkstückZufallsgrafikWinde As Integer = 0
     Public Property BrgI09WerkstückZufallsgrafikWinde As Integer = 0
+    Public Property SatI09WerkstückZufallsgrafikWinde As Integer = 0
     Public Property InsertFaceFramAlways As Boolean = False
     Public Property InsertFaceFrameNever As Boolean = False
     Public Property InsertFaceFramOnlyMouseOver As Boolean = True
     Public Property InsertFaceFramOnlyNormaleOne As Boolean = False
-    Public Property InsertTextBlumen As Boolean = False
+    Public Property InsertTextBlumen As Boolean = True
     Public Property InsertTextDrachen As Boolean = False
-    Public Property InsertTextJZeiten As Boolean = False
-    Public Property InsertTextWinde As Boolean = False
+    Public Property InsertTextJZeiten As Boolean = True
+    Public Property InsertTextWinde As Boolean = True
     Public Property LayerACloud As Decimal = 0D
     Public Property LayerAGrain As Decimal = 0D
     Public Property SatLayerDnBlüten As Integer = 100
@@ -1046,15 +1045,20 @@ Public Class TileColors
     Public Property SymbolColWinde As String = "00FFFFFF"
     Public Property BrgSymbolGradientFrom As Integer = 100
     Public Property SatSymbolGradientFrom As Integer = 100
-    Public Property SatSymbolGradientTo As Integer = 100
     Public Property BrgSymbolGradientTo As Integer = 100
+    Public Property SatSymbolGradientTo As Integer = 100
     Public Property SymbolGradientToKoppeln As Boolean = False
-    Public Property SatSymbolOutLine As Integer = 100
     Public Property BrgSymbolOutline As Integer = 100
+    Public Property SatSymbolOutLine As Integer = 100
     Public Property TextColor As String = "FF000000"
-    Public Property TextFontStyleBold As Boolean = False
+    Public Property TextFondStyleBoldOnlySizeGreaterThan As Integer = 100
+    Public Property TextFontStyleBold As Boolean = True
     Public Property TextSymbole As String = "NSOW▲✿✱!"
-    Public Property TileBasisHeight As Integer = 242
+    Public Property TextUgrdBorderColor As String = "00FFFFFF"
+    Public Property TextUgrdCenterColor As String = "00FFFFFF"
+    Public Property TextUgrdColor As String = "00FFFFFF"
+    Public Property TextUgrdDiameter As Integer = 0
+    Public Property TileBasisHeight As Integer = 230
     Public Property TileBasisWidth As Integer = 200
     Public Property TilesSpaceBetweenHeight As Integer = 0
     Public Property TilesSpaceBetweenWidth As Integer = 0
@@ -1749,64 +1753,49 @@ Public Class TileColors
     Public Function GetFaktorSymbolOffsetLeft() As Decimal
         Dim faktor As Decimal = FaktorSymbolOffsetLeft
         If SteinFont = SteinFont.Segoe Then
-            faktor *= 0.35D
+            Return faktor
         Else
-            faktor *= 1D
+            Return faktor '* 0.7D
         End If
-        Return faktor
     End Function
     Public Function GetFaktorSymbolOffsetTop() As Decimal
         Dim faktor As Decimal = FaktorSymbolOffsetTop
         If SteinFont = SteinFont.Segoe Then
-            faktor *= -0.24D
+            Return faktor '  faktor *= 1D
         Else
-            faktor *= 1D
+            Return faktor * -9.4D
+        End If
+    End Function
+
+    Public Function GetFaktorSymbolSize() As Decimal
+        Dim faktor As Decimal = FaktorSymbolSize
+        If SteinFont = SteinFont.Segoe Then
+            Return faktor ' faktor *= 1D
+        Else
+            faktor *= 1.5D
         End If
         Return faktor
     End Function
     Public Function GetFaktorSymbolOutlineWidth() As Decimal
-
-        If _steinSize.Width < FaktorOutlineIsZeroIfTileWidthLowerAs Then
+        If Math.Min(_steinSize.Width, _steinSize.Height) < FaktorOutlineIsZeroIfTileSizeLowerAs Then
             Return 0
         Else
             Return FaktorSymbolOutlineWidth
         End If
 
     End Function
-    Public Function GetFaktorSymbolSize() As Decimal
-        Dim faktor As Decimal = FaktorSymbolSize
-        If SteinFont = SteinFont.Segoe Then
-            faktor *= 1.13D
-        Else
-            faktor *= 1D
-        End If
-        Return faktor
-    End Function
     Public Function GetFaktorTextOffsetLeft() As Decimal
         Dim faktor As Decimal = FaktorTextOffsetLeft
-        If SteinFont = SteinFont.Segoe Then
-            faktor *= 2.24D
-        Else
-            faktor *= 1D
-        End If
+        faktor *= 1 ' 0.8D
         Return faktor
     End Function
     Public Function GetFaktorTextOffsetTop() As Decimal
         Dim faktor As Decimal = FaktorTextOffsetTop
-        If SteinFont = SteinFont.Segoe Then
-            faktor *= 1.81D
-        Else
-            faktor *= 1D
-        End If
+        faktor *= 1 ' 0.73D
         Return faktor
     End Function
     Public Function GetFaktorTextSize() As Decimal
         Dim faktor As Decimal = FaktorTextSize
-        If SteinFont = SteinFont.Segoe Then
-            faktor *= 1D
-        Else
-            faktor *= 1D
-        End If
         Return faktor
     End Function
 
@@ -2191,13 +2180,45 @@ Public Class TileColors
 
     End Function
 
+    '######################################################
+
+    Public Function GetTextSymbol() As (useArial As Boolean, txtSymb As String)
+
+        Dim retval As (useArial As Boolean, txtSymb As String)
+
+        Dim txtSymb As String = TextSymbole
+        If String.IsNullOrEmpty(txtSymb) OrElse txtSymb.Length <> 8 Then
+            txtSymb = "NSOWDBJ!"
+            retval.useArial = True
+        ElseIf Not TileFactoryINISettings.Tile_TextUseSegoeUISymbol Then
+            txtSymb = "NSOWDBJ!"
+            retval.useArial = True
+        End If
+        retval.txtSymb = txtSymb
+
+        Return retval
+
+    End Function
+
+    '###########################################
+
     Public Structure TextRenderValues
+        Public Left As Integer
+        Public Top As Integer
         Public HasText As Boolean
+        Public UseUgrd As Boolean
         Public Text As String
+        Public Symbols As (useArial As Boolean, txtSymb As String)
         Public FontFamilyName As String
         Public FontStyle As FontStyle
+        Public FontSize As Single
         Public FaktorTextSize As Decimal
         Public TextColor As Color
+        Public TextUgrdCenterColor As Color
+        Public TextUgrdBorderColor As Color
+        Public TextUgrdColor As Color
+        Public TextUgrdDiameter As Single
+        Public SteinSize As Size
     End Structure
 
     Public Function GetTextRenderValues() As TextRenderValues
@@ -2205,6 +2226,9 @@ Public Class TileColors
         'Zeichensatz für Arial "NSOW▲*+!"
         'Zeichensatz für "NSOW▲✿✱!"
         Dim trv As New TextRenderValues
+
+        trv.SteinSize = _steinSize
+        trv.Symbols = GetTextSymbol()
 
         Dim useArial As Boolean = False 'Default
 
@@ -2229,7 +2253,7 @@ Public Class TileColors
                     useArial = True
                     Select Case _steinType
                         Case SteinTyp.WindOst
-                            If InsertTextWinde Then .Text = txtSymb.Substring(3, 1)
+                            If InsertTextWinde Then .Text = txtSymb.Substring(2, 1)
                         Case SteinTyp.WindNrd
                             If InsertTextWinde Then .Text = txtSymb.Substring(0, 1)
                         Case SteinTyp.WindSüd
@@ -2252,9 +2276,9 @@ Public Class TileColors
                 .Text &= txtSymb.Substring(7, 1)
             End If
 
-            Dim col As Color
-            If TryParseArgbHexColor(TextColor, col) Then
-                .TextColor = col
+            Dim tmpCol As Color
+            If TryParseArgbHexColor(TextColor, tmpCol) Then
+                .TextColor = tmpCol
             Else
                 .TextColor = Color.Black
             End If
@@ -2271,12 +2295,16 @@ Public Class TileColors
                 End If
             End If
 
-            'If _steinTypVersion = SteinTypVersion.Winde Then
-            '    .FontStyle = FontStyle.Bold
-            'Else
-            '    .FontStyle = FontStyle.Regular
-            'End If
-            .FontStyle = If(TextFontStyleBold, FontStyle.Bold, FontStyle.Regular)
+            If TextFontStyleBold Then
+
+                If Math.Min(_steinSize.Width, _steinSize.Height) > TextFondStyleBoldOnlySizeGreaterThan Then
+                    .FontStyle = FontStyle.Bold
+                Else
+                    .FontStyle = FontStyle.Regular
+                End If
+            Else
+                .FontStyle = FontStyle.Regular
+            End If
 
             .HasText = .Text <> String.Empty
 
@@ -2284,6 +2312,43 @@ Public Class TileColors
                 .HasText = False
             End If
 
+            'Exponent 1.0 = linear, zu stark
+            'Exponent 0.5 = Wurzel, deutlich ruhiger
+            'Exponent 0.6–0.75 = oft optisch guter Kompromiss
+            Const CORNER_MARK_SCALE_EXPONENT As Double = 0.7R
+            Dim faktorBasisWidthToAktWidth As Double = CDbl(_steinSize.Width) / CDbl(_steinBasisSize.Width)
+
+            Dim fontScale As Double = Math.Pow(faktorBasisWidthToAktWidth, CORNER_MARK_SCALE_EXPONENT)
+
+            .FontSize = CSng((_steinBasisSize.Width) * fontScale * 0.1R * CDbl(trv.FaktorTextSize))
+
+            Dim tud2 As Integer
+            If TextUgrdDiameter > 0 Then
+                .UseUgrd = True
+                .TextUgrdDiameter = CSng(TextUgrdDiameter) * CSng(fontScale)
+                tud2 = CInt(.TextUgrdDiameter / 2)
+                If TryParseArgbHexColor(TextUgrdColor, tmpCol) Then
+                    .TextUgrdColor = tmpCol
+                Else
+                    .TextUgrdColor = Color.DarkSlateGray
+                End If
+            Else
+                tud2 = CInt(.FontSize / 2)
+            End If
+
+            .Left = CInt(30.0R / CDbl(_steinBasisSize.Width) * CDbl(_steinSize.Width) * CDbl(GetFaktorTextOffsetLeft())) - tud2
+            .Top = CInt(30.0R / CDbl(_steinBasisSize.Height) * CDbl(_steinSize.Height) * CDbl(GetFaktorTextOffsetTop())) - tud2
+
+            If TryParseArgbHexColor(TextUgrdCenterColor, tmpCol) Then
+                .TextUgrdCenterColor = tmpCol
+            Else
+                .TextUgrdCenterColor = Color.Transparent
+            End If
+            If TryParseArgbHexColor(TextUgrdBorderColor, tmpCol) Then
+                .TextUgrdBorderColor = tmpCol
+            Else
+                .TextUgrdBorderColor = Color.Transparent
+            End If
         End With
 
         Return trv
@@ -2316,21 +2381,6 @@ Public Class TileColors
         Return hue
 
     End Function
-
-    'Public Function GetFaceLightMap() As LightMap
-    '    Select Case _steinTypVersion
-    '        Case SteinTypVersion.Normal
-    '            Return FaceLightMapNormal
-    '        Case SteinTypVersion.Winde
-    '            Return FaceLightMapSelected
-    '        Case SteinTypVersion.Blüten
-    '            Return FaceLightMapSelectable
-    '        Case SteinTypVersion.JZeiten
-    '            Return FaceLightMapRemovable
-    '        Case Else
-    '            Return FaceLightMapNormal
-    '    End Select
-    'End Function
 
     Public Function GetFaceLightMap() As LightMap
         Select Case _steinStatus
@@ -3512,6 +3562,7 @@ Public Class TileColors
         Me.StatusLoadingOK = True
 
     End Sub
+
 #End Region
 
 End Class

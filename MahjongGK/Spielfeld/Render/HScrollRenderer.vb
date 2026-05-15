@@ -59,7 +59,7 @@ Public Class HScrollRenderer
     Private _repeat As RepeatAction = RepeatAction.None
     Private _repeatNextMs As Long = 0
     Private Const RepeatInitialDelayMs As Integer = 400
-    Private Const RepeatIntervalMs As Integer = 40
+    Private Const RepeatIntervalMs As Integer = 120
 
     ' Geometrie-Cache
     Private _lastThumbRect As Rectangle = Rectangle.Empty
@@ -70,7 +70,6 @@ Public Class HScrollRenderer
     Private _colorschemeEnabled As ScrollColorScheme
     Private _colorschemeDisabled As ScrollColorScheme
     Private _isInit As Boolean = False
-
 
     Sub New()
 
@@ -85,7 +84,6 @@ Public Class HScrollRenderer
         _colorschemeDisabled = BuildScheme(basisColor, enabled:=False)
         _isInit = True
     End Sub
-
 
     Public Property RectHScrollbar As Rectangle
         Get
@@ -228,7 +226,10 @@ Public Class HScrollRenderer
     End Sub
 
     ' ── Maus-Steuerung (wertet nur Status aus, keine Fremd-Invalidates) ──────
-    Public Function HandleMouseDown(x As Integer, y As Integer, hostRect As Rectangle) As Boolean
+    Public Function HandleMouseDown(mousePoint As Point) As Boolean
+        Return HandleMouseDown(mousePoint.X, mousePoint.Y)
+    End Function
+    Public Function HandleMouseDown(x As Integer, y As Integer) As Boolean
         Dim anyChange As Boolean = False
 
         ' Pfeile zuerst
@@ -266,7 +267,10 @@ Public Class HScrollRenderer
         Return anyChange
     End Function
 
-    Public Function HandleMouseMove(x As Integer, y As Integer, hostRect As Rectangle) As Boolean
+    Public Function HandleMousemMove(mousePoint As Point) As Boolean
+        Return HandleMouseMove(mousePoint.X, mousePoint.Y)
+    End Function
+    Public Function HandleMouseMove(x As Integer, y As Integer) As Boolean
         Dim anyChange As Boolean = False
 
         ' Hover-Stati Pfeile

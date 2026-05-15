@@ -179,10 +179,12 @@
     <Compile Include="Formulare\ColorPickerNamedColors.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Spielfeld\Runtime\MouseAktionen\MouseWheelPoller.vb" />
+    <Compile Include="Spielfeld\Runtime\MouseAktionen\SFStockState.vb" />
     <Compile Include="Spielfeld\Runtime\Steinflug\AirHelper.vb" />
     <Compile Include="Spielfeld\Runtime\Steinflug\AirEnumerationen.vb" />
     <Compile Include="Spielfeld\Runtime\Steinflug\AirJobSelector.vb" />
-    <Compile Include="Spielfeld\Runtime\Steinflug\AirPlanePosition.vb" />
+    <Compile Include="Spielfeld\Runtime\MouseAktionen\MouseAnkerPosition.vb" />
     <Compile Include="Spielfeld\Runtime\Steinflug\AirRenderBuffer.vb" />
     <Compile Include="Spielfeld\Runtime\frmTooltip\frmTooltipSteinInfo.vb">
       <SubType>Form</SubType>
@@ -263,9 +265,8 @@
     <Compile Include="Spielfeld\Runtime\SFRuntime.vb" />
     <Compile Include="Spielfeld\Container\Structuren\Structuren.vb" />
     <Compile Include="Spielfeld\UI\SFUIFace.vb" />
-    <Compile Include="Spielfeld\Runtime\SFStockState.vb" />
     <Compile Include="Spielfeld\Render\HScrollRenderer.vb" />
-    <Compile Include="Spielfeld\Runtime\Steinflug\MouseAnkerVerschiebung.vb" />
+    <Compile Include="Spielfeld\Runtime\MouseAktionen\MouseAnkerVerschiebung_ZLV.vb" />
     <Compile Include="Spielfeld\Render\RenderHelper.vb" />
     <Compile Include="Spielfeld\Render\RenderingStartScreen.vb" />
     <Compile Include="DebughelferNamespaceMjDebug\DebugBitmaps.vb" />
@@ -279,8 +280,8 @@
     <Compile Include="INI\IniManager.vb" />
     <Compile Include="Spielfeld unbenutzt\SpielfeldSteineAustauscher.vb" />
     <Compile Include="Spielfeld\Daten\Generator\SpielsteinGeneratorValuesForXml.vb" />
-    <Compile Include="Spielfeld\Runtime\SFMouseRuntime_zlv.vb" />
-    <Compile Include="Spielfeld\Runtime\Steinflug\Airplanes_Flugweg.vb" />
+    <Compile Include="Spielfeld\Runtime\MouseAktionen\SFMouseAktion.vb" />
+    <Compile Include="Spielfeld\Runtime\Steinflug\AirplanesFlightPath.vb" />
     <Compile Include="Temporär zlv\frmWebPTest.vb">
       <SubType>Form</SubType>
     </Compile>
@@ -657,6 +658,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Spielfeld\TileColors\Test\Segoe-Dark.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Spielfeld\TileColors\Test\Noto-Medium.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

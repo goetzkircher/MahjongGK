@@ -107,7 +107,7 @@ Namespace Spielfeld
     <Serializable> 'Die Klasse wird gespeichert mit der Xml.Serialization
     Public Class SpielsteinGenerator
 
-#Region "Instanzierung und Initialisierung"
+#Region "Instanzierung und InitDragDropBitmaps"
 
         'Hinweis:
         'Im Spiel können Steine nur paarweise entnommen werden.
@@ -190,7 +190,7 @@ Namespace Spielfeld
         ''' <summary>
         ''' Im GeneratorModi.StoneStream gibt es einen endlosen Strom an Steinen, die aber in Portionen erzeugt
         ''' werden. Die Portionsgröße ergibt sich aus der aktuellen Anzahl von Steinen in der Vorrat und
-        ''' der VorratskisteLength. Überprüft wird es bei der Initialisierung und bei jeder Steinentnahme.
+        ''' der VorratskisteLength. Überprüft wird es bei der InitDragDropBitmaps und bei jeder Steinentnahme.
         ''' (Hier kommt noch die VorratskisteNachschubSchwelle ins Spiel).
         ''' Der GeneratorModus eines Spiellayoutes kann nicht mehr geändert werden.
         ''' </summary>

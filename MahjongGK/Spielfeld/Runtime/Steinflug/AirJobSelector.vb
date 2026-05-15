@@ -178,7 +178,7 @@ Public Class AirJobSelector
 
 #End Region
 
-#Region "Initialisierung und Auswertung"
+#Region "InitDragDropBitmaps und Auswertung"
 
     ''' <summary>
     ''' Sammelt aus sfd As SFDaten und steinInfoIndex As Integer alle notwendigen

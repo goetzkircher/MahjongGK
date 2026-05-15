@@ -76,9 +76,9 @@ Public Class frmMain
 
         'Dim newSpielfeldInfo As New SFInfo(New Triple(MJ_STEINE_MAXX, MJ_STEINE_MAXY, MJ_STEINE_MAXZ))
         'Dim wbsSF As Werkstück = Umfeld.Werkstück_Pyramide(New Triple(MJ_STEINE_MAXX \ 2, MJ_STEINE_MAXY * 3 \ 2, MJ_STEINE_MAXZ), True, True, demoMode:=True) ', True, True)
-        Dim newSpielfeldInfo As New SFInfo(New Triple(10, 10, 10))
-        Dim wbsSF As Werkstück = Umfeld.Werkstück_Pyramide(New Triple(10, 14, 10), True, True, demoMode:=True) ', True, True)
-        'Dim wbsSF As Werkstück = Umfeld.Werkstück_Rechteck(New Triple(5, 6, 10), demoMode:=True) ', True, True)
+        Dim newSpielfeldInfo As New SFInfo(New Triple(10, 5, 5))
+        ' Dim wbsSF As Werkstück = Umfeld.Werkstück_Pyramide(New Triple(5, 5, 3), True, True, demoMode:=True) ', True, True)
+        Dim wbsSF As Werkstück = Umfeld.Werkstück_Rechteck(New Triple(4, 4, 1), demoMode:=True) ', True, True)
 
         newSpielfeldInfo.AddWerkstückToSpielfeld(wbsSF, New Triple(1, 1, 0))
 
@@ -270,6 +270,9 @@ Public Class frmMain
         If IsValidStartupRect(iniRect) Then
             Me.StartPosition = FormStartPosition.Manual
             Me.Bounds = _startupMainBounds
+            If INI.Sonstiges_FrmMainStartMaximized Then
+                Me.WindowState = FormWindowState.Maximized
+            End If
         Else
             Me.StartPosition = FormStartPosition.CenterScreen
             ' Windows legt Location dann selbst fest; Bounds schonen
@@ -300,12 +303,19 @@ Public Class frmMain
 
     Private Sub frmMain_FormClosing(sender As Object, e As FormClosingEventArgs) Handles Me.FormClosing
         Spielfeld.SFMain.CloseSpielfeld()
-    End Sub
 
-    Private Sub frmMain_ResizeEnd(sender As Object, e As EventArgs) Handles Me.ResizeEnd, Me.Closing
-        If Me.WindowState = FormWindowState.Normal Then
+        If Me.WindowState = Global.System.Windows.Forms.FormWindowState.Maximized Then
+            'Wenn in diesem Fall das Rectangle nicht verkleinert wird, meint Windows einen
+            'ungültigen (dritten) Bildschirm vor sich zu haben und schaltet um auf Standardausgabe.
+            Dim rect As New Rectangle(Bounds.Location, Bounds.Size)
+            rect.Inflate(-100, -100)
+            INI.Sonstiges_FrmMainStartupPosition = rect
+        Else
             INI.Sonstiges_FrmMainStartupPosition = Me.Bounds
         End If
+        INI.Sonstiges_FrmMainStartMaximized = Me.WindowState = Global.System.Windows.Forms.FormWindowState.Maximized
+        INI.AllIniManagerSave()
+
     End Sub
     'Private Sub frmMain_Move(sender As Object, e As EventArgs) Handles Me.Move
     '    If Me.WindowState = FormWindowState.Normal Then
@@ -597,7 +607,7 @@ Public Class frmMain
 
 #End Region
 
-#Region "ToolStrip unten Initialisierung"
+#Region "ToolStrip unten InitDragDropBitmaps"
 
     ' --- Aufruf z. B. im Load-Event:
     ' Private Sub frmMain_Load(...) Handles MyBase.Load

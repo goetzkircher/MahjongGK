@@ -91,7 +91,7 @@ Public Class frmSplash
 
 #End Region
 
-#Region "Initialisierung / Start / Stop"
+#Region "InitDragDropBitmaps / Start / Stop"
 
     Public Sub New()
         ' Wenn du schon einen eigenen ctor hast, nur die SetStyle/Timer-Zeilen dort ergänzen.

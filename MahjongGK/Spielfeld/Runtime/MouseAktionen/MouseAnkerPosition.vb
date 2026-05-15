@@ -11,7 +11,7 @@ Option Strict On
 ''' Der Maus-Ankerpunkt startet an der echten Klickposition im Stein und wandert bei
 ''' Mausbewegung weich auf einen lageabhängigen Sollwert.
 ''' </summary>
-Public NotInheritable Class AirPlanePosition
+Public NotInheritable Class MouseAnkerPosition
 
     Private Const DELTASTEPS As Integer = 10
 

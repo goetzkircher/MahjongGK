@@ -128,6 +128,19 @@ Namespace Spielfeld
         ''' <param name="timeDifferenzFaktor"></param>
         Public Sub PaintUCtlSpielfeld(e As PaintEventArgs, rectOutput As Rectangle, timeDifferenzFaktor As Double)
 
+            'Select Case SFMain.RenderMode
+            '    Case RenderMode.Edit
+            '        Stop
+            '    Case RenderMode.NoRendering
+            '        Stop
+            '    Case RenderMode.Paused
+            '        Stop
+            '    Case RenderMode.Spiel
+            '        Stop
+            'End Select
+            ''If _sfd.SFInf.SteinInfos.Count = 0 Then
+            ''    Stop
+            ''End If
             '
             'Der frühestmögliche Zeitpunkt den AktRenderMode festzulegen.
             'Abgeleitet vom Rendermode.
@@ -179,11 +192,8 @@ Namespace Spielfeld
 
 #Region "Mausaktionen und Größenänderung der Form auswerten und Rendern ggf verkürzen."
 
-            Dim somethingDoneMousePoll As Boolean = _sfd.SFRun.MousePolling.Poll
             Dim somethingDoneResizePoll As Boolean = _sfd.SFRun.ResizePolling.Poll
             Dim somethingDoneTopSteinInfosPoll As Boolean = _sfd.SFInf.ConsumeTopSteinInfosPolling()
-            '()
-            Dim somethingDoneTopAirPlanePoll As Boolean = _sfd.SFAir.ConsumeAirplanePolling()
 
             Dim somethingDoneBitmapUGrd As Boolean = False
             If _sfd.SFInf.BitmapUGrdSingleImgCache IsNot Nothing Then
@@ -191,12 +201,19 @@ Namespace Spielfeld
             End If
             _sfd.SFLay.BitmapUGrdChanged = somethingDoneBitmapUGrd
 
-            'If _sfd.ToolboxTabPageChanged Then
-            '    Stop
-            'End If
+            Dim updateSpielfeld As Boolean
+            Dim doRendering As Boolean
+            '
+            'Die eigentliche Abfrage nach Mausaktivitäten ist mit dem Zugriff auf Werte verbunden, die erst nach
+            'dem Update des Spielfeldes zur Verfügung stehen. Daher hier nur die Prüfung, ob sich überhaupt
+            'was geändert hat. Nicht geprüft wird das Skrollrad. Wegen hackeliger Funktionsweise
+            'ist das aber eh unbrachbar.
+            Dim schnelltestHasMouseStateChange As Boolean = _sfd.SFMouse.ConsumeSchnelltestHasMouseStateChange
+            If schnelltestHasMouseStateChange Then
+                doRendering = True
+            End If
 
-            Dim updateSpielfeld As Boolean = False
-            Dim doRendering As Boolean = False
+            SetRendertimerIntervall(schnelltestHasMouseStateChange)
 
             If _Spielbetrieb_PositionHistory <> INI.Spielbetrieb_PositionHistory Then
                 updateSpielfeld = True
@@ -221,15 +238,9 @@ Namespace Spielfeld
                     If _sfd.SFRun.ResizePolling.ConsumeResizeEnded Then
                         _sfd.SFRun.ResizingIsAktiv = False
                     End If
-                ElseIf somethingDoneMousePoll Then
-                    doRendering = True
-                ElseIf somethingDoneTopAirPlanePoll Then
-                    doRendering = True
                 ElseIf somethingDoneTopSteinInfosPoll Then
                     doRendering = True
                 End If
-
-                SetRendertimerIntervall(somethingDoneMousePoll)
 
                 If _sfd.SFRun.ResizingIsAktiv Then
                     If _sfd.SFRun.Backbuffer_HasContent Then
@@ -245,7 +256,8 @@ Namespace Spielfeld
 
             'Die Consume... Abfragen dürfen nicht übersprungen werden,
             'also kein ElseIf...
-            If SFMain.SFDat.SFRun.ConsumeAktRenderModeChanged Then
+
+            If _sfd.SFRun.ConsumeAktRenderModeChanged Then
                 aktRenderModeOrSteinBasisSizeChanged = True
                 updateSpielfeld = True
                 doRendering = True
@@ -280,8 +292,13 @@ Namespace Spielfeld
                 doRendering = True
             End If
 
+            'PumpAutoRepeat muss überarabeitet werden, funktioniert nicht richtig
+            ''If _sfd.SFRun.HScrollBarStock?.PumpAutoRepeat Then
+            ''    doRendering = True
+            ''End If
+
             If doRendering = False Then
-                If somethingDoneMousePoll Then
+                If schnelltestHasMouseStateChange Then
                     doRendering = True
                 ElseIf somethingDoneBitmapUGrd Then
                     doRendering = True
@@ -334,16 +351,16 @@ Namespace Spielfeld
                         _initialisierungLäuft = False
                         updateSpielfeld = False
                         _sfd.SFLay.UpdateSpielfeldLayout(rectOutput, aktRenderModeOrSteinBasisSizeChanged)
-                        'ZLVxxx  _sfd.SFMouse.UpdateMouseValues(rectOutput, somethingDoneMousePoll, spielfeldIsUpdated:=True)
-                        _sfd.SFRen.RenderingDistributor(e.Graphics, rectOutput, timeDifferenzFaktor)
+                        If schnelltestHasMouseStateChange Then DoMouseActions()
+                        _sfd.SFRen.RenderingHauptverteiler(e.Graphics, rectOutput, timeDifferenzFaktor)
                         Exit Sub
 
                     Case AktRenderMode.Edit
                         _initialisierungLäuft = False
                         updateSpielfeld = False
                         _sfd.SFLay.UpdateSpielfeldLayout(rectOutput, aktRenderModeOrSteinBasisSizeChanged)
-                        'ZLVxxx  _sfd.SFMouse.UpdateMouseValues(rectOutput, somethingDoneMousePoll, spielfeldIsUpdated:=True)
-                        _sfd.SFRen.RenderingDistributor(e.Graphics, rectOutput, timeDifferenzFaktor)
+                        If schnelltestHasMouseStateChange Then DoMouseActions()
+                        _sfd.SFRen.RenderingHauptverteiler(e.Graphics, rectOutput, timeDifferenzFaktor)
                         Exit Sub
 
                 End Select
@@ -351,16 +368,26 @@ Namespace Spielfeld
 
             If updateSpielfeld Then
                 _sfd.SFLay.UpdateSpielfeldLayout(rectOutput, aktRenderModeOrSteinBasisSizeChanged)
-                'ZLVxxx  _sfd.SFMouse.UpdateMouseValues(rectOutput, somethingDoneMousePoll, spielfeldIsUpdated:=True)
-                _sfd.SFRen.RenderingDistributor(e.Graphics, rectOutput, timeDifferenzFaktor)
+                If schnelltestHasMouseStateChange Then DoMouseActions()
+                _sfd.SFRen.RenderingHauptverteiler(e.Graphics, rectOutput, timeDifferenzFaktor)
                 updateSpielfeld = False
                 Exit Sub
             End If
-
             If doRendering Then
-                'ZLVxxx   _sfd.SFMouse.UpdateMouseValues(rectOutput, somethingDoneMousePoll, spielfeldIsUpdated:=False)
-                _sfd.SFRen.RenderingDistributor(e.Graphics, rectOutput, timeDifferenzFaktor)
+                If schnelltestHasMouseStateChange Then DoMouseActions()
+                _sfd.SFRen.RenderingHauptverteiler(e.Graphics, rectOutput, timeDifferenzFaktor)
             End If
+        End Sub
+
+        '
+        ''' <summary>
+        ''' Die Mausaktionen dürfen erst ausgeführt werden, wenn UpdateSpielfeldLayout ausgeführt wurde,
+        ''' weil auf Werte zugegriffen wird, die erst dann zur Verfügung stehen.
+        ''' </summary>
+        Private Sub DoMouseActions()
+            Dim somethingDoneMousePoll As Boolean = _sfd.SFRun.MousePolling.Poll
+            Dim mouseAktionHasRenderJob As Boolean = _sfd.SFMouse.ConsumeMouseAktionHasRenderJob
+
         End Sub
 
         Private Sub PaintBackbuffer(PaintEventGfx As Graphics, rectOutput As Rectangle)

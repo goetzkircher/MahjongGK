@@ -134,13 +134,13 @@ Public Class frmToolBox
         ' Datei
         Dim mDatei As New ToolStripMenuItem("Datei")
         For Each cmd As EditorFileCmd In [Enum].GetValues(GetType(EditorFileCmd))
-#Disable Warning IDE0017 ' Initialisierung von Objekten vereinfachen
+#Disable Warning IDE0017 ' InitDragDropBitmaps von Objekten vereinfachen
             Dim tsmi As New ToolStripMenuItem(CaptionFromEnumName(cmd.ToString())) With {
                 .Name = "tsmiEditor_" & cmd.ToString(),
                 .Tag = cmd,
                 .ShowShortcutKeys = False
             }
-#Enable Warning IDE0017 ' Initialisierung von Objekten vereinfachen
+#Enable Warning IDE0017 ' InitDragDropBitmaps von Objekten vereinfachen
             ' Icon: "EditorFileCmd_<Wert>"
             tsmi.Image = GetEnumIcon(GetType(EditorFileCmd).Name, cmd.ToString())
             AddHandler tsmi.Click, AddressOf OnEditorFileClick
@@ -152,13 +152,13 @@ Public Class frmToolBox
         ' PlatzhalterEditor
         Dim mPlatz As New ToolStripMenuItem("PlatzhalterEditor")
         For Each it As PlatzhalterEditor In [Enum].GetValues(GetType(PlatzhalterEditor))
-#Disable Warning IDE0017 ' Initialisierung von Objekten vereinfachen
+#Disable Warning IDE0017 ' InitDragDropBitmaps von Objekten vereinfachen
             Dim tsmi As New ToolStripMenuItem(CaptionFromEnumName(it.ToString())) With {
                 .Name = "tsmiEditor_" & it.ToString(),
                 .Tag = it,
                 .ShowShortcutKeys = False
             }
-#Enable Warning IDE0017 ' Initialisierung von Objekten vereinfachen
+#Enable Warning IDE0017 ' InitDragDropBitmaps von Objekten vereinfachen
             ' Icon: "PlatzhalterEditor_<Wert>"
             tsmi.Image = GetEnumIcon(GetType(PlatzhalterEditor).Name, it.ToString())
             AddHandler tsmi.Click, AddressOf OnPlatzhalterEditorClick

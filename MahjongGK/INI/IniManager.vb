@@ -109,7 +109,7 @@ Public Class IniManager
 
     ''' <summary>
     ''' IniEvents hat die Werte: None, OnChangeValue, OnWriteValue, OnUpdate. Je nach Wert geben die Überladungen
-    ''' WriteValue True oder False zurück. None gibt immer False zurück. Grundeinstellung bei der Initialisierung.
+    ''' WriteValue True oder False zurück. None gibt immer False zurück. Grundeinstellung bei der InitDragDropBitmaps.
     ''' 
     ''' </summary>
     ''' <returns></returns>
@@ -655,7 +655,7 @@ Public Class IniManager
         Dim idx As Integer = FindKeyLine(folderAndKey)
 
         If idx < 0 Then
-            ' Key existiert nicht -> neu anlegen (falls Initialisierung gewünscht inkl. Kommentar)
+            ' Key existiert nicht -> neu anlegen (falls InitDragDropBitmaps gewünscht inkl. Kommentar)
             WriteValueToINI(folderAndKey, defaultValue, comment)
             Return defaultValue
         End If

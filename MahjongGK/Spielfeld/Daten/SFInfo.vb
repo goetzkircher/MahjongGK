@@ -43,7 +43,7 @@ Namespace Spielfeld
     ''' </summary>
     Public Class SFInfo
 
-#Region "Konstruktor / Initialisierung"
+#Region "Konstruktor / InitDragDropBitmaps"
 
         Public Sub New()
 
@@ -749,7 +749,8 @@ Namespace Spielfeld
             Get
                 'If INI.Debug_StopRendering Then Stop
                 If IsNothing(SteinInfos) Then Return True
-                If SteinInfos.Count = 0 Then Return True
+                '' Das hier nicht! If SteinInfos.Count = 0 Then Return True
+                'sonst wird ein leeres Spielfeld nicht angezeigt
                 If xMax = 0 Then Return True
                 If yMax = 0 Then Return True
                 Return False
@@ -1025,10 +1026,12 @@ Namespace Spielfeld
             '
             'Die SteinInfo in SteinInfos entfernen
             SteinInfos.Remove(SteinInfos(steinInfoIndex))
+            NotifySteinInfosChanged()
             '
             'In SteinInfo und im arrFB verschieben sich jetzt alle steinInfoIndex um -1.
             If steinInfoIndex >= SteinInfos.Count Then
-                'Es wurde der letzte Stein entfernt
+                'Es wurde der letzte Stein, der UBound, entfernt
+                'Die Reihenfolge stimmt also noch
                 Exit Sub
             End If
             '
@@ -4001,7 +4004,7 @@ Namespace Spielfeld
                 ' Diese Exception kommt typischerweise bei Serialisierungsproblemen (nicht-public, fehlender Ctor, etc.)
                 Throw New InvalidOperationException(
                 "XML-Serialisierung fehlgeschlagen. Prüfe: Public-Klassen/-Properties, parameterloser Public-Konstruktor, " &
-                "konkrete Collection-Typen und Initialisierung der Collections.", ex)
+                "konkrete Collection-Typen und InitDragDropBitmaps der Collections.", ex)
             Catch ex As Exception
                 Throw ' nicht verschlucken – hochreichen
             End Try

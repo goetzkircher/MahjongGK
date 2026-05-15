@@ -291,7 +291,7 @@ Namespace Umfeld
         'Du:
         'Das weis ich noch nicht, das muss ich ausprobieren.
         'Jeder Stein einer höheren Schicht braucht ja ein Fundament aus anderen Steinen auf der
-        'darunter liegenden Schicht. Vielleicht ist der einfachste Weg, die unterste Schicht
+        'darunter liegenden Schicht. Vielleicht ist der einfachste AirPlaneFlightPath, die unterste Schicht
         'zu berechnen und die nächsten Schichten einfach durchzuprobieren, d.h. durch alle Felder
         'zu interieren und mit der Funktion HasFundament zu testen.
         'ChatGPT:

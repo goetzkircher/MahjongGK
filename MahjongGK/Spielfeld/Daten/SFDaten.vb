@@ -71,7 +71,9 @@ Namespace Spielfeld
             SFRenMan = New SFRenderManager(Me)
             SFUI = New SFUIFace(Me)
             'ZLVxxx   SFMouse = New SFMouseRuntime_zlv(Me)
-            SFAir = New SFAirflight(Me)
+            'ZLVSFAir = New SFAirflight(Me)
+            SFMouse = New SFMouseAktion(Me)
+            SFStock = New SFStockState(Me)
         End Sub
 
         Public Sub New(spielfeldinfo As SFInfo)
@@ -85,8 +87,9 @@ Namespace Spielfeld
             SFRenMan = New SFRenderManager(Me)
             SFUI = New SFUIFace(Me)
             'ZLVxxx   SFMouse = New SFMouseRuntime_zlv(Me)
-            SFAir = New SFAirflight(Me)
-
+            'ZLV SFAir = New SFAirflight(Me)
+            SFMouse = New SFMouseAktion(Me)
+            SFStock = New SFStockState(Me)
         End Sub
 
 #End Region
@@ -102,8 +105,12 @@ Namespace Spielfeld
         Public Property SFRenMan As SFRenderManager
         Public Property SFUI As SFUIFace
         '
-        'ZLVxxx   Public Property SFMouse As SFMouseRuntime_zlv
-        Public Property SFAir As SFAirflight
+        ''ZLVxxx   Public Property SFMouse As SFMouseRuntime_zlv
+        'Public Property SFAir As SFAirflight
+
+        Public Property SFMouse As SFMouseAktion
+
+        Public Property SFStock As SFStockState
 #End Region
 
 #Region "Dispose"
