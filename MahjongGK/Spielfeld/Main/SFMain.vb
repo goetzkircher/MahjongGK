@@ -139,7 +139,7 @@ Namespace Spielfeld
         ''' </summary>
         ''' <param name="spielsize"></param>
         ''' <returns></returns>
-        Public Function CreateSpielfeld(spielsize As Triple) As Boolean
+        Public Function CreateSpielfeld(spielsize As Triple, Optional generator As SpielsteinGenerator = Nothing) As Boolean
 
             CloseSpielfeld()
 
@@ -148,7 +148,9 @@ Namespace Spielfeld
             End If
 
             SFDat = New SFDaten(spielsize)
-
+            If Not IsNothing(generator) Then
+                SFDat.SFInf.Generator = generator
+            End If
             'Der RenderMode bleibt auf NoDataLoaded, auch wenn Daten geladen wurden, denn
             'Das Umschalten bewirkt das sofortige Rendern.
             'Public Property RenderMode As RenderMode muss explizit zu Start aufgerufen werden.
@@ -157,7 +159,7 @@ Namespace Spielfeld
 
         End Function
 
-        Public Function CreateSpielfeld(spielfeldinfo As SFInfo) As Boolean
+        Public Function CreateSpielfeld(spielfeldinfo As SFInfo, Optional generator As SpielsteinGenerator = Nothing) As Boolean
 
             CloseSpielfeld()
 
@@ -166,6 +168,9 @@ Namespace Spielfeld
             End If
 
             SFDat = New SFDaten(spielfeldinfo)
+            If Not IsNothing(generator) Then
+                SFDat.SFInf.Generator = generator
+            End If
 
             'Der RenderMode bleibt auf NoDataLoaded, auch wenn Daten geladen wurden, denn
             'Das Umschalten bewirkt das sofortige Rendern.

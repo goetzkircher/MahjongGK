@@ -950,7 +950,7 @@ Public Module INI
         Get
             If Not _Editor_SortSpacerWidth.HasValue Then
                 Dim [Default] As Integer = 10
-                Dim comment As String = "Breite des Zwischenraumes im Steinvorrat ab welchem Stein neu gemischt wird."
+                Dim comment As String = "Breite des Zwischenraumes im Steinvorrat ab welchem Stein neu gemischt wird. Default 10"
                 _Editor_SortSpacerWidth = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
                 'muss hier das .Value dahinter?
                 If _Editor_SortSpacerWidth < 0 Then _Editor_SortSpacerWidth = 0
@@ -968,12 +968,12 @@ Public Module INI
     Public Property Editor_SpaceFramesToOpenOrClose As Integer
         Get
             If Not _Editor_SpaceFramesToOpenOrClose.HasValue Then
-                Dim [Default] As Integer = 10
-                Dim comment As String = "Anzahl der Frames um die Lücke für einen Stein zu öffnen oder zu schließen. Default = 10"
+                Dim [Default] As Integer = 8
+                Dim comment As String = "Anzahl der Frames um die Lücke für einen Stein zu öffnen oder zu schließen. Default = 8, Min 3, Max 20"
                 _Editor_SpaceFramesToOpenOrClose = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
                 'muss hier das .Value dahinter?
-                If _Editor_SpaceFramesToOpenOrClose < 0 Then _Editor_SpaceFramesToOpenOrClose = 0
-                If _Editor_SpaceFramesToOpenOrClose > 100 Then _Editor_SpaceFramesToOpenOrClose = 100
+                If _Editor_SpaceFramesToOpenOrClose < 3 Then _Editor_SpaceFramesToOpenOrClose = 3
+                If _Editor_SpaceFramesToOpenOrClose > 20 Then _Editor_SpaceFramesToOpenOrClose = 20
             End If
             Return _Editor_SpaceFramesToOpenOrClose.Value
         End Get
@@ -2762,6 +2762,26 @@ Public Module INI
 #End Region
 
 #Region "Nicht gespeicherte Daten"
+
+    Private _renderCounter As Integer
+    '
+    ''' <summary>
+    ''' Wird bei jedem Rendern hochgezählt
+    ''' </summary>
+    Public Sub RenderCounter_Inc()
+        _renderCounter += 1
+    End Sub
+    '
+    ''' <summary>
+    ''' Gibt die Anzahl der Renderticks seit Programmstart an.
+    ''' Wird nicht rückgestellt, läuft aber erst nach 2,7 Jahren über.
+    ''' </summary>
+    ''' <returns></returns>
+    Public ReadOnly Property RenderCounter_GetValue As Integer
+        Get
+            Return _renderCounter
+        End Get
+    End Property
 
 #End Region
 

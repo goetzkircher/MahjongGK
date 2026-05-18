@@ -32,6 +32,7 @@ Imports MahjongGK.Contracts.GlobalEnum
 #Disable Warning IDE1006
 
 Namespace Spielfeld
+
     ''' <summary>
     ''' Pfad: MahjongGK/Spielfeld/Render
     ''' </summary>
@@ -121,12 +122,14 @@ Namespace Spielfeld
 
         ''' <summary>
         ''' Dieses Sub wird vom PaintEvent der Zeichenfläche (UCtlSpielfeld und UCtlEdtor) getaktet
-        ''' aufgerufen. Es ist ein Verteiler, der entweder das Update des Spielfeldes oder das Zeichnen selber aufruft.
+        ''' aufgerufen. Es ist ein Verteiler, der entweder das Update des Spielfeldes und/oder das Zeichnen selber aufruft.
         ''' </summary>
         ''' <param name="e"></param>
         ''' <param name="rectOutput"></param>
         ''' <param name="timeDifferenzFaktor"></param>
         Public Sub PaintUCtlSpielfeld(e As PaintEventArgs, rectOutput As Rectangle, timeDifferenzFaktor As Double)
+
+            INI.RenderCounter_Inc()
 
             'Select Case SFMain.RenderMode
             '    Case RenderMode.Edit
@@ -192,24 +195,49 @@ Namespace Spielfeld
 
 #Region "Mausaktionen und Größenänderung der Form auswerten und Rendern ggf verkürzen."
 
-            Dim somethingDoneResizePoll As Boolean = _sfd.SFRun.ResizePolling.Poll
-            Dim somethingDoneTopSteinInfosPoll As Boolean = _sfd.SFInf.ConsumeTopSteinInfosPolling()
+            Dim somethingDoneResizePoll As Boolean
+            Dim somethingDoneTopSteinInfosPoll As Boolean
+            Dim somethingDoneBitmapUGrd As Boolean
+            Dim aktRenderModeOrSteinBasisSizeChanged As Boolean
 
-            Dim somethingDoneBitmapUGrd As Boolean = False
+            Dim updateSpielfeld As Boolean
+            Dim doRendering As Boolean
+            Dim schnelltestHasMouseStateChange As Boolean
+            '
+
+            somethingDoneResizePoll = _sfd.SFRun.ResizePolling.Poll
+            somethingDoneTopSteinInfosPoll = _sfd.SFInf.ConsumeTopSteinInfosPolling()
+
             If _sfd.SFInf.BitmapUGrdSingleImgCache IsNot Nothing Then
                 somethingDoneBitmapUGrd = _sfd.SFInf.BitmapUGrdSingleImgCache.ConsumeBitmapChanged
             End If
             _sfd.SFLay.BitmapUGrdChanged = somethingDoneBitmapUGrd
 
-            Dim updateSpielfeld As Boolean
-            Dim doRendering As Boolean
-            '
+            If _sfd.SFStock.ConsumeSteineCountGrow Then
+                doRendering = True
+                schnelltestHasMouseStateChange = True
+            End If
+            'If _sfd.SFInf.ConsumeSteinInfosCountChanged Then
+            '    doRendering = True
+            'End If
+            'If _sfd.SFMouse.ConsumeMousAktionIsDirty Then
+            '    doRendering = True
+            'End If
+
             'Die eigentliche Abfrage nach Mausaktivitäten ist mit dem Zugriff auf Werte verbunden, die erst nach
-            'dem Update des Spielfeldes zur Verfügung stehen. Daher hier nur die Prüfung, ob sich überhaupt
-            'was geändert hat. Nicht geprüft wird das Skrollrad. Wegen hackeliger Funktionsweise
-            'ist das aber eh unbrachbar.
-            Dim schnelltestHasMouseStateChange As Boolean = _sfd.SFMouse.ConsumeSchnelltestHasMouseStateChange
-            If schnelltestHasMouseStateChange Then
+            'dem Update des Spielfeldes zur Verfügung stehen. Daher hier nur die Prüfung, ob sich überhaupt was geändert hat.
+            Select Case _sfd.SFMouse.ConsumeSchnelltestHasMouseStateChange()
+                Case MouseStateChanged.MouseMovedWhileLeftMouseReleased
+                    doRendering = True
+                Case MouseStateChanged.AllOtherMouseEvents
+                    doRendering = True
+                    schnelltestHasMouseStateChange = True
+                Case MouseStateChanged.None
+                    'nichts machen
+            End Select
+
+            If _sfd.SFMouse.GapJobIsWorking Then
+                schnelltestHasMouseStateChange = True
                 doRendering = True
             End If
 
@@ -240,6 +268,7 @@ Namespace Spielfeld
                     End If
                 ElseIf somethingDoneTopSteinInfosPoll Then
                     doRendering = True
+
                 End If
 
                 If _sfd.SFRun.ResizingIsAktiv Then
@@ -251,8 +280,6 @@ Namespace Spielfeld
                     Exit Sub
                 End If
             End If
-
-            Dim aktRenderModeOrSteinBasisSizeChanged As Boolean
 
             'Die Consume... Abfragen dürfen nicht übersprungen werden,
             'also kein ElseIf...
@@ -288,25 +315,21 @@ Namespace Spielfeld
                 aktRenderModeOrSteinBasisSizeChanged = True
             End If
 
-            If _sfd.SFInf.ConsumeSteinInfosCountChanged Then
-                doRendering = True
-            End If
-
             'PumpAutoRepeat muss überarabeitet werden, funktioniert nicht richtig
             ''If _sfd.SFRun.HScrollBarStock?.PumpAutoRepeat Then
             ''    doRendering = True
             ''End If
 
             If doRendering = False Then
-                If schnelltestHasMouseStateChange Then
-                    doRendering = True
-                ElseIf somethingDoneBitmapUGrd Then
+                If somethingDoneBitmapUGrd Then
                     doRendering = True
                 ElseIf _createScreenShot Then
                     doRendering = True
                 ElseIf _initialisierungLäuft Then
                     doRendering = True
                 ElseIf _takteAussetzen > 0 Then
+                    doRendering = True
+                ElseIf _sfd.SFMouse.GetAloneGhostBmp.has Then
                     doRendering = True
                     'ZLVxxx  ElseIf _sfd.SFRun.EditorStockSteinFlugValues?.IsFlying Then
                     'ZLVxxx      doRendering = True
@@ -351,7 +374,7 @@ Namespace Spielfeld
                         _initialisierungLäuft = False
                         updateSpielfeld = False
                         _sfd.SFLay.UpdateSpielfeldLayout(rectOutput, aktRenderModeOrSteinBasisSizeChanged)
-                        If schnelltestHasMouseStateChange Then DoMouseActions()
+                        DoMouseActions(schnelltestHasMouseStateChange)
                         _sfd.SFRen.RenderingHauptverteiler(e.Graphics, rectOutput, timeDifferenzFaktor)
                         Exit Sub
 
@@ -359,7 +382,7 @@ Namespace Spielfeld
                         _initialisierungLäuft = False
                         updateSpielfeld = False
                         _sfd.SFLay.UpdateSpielfeldLayout(rectOutput, aktRenderModeOrSteinBasisSizeChanged)
-                        If schnelltestHasMouseStateChange Then DoMouseActions()
+                        DoMouseActions(schnelltestHasMouseStateChange)
                         _sfd.SFRen.RenderingHauptverteiler(e.Graphics, rectOutput, timeDifferenzFaktor)
                         Exit Sub
 
@@ -368,13 +391,13 @@ Namespace Spielfeld
 
             If updateSpielfeld Then
                 _sfd.SFLay.UpdateSpielfeldLayout(rectOutput, aktRenderModeOrSteinBasisSizeChanged)
-                If schnelltestHasMouseStateChange Then DoMouseActions()
+                DoMouseActions(schnelltestHasMouseStateChange)
                 _sfd.SFRen.RenderingHauptverteiler(e.Graphics, rectOutput, timeDifferenzFaktor)
                 updateSpielfeld = False
                 Exit Sub
             End If
             If doRendering Then
-                If schnelltestHasMouseStateChange Then DoMouseActions()
+                DoMouseActions(schnelltestHasMouseStateChange)
                 _sfd.SFRen.RenderingHauptverteiler(e.Graphics, rectOutput, timeDifferenzFaktor)
             End If
         End Sub
@@ -384,9 +407,14 @@ Namespace Spielfeld
         ''' Die Mausaktionen dürfen erst ausgeführt werden, wenn UpdateSpielfeldLayout ausgeführt wurde,
         ''' weil auf Werte zugegriffen wird, die erst dann zur Verfügung stehen.
         ''' </summary>
-        Private Sub DoMouseActions()
-            Dim somethingDoneMousePoll As Boolean = _sfd.SFRun.MousePolling.Poll
-            Dim mouseAktionHasRenderJob As Boolean = _sfd.SFMouse.ConsumeMouseAktionHasRenderJob
+        Private Sub DoMouseActions(schnelltestHasMouseStateChange As Boolean)
+
+            _sfd.SFRun.MousePolling.Poll()
+            If schnelltestHasMouseStateChange Then
+                _sfd.SFMouse.DoMouseDownAndDragDropAktion()
+            Else
+                _sfd.SFMouse.DoMouseUpMoveAktion()
+            End If
 
         End Sub
 

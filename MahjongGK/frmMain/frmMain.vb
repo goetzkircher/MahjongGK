@@ -78,11 +78,12 @@ Public Class frmMain
         'Dim wbsSF As Werkstück = Umfeld.Werkstück_Pyramide(New Triple(MJ_STEINE_MAXX \ 2, MJ_STEINE_MAXY * 3 \ 2, MJ_STEINE_MAXZ), True, True, demoMode:=True) ', True, True)
         Dim newSpielfeldInfo As New SFInfo(New Triple(10, 5, 5))
         ' Dim wbsSF As Werkstück = Umfeld.Werkstück_Pyramide(New Triple(5, 5, 3), True, True, demoMode:=True) ', True, True)
-        Dim wbsSF As Werkstück = Umfeld.Werkstück_Rechteck(New Triple(4, 4, 1), demoMode:=True) ', True, True)
+        'Dim wbsSF As Werkstück = Umfeld.Werkstück_Rechteck(New Triple(2, 2, 1), demoMode:=True) ', True, True)
 
-        newSpielfeldInfo.AddWerkstückToSpielfeld(wbsSF, New Triple(1, 1, 0))
-
-        SFMain.CreateSpielfeld(newSpielfeldInfo)
+        'newSpielfeldInfo.AddWerkstückToSpielfeld(wbsSF, New Triple(1, 1, 0))
+        Dim generator As New SpielsteinGenerator(GeneratorModus.StoneSet_072)
+        generator.DebugStoneCountLimit = 16
+        SFMain.CreateSpielfeld(newSpielfeldInfo, generator)
 
         'startet die Anzeige
         SFMain.RenderMode = RenderMode.Edit

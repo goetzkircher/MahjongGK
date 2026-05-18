@@ -1,4 +1,11 @@
-﻿Public Class MouseWheelPoller
+﻿
+Public Enum MouseStateChanged
+    None
+    MouseMovedWhileLeftMouseReleased
+    AllOtherMouseEvents
+End Enum
+
+Public Class MouseWheelPoller
 
     Private _pendingSteps As Integer
     Private _remainder As Integer
@@ -97,7 +104,7 @@
     ''' der Status der linken oder rechten Maustaste oder der Status 
     ''' der Strg- oder Alt-Taste oder das Scrollrad geändert hat.
     ''' </summary>
-    Public Function ConsumeSchnelltestHasMouseStateChange() As Boolean
+    Public Function ConsumeSchnelltestHasMouseStateChange() As MouseStateChanged
 
         Dim aktState As New MouseStateSnapshot(
         Control.MousePosition,
@@ -108,30 +115,44 @@
         If Not _hasLastMouseState Then
             _lastMouseState = aktState
             _hasLastMouseState = True
-            Return True
+            Return MouseStateChanged.AllOtherMouseEvents
         End If
 
-        If aktState.MousePosScreen <> _lastMouseState.MousePosScreen Then
-            _lastMouseState = aktState
-            Return True
-        End If
-
+        'Tastenänderungen immer als relevantes Ereignis melden.
         If aktState.Buttons <> _lastMouseState.Buttons Then
             _lastMouseState = aktState
-            Return True
+            Return MouseStateChanged.AllOtherMouseEvents
         End If
 
+        'Modifier-Änderungen immer als relevantes Ereignis melden.
         If aktState.ModifierKeys <> _lastMouseState.ModifierKeys Then
             _lastMouseState = aktState
-            Return True
+            Return MouseStateChanged.AllOtherMouseEvents
         End If
 
+        'Mausradänderungen immer als relevantes Ereignis melden.
         If aktState.MouseWheelSerial <> _lastMouseState.MouseWheelSerial Then
             _lastMouseState = aktState
-            Return True
+            Return MouseStateChanged.AllOtherMouseEvents
         End If
 
-        Return False
+        'Reine Positionsänderung gesondert bewerten.
+        If aktState.MousePosScreen <> _lastMouseState.MousePosScreen Then
+
+            Dim leftMouseIsReleased As Boolean =
+            (aktState.Buttons And MouseButtons.Left) = MouseButtons.None
+
+            _lastMouseState = aktState
+
+            If leftMouseIsReleased Then
+                Return MouseStateChanged.MouseMovedWhileLeftMouseReleased
+            End If
+
+            Return MouseStateChanged.AllOtherMouseEvents
+
+        End If
+
+        Return MouseStateChanged.None
 
     End Function
 

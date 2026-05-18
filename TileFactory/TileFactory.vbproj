@@ -68,6 +68,7 @@
   <ItemGroup>
     <Compile Include="ColorHelper.vb" />
     <Compile Include="DrawingHelper.vb" />
+    <Compile Include="GhostTileBitmapCache.vb" />
     <Compile Include="GlobalHelper.vb" />
     <Compile Include="HsbColorHelper.vb" />
     <Compile Include="HsbInteger.vb" />

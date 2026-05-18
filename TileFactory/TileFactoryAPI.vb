@@ -11,8 +11,6 @@ Imports MahjongGK.Contracts.GlobalEnum
 
 Public Module TileFactoryAPI
 
-    Private _ghostCache As Bitmap = Nothing
-    Private _ghostRequest As TileRequest = Nothing
     'Private GHOSTTRANSPARENCY As Single = 0.35 '' Alpha-Faktor: 1.0 = deckend, 0.0 = unsichtbar
     'Private GHOSTLIGHTEN As Single = 0.35 'RGB aufhellen  0.0 = unverändert, 1.0 = weiß
 
@@ -83,34 +81,15 @@ Public Module TileFactoryAPI
             Dim bmp As Bitmap = _manager.GetTile(request)
             Return bmp
         Else
-            If request.SomethingChanged(_ghostRequest) OrElse _ghostCache Is Nothing Then
 
-                If _ghostCache IsNot Nothing Then
-                    _ghostCache.Dispose()
-                    _ghostCache = Nothing
-                End If
+            'Geister gibt es immer nur zum Normalstatus
+            request.SetSteinStatusToI01Normal()
 
-                _ghostRequest = TileRequest.DeepCopy(request)
+            Dim bmpGhost As Bitmap =
+                GhostTileBitmapCache.GetGhostBitmap(request,
+                Function(req As TileRequest) _manager.GetTile(req))
 
-                Dim bmp As Bitmap = _manager.GetTile(request)
-
-                With request.TileColors
-                    'Falls keine Werte vorhanden sind, Standardwerte nehmen
-                    If (.AlphaGhost = 0 OrElse .AlphaGhost = 255) AndAlso .DHueGhost = 0 AndAlso .DSatGhost = 0 AndAlso .DBrgGhost = 0 Then
-                        .GhostUseFastMethode = False
-                        .AlphaGhost = 150
-                        .DSatGhost = -100
-                    End If
-                    If .GhostUseFastMethode Then
-                        Dim alpha As Single = CSng(Math.Abs(.AlphaGhost) / 255)
-                        Dim lighten As Single = CSng(Math.Abs(.DBrgGhost) / 100)
-                        _ghostCache = DeepCopyTransparenceFast(bmp, alpha, lighten)
-                    Else
-                        _ghostCache = HsbColorHelper.HsbAdjustment(bmp, .AlphaGhost, .DHueGhost, .DSatGhost, .DBrgGhost, disposeBmpSrc:=False)
-                    End If
-                End With
-            End If
-            Return _ghostCache
+            Return bmpGhost
 
         End If
 

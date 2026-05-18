@@ -118,6 +118,7 @@
         '
         ''' <summary>
         ''' In der TileFactory andere Bedeutung!
+        ''' (ogne Symbol und Beschriftung)
         ''' </summary>
         ErrorSy = 0
         '

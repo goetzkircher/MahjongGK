@@ -61,8 +61,8 @@ Namespace Spielfeld
         '   - Stabiler, FPS-unabhängiger Animationsfluss.
         '   - Läuft auf langsamen und schnellen Rechnern gleichmäßig.
         ' ================================================
-
-
+        '
+        'Zum Debuggen hochsetzten. Zeitlupe = 500/450
         Public Const FRAME_MS_SOLL As Double = 25.0   ' Ziel-FPS ≈ 40
         Public Const FRAME_MS_VGL As Double = 20.0    ' etwas langsamer, sonst ist TimeDifferenzFaktor immer > 1
         Public Const MAX_FACTOR As Double = 2.5       ' Kappen gegen Sprünge

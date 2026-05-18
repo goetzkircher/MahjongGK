@@ -180,7 +180,7 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Spielfeld\Runtime\MouseAktionen\MouseWheelPoller.vb" />
-    <Compile Include="Spielfeld\Runtime\MouseAktionen\SFStockState.vb" />
+    <Compile Include="Spielfeld\Runtime\MouseAktionen\SFStockJobs.vb" />
     <Compile Include="Spielfeld\Runtime\Steinflug\AirHelper.vb" />
     <Compile Include="Spielfeld\Runtime\Steinflug\AirEnumerationen.vb" />
     <Compile Include="Spielfeld\Runtime\Steinflug\AirJobSelector.vb" />

@@ -312,6 +312,11 @@ Namespace Spielfeld
                 _backBufferGfx.DrawImage(values.bmp, values.rect)
             End If
 
+            values = _sfd.SFMouse.GetAloneGhostBmp
+            If values.has Then
+                _backBufferGfx.DrawImage(values.bmp, values.rect)
+            End If
+
         End Sub
 
         Private Sub PaintGrid()
@@ -435,13 +440,24 @@ Namespace Spielfeld
 
         Private Sub PaintStock()
 
+            Dim values As (has As Boolean, bmp As Bitmap, rect As Rectangle)
+
+            values = _sfd.SFMouse.GetSpecialBmps(SpecialBmps.AtStockRemovePos)
+            If values.has Then
+                _backBufferGfx.DrawImage(values.bmp, values.rect)
+            End If
+            values = _sfd.SFMouse.GetSpecialBmps(SpecialBmps.AtStockSrcPos)
+            If values.has Then
+                _backBufferGfx.DrawImage(values.bmp, values.rect)
+            End If
+
             Dim stockAktUBnd As Integer = _sfd.SFInf.Generator.StockAktUBnd
             Dim bmpStein As Bitmap
 
             With _sfd.SFStock
                 'Rendern der horizontalen Steinleiste.
                 For idx As Integer = .SteinVisibleAktFistIdx To .SteinVisibleAktLastIdx
-                    If idx >= _sfd.SFInf.Generator.Stock.Count Then
+                    If idx >= _sfd.SFInf.Generator.StockAktCount Then
                         Exit For
                     Else
 
@@ -457,9 +473,23 @@ Namespace Spielfeld
 
             End With
 
-            Dim values As (has As Boolean, bmp As Bitmap, rect As Rectangle)
             '
+            values = _sfd.SFMouse.GetSpecialBmps(SpecialBmps.AtStockSrcPos)
+            If values.has Then
+                _backBufferGfx.DrawImage(values.bmp, values.rect)
+            End If
+
+            values = _sfd.SFMouse.GetSpecialBmps(SpecialBmps.AtStockInsertPos)
+            If values.has Then
+                _backBufferGfx.DrawImage(values.bmp, values.rect)
+            End If
+
             values = _sfd.SFMouse.GetSpecialBmps(SpecialBmps.AtStockCanDropPos)
+            If values.has Then
+                _backBufferGfx.DrawImage(values.bmp, values.rect)
+            End If
+
+            values = _sfd.SFMouse.GetSpecialBmps(SpecialBmps.AtStockMousePos)
             If values.has Then
                 _backBufferGfx.DrawImage(values.bmp, values.rect)
             End If

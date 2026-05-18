@@ -93,9 +93,14 @@ Public NotInheritable Class TileRequest
             Return _steinFrameVersion
         End Get
     End Property
-    Public Sub SetSteinFrameVersion(steinFrameVersion As SteinFrameVersion, ghost As Boolean)
-        _steinFrameVersion = steinFrameVersion
-        Me._ghost = ghost
+    Public Sub SetSteinFrameVersion(steinStatus As SteinStatus, SteinFrameVersion As SteinFrameVersion, ghost As Boolean)
+        _SteinStatus = steinStatus
+        _steinFrameVersion = SteinFrameVersion
+        _ghost = ghost
+    End Sub
+
+    Public Sub SetSteinStatusToI01Normal()
+        _SteinStatus = SteinStatus.I01Normal
     End Sub
     Public ReadOnly Property SteinSize As Size
 

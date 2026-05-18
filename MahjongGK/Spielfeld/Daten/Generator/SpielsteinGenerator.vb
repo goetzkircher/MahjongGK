@@ -171,6 +171,29 @@ Namespace Spielfeld
 
 #End Region
 
+#Region "Eigenschaften nicht persistent"
+        '
+        ''' <summary>
+        ''' Verkürzt gewaltsam den Stock.
+        ''' Funktioniert nur, wenn Debugger.IsAttached.
+        ''' Andernfalls ist der Aufruf unschädlich, aber wirkungslos.
+        ''' </summary>
+        Public WriteOnly Property DebugStoneCountLimit As Integer
+            Set(value As Integer)
+                If Debugger.IsAttached Then
+                    If value > 0 AndAlso value < Stock.Count AndAlso Stock.Count > 0 Then
+                        StockStopNachschub = True
+                        Dim arrStock() As SteinTyp = Stock.ToArray
+                        ReDim Preserve arrStock(value - 1)
+                        Stock.Clear()
+                        Stock.AddRange(arrStock)
+                    End If
+                End If
+            End Set
+        End Property
+
+#End Region
+
 #Region "Eigenschaften persistent"
 
         '
@@ -299,38 +322,38 @@ Namespace Spielfeld
         ''' </summary>
         ''' <returns></returns>
         Public Property StockNoSortAreaEndIndex As Integer
-        '
-        ''' <summary>
-        ''' Erstellt eine echte tiefe Kopie von SteinInfo.
-        ''' Alle Wertetypen/Enums sind ohnehin kopiert; Referenzen werden manuell geklont.
-        ''' </summary>
-        Public Function DeepCopy() As SFInfo
+        ''
+        '''' <summary>
+        '''' Erstellt eine echte tiefe Kopie von SteinInfo.
+        '''' Alle Wertetypen/Enums sind ohnehin kopiert; Referenzen werden manuell geklont.
+        '''' </summary>
+        'Public Function DeepCopy() As SFInfo
 
-            ' Flache Kopie aller Felder (inkl. privater Backing Fields wie _AnimMaxStep, _AnimLoops)
-            Dim c As SFInfo = DirectCast(Me.MemberwiseClone(), SFInfo)
+        '    ' Flache Kopie aller Felder (inkl. privater Backing Fields wie _AnimMaxStep, _AnimLoops)
+        '    Dim c As SFInfo = DirectCast(Me.MemberwiseClone(), SFInfo)
 
-            ' Tiefer Kopieren aller Referenztypen/Felder:
-            ' Triple ist eine Klasse → explizit klonen
+        '    ' Tiefer Kopieren aller Referenztypen/Felder:
+        '    ' Triple ist eine Klasse → explizit klonen
 
-            ' Falls später weitere Referenztypen hinzukommen, hier analog tief kopieren.
+        '    ' Falls später weitere Referenztypen hinzukommen, hier analog tief kopieren.
 
-            Return c
+        '    Return c
 
-            'Antwort von ChatGPT, ob man das über Serialisierung/Deserialisierung
-            'lösen könne:
+        '    'Antwort von ChatGPT, ob man das über Serialisierung/Deserialisierung
+        '    'lösen könne:
 
-            'Warum das besser ist als (De-)Serialisierung:
-            '<XmlIgnore>-Felder würden bei XML-Serialisierung fehlen → unvollständige Kopie.
-            'Keine Attribute / Type - Resolver nötig, kein Overhead.
-            'Setter-Logiken(wie AnimMaxStep mit ×100) werden nicht versehentlich erneut ausgeführt
-            '— die privaten Backing-Felder werden 1:1 kopiert, genau wie gewünscht.
-            'Da Triple bereits eine saubere DeepCopy liefert, reicht das oben völlig aus.
-            '
-            'Die frühere Methode über den BinaryFormatter ist von Microsoft als depreceted eingestuft.
-            '
-            'Es ginge noch über den DataContractSerializer, das ist aber mit Vergabe vieler Attribute
-            'versehen.
-        End Function
+        '    'Warum das besser ist als (De-)Serialisierung:
+        '    '<XmlIgnore>-Felder würden bei XML-Serialisierung fehlen → unvollständige Kopie.
+        '    'Keine Attribute / Type - Resolver nötig, kein Overhead.
+        '    'Setter-Logiken(wie AnimMaxStep mit ×100) werden nicht versehentlich erneut ausgeführt
+        '    '— die privaten Backing-Felder werden 1:1 kopiert, genau wie gewünscht.
+        '    'Da Triple bereits eine saubere DeepCopy liefert, reicht das oben völlig aus.
+        '    '
+        '    'Die frühere Methode über den BinaryFormatter ist von Microsoft als depreceted eingestuft.
+        '    '
+        '    'Es ginge noch über den DataContractSerializer, das ist aber mit Vergabe vieler Attribute
+        '    'versehen.
+        'End Function
 
 #End Region
 
@@ -429,12 +452,27 @@ Namespace Spielfeld
         ''' </summary>
         ''' <param name="index"></param>
         ''' <returns></returns>
-        Public Function GetSelectedStein(index As Integer) As SteinTyp
+        Public Function GetSteinTypIndexAndRemove(index As Integer) As SteinTyp
             If index < 0 OrElse Stock Is Nothing OrElse Stock.Count = 0 OrElse index > Stock.Count - 1 Then
                 Return SteinTyp.ErrorSy 'Die Fehlergrafik
             Else
                 Dim retval As SteinTyp = Stock(index)
                 Stock.RemoveAt(index)  ' <- exakt diese Position löschen
+                Return retval
+            End If
+        End Function
+        ''' <summary>
+        ''' Gibt den selektierten Stein zurück und löscht ihn NICHT im Vorrat.
+        ''' Wenn index kleiner 0 OrElse Vorrat.Count = 0 OrElse index > Vorrat.Count - 1
+        ''' dann wird die Fehlergrafik zurückgegeben.
+        ''' </summary>
+        ''' <param name="index"></param>
+        ''' <returns></returns>
+        Public Function GetSteinTypIndexDontRemove(index As Integer) As SteinTyp
+            If index < 0 OrElse Stock Is Nothing OrElse Stock.Count = 0 OrElse index > Stock.Count - 1 Then
+                Return SteinTyp.ErrorSy 'Die Fehlergrafik
+            Else
+                Dim retval As SteinTyp = Stock(index)
                 Return retval
             End If
         End Function
@@ -444,10 +482,11 @@ Namespace Spielfeld
         ''' (Zurücklegen eines Steines vom Feld in den Vorrat.)
         ''' Ist index zu klein, wird ganz links eingefügt,
         ''' ist er zu groß ganz rechts.
+        ''' Vorsicht: nur verwenden um entnommene Steine wieder hinzuzufügen.
         ''' </summary>
         ''' <param name="index"></param>
         ''' <param name="sie"></param>
-        Public Sub InsertLeftFromSelectedStein(index As Integer, sie As SteinTyp)
+        Public Sub InsertLeftFromSteinIdx(index As Integer, sie As SteinTyp)
 
             If Stock.Count = 0 Then
                 Stock.Add(sie)
@@ -459,8 +498,17 @@ Namespace Spielfeld
                 Stock.Insert(index, sie)
             End If
         End Sub
+        '
+        ''' <summary>
+        ''' Fügt ein Stein am Ende hinzu.
+        ''' Vorsicht: nur verwenden um entnommene Steine wieder hinzuzufügen.
+        ''' </summary>
+        ''' <param name="sie"></param>
+        Public Sub AddAtStockEnd(sie As SteinTyp)
+            Stock.Add(sie)
+        End Sub
 
-        Public Sub ShuffleVorrat()
+        Public Sub ShuffleStock()
             '
             If Stock.Count <= 1 Then
                 'hier gibt es nichts zu mischen

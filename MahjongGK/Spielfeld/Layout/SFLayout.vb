@@ -386,6 +386,7 @@ Namespace Spielfeld
                 AktLayout = Layout.EditorWithHeader
 
                 'InitDragDropBitmaps den Spielsteingenerators
+
                 With _sfd.SFInf
                     If IsNothing(.Generator) Then
                         If IsNothing(.GeneratorValuesForXml) Then
@@ -531,7 +532,7 @@ Namespace Spielfeld
 
                             .LastSteinWidth = steinWidth
                             .LastRxStockWidth = rxStockScrollbar.WidthInside
-                            .ClearAndSetStartvalues()
+                            .UpdateStockValues()
                         End If
                     End With
                 Case Else

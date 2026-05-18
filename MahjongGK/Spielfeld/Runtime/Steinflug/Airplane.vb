@@ -95,22 +95,19 @@ Namespace Spielfeld
             If _steinInfoIndex >= 0 Then
                 'Stein aus dem Feld
                 request = New TileRequest(_sfd.SFRun.AktRenderMode, INI.Tile_TileColors, _sfd.SFInf.SteinInfos(_steinInfoIndex).SteinTypIndex, SteinStatus.I02Selected, SteinFrameVersion.Standard, _sfd.SFLay.steinSize, INI.Tile_BasisSize)
-                _bmpOrg = TileFactory.GetTileDeepCopy(request)
+                _bmpNormal = TileFactory.GetTileDeepCopy(request)
             Else
                 'Stein aus dem Vorrat
-                'Falls _steinTypIndex ungültig ist. wird die Errorgrafik erzeugt
+                'Falls _steinTypEnum ungültig ist. wird die Errorgrafik erzeugt
                 request = New TileRequest(_sfd.SFRun.AktRenderMode, INI.Tile_TileColors, _steinTypIndex, SteinStatus.I02Selected, SteinFrameVersion.Standard, _sfd.SFLay.steinSize, INI.Tile_BasisSize)
-                _bmpOrg = TileFactory.GetTileDeepCopy(request)
+                _bmpNormal = TileFactory.GetTileDeepCopy(request)
             End If
 
-            request.SetSteinFrameVersion(SteinFrameVersion.Standard, ghost:=True)
+            request.SetSteinFrameVersion(SteinStatus.I01Normal, SteinFrameVersion.Standard, ghost:=True)
             _bmpGhost = TileFactory.GetTileDeepCopy(request)
             '
-            request.SetSteinFrameVersion(SteinFrameVersion.MouseSelected, ghost:=False)
+            request.SetSteinFrameVersion(SteinStatus.I02Selected, SteinFrameVersion.MouseSelected, ghost:=False)
             _bmpSelected = TileFactory.GetTileDeepCopy(request)
-
-            request.SetSteinFrameVersion(SteinFrameVersion.MouseCanDrop, ghost:=False)
-            _bmpCanDrop = TileFactory.GetTileDeepCopy(request)
 
             If _steinInfoIndex >= 0 Then
                 _JobSelector = New AirJobSelector(_sfd, _steinInfoIndex)
@@ -214,10 +211,9 @@ Namespace Spielfeld
 
 #Region "ReadOnly-Properties"
 
-        Private _bmpOrg As Bitmap = Nothing
+        Private _bmpNormal As Bitmap = Nothing
         Private _bmpGhost As Bitmap = Nothing
         Private _bmpSelected As Bitmap = Nothing
-        Private _bmpCanDrop As Bitmap = Nothing
         Private _steinInfoIndex As Integer
         Private _stockIndex As Integer
         Private _steinTypIndex As SteinTyp
@@ -250,7 +246,7 @@ Namespace Spielfeld
 
         Public ReadOnly Property SteinSize As Size
             Get
-                Return _bmpOrg.Size
+                Return _bmpNormal.Size
             End Get
         End Property
 
@@ -327,7 +323,7 @@ Namespace Spielfeld
         ''' <returns></returns>
         Public ReadOnly Property BmpOrg As Bitmap
             Get
-                Return _bmpOrg
+                Return _bmpNormal
             End Get
         End Property
         '
@@ -345,7 +341,7 @@ Namespace Spielfeld
         '
         Public ReadOnly Property BmpPlacable As Bitmap
             Get
-                Return _bmpCanDrop
+                Return _bmpGhost
             End Get
         End Property
 
@@ -570,9 +566,9 @@ Namespace Spielfeld
 
         Private Sub DisposeOwnedBitmaps()
 
-            If _bmpOrg IsNot Nothing Then
-                _bmpOrg.Dispose()
-                _bmpOrg = Nothing
+            If _bmpNormal IsNot Nothing Then
+                _bmpNormal.Dispose()
+                _bmpNormal = Nothing
             End If
 
             If _bmpGhost IsNot Nothing Then
@@ -583,11 +579,6 @@ Namespace Spielfeld
             If _bmpSelected IsNot Nothing Then
                 _bmpSelected.Dispose()
                 _bmpSelected = Nothing
-            End If
-
-            If _bmpCanDrop IsNot Nothing Then
-                _bmpCanDrop.Dispose()
-                _bmpCanDrop = Nothing
             End If
 
         End Sub

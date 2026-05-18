@@ -1,4 +1,12 @@
-﻿Option Compare Text
+﻿'Hier ist mein MouseInputPoller.
+'Ich benötige eine Erkennung von Doppelklicks.
+'Das ganze kann hier nicht über die Zeit gemessen werden, sondern über die Renderschritte.
+'Dazu gibt es INI.RenderCounter_GetValue As Integer. 
+'Und Const DOUBLEKLICKRENDERSTEPS As Integer = 4.
+'Die Abfrage, ob ein Doppelklick anliegt, soll Consumierend sein.
+'Bitte gib mir die Ergänzungen in den Code.
+
+Option Compare Text
 Option Explicit On
 Option Infer Off
 Option Strict On
@@ -244,6 +252,27 @@ Public NotInheritable Class MouseInputPoller
     ''' </summary>
     Private _rightValidDownActive As Boolean
 
+    '
+    ''' <summary>
+    ''' Renderstep des letzten gültigen linken MouseDown.
+    ''' -1 = noch kein gültiger Klick vorhanden.
+    ''' </summary>
+    Private _leftLastPressRenderStep As Integer = -1
+
+    '
+    ''' <summary>
+    ''' True, wenn ein erster Klick auf einen möglichen Doppelklick wartet.
+    ''' </summary>
+    Private _leftDoubleClickPending As Boolean
+
+    '
+    ''' <summary>
+    ''' Konsumierendes Doppelklick-Flag.
+    ''' </summary>
+    Private _leftDoubleClickEdge As Boolean
+
+    Const DOUBLEKLICKRENDERSTEPS As Integer = 10
+
 #End Region
 
 #Region "Konstruktion"
@@ -305,6 +334,10 @@ Public NotInheritable Class MouseInputPoller
         _dragDropActive = False
         _dragEndedEdge = False
         _dragMoved = False
+
+        _leftLastPressRenderStep = -1
+        _leftDoubleClickPending = False
+        _leftDoubleClickEdge = False
 
     End Sub
 
@@ -371,6 +404,42 @@ Public NotInheritable Class MouseInputPoller
                     _leftValidDownActive = True
                     _leftPressedEdge = True
                     _leftChanged = True
+
+                    ' ---------------------------------
+                    ' Doppelklick-Erkennung
+                    ' ---------------------------------
+                    Dim aktRenderStep As Integer = INI.RenderCounter_GetValue
+
+                    If _leftDoubleClickPending Then
+
+                        Dim delta As Integer = aktRenderStep - _leftLastPressRenderStep
+
+                        If delta >= 0 AndAlso delta <= DOUBLEKLICKRENDERSTEPS Then
+
+                            ' gültiger Doppelklick
+                            _leftDoubleClickEdge = True
+
+                            ' konsumierend:
+                            ' kein Tripleclick durch weiteres Klicken
+                            _leftDoubleClickPending = False
+                            _leftLastPressRenderStep = -1
+                            '  Debug.Print("Doppelklick Delta Rendersteps = " & delta.ToString)
+                        Else
+
+                            ' Zeit überschritten -> neuer erster Klick
+                            _leftLastPressRenderStep = aktRenderStep
+                            _leftDoubleClickPending = True
+
+                        End If
+
+                    Else
+
+                        ' erster Klick
+                        _leftLastPressRenderStep = aktRenderStep
+                        _leftDoubleClickPending = True
+
+                    End If
+
                 Else
                     _leftValidDownActive = False
                 End If
@@ -494,6 +563,20 @@ Public NotInheritable Class MouseInputPoller
 
         ' Bisherigen inside-Zustand auf den aktuellen Stand bringen
         _inside = insideNow
+
+        ' ---------------------------------------------------------
+        ' Doppelklick-Timeout überwachen
+        ' ---------------------------------------------------------
+        If _leftDoubleClickPending Then
+
+            Dim delta As Integer = INI.RenderCounter_GetValue - _leftLastPressRenderStep
+
+            If delta > DOUBLEKLICKRENDERSTEPS Then
+                _leftDoubleClickPending = False
+                _leftLastPressRenderStep = -1
+            End If
+
+        End If
 
         Return anyChange
 
@@ -623,6 +706,20 @@ Public NotInheritable Class MouseInputPoller
 
         Dim result As Boolean = _rightReleasedEdge
         _rightReleasedEdge = False
+        Return result
+
+    End Function
+
+    '
+    ''' <summary>
+    ''' Liefert einmalig einen gültigen linken Doppelklick.
+    ''' Danach wird das Flag zurückgesetzt.
+    ''' </summary>
+    Public Function ConsumeLeftMouseDoubleClick() As Boolean
+
+        Dim result As Boolean = _leftDoubleClickEdge
+        _leftDoubleClickEdge = False
+
         Return result
 
     End Function

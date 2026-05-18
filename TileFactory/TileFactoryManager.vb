@@ -71,18 +71,25 @@ Friend Class TileFactoryManager
             Dim bmp As Bitmap = _tileStandardCache(cacheIndex)
 
             If bmp IsNot Nothing Then
-                _tileStandardCacheQueryCount(cacheIndex) += 1
-                'Die Bitmap ist nicht angelegt, bei der Zuweisung zu einer Picturebox knallt es.
-                'Wie kann ich das hier abfangen?
-                If bmp.Width <= 0 Then Stop
-                Return bmp '
+
+                If request.Ghost Then
+                    Return CvtToBmpGhost(bmp, request)
+                Else
+                    _tileStandardCacheQueryCount(cacheIndex) += 1
+                    Return bmp
+                End If '
             End If
 
             bmp = TileFactoryComposer.CreateTileBitmap(request) 'gibt immer eine Bitmap zurück, im Fehlerfall eine Rote.
 
             _tileStandardCache(cacheIndex) = bmp
 
-            Return bmp
+            If request.Ghost Then
+                Return CvtToBmpGhost(bmp, request)
+            Else
+                Return bmp
+            End If
+
         Else
             Dim cacheIndex As CacheIndex = request.TileColors.GetIndexSmallCache
 
@@ -110,6 +117,28 @@ Friend Class TileFactoryManager
 
     End Function
 
+    Private Function CvtToBmpGhost(bmp As Bitmap, request As TileRequest) As Bitmap
+
+        Dim bmpGhost As Bitmap = bmp.Clone(New Rectangle(0, 0, bmp.Width, bmp.Height), bmp.PixelFormat)
+
+        With request.TileColors
+            'Falls keine Werte vorhanden sind, Standardwerte nehmen
+            If (.AlphaGhost = 0 OrElse .AlphaGhost = 255) AndAlso .DHueGhost = 0 AndAlso .DSatGhost = 0 AndAlso .DBrgGhost = 0 Then
+                .GhostUseFastMethode = False
+                .AlphaGhost = 170
+                .DSatGhost = -80
+            End If
+            If .GhostUseFastMethode Then
+                Dim alpha As Single = CSng(Math.Abs(.AlphaGhost) / 255)
+                Dim lighten As Single = CSng(Math.Abs(.DBrgGhost) / 100)
+                bmpGhost = DeepCopyTransparenceFast(bmpGhost, alpha, lighten)
+            Else
+                bmpGhost = HsbColorHelper.HsbAdjustment(bmpGhost, .AlphaGhost, .DHueGhost, .DSatGhost, .DBrgGhost, disposeBmpSrc:=False)
+            End If
+        End With
+
+        Return bmpGhost
+    End Function
     '
     ''' <summary>
     ''' Liefert den aktuell gemerkten Layoutdatensatz für Spiel oder Editor.

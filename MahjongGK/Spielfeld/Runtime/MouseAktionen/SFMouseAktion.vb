@@ -47,7 +47,9 @@ Namespace Spielfeld
         AtStockSrcPos
         AtStockMousePos
         AtStockCanDropPos
-        UBnd = AtStockCanDropPos
+        AtStockInsertPos
+        AtStockRemovePos
+        UBnd = AtStockRemovePos
     End Enum
 
     ''' <summary>
@@ -64,10 +66,14 @@ Namespace Spielfeld
             _mouseWheelPoller = New MouseWheelPoller()
             _mouseWheelPoller.Attach(frmMain.UCtlSpielfeldMain)
         End Sub
-
-        Public Function ConsumeSchnelltestHasMouseStateChange() As Boolean
+        '
+        ''' <summary>
+        ''' Reine Weiterleitung
+        ''' </summary>
+        ''' <returns></returns>
+        Public Function ConsumeSchnelltestHasMouseStateChange() As MouseStateChanged
             'Wegen dem Mausrad ist das im _mouseWheelPoller angesiedelt.
-            Return _mouseWheelPoller.ConsumeSchnelltestHasMouseStateChange
+            Return _mouseWheelPoller.ConsumeSchnelltestHasMouseStateChange()
         End Function
 
         Public Sub CreateDragDropJobFromEditor(steinInfoIndex As Integer)
@@ -77,23 +83,23 @@ Namespace Spielfeld
             _dragDropStartFrom = DragDropStartFrom.Editor
             _dragDropJob = DragDropJob.FirstStep
             _steinInfoIndex = steinInfoIndex
-            _steinTypIndex = _sfd.SFInf.SteinInfos(steinInfoIndex).SteinTypIndex
-            _stockIndex = -1
+            _steinTypEnum = _sfd.SFInf.SteinInfos(steinInfoIndex).SteinTypIndex
+            _stockSteinIndex = -1
             _srcPos3D = _sfd.SFInf.SteinInfos(steinInfoIndex).Pos3D
-            _isInit = InitDragDropBitmaps(srcRect:=Nothing) 'holt sich srcRect aus den SteinInfos
+            _isInit = InitDragDropBitmaps()
         End Sub
 
-        Public Sub CreateDragDropJobFromStock(stockIndex As Integer, steinIndex As SteinTyp, srcRect As Rectangle)
+        Public Sub CreateDragDropJobFromStock(stockSteinIndex As Integer, steinTypEnum As SteinTyp, srcRect As Rectangle)
             If IsNothing(_sfd) Then
                 Throw New Exception("Programmierfehler: DragDrop ohne sdf instanziert.")
             End If
             _steinInfoIndex = -1
-            _stockIndex = stockIndex
+            _stockSteinIndex = stockSteinIndex
             _dragDropStartFrom = DragDropStartFrom.Stock
             _dragDropJob = DragDropJob.FirstStep
-            _steinTypIndex = steinIndex
+            _steinTypEnum = steinTypEnum
             _srcPos3D = Nothing
-            _isInit = InitDragDropBitmaps(srcRect)
+            _isInit = InitDragDropBitmaps()
         End Sub
 
         Public Sub ClearLastMouseFlight()
@@ -103,10 +109,9 @@ Namespace Spielfeld
         Private ReadOnly _sfd As SFDaten
         Private ReadOnly _mouseWheelPoller As MouseWheelPoller
 
-        Private _bmpOrg As Bitmap = Nothing
+        Private _bmpNormal As Bitmap = Nothing
         Private _bmpGhost As Bitmap = Nothing
         Private _bmpSelected As Bitmap = Nothing
-        Private _bmpCanDrop As Bitmap = Nothing
         '
         ''' <summary>
         ''' Der SteinInfoIndex zeigt auf den SteinInfi-Datensatz des Steies im Editor.
@@ -117,18 +122,18 @@ Namespace Spielfeld
         ''' Der Stockindex Zeigt auf den Stein im Vorrat.
         ''' Der Index ist nur während des DtagDrop gültig.
         ''' </summary>
-        Private _stockIndex As Integer
+        Private _stockSteinIndex As Integer
         '
         ''' <summary>
         ''' Der SteinTypIndex besimmt das Symbol auf der Oberseite des Steines.
         ''' </summary>
-        Private _steinTypIndex As SteinTyp
+        Private _steinTypEnum As SteinTyp
         Private _dragDropStartFrom As DragDropStartFrom
         Private _dragDropJob As DragDropJob
         Private _srcRect As Rectangle
         Private _srcPos3D As Triple
         Private _isInit As Boolean
-        Private _hasRenderJob As Boolean
+        Private _IsDirty As Boolean
 
         Private _polling As Boolean
         Private _leftMousePressed As Boolean
@@ -149,6 +154,7 @@ Namespace Spielfeld
         Private _aktHScrollbarJob As ScrollbarJob
 
         Private _wheelSteps As Integer
+        Private _leftMouseDoublKlick As Boolean
 
         Private Enum DragDropJob
             FirstStep
@@ -183,7 +189,7 @@ Namespace Spielfeld
             _hasSpecialBmps(specialBitmap) = True
             _bmpSpecialBmps(specialBitmap) = bmp
             _rectSpecialBmps(specialBitmap) = rect
-            _hasRenderJob = True
+            MakeDirty()
         End Sub
 
         Private Sub ClearSpecialBmps()
@@ -193,8 +199,11 @@ Namespace Spielfeld
                 _rectSpecialBmps(idx) = Rectangle.Empty
             Next
         End Sub
+        Private Sub MakeDirty()
+            _IsDirty = True
+        End Sub
 
-        Private Function InitDragDropBitmaps(srcRect As Rectangle) As Boolean
+        Private Function InitDragDropBitmaps() As Boolean
             '
             'Bitmaps Eigentum der TileFactory ==> kein Dispose!
 
@@ -202,46 +211,75 @@ Namespace Spielfeld
 
             If _steinInfoIndex >= 0 Then
                 'Stein aus dem Feld
-                request = New TileRequest(_sfd.SFRun.AktRenderMode, INI.Tile_TileColors, _sfd.SFInf.SteinInfos(_steinInfoIndex).SteinTypIndex, SteinStatus.I02Selected, SteinFrameVersion.Standard, _sfd.SFLay.steinSize, INI.Tile_BasisSize)
-                _bmpOrg = TileFactory.GetTileDeepCopy(request)
-            ElseIf _steinTypIndex >= 0 Then
+                request = New TileRequest(_sfd.SFRun.AktRenderMode, INI.Tile_TileColors, _sfd.SFInf.SteinInfos(_steinInfoIndex).SteinTypIndex, SteinStatus.I01Normal, SteinFrameVersion.Standard, _sfd.SFLay.steinSize, INI.Tile_BasisSize)
+                _bmpNormal = TileFactory.GetTile(request)
+            ElseIf _steinTypEnum >= 0 Then
                 'Stein aus dem Vorrat
-                'Falls _steinTypIndex ungültig ist. wird die Errorgrafik erzeugt
-                request = New TileRequest(_sfd.SFRun.AktRenderMode, INI.Tile_TileColors, _steinTypIndex, SteinStatus.I02Selected, SteinFrameVersion.Standard, _sfd.SFLay.steinSize, INI.Tile_BasisSize)
-                _bmpOrg = TileFactory.GetTileDeepCopy(request)
+                'Falls _steinTypEnum ungültig ist. wird die Errorgrafik erzeugt
+                request = New TileRequest(_sfd.SFRun.AktRenderMode, INI.Tile_TileColors, _steinTypEnum, SteinStatus.I01Normal, SteinFrameVersion.Standard, _sfd.SFLay.steinSize, INI.Tile_BasisSize)
+                _bmpNormal = TileFactory.GetTile(request)
             Else
                 Return False
             End If
 
-            request.SetSteinFrameVersion(SteinFrameVersion.Standard, ghost:=True)
+            request.SetSteinFrameVersion(SteinStatus.I01Normal, SteinFrameVersion.Standard, ghost:=True)
             _bmpGhost = TileFactory.GetTileDeepCopy(request)
             '
-            request.SetSteinFrameVersion(SteinFrameVersion.MouseSelected, ghost:=False)
-            _bmpSelected = TileFactory.GetTileDeepCopy(request)
-
-            request.SetSteinFrameVersion(SteinFrameVersion.MouseCanDrop, ghost:=False)
-            _bmpCanDrop = TileFactory.GetTileDeepCopy(request)
+            request.SetSteinFrameVersion(SteinStatus.I02Selected, SteinFrameVersion.MouseSelected, ghost:=False)
+            _bmpSelected = TileFactory.GetTile(request)
 
             Return True
 
         End Function
 
+        Private _lastGapJobIsWorking As Boolean
+        Public Function GapJobIsWorking() As Boolean
+            Dim retval As Boolean = _sfd.SFStock.GapJobIsWorking
+            If retval = False AndAlso _lastGapJobIsWorking = True Then
+                _lastGapJobIsWorking = False
+                Return True
+            Else
+                _lastGapJobIsWorking = retval
+                Return retval
+            End If
+        End Function
+
+        Public Function ConsumeMousAktionIsDirty() As Boolean
+
+            Dim isDirty As Boolean = _IsDirty
+            _IsDirty = False
+            Return isDirty
+
+        End Function
+
         '
         ''' <summary>
-        ''' Das ist zugleich Frage und Auslöser die Antwort zu finden, also der Hauptaufruf, der alle
-        ''' Vorbereitungsarbeiten macht, einschließlich der Feststellung, daß die Maus einen Stein geklickt hat und
-        ''' daher DragDrop begonnen werden soll. Aufruf aus dem RenderManager.PaintUCtlSpielfeld heraus.
+        ''' Das ist der Hauptaufruf, wenn irgenwas geklickt oder gezogen wird, also DragDrop.
+        ''' Aufruf aus dem RenderManager.PaintUCtlSpielfeld heraus.
         ''' </summary>
-        ''' <returns></returns>
-        Public Function ConsumeMouseAktionHasRenderJob() As Boolean
+        Public Sub DoMouseDownAndDragDropAktion()
 
             '
-            'Default
             ClearSpecialBmps()
+
+            If _sfd.SFStock.GapJobIsWorking Then
+                With _sfd.SFStock
+                    .ContinueGapJob()
+                    If .HasBmpGapInsert Then
+                        SetSpecialBmps(SpecialBmps.AtStockInsertPos, .BmpGapInsert, .RectGapInsert)
+                    End If
+                    If .HasBmpGapRemove Then
+                        SetSpecialBmps(SpecialBmps.AtStockRemovePos, .BmpGapRemove, .RectGapRemove)
+                    End If
+                End With
+                MakeDirty()
+                Exit Sub
+            End If
 
             'alle in der Region benötigten Werte lokal laden.
             _leftMousePressed = _sfd.SFRun.MousePolling.ConsumeLeftMousePressed()
             _leftMouseReleased = _sfd.SFRun.MousePolling.ConsumeLeftMouseReleased()
+            _leftMouseDoublKlick = _sfd.SFRun.MousePolling.ConsumeLeftMouseDoubleClick()
             _mousePos = _sfd.SFRun.MousePolling.MousePos
             _klickArea = AirGetKlickArea(_mousePos, _sfd.SFLay)
             _klickAreaGroup = AirGetKlickAreaGroup(_klickArea)
@@ -249,8 +287,20 @@ Namespace Spielfeld
             _dragDropMoved = _sfd.SFRun.MousePolling.DragDropMoved
             _dragDropAktive = _sfd.SFRun.MousePolling.DragDropActive
             _endDragDrop = _sfd.SFRun.MousePolling.ConsumeEndDragDrop
-
             _wheelSteps = _mouseWheelPoller.PollWheelStep()
+
+            If _leftMouseDoublKlick Then
+                If _klickArea <> AirKlickArea.Editor Then
+                    'nur im Editor zulässig.
+                    _leftMouseDoublKlick = False
+                End If
+            End If
+
+            If _leftMouseDoublKlick Then
+                'Debug.Print("_leftMouseDoublKlick - " & Now.ToString)
+                DoLeftMouseDoublKlick
+                Exit Sub
+            End If
 
             If _klickAreaGroup = AirKlickAreaGroup.Scrollbar Then
 
@@ -258,30 +308,30 @@ Namespace Spielfeld
 
                     _sfd.SFRun.HScrollBarStock.HandleMouseWheel(_wheelSteps * -3)
                     _wheelSteps = 0
-                    _hasRenderJob = True
+                    MakeDirty()
                 End If
 
                 If _leftMousePressed Then
                     If _aktHScrollbarJob = ScrollbarJob.None Then
                         _sfd.SFRun.HScrollBarStock.HandleMouseDown(_mousePos)
                         _aktHScrollbarJob = ScrollbarJob.MouseMove
-                        _hasRenderJob = True
+                        MakeDirty()
                     End If
 
                 ElseIf _leftMouseReleased Then
 
                     _sfd.SFRun.HScrollBarStock.HandleMouseUp()
                     _aktHScrollbarJob = ScrollbarJob.None
-                    _hasRenderJob = True
+                    MakeDirty()
                 Else
                     If _aktHScrollbarJob = ScrollbarJob.MouseMove Then
                         _sfd.SFRun.HScrollBarStock.HandleMousemMove(_mousePos)
-                        _hasRenderJob = True
+                        MakeDirty()
 
                     End If
                 End If
-                If _hasRenderJob Then
-                    If _sfd.SFInf.Generator.StockAktCount = 0 Then
+                If _IsDirty Then
+                    If _sfd.SFStock.StockAktCount = 0 Then
                         _sfd.SFRun.HScrollBarStock.SetRange(0)
                     Else
                         _sfd.SFStock.SetHScrollBarValue(_sfd.SFRun.HScrollBarStock.GetValue)
@@ -300,7 +350,7 @@ Namespace Spielfeld
             'muus genau hier zwischen der Scrollbar und Spielfels, Editor, Stock
             'stehen, da die Scrollbar die Werte ändert und dann der Startoffset
             'bei der Ausgabe falsch ist.
-            _sfd.SFStock.SetRectsFromVisibleStock(startNewGapJob:=False)
+            _sfd.SFStock.SetRectsFromVisibleStock()
 
             If _klickArea = AirKlickArea.Spielfeld OrElse
                  _klickArea = AirKlickArea.Editor OrElse
@@ -332,13 +382,13 @@ Namespace Spielfeld
 
                     ElseIf _klickArea = AirKlickArea.Stock Then
 
-                        Dim sv As SFStockState.StockValues = _sfd.SFStock.GetSelectedSteinValues(_mousePos, getDropPosition:=True)
-                        If sv.HasValues Then
+                        Dim sv As SFStockJobs.StockValues = _sfd.SFStock.GetSelectedSteinValues(_mousePos, getDropPosition:=False)
+                        If sv.HasValueInsideStock Then
                             CreateDragDropJobFromStock(sv.StockSteinIdx, sv.SteinIndex, sv.RectStein)
                             _sfd.SFRun.MousePolling.StartDragDrop()
                             DoRenderstep()
                         End If
-                        'Dim idxSelStockItem As Integer = _sfd.SFRun.SFStock.GetIdxSelectedStockItem(_mousePos)
+
                     End If
                 End If
             End If
@@ -357,11 +407,7 @@ Namespace Spielfeld
                 DoRenderstep()
             End If
 
-            Dim retval As Boolean = _hasRenderJob
-            _hasRenderJob = False
-            Return retval
-
-        End Function
+        End Sub
 
         Private Sub DoRenderstep()
 
@@ -422,6 +468,7 @@ Namespace Spielfeld
 
                 Case DragDropJob.Active
                     '
+                    ' Debug.Print($"Editor DragDropJob.Active {_mousePos}")
                     SetSpecialBmps(SpecialBmps.AtEditorSrcPos, _bmpGhost, _sfd.SFInf.SteinInfos(_steinInfoIndex).RectStein)
                     SetSpecialBmps(SpecialBmps.AtEditorMousePos, _bmpSelected, _mouseAnkerPosition.GetAktRectPlane(_mousePos))
 
@@ -430,10 +477,21 @@ Namespace Spielfeld
                         'mögliche Ablageposition auf dem Feld
                         SetSpecialBmps(SpecialBmps.AtEditorCanDropPos, _bmpGhost, _sfd.SFInf.GetSteinRenderRect(tpl))
                     Else
-                        Dim sv As SFStockState.StockValues = _sfd.SFStock.GetSelectedSteinValues(_mousePos, getDropPosition:=True)
-                        If sv.HasValues Then
+                        Dim sv As SFStockJobs.StockValues = _sfd.SFStock.GetSelectedSteinValues(_mousePos, getDropPosition:=True, leaveCenterBlank:=True)
+                        If sv.HasValue Then
                             'mögliche Ablageposition im Vorrat
-                            SetSpecialBmps(SpecialBmps.AtStockCanDropPos, _bmpGhost, sv.RectStein)
+                            If Not (sv.StockSteinIdx = _stockSteinIndex OrElse sv.StockSteinIdx = _stockSteinIndex + 1) Then
+                                'links und rechts von der Ausgangsposition ist eine Ablage sinnlos,
+                                'da sie zur Ausgangsposition führt, daher die Einschränkung.
+                                SetSpecialBmps(SpecialBmps.AtStockCanDropPos, _bmpGhost, sv.RectStein)
+                            End If
+                        ElseIf _klickArea = AirKlickArea.Stock Then
+                            If _sfd.SFStock.StockAktCount = 0 Then
+                                With _sfd.SFLay
+                                    Dim rect As New Rectangle(.rxStock.Left, .rxStock.Top, .steinWidth, .steinHeight)
+                                    SetSpecialBmps(SpecialBmps.AtStockCanDropPos, _bmpGhost, rect)
+                                End With
+                            End If
                         End If
                     End If
 
@@ -444,21 +502,41 @@ Namespace Spielfeld
                     _sfd.SFInf.TmpReturnRemovedStein()
                     '()
                     If tpl.IsValideYes Then
-                        If _steinInfoIndex >= 0 Then
-                            'Umsetzen eines Steines innerhalb des Editors
-                            _sfd.SFInf.RemoveSteinFromSpielfeld(_steinInfoIndex)
-                            _sfd.SFInf.AddSteinToSpielfeld(_steinTypIndex, tpl)
-                        Else
-                            Stop
-                        End If
+                        'Umsetzen eines Steines innerhalb des Editors
+                        _sfd.SFInf.RemoveSteinFromSpielfeld(_steinInfoIndex)
+                        _sfd.SFInf.AddSteinToSpielfeld(_steinTypEnum, tpl)
+                        MakeDirty()
                     Else
-                        'Ungültige Position ==> zurückfliegen
                         'Stein zurück in den Vorrat
-                        Dim sv As SFStockState.StockValues = _sfd.SFStock.GetSelectedSteinValues(_mousePos, getDropPosition:=True)
-                        If sv.HasValues Then
+                        Dim sv As SFStockJobs.StockValues = _sfd.SFStock.GetSelectedSteinValues(_mousePos, getDropPosition:=True, leaveCenterBlank:=True)
+                        If sv.HasValueInsideStock Then
                             _sfd.SFInf.RemoveSteinFromSpielfeld(_steinInfoIndex)
-                            _sfd.SFInf.Generator.InsertLeftFromSelectedStein(sv.StockSteinIdx, _steinTypIndex)
+                            _sfd.SFStock.StartNewGapJob(idxGapInsert:=sv.StockSteinIdx, bmpGapInsert:=_bmpNormal, _steinTypEnum)
+                        ElseIf sv.HasValueAfterEndOfStock Then
+                            Dim st As SteinTyp = _sfd.SFInf.SteinInfos(_steinInfoIndex).SteinTypIndex
+                            _sfd.SFInf.RemoveSteinFromSpielfeld(_steinInfoIndex)
+                            _sfd.SFStock.AddAtStockEnd(st)
+                            MakeDirty()
                         Else
+                            Dim rect As New Rectangle(_sfd.SFLay.rxStock.Left, _sfd.SFLay.rxStock.Top, _sfd.SFLay.steinWidth, _sfd.SFLay.steinHeight)
+
+                            If _sfd.SFStock.StockAktCount = 0 AndAlso rect.Contains(_mousePos) Then
+                                Dim st As SteinTyp = _sfd.SFInf.SteinInfos(_steinInfoIndex).SteinTypIndex
+                                _sfd.SFInf.RemoveSteinFromSpielfeld(_steinInfoIndex)
+                                _sfd.SFStock.AddAtStockEnd(st)
+                                SetSpecialBmps(SpecialBmps.AtStockCanDropPos, _bmpNormal, rect)
+                                MakeDirty()
+                            Else
+                                'With _sfd.SFLay
+                                '    Dim rect As New Rectangle(.rxStock.Left, .rxStock.Top, .steinWidth, .steinHeight)
+                                '    SetSpecialBmps(SpecialBmps.AtStockCanDropPos, _bmpGhost, rect)
+                                'End With
+                                'ElseIf _klickArea = AirKlickArea.Stock AndAlso _sfd.SFStock.StockAktCount = 1 Then
+                                '    With _sfd.SFLay
+                                '        Dim rect As New Rectangle(.rxStock.Left + .steinWidth, .rxStock.Top, .steinWidth, .steinHeight)
+                                '        SetSpecialBmps(SpecialBmps.AtStockCanDropPos, _bmpGhost, rect)
+                                '    End With
+                            End If
                             ' Ungültige Position ==> zurückfliegen
                         End If
                     End If
@@ -470,53 +548,72 @@ Namespace Spielfeld
             Select Case job
                 Case DragDropJob.FirstStep
 
-                    Dim sv As SFStockState.StockValues = _sfd.SFStock.GetSelectedSteinValues(_mousePos, getDropPosition:=True)
-                    If sv.HasValues Then
+                    Dim rect As Rectangle = _sfd.SFStock.GetRectFromStockSteinIdx(_stockSteinIndex, getDropPosition:=False)
+                    SetSpecialBmps(SpecialBmps.AtStockSrcPos, _bmpGhost, rect)
 
-                        SetSpecialBmps(SpecialBmps.AtStockSrcPos, _bmpSelected, sv.RectStein)
-                    End If
+                    'Dim sv As SFStockJobs.StockValues = _sfd.SFStock.GetSelectedSteinValues(_mousePos, getDropPosition:=True)
+                    'If sv.HasValues Then
+                    '    SetSpecialBmps(SpecialBmps.AtStockCanDropPos, _bmpGhost, sv.RectStein)
+                    'End If
 
                     _mouseAnkerPosition = New MouseAnkerPosition(_rectSpecialBmps(SpecialBmps.AtStockSrcPos), _mousePos, _sfd.SFLay.rxStageUsed)
 
-                    SetSpecialBmps(SpecialBmps.AtStockSrcPos, _bmpSelected, sv.RectStein)
-
                 Case DragDropJob.Active
-                    '
 
-                    _bmpSpecialBmps(SpecialBmps.AtStockSrcPos) = _bmpGhost
-                    '  _rectSpecialBmps(SpecialBmps.AtStockSrcPos) = _stockValuesSrcKlickAreaStock.RectStein
-                    _hasSpecialBmps(SpecialBmps.AtStockSrcPos) = True
-
-                    _bmpSpecialBmps(SpecialBmps.AtStockMousePos) = _bmpSelected
-                    _rectSpecialBmps(SpecialBmps.AtStockMousePos) = _mouseAnkerPosition.GetAktRectPlane(_mousePos)
-                    _hasSpecialBmps(SpecialBmps.AtStockMousePos) = True
+                    Dim rect As Rectangle = _sfd.SFStock.GetRectFromStockSteinIdx(_stockSteinIndex, getDropPosition:=False)
+                    SetSpecialBmps(SpecialBmps.AtStockSrcPos, _bmpGhost, rect)
+                    If _klickArea = AirKlickArea.Stock OrElse _klickArea = AirKlickArea.StockScrollbar Then
+                        SetSpecialBmps(SpecialBmps.AtStockMousePos, _bmpSelected, _mouseAnkerPosition.GetAktRectPlane(_mousePos))
+                    Else
+                        SetSpecialBmps(SpecialBmps.AtEditorMousePos, _bmpSelected, _mouseAnkerPosition.GetAktRectPlane(_mousePos))
+                    End If
 
                     Dim tpl As Triple = _sfd.SFInf.IsFundamentKandidat(_mousePos)
                     If tpl.IsValideYes Then
-                        Dim rect As Rectangle = _sfd.SFInf.GetSteinRenderRect(tpl)
-                        _bmpSpecialBmps(SpecialBmps.AtStockCanDropPos) = _bmpGhost
-                        _rectSpecialBmps(SpecialBmps.AtStockCanDropPos) = rect
-                        _hasSpecialBmps(SpecialBmps.AtStockCanDropPos) = True
+                        'mögliche Ablageposition auf dem Feld
+                        SetSpecialBmps(SpecialBmps.AtEditorCanDropPos, _bmpGhost, _sfd.SFInf.GetSteinRenderRect(tpl))
+                    Else
+                        Dim sv As SFStockJobs.StockValues = _sfd.SFStock.GetSelectedSteinValues(_mousePos, getDropPosition:=True, leaveCenterBlank:=True)
+                        If sv.HasValue Then
+                            'mögliche Ablageposition im Vorrat
+                            If Not (sv.StockSteinIdx = _stockSteinIndex OrElse sv.StockSteinIdx = _stockSteinIndex + 1) Then
+                                'links und rechts von der Ausgangsposition ist eine Ablage sinnlos,
+                                'da sie zur Ausgangsposition führt, daher die Einschränkung.
+                                SetSpecialBmps(SpecialBmps.AtStockCanDropPos, _bmpGhost, sv.RectStein)
+                            End If
+                        End If
                     End If
-                    _hasRenderJob = True
 
                 Case DragDropJob.EndJob
                     '()
                     Dim tpl As Triple = _sfd.SFInf.IsFundamentKandidat(_mousePos)
                     '()
-                    _sfd.SFInf.TmpReturnRemovedStein()
-                    '()
                     If tpl.IsValideYes Then
-                        If _steinInfoIndex >= 0 Then
-                            'Umsetzen eines Steines innerhalb des Editors
-                            _sfd.SFInf.RemoveSteinFromSpielfeld(_steinInfoIndex)
-                            _sfd.SFInf.AddSteinToSpielfeld(_steinTypIndex, tpl)
+                        'Ablegen eines Steines aus dem Vorrat
+                        _sfd.SFInf.AddSteinToSpielfeld(_steinTypEnum, tpl)
+                        If _sfd.SFStock.StockAktUBnd > _stockSteinIndex Then
+                            'Entfernen mit Animation
+                            _sfd.SFStock.StartNewGapJob(idxGapRemove:=_stockSteinIndex, bmpGapRemove:=_bmpGhost, steinTypRemove:=_steinTypEnum)
                         Else
-                            'Stein aus dem Vorrat ablegen
-
+                            'den allerletzten Stein rechts ohne Animation
+                            _sfd.SFStock.GetSteinTypIndexAndRemove(_stockSteinIndex)
                         End If
                     Else
-                        'Ungültige Position ==> zurückfliegen
+                        'Stein im Vorrat umlagern
+                        Dim sv As SFStockJobs.StockValues = _sfd.SFStock.GetSelectedSteinValues(_mousePos, getDropPosition:=True, leaveCenterBlank:=True)
+
+                        If sv.HasValue Then ' das ist einschließlich sv.HasValueAfterEndOfStock 
+                            If sv.StockSteinIdx = _stockSteinIndex OrElse sv.StockSteinIdx = _stockSteinIndex + 1 Then
+                                'Stein würde an der Ausgangsposition zum liegen kommen
+                                '==> nichts tun (Flugweg zur kurz zum Rückflug)
+                            Else
+                                _sfd.SFStock.StartNewGapJob(idxGapInsert:=sv.StockSteinIdx, bmpGapInsert:=_bmpNormal, _steinTypEnum,
+                                                            idxGapRemove:=_stockSteinIndex, bmpGapRemove:=_bmpGhost, _steinTypEnum)
+                            End If
+                        Else
+                            ' Ungültige Position ==> zurückfliegen
+                            '   Stop
+                        End If
 
                     End If
 
@@ -539,5 +636,95 @@ Namespace Spielfeld
         Private Sub DoKlickButtons()
 
         End Sub
+
+        Private Sub DoLeftMouseDoublKlick()
+
+            Debug.Print("DoLeftMouseDoublKlick " & Now.ToString)
+
+            Dim mousePos As Point = _sfd.SFRun.MousePolling.MousePos
+
+            If Not _sfd.SFLay.rxStageUsed.Contains(mousePos) Then
+                Exit Sub
+            End If
+
+            If _sfd.SFStock.StockAktCount = 0 Then
+                Exit Sub
+            End If
+
+            Dim tpl As Triple = _sfd.SFInf.IsFundamentKandidat(mousePos)
+            If tpl.IsValideYes Then
+                'Debug.Print("DoMouseUpMoveAktion" & Now.ToString & " - " & mousePos.ToString)
+                'mögliche Ablageposition auf dem Feld
+
+                Dim st As SteinTyp = _sfd.SFStock.GetSteinTypIndexAndRemove(index:=0)
+                _sfd.SFInf.AddSteinToSpielfeld(st, tpl)
+            End If
+        End Sub
+
+#Region "DoMouseUpMoveAktion"
+
+        Private _hasAloneGhostBmp As Boolean
+        Private _bmpAloneGhostBmp As Bitmap
+        Private _rectAloneGhostBmp As Rectangle
+
+        Public Function GetAloneGhostBmp() As (has As Boolean, bmp As Bitmap, rect As Rectangle)
+            Dim values As (has As Boolean, bmp As Bitmap, rect As Rectangle)
+            values.has = _hasAloneGhostBmp
+            values.bmp = _bmpAloneGhostBmp
+            values.rect = _rectAloneGhostBmp
+            Return values
+        End Function
+
+        Private Sub SetAloneGhostBmp(bmp As Bitmap, rect As Rectangle)
+            _hasAloneGhostBmp = True
+            _bmpAloneGhostBmp = bmp
+            _rectAloneGhostBmp = rect
+            MakeDirty()
+        End Sub
+
+        Private Sub ClearAloneGhostBmp()
+            _hasAloneGhostBmp = False
+            _bmpAloneGhostBmp = Nothing
+            _rectAloneGhostBmp = Rectangle.Empty
+        End Sub
+
+        '
+        ''' <summary>
+        ''' Hier wird das reine Bewegen der Maus ohne gedückte Maustasten verarbeitet. 
+        ''' </summary>
+        Public Sub DoMouseUpMoveAktion()
+
+            ClearAloneGhostBmp()
+
+            If _sfd.SFRun.MousePolling.LeftMouseDown OrElse _sfd.SFRun.MousePolling.RightMouseDown Then
+                Exit Sub
+            End If
+
+            Dim mousePos As Point = _sfd.SFRun.MousePolling.MousePos
+
+            If Not _sfd.SFLay.rxStageUsed.Contains(mousePos) Then
+                Exit Sub
+            End If
+
+            If _sfd.SFStock.StockAktCount = 0 Then
+                Exit Sub
+            End If
+
+            Dim tpl As Triple = _sfd.SFInf.IsFundamentKandidat(mousePos)
+            If tpl.IsValideYes Then
+                'Debug.Print("DoMouseUpMoveAktion" & Now.ToString & " - " & mousePos.ToString)
+                'mögliche Ablageposition auf dem Feld
+
+                Dim st As SteinTyp = _sfd.SFStock.GetSteinTypIndexDontRemove(index:=0)
+
+                Dim request As New TileRequest(_sfd.SFRun.AktRenderMode, INI.Tile_TileColors, st, SteinStatus.I01Normal, SteinFrameVersion.Standard, _sfd.SFLay.steinSize, INI.Tile_BasisSize, ghost:=True)
+                Dim bmp As Bitmap = TileFactory.GetTile(request)
+
+                SetAloneGhostBmp(bmp, _sfd.SFInf.GetSteinRenderRect(tpl))
+            End If
+
+        End Sub
+
+#End Region
     End Class
 End Namespace
