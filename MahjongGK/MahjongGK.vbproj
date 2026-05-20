@@ -179,6 +179,9 @@
     <Compile Include="Formulare\ColorPickerNamedColors.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Spielfeld\Contextmenues\ContextMenueEditor.vb">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Spielfeld\Runtime\MouseAktionen\MouseWheelPoller.vb" />
     <Compile Include="Spielfeld\Runtime\MouseAktionen\SFStockJobs.vb" />
     <Compile Include="Spielfeld\Runtime\Steinflug\AirHelper.vb" />

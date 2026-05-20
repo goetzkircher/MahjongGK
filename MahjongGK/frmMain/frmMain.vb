@@ -76,13 +76,13 @@ Public Class frmMain
 
         'Dim newSpielfeldInfo As New SFInfo(New Triple(MJ_STEINE_MAXX, MJ_STEINE_MAXY, MJ_STEINE_MAXZ))
         'Dim wbsSF As Werkstück = Umfeld.Werkstück_Pyramide(New Triple(MJ_STEINE_MAXX \ 2, MJ_STEINE_MAXY * 3 \ 2, MJ_STEINE_MAXZ), True, True, demoMode:=True) ', True, True)
-        Dim newSpielfeldInfo As New SFInfo(New Triple(10, 5, 5))
+        Dim newSpielfeldInfo As New SFInfo(New Triple(7, 4, 6))
         ' Dim wbsSF As Werkstück = Umfeld.Werkstück_Pyramide(New Triple(5, 5, 3), True, True, demoMode:=True) ', True, True)
         'Dim wbsSF As Werkstück = Umfeld.Werkstück_Rechteck(New Triple(2, 2, 1), demoMode:=True) ', True, True)
 
         'newSpielfeldInfo.AddWerkstückToSpielfeld(wbsSF, New Triple(1, 1, 0))
-        Dim generator As New SpielsteinGenerator(GeneratorModus.StoneSet_072)
-        generator.DebugStoneCountLimit = 16
+        Dim generator As New SpielsteinGenerator(GeneratorModus.StoneStream_Base152_Continuous)
+        '  generator.DebugStoneCountLimit = 16
         SFMain.CreateSpielfeld(newSpielfeldInfo, generator)
 
         'startet die Anzeige
@@ -441,170 +441,6 @@ Public Class frmMain
 
         End Set
     End Property
-
-    '' --- Spezial-Label für rechtsbündige Menüs ---
-    'Private Class ToolStripSpringLabel
-    '    Inherits ToolStripLabel
-    '    Protected Overrides Sub OnLayout(e As LayoutEventArgs)
-    '        MyBase.OnLayout(e)
-    '        If Me.Owner IsNot Nothing Then
-    '            Dim springSpace As Integer = Me.Owner.DisplayRectangle.Width
-    '            For Each item As ToolStripItem In Me.Owner.Items
-    '                If item IsNot Me AndAlso item.Alignment = ToolStripItemAlignment.Left Then
-    '                    springSpace -= item.Width
-    '                End If
-    '            Next
-    '            Me.Width = Math.Max(springSpace, 0)
-    '        End If
-    '    End Sub
-    'End Class
-
-    '' --- Menüaufbau ---
-    'Private Sub BuildMenu_ZLV(ms As MenuStrip)
-
-    '    ms.Items.Clear()
-    '    menuEnableBindings.Clear()
-    '    menuVisibleBindings.Clear()
-
-    '    ' === Datei ===
-    '    Dim mnuDatei As New ToolStripMenuItem("Datei")
-    '    mnuDatei.DropDownItems.Add(CreateMenuItem("Letzten Spielstand laden", Sub() SpielstandLoad(False)))
-    '    mnuDatei.DropDownItems.Add(CreateMenuItem("Spielstand laden", Sub() SpielstandLoad(True)))
-    '    mnuDatei.DropDownItems.Add(New ToolStripSeparator())
-    '    mnuDatei.DropDownItems.Add(CreateMenuItem("Spielstand speichern", Sub() SpielstandSave(False)))
-    '    mnuDatei.DropDownItems.Add(CreateMenuItem("Spielstand speichern unter", Sub() SpielstandSave(True)))
-    '    mnuDatei.DropDownItems.Add(CreateCheckMenuItem("Automatisch speichern",
-    '                                                   INI.Spielbetrieb_AutoSave,
-    '                                                   Sub(sender)
-    '                                                       Dim itm As ToolStripMenuItem = DirectCast(sender, ToolStripMenuItem)
-    '                                                       INI.Spielbetrieb_AutoSave = itm.Checked
-    '                                                   End Sub))
-    '    mnuDatei.DropDownItems.Add(CreateMenuItem("Info", Sub() ShowInfo(Info.AutoSave)))
-
-    '    ' === Spiel ===
-    '    Dim mnuSpiel As New ToolStripMenuItem("Spielfeld")
-    '    mnuSpiel.DropDownItems.Add(CreateMenuItem("Spielen",
-    '                                              Sub() ChangeVisibleControl(VisibleUserControl.Spielfeld),
-    '                                               Function() As Boolean
-    '                                                   Return AktVisibleUserControl <> VisibleUserControl.Spielfeld
-    '                                               End Function))
-
-    '    mnuSpiel.DropDownItems.Add(CreateMenuItem("Spielfeld wählen",
-    '                                              Sub() ChangeVisibleControl(VisibleUserControl.SpielfeldWählen),
-    '                                              Function() As Boolean
-    '                                                  Return AktVisibleUserControl <> VisibleUserControl.SpielfeldWählen
-    '                                              End Function))
-
-    '    mnuSpiel.DropDownItems.Add(CreateMenuItem("Spielfeld zufällig wählen", Sub() SelectRandomSpielfeld()))
-
-    '    Dim mnuEditor As New ToolStripMenuItem("Editor")
-
-    '    Dim editorItem As ToolStripMenuItem = CreateMenuItem("Editor",
-    '                                                     Sub() ChangeVisibleControl(VisibleUserControl.Spielfeld),
-    '                                                     Function() As Boolean
-    '                                                         Return AktVisibleUserControl <> VisibleUserControl.Spielfeld
-    '                                                     End Function)
-
-    '    ' Hier wird geprüft, ob der Editor verwendet werden darf
-    '    menuVisibleBindings.Add(New Tuple(Of ToolStripMenuItem, Func(Of Boolean))(
-    '                                                editorItem,
-    '                                                Function() As Boolean
-    '                                                    Return INI.Editor_UsingEditorAllowed
-    '                                                End Function
-    '                                                ))
-    '    mnuEditor.DropDownItems.Add(editorItem)
-
-    '    ' === Einstellungen ===
-    '    Dim mnuEinstellungen As New ToolStripMenuItem("Einstellungen")
-    '    AddHandler mnuEinstellungen.Click, Sub() ChangeVisibleControl(VisibleUserControl.Einstellungen)
-
-    '    menuEnableBindings.Add(New Tuple(Of ToolStripMenuItem, Func(Of Boolean))(
-    '                                        mnuEinstellungen,
-    '                                        Function() As Boolean
-    '                                            Return AktVisibleUserControl <> VisibleUserControl.Einstellungen
-    '                                        End Function))
-
-    '    ' === Rechtsbündiger Teil ===
-    '    Dim spring As New ToolStripSpringLabel() With {.AutoSize = False}
-
-    '    ' === Hilfe ===
-    '    Dim mnuHilfe As New ToolStripMenuItem("Hilfe")
-    '    mnuHilfe.DropDownItems.Add(CreateMenuItem("Hilfe",
-    '                                              Sub() ChangeVisibleControl(VisibleUserControl.Hilfe),
-    '                                               Function() As Boolean
-    '                                                   Return AktVisibleUserControl <> VisibleUserControl.Hilfe
-    '                                               End Function))
-
-    '    mnuHilfe.DropDownItems.Add(CreateMenuItem("About",
-    '                                              Sub() ChangeVisibleControl(VisibleUserControl.About),
-    '                                               Function() As Boolean
-    '                                                   Return AktVisibleUserControl <> VisibleUserControl.About
-    '                                               End Function))
-
-    '    If INI.Editor_UsingEditorAllowed Then
-    '        ' --- Menüs hinzufügen ---
-    '        ms.Items.AddRange({mnuDatei, mnuSpiel, mnuEditor, mnuEinstellungen, spring, mnuHilfe})
-    '    Else
-    '        ms.Items.AddRange({mnuDatei, mnuSpiel, mnuEinstellungen, spring, mnuHilfe})
-    '    End If
-
-    'End Sub
-
-    '' --- Hilfsfunktionen ---
-    'Private Function CreateMenuItem(text As String, action As Action, Optional enabledCondition As Func(Of Boolean) = Nothing) As ToolStripMenuItem
-    '    Dim itm As New ToolStripMenuItem(text)
-    '    AddHandler itm.Click, Sub(sender, e) action()
-    '    If enabledCondition IsNot Nothing Then
-    '        menuEnableBindings.Add(New Tuple(Of ToolStripMenuItem, Func(Of Boolean))(itm, enabledCondition))
-
-    '    End If
-    '    Return itm
-    'End Function
-
-    'Private Function CreateCheckMenuItem(text As String, isChecked As Boolean, onCheckedChanged As Action(Of Object)) As ToolStripMenuItem
-    '    Dim itm As New ToolStripMenuItem(text) With {.CheckOnClick = True, .Checked = isChecked}
-    '    AddHandler itm.CheckedChanged,
-    '        Sub(sender, e)
-    '            onCheckedChanged(sender)
-    '        End Sub
-    '    Return itm
-    'End Function
-
-    'Private Sub RefreshMenuStates()
-    '    For Each bindingtpl As Tuple(Of ToolStripMenuItem, Func(Of Boolean)) In menuEnableBindings
-    '        'Debug.WriteLine($"Type von Item2: {bindingtpl.Item2.GetType().FullName}")
-    '        'Das hier geht nicht, die IDE meckert
-    '        'Der Wert vom Typ "Func(Of Boolean)" kann nicht in "Boolean" konvertiert werden.
-    '        'bindingtpl.Item1.Enabled = bindingtpl.Item2()
-    '        'Nach langer Suche:
-    '        Dim func As Func(Of Boolean) = bindingtpl.Item2
-    '        Dim result As Boolean = func()
-    '        bindingtpl.Item1.Enabled = result
-    '    Next
-    '    For Each bindingtpl As Tuple(Of ToolStripMenuItem, Func(Of Boolean)) In menuVisibleBindings
-    '        'Problem wie oben.
-    '        Dim func As Func(Of Boolean) = bindingtpl.Item2
-    '        Dim result As Boolean = func()
-    '        bindingtpl.Item1.Enabled = result
-    '    Next
-    'End Sub
-
-    '' --- Platzhalter-Subs ---
-    'Private Sub SpielstandLoad(forceDialog As Boolean)
-    '    MessageBox.Show("SpielstandLoad(" & forceDialog & ")")
-    'End Sub
-
-    'Private Sub SpielstandSave(forceDialog As Boolean)
-    '    MessageBox.Show("SpielstandSave(" & forceDialog & ")")
-    'End Sub
-
-    'Private Sub ShowInfo(infoType As Info)
-    '    MessageBox.Show("Info: " & infoType.ToString())
-    'End Sub
-
-    'Private Sub SelectRandomSpielfeld()
-    '    MessageBox.Show("Zufälliges Spielfeld wählen")
-    'End Sub
 
 #End Region
 

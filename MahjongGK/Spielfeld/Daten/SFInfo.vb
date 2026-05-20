@@ -2313,6 +2313,21 @@ Namespace Spielfeld
 
         End Function
 
+        Public Function GetTopSteinInfoIndexAtPointWithZ(mousePos As Point) As (idx As Integer, z As Integer)
+
+            Dim tpl As Triple = GetTopSteinAtPoint(mousePos)
+
+            If tpl.IsValideYes Then
+                Dim rv As (idx As Integer, z As Integer)
+                rv.idx = GetSteinInfoIndex(tpl)
+                rv.idx = tpl.z + 1
+                Return rv
+            Else
+                Return (-1, 0)
+            End If
+
+        End Function
+
         Public Function GetTopQuadrantAtPoint(mousePos As Point) As TripleX
 
             UpdateTopSearchIndex()
@@ -2554,9 +2569,10 @@ Namespace Spielfeld
                     'rechten Spalte und der unteren Zeile kein Platz für die anderen Quadranten ist.
                     Return New Triple(ValidePlace.NoKandidat)
                 Else
-                    'Prüfen, ob die anderen drei Plätze frei sind.
+                    'Prüfen, ob alle vier Plätze frei sind.
                     With kandidat
-                        If arrFB(.x + 1, .y, .z) = 0 AndAlso
+                        If arrFB(.x, .y, .z) = 0 AndAlso
+                            arrFB(.x + 1, .y, .z) = 0 AndAlso
                             arrFB(.x, .y + 1, .z) = 0 AndAlso
                             arrFB(.x + 1, .y + 1, .z) = 0 Then
                             Return kandidat

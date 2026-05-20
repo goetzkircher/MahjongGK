@@ -532,7 +532,7 @@ Namespace Spielfeld
 
                             .LastSteinWidth = steinWidth
                             .LastRxStockWidth = rxStockScrollbar.WidthInside
-                            .UpdateStockValues()
+                            .UpdateScrollbar()
                         End If
                     End With
                 Case Else

@@ -964,22 +964,22 @@ Public Module INI
         End Set
     End Property
 
-    Private _Editor_SpaceFramesToOpenOrClose As Integer?
-    Public Property Editor_SpaceFramesToOpenOrClose As Integer
+    Private _Editor_AnimationSteps As Integer?
+    Public Property Editor_AnimationSteps As Integer
         Get
-            If Not _Editor_SpaceFramesToOpenOrClose.HasValue Then
+            If Not _Editor_AnimationSteps.HasValue Then
                 Dim [Default] As Integer = 8
                 Dim comment As String = "Anzahl der Frames um die Lücke für einen Stein zu öffnen oder zu schließen. Default = 8, Min 3, Max 20"
-                _Editor_SpaceFramesToOpenOrClose = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+                _Editor_AnimationSteps = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
                 'muss hier das .Value dahinter?
-                If _Editor_SpaceFramesToOpenOrClose < 3 Then _Editor_SpaceFramesToOpenOrClose = 3
-                If _Editor_SpaceFramesToOpenOrClose > 20 Then _Editor_SpaceFramesToOpenOrClose = 20
+                If _Editor_AnimationSteps < 3 Then _Editor_AnimationSteps = 3
+                If _Editor_AnimationSteps > 20 Then _Editor_AnimationSteps = 20
             End If
-            Return _Editor_SpaceFramesToOpenOrClose.Value
+            Return _Editor_AnimationSteps.Value
         End Get
         Set(value As Integer)
             BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
-            _Editor_SpaceFramesToOpenOrClose = Nothing
+            _Editor_AnimationSteps = Nothing
         End Set
     End Property
 
@@ -1076,7 +1076,7 @@ Public Module INI
         Get
             If IsNothing(_Editor_ShowFrmTooltipSteinInfo) Then
                 Dim [Default] As Boolean = True
-                Dim comment As String = "Das kleine Formular im Editor, das an die Maus gekoppelt ist."
+                Dim comment As String = "Das kleine blassgelbe Tooltip-Formular im Editor, das an die Maus gekoppelt ist."
                 _Editor_ShowFrmTooltipSteinInfo = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
             End If
             Return CBool(_Editor_ShowFrmTooltipSteinInfo)
@@ -1084,6 +1084,72 @@ Public Module INI
         Set(value As Boolean)
             BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
             _Editor_ShowFrmTooltipSteinInfo = Nothing
+        End Set
+    End Property
+
+    Private _Editor_DoubleClickRemoveStein As Boolean?
+    Public Property Editor_DoubleClickRemoveStein As Boolean
+        'Editor_DoubleClickRemoveStein und Editor_DoubleClickSetStein 
+        'sind gegeneinander verriegelt.
+        Get
+            If IsNothing(_Editor_DoubleClickRemoveStein) Then
+                Dim [Default] As Boolean = False
+                Dim comment As String = "Der aktuelle Wert im Kontextmenue Editor."
+                _Editor_DoubleClickRemoveStein = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            End If
+            Dim rv As Boolean = CBool(_Editor_DoubleClickRemoveStein)
+            If rv AndAlso Editor_DoubleClickSetStein Then
+                Editor_DoubleClickSetStein = False
+            End If
+            Return rv
+        End Get
+        Set(value As Boolean)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+            _Editor_DoubleClickRemoveStein = Nothing
+            If value Then
+                Editor_DoubleClickSetStein = False
+            End If
+        End Set
+    End Property
+
+    Private _Editor_DoubleClickSetStein As Boolean?
+    Public Property Editor_DoubleClickSetStein As Boolean
+        'Editor_DoubleClickRemoveStein und Editor_DoubleClickSetStein 
+        'sind gegeneinander verriegelt.
+        Get
+            If IsNothing(_Editor_DoubleClickSetStein) Then
+                Dim [Default] As Boolean = False
+                Dim comment As String = "Der aktuelle Wert im Kontextmenue Editor."
+                _Editor_DoubleClickSetStein = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            End If
+            Dim rv As Boolean = CBool(_Editor_DoubleClickSetStein)
+            If rv AndAlso Editor_DoubleClickRemoveStein Then
+                Editor_DoubleClickRemoveStein = False
+            End If
+            Return rv
+        End Get
+        Set(value As Boolean)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+            _Editor_DoubleClickSetStein = Nothing
+            If value Then
+                Editor_DoubleClickRemoveStein = False
+            End If
+        End Set
+    End Property
+
+    Private _Editor_SteinflugAnimation As Boolean?
+    Public Property Editor_SteinflugAnimation As Boolean
+        Get
+            If IsNothing(_Editor_SteinflugAnimation) Then
+                Dim [Default] As Boolean = True
+                Dim comment As String = "Der aktuelle Wert im Kontextmenue Editor."
+                _Editor_SteinflugAnimation = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            End If
+            Return CBool(_Editor_SteinflugAnimation)
+        End Get
+        Set(value As Boolean)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+            _Editor_SteinflugAnimation = Nothing
         End Set
     End Property
 
@@ -2531,7 +2597,8 @@ Public Module INI
         Get
             If IsNothing(_Rendering_DrawRenderingSkipDoneMarker) Then
                 Dim [Default] As Boolean = Debugger.IsAttached
-                Dim comment As String = "Zeichnet rechts unten im Spielfeld ein Feld ein, an dem erkennbar ist, ob neu gerendert wurde. Default: Debugger.IsAttached"
+                Dim comment As String = "Zeichnet rechts oben im Spielfeld ein Feld ein, an dem erkennbar ist, ob neu gerendert wurde." &
+                                        "Hinweis: Es wird nur angezeigt, wenn nicht gerendert wird. D.h. wenn es flackert, wird gerendert. Default: Debugger.IsAttached"
                 _Rendering_DrawRenderingSkipDoneMarker = Rendering.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
             End If
             Return CBool(_Rendering_DrawRenderingSkipDoneMarker)
@@ -2721,54 +2788,16 @@ Public Module INI
         End Set
     End Property
 
-    ''Private _Tile_SpaceBetweenWidth As Double?
-    ''Public Property Tile_SpaceBetweenWidth As Double
-    ''    Get
-    ''        If Not _Tile_SpaceBetweenWidth.HasValue Then
-    ''            Dim [Default] As Double = 10
-    ''            Dim comment As String = $"Zwischenraum zwischen den Steinen bezogen auf eine Steinbreite von {GlobalConstants.MJ_GRAFIK_STEIN_BASIS_WIDTH} Pixel." &
-    ''                                    "~Steine darunter werden etwas sichtbar. Möglicher Werte: 0 bis 10 Pixel. DEfault 0 Pixel"
-    ''            _Tile_SpaceBetweenWidth = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-    ''            If _Tile_SpaceBetweenWidth > 0 Then
-    ''                _Tile_SpaceBetweenWidth /= GlobalConstants.MJ_GRAFIK_STEIN_BASIS_WIDTH_DBL
-    ''            End If
-    ''        End If
-    ''        Return _Tile_SpaceBetweenWidth.Value
-    ''    End Get
-    ''    Set(value As Double)
-    ''        BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
-    ''        _Tile_SpaceBetweenWidth = Nothing
-    ''    End Set
-    ''End Property
-
-    ''Private _Tile_SpaceBetweenHeight As Double?
-    ''Public Property Tile_SpaceBetweenHeight As Double
-    ''    Get
-    ''        If Not _Tile_SpaceBetweenHeight.HasValue Then
-    ''            Dim [Default] As Double = 10
-    ''            Dim comment As String = $"Wie vor für die Höhe bezogen auf {GlobalConstants.MJ_GRAFIK_STEIN_BASIS_HEIGHT} Pixel."
-    ''            _Tile_SpaceBetweenHeight = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-    ''            If _Tile_SpaceBetweenHeight > 0 Then
-    ''                _Tile_SpaceBetweenHeight /= GlobalConstants.MJ_GRAFIK_STEIN_BASIS_HEIGHT_DBL
-    ''            End If
-    ''        End If
-    ''        Return _Tile_SpaceBetweenHeight.Value
-    ''    End Get
-    ''    Set(value As Double)
-    ''        BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
-    ''        _Tile_SpaceBetweenHeight = Nothing
-    ''    End Set
-    ''End Property
 #End Region
 
-#Region "Nicht gespeicherte Daten"
+#Region "Volatile, nicht gespeicherte Daten"
 
     Private _renderCounter As Integer
     '
     ''' <summary>
     ''' Wird bei jedem Rendern hochgezählt
     ''' </summary>
-    Public Sub RenderCounter_Inc()
+    Public Sub Volatil_RenderCounterInc()
         _renderCounter += 1
     End Sub
     '
@@ -2777,11 +2806,13 @@ Public Module INI
     ''' Wird nicht rückgestellt, läuft aber erst nach 2,7 Jahren über.
     ''' </summary>
     ''' <returns></returns>
-    Public ReadOnly Property RenderCounter_GetValue As Integer
+    Public ReadOnly Property Volatil_RenderCounterValue As Integer
         Get
             Return _renderCounter
         End Get
     End Property
+
+    Public Property Volatil_ContextMenueEditorIsOpen As Boolean
 
 #End Region
 

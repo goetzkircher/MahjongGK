@@ -71,6 +71,9 @@ Public Class HScrollRenderer
     Private _colorschemeDisabled As ScrollColorScheme
     Private _isInit As Boolean = False
 
+    Private _AktVisibleSteinNumberFrom As Integer
+    Private _AktVisibleSteinNumberTo As Integer
+
     Sub New()
 
     End Sub
@@ -84,6 +87,23 @@ Public Class HScrollRenderer
         _colorschemeDisabled = BuildScheme(basisColor, enabled:=False)
         _isInit = True
     End Sub
+
+    Public Property AktVisibleSteinNumberFrom As Integer
+        Get
+            Return _AktVisibleSteinNumberFrom
+        End Get
+        Set(value As Integer)
+            _AktVisibleSteinNumberFrom = value
+        End Set
+    End Property
+    Public Property AktVisibleSteinNumberTo As Integer
+        Get
+            Return _AktVisibleSteinNumberTo
+        End Get
+        Set(value As Integer)
+            _AktVisibleSteinNumberTo = value
+        End Set
+    End Property
 
     Public Property RectHScrollbar As Rectangle
         Get
@@ -210,8 +230,8 @@ Public Class HScrollRenderer
 
             ' Gripper
             Dim gy As Integer = CInt(inner.Top + inner.Height \ 2)
-            Dim gx0 As Integer = inner.Left + Math.Max(4, inner.Width \ 4)
-            Dim gx1 As Integer = inner.Right - Math.Max(4, inner.Width \ 4)
+            Dim gx0 As Integer = inner.Left + Math.Max(4, inner.Width \ 3)
+            Dim gx1 As Integer = inner.Right - Math.Max(4, inner.Width \ 3)
             Using pen1 As New Pen(scheme.GripperLight),
                   pen2 As New Pen(scheme.GripperDark)
                 gfx.DrawLine(pen2, gx0, gy, gx1, gy)
@@ -219,7 +239,44 @@ Public Class HScrollRenderer
                 gfx.DrawLine(pen1, gx0, gy + 1, gx1, gy + 1)
             End Using
         End If
+        '
+        'Zahlen eintragen
+        If _AktVisibleSteinNumberFrom > 0 Then
 
+            Using fnt As New Font("Segoe UI", 9.0F, FontStyle.Regular, GraphicsUnit.Pixel)
+                Using br As New SolidBrush(Color.Black)
+
+                    Dim oldHint As Drawing.Text.TextRenderingHint = gfx.TextRenderingHint
+                    gfx.TextRenderingHint = Drawing.Text.TextRenderingHint.ClearTypeGridFit
+
+                    Dim sFrom As String = _AktVisibleSteinNumberFrom.ToString()
+                    Dim sTo As String = _AktVisibleSteinNumberTo.ToString()
+                    Dim rect As Rectangle = Inflate(_lastThumbRect, 5, 0)
+
+                    Using sfLeft As New StringFormat()
+                        sfLeft.Alignment = StringAlignment.Near
+                        sfLeft.LineAlignment = StringAlignment.Center
+                        sfLeft.FormatFlags = StringFormatFlags.NoWrap
+                        sfLeft.Trimming = StringTrimming.None
+
+                        gfx.DrawString(sFrom, fnt, br, rect, sfLeft)
+                    End Using
+
+                    Using sfRight As New StringFormat()
+                        sfRight.Alignment = StringAlignment.Far
+                        sfRight.LineAlignment = StringAlignment.Center
+                        sfRight.FormatFlags = StringFormatFlags.NoWrap
+                        sfRight.Trimming = StringTrimming.None
+
+                        gfx.DrawString(sTo, fnt, br, rect, sfRight)
+                    End Using
+
+                    gfx.TextRenderingHint = oldHint
+
+                End Using
+            End Using
+
+        End If
         ' Pfeilbuttons zeichnen
         DrawArrowButton(gfx, _lastLeftArrow, scheme, leftArrow:=True, enabled:=enabled, hover:=_hoverLeft, pressed:=_pressedLeft)
         DrawArrowButton(gfx, _lastRightArrow, scheme, leftArrow:=False, enabled:=enabled, hover:=_hoverRight, pressed:=_pressedRight)

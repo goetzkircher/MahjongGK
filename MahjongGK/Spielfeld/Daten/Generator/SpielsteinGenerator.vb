@@ -482,7 +482,8 @@ Namespace Spielfeld
         ''' (Zurücklegen eines Steines vom Feld in den Vorrat.)
         ''' Ist index zu klein, wird ganz links eingefügt,
         ''' ist er zu groß ganz rechts.
-        ''' Vorsicht: nur verwenden um entnommene Steine wieder hinzuzufügen.
+        ''' Vorsicht: nur verwenden um entnommene Steine wieder hinzuzufügen,
+        ''' sonst stimmt die Zusammensetzung der Steine nicht mehr.
         ''' </summary>
         ''' <param name="index"></param>
         ''' <param name="sie"></param>
@@ -508,28 +509,31 @@ Namespace Spielfeld
             Stock.Add(sie)
         End Sub
 
-        Public Sub ShuffleStock()
+        Public Sub ShuffleStock(includeNoSortArea As Boolean)
             '
             If Stock.Count <= 1 Then
                 'hier gibt es nichts zu mischen
                 Exit Sub
             End If
 
-            If Stock.Count - 1 <= StockNoSortAreaEndIndex Then
-                'hier auch nicht
-                Exit Sub
+            Dim idxTo As Integer = 0
+
+            If Not includeNoSortArea Then
+
+                If Stock.Count - 1 <= StockNoSortAreaEndIndex Then
+                    'hier auch nicht
+                    Exit Sub
+                End If
+
+                If Stock.Count - 1 <= StockNoSortAreaEndIndex + 2 Then
+                    'weniger als 2 Steine hinter dem Index vorhanden
+                    'hier gibt es nichts zu mischen
+                    Exit Sub
+                End If
+                idxTo = StockNoSortAreaEndIndex + 1
             End If
 
-            If Stock.Count - 1 <= StockNoSortAreaEndIndex + 2 Then
-                'weniger als 2 Steine hinter dem Index vorhanden
-                'hier gibt es nichts zu mischen
-                Exit Sub
-            End If
-
-            Dim idxTo As Integer = StockNoSortAreaEndIndex + 1
-            Dim idx1 As Integer
-
-            For idx1 = Stock.Count - 1 To idxTo Step -1
+            For idx1 As Integer = Stock.Count - 1 To idxTo Step -1
                 Dim idx2 As Integer = GetZufallszahl(idxTo, idx1 + 1)
                 Dim tmp As SteinTyp = Stock(idx1)
                 Stock(idx1) = Stock(idx2)

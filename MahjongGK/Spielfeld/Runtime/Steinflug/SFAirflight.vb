@@ -756,22 +756,13 @@ Namespace Spielfeld
                 Exit Sub
             End If
             '
-            'Die Deklaration erzeugt auch die benötigten Bitmaps, holt sich das Ausgaberechteck usw.
-            Dim plane As Airplane = Airplane.CreateEditorDragDropAirplane(_sfd, steinInfoIndex)
-            Try
-                '   _sfd.SFAir.AddPlane(plane, AirplaneInsertAt.First)
-                'Hier muss gestartet werden.
-                _sfd.SFRun.MousePolling.StartDragDrop()
-            Catch ex As Exception
-                'es gibt bereits eine DragDrop-Instanz
-                If Debugger.IsAttached Then
-                    Stop 'Programmierfehler
-                End If
-                'Andernfalls ignorieren und abbrechen.
-                Exit Sub
-            End Try
+            If _sfd.SFRun.MousePolling.StartDragDrop() Then
+                'Die Deklaration erzeugt auch die benötigten Bitmaps, holt sich das Ausgaberechteck usw.
+                Dim plane As Airplane = Airplane.CreateEditorDragDropAirplane(_sfd, steinInfoIndex)
+                plane.MouseAnkerPosition = New MouseAnkerPosition(plane.SrcRect, _mousePos, _sfd.SFLay.rxStageUsed)
+            End If
+
             '
-            plane.MouseAnkerPosition = New MouseAnkerPosition(plane.SrcRect, _mousePos, _sfd.SFLay.rxStageUsed)
 
         End Sub
 

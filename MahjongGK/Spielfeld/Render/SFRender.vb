@@ -241,6 +241,7 @@ Namespace Spielfeld
             'Außerhalb der Schleife deklarieren
             Dim bmpSteinDC As Bitmap = Nothing
             Dim bmpStein As Bitmap = Nothing
+            Dim values As (has As Boolean, bmp As Bitmap, rect As Rectangle, zEbene As Integer)
 
             With _sfd.SFInf
 
@@ -284,38 +285,42 @@ Namespace Spielfeld
 
                             End If
                         Next
+
                     Next
+                    'Hier sind Ausgaben angesiedelt, die in der Z-Order korrekt gezeichnet werden.
+                    'Reihenfolge beachten, bestimmt die Z-Order innerhalb der SpecialBmps..
+
+                    '
+                    values = _sfd.SFMouse.GetSpecialBmps(SpecialBmps.AtEditorSrcPos)
+                    If values.has AndAlso values.zEbene = z Then
+                        _backBufferGfx.DrawImage(values.bmp, values.rect)
+                    End If
+                    '
+                    values = _sfd.SFMouse.GetSpecialBmps(SpecialBmps.AtEditorCanDropPos)
+                    If values.has AndAlso values.zEbene = z Then
+                        _backBufferGfx.DrawImage(values.bmp, values.rect)
+                    End If
+                    '
+
+                    values = _sfd.SFMouse.GetDoubleClickGhostBmp
+                    If values.has AndAlso values.zEbene = z Then
+                        _backBufferGfx.DrawImage(values.bmp, values.rect)
+                    End If
+
+                    If _sfd.SFStock.ConsumeHasFadeOutJob(z) Then
+                        Dim bmp As Bitmap = _sfd.SFStock.GetFadeOutBitmap
+                        Dim rect As RectangleX = _sfd.SFStock.GetFadeOutRect
+                        _backBufferGfx.DrawImage(bmp, rect)
+                        bmp.Dispose()
+                    End If
                 Next
 
             End With
 
-            PaintStock()
+            Paint_Stock()
+            Paint_AboveEditorAndStock()
 
             Paint_UndoRedo()
-
-            'Hier sind Ausgaben angesiedelt, die in der Z-Order ganz oben aufliegen.
-            'Reihenfolge beachten, bestimmt die Z-Order innerhalb der SpecialBmps..
-            Dim values As (has As Boolean, bmp As Bitmap, rect As Rectangle)
-            '
-            values = _sfd.SFMouse.GetSpecialBmps(SpecialBmps.AtEditorSrcPos)
-            If values.has Then
-                _backBufferGfx.DrawImage(values.bmp, values.rect)
-            End If
-            '
-            values = _sfd.SFMouse.GetSpecialBmps(SpecialBmps.AtEditorCanDropPos)
-            If values.has Then
-                _backBufferGfx.DrawImage(values.bmp, values.rect)
-            End If
-            '
-            values = _sfd.SFMouse.GetSpecialBmps(SpecialBmps.AtEditorMousePos)
-            If values.has Then
-                _backBufferGfx.DrawImage(values.bmp, values.rect)
-            End If
-
-            values = _sfd.SFMouse.GetAloneGhostBmp
-            If values.has Then
-                _backBufferGfx.DrawImage(values.bmp, values.rect)
-            End If
 
         End Sub
 
@@ -438,21 +443,17 @@ Namespace Spielfeld
             End With
         End Sub
 
-        Private Sub PaintStock()
+        Private Sub Paint_Stock()
 
-            Dim values As (has As Boolean, bmp As Bitmap, rect As Rectangle)
+            Dim stockAktUBnd As Integer = _sfd.SFInf.Generator.StockAktUBnd
+            Dim bmpStein As Bitmap
+
+            Dim values As (has As Boolean, bmp As Bitmap, rect As Rectangle, zEbeneHierOhneBedeutung As Integer)
 
             values = _sfd.SFMouse.GetSpecialBmps(SpecialBmps.AtStockRemovePos)
             If values.has Then
                 _backBufferGfx.DrawImage(values.bmp, values.rect)
             End If
-            values = _sfd.SFMouse.GetSpecialBmps(SpecialBmps.AtStockSrcPos)
-            If values.has Then
-                _backBufferGfx.DrawImage(values.bmp, values.rect)
-            End If
-
-            Dim stockAktUBnd As Integer = _sfd.SFInf.Generator.StockAktUBnd
-            Dim bmpStein As Bitmap
 
             With _sfd.SFStock
                 'Rendern der horizontalen Steinleiste.
@@ -462,10 +463,20 @@ Namespace Spielfeld
                     Else
 
                         Dim request As New TileRequest(_sfd.SFRun.AktRenderMode, INI.Tile_TileColors, steinTyp:=_sfd.SFInf.Generator.Stock(idx), SteinStatus.I01Normal, SteinFrameVersion.Standard, _sfd.SFLay.steinSize, INI.Tile_BasisSize)
+
                         bmpStein = TileFactory.GetTile(request)
 
                         Dim rectAusgabe As Rectangle = _sfd.SFStock.GetRectFromStockSteinIdx(idx)
+
+#Const insertIdxBitmap = False
+#If insertIdxBitmap Then
+                        bmpStein = InsertIdxBitmap(Bitmap32DeepCopy(bmpStein), idx)
                         _backBufferGfx.DrawImage(bmpStein, rectAusgabe)
+                        bmpStein.Dispose()
+#Else
+                        _backBufferGfx.DrawImage(bmpStein, rectAusgabe)
+#End If
+
                     End If
                 Next
                 '
@@ -489,11 +500,22 @@ Namespace Spielfeld
                 _backBufferGfx.DrawImage(values.bmp, values.rect)
             End If
 
+        End Sub
+
+        Private Sub Paint_AboveEditorAndStock()
+
+            'Und hier die ganz obenauf liegenden Bitmaps
+
+            Dim values As (has As Boolean, bmp As Bitmap, rect As Rectangle, zEbeneHierOhneBedeutung As Integer)
             values = _sfd.SFMouse.GetSpecialBmps(SpecialBmps.AtStockMousePos)
             If values.has Then
                 _backBufferGfx.DrawImage(values.bmp, values.rect)
             End If
 
+            values = _sfd.SFMouse.GetSpecialBmps(SpecialBmps.AtEditorMousePos)
+            If values.has Then
+                _backBufferGfx.DrawImage(values.bmp, values.rect)
+            End If
         End Sub
 
 #Region "DebugHelfer"
@@ -516,10 +538,35 @@ Namespace Spielfeld
 
 #End Region
 
-#Region "Helfer"
+#Region "Debug-Helfer"
         Private Function Bitmap32DeepCopy(bmp As Bitmap) As Bitmap
             Return bmp.Clone(New Rectangle(0, 0, bmp.Width, bmp.Height), bmp.PixelFormat)
         End Function
+
+        Private Function InsertIdxBitmap(bmp As Bitmap, idx As Integer) As Bitmap
+            Using g As Graphics = Graphics.FromImage(bmp)
+                Using f As New Font("Arial", 40.0F, FontStyle.Bold, GraphicsUnit.Pixel)
+                    Dim s As String = idx.ToString()
+                    Dim sz As SizeF = g.MeasureString(s, f)
+
+                    Dim x As Single = (bmp.Width - sz.Width) / 2.0F
+                    Dim y As Single = (bmp.Height - sz.Height) / 2.0F
+
+                    g.TextRenderingHint = Drawing.Text.TextRenderingHint.AntiAliasGridFit
+
+                    'weißer Schatten / Kontrast
+                    g.DrawString(s, f, Brushes.White, x + 3.0F, y + 3.0F)
+                    g.DrawString(s, f, Brushes.White, x + 3.0F, y - 3.0F)
+                    g.DrawString(s, f, Brushes.White, x - 3.0F, y + 3.0F)
+                    g.DrawString(s, f, Brushes.White, x - 3.0F, y - 3.0F)
+
+                    'eigentliche Zahl
+                    g.DrawString(s, f, Brushes.Black, x, y)
+                    Return bmp
+                End Using
+            End Using
+        End Function
+
 #End Region
     End Class
 End Namespace

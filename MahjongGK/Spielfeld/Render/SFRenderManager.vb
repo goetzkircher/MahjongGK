@@ -59,6 +59,8 @@ Namespace Spielfeld
 
         Private _takteAussetzen As Integer
 
+        Private _zeitlupeCountdown As Integer
+
         Private _Spielbetrieb_PositionHistory As Integer = -1 'nicht möglicher Wert
 
         Public Sub PaintSpielfeld_CreateScreenShot()
@@ -99,7 +101,21 @@ Namespace Spielfeld
                 'und bewirkt hier, daß das AnzeigeControl Invalidate gesetzt wird,
                 'was zur Folge hat, das das Paint Event des Controls aufgerufen wird.
                 'Dieses wiederum ruft PaintUCtlSpielfeld in dieser Klasse auf.
+                '
+                'Zeitlupe zum Debuggen
+#Const Zeitlupe = False
+#If Zeitlupe Then
+                Const framesAussetzen As Integer = 10
+                If _zeitlupeCountdown < INI.Volatil_RenderCounterValue Then
+                    _zeitlupeCountdown = INI.Volatil_RenderCounterValue + framesAussetzen
+                Else
+                    _zeitlupeCountdown -= 1
+                    Exit Sub
+                End If
+#End If
+
                 vuctl.Invalidate()
+
 #If DEBUGFRAME Then
                         Deb ug.Print("TryNextFrame = True")
                     Else
@@ -129,7 +145,7 @@ Namespace Spielfeld
         ''' <param name="timeDifferenzFaktor"></param>
         Public Sub PaintUCtlSpielfeld(e As PaintEventArgs, rectOutput As Rectangle, timeDifferenzFaktor As Double)
 
-            INI.RenderCounter_Inc()
+            INI.Volatil_RenderCounterInc()
 
             'Select Case SFMain.RenderMode
             '    Case RenderMode.Edit
@@ -226,16 +242,18 @@ Namespace Spielfeld
 
             'Die eigentliche Abfrage nach Mausaktivitäten ist mit dem Zugriff auf Werte verbunden, die erst nach
             'dem Update des Spielfeldes zur Verfügung stehen. Daher hier nur die Prüfung, ob sich überhaupt was geändert hat.
-            Select Case _sfd.SFMouse.ConsumeSchnelltestHasMouseStateChange()
-                Case MouseStateChanged.MouseMovedWhileLeftMouseReleased
-                    doRendering = True
-                Case MouseStateChanged.AllOtherMouseEvents
-                    doRendering = True
-                    schnelltestHasMouseStateChange = True
-                Case MouseStateChanged.None
-                    'nichts machen
-            End Select
-
+            With _sfd.SFLay
+                Select Case _sfd.SFMouse.ConsumeQuicktestHasMouseStateChange(.rxStageUsed, .rxStock, .rxStockScrollbar)
+                    Case MouseStateChanged.MouseMovedWhileLeftMouseReleased
+                        doRendering = True
+                        Debug.Print("MouseMovedWhileLeftMouseReleased " & Now.Millisecond.ToString)
+                    Case MouseStateChanged.AllOtherMouseEvents
+                        doRendering = True
+                        schnelltestHasMouseStateChange = True
+                    Case MouseStateChanged.None
+                        'nichts machen
+                End Select
+            End With
             If _sfd.SFMouse.GapJobIsWorking Then
                 schnelltestHasMouseStateChange = True
                 doRendering = True
@@ -315,11 +333,6 @@ Namespace Spielfeld
                 aktRenderModeOrSteinBasisSizeChanged = True
             End If
 
-            'PumpAutoRepeat muss überarabeitet werden, funktioniert nicht richtig
-            ''If _sfd.SFRun.HScrollBarStock?.PumpAutoRepeat Then
-            ''    doRendering = True
-            ''End If
-
             If doRendering = False Then
                 If somethingDoneBitmapUGrd Then
                     doRendering = True
@@ -329,11 +342,19 @@ Namespace Spielfeld
                     doRendering = True
                 ElseIf _takteAussetzen > 0 Then
                     doRendering = True
-                ElseIf _sfd.SFMouse.GetAloneGhostBmp.has Then
+                ElseIf _sfd.SFStock.IsFadeOutAktive Then
                     doRendering = True
+                    'ElseIf _sfd.SFMouse.GetAloneGhostBmp.has Then
+                    '  doRendering = True
                     'ZLVxxx  ElseIf _sfd.SFRun.EditorStockSteinFlugValues?.IsFlying Then
                     'ZLVxxx      doRendering = True
                 End If
+            End If
+
+            '
+            'Abfragen, die die Anzeige einfrieren.
+            If INI.Volatil_ContextMenueEditorIsOpen Then
+                doRendering = False
             End If
 
             If Not doRendering Then
@@ -388,6 +409,12 @@ Namespace Spielfeld
 
                 End Select
             End If
+            '
+            'Die Scrollbars aktualisieren.
+            Dim hsb As HScrollRenderer = _sfd.SFRun.HScrollBarStock
+            If hsb?.ConsumeValueChanged() Then
+                _sfd.SFStock.SetHScrollBarValue(hsb.GetValue())
+            End If
 
             If updateSpielfeld Then
                 _sfd.SFLay.UpdateSpielfeldLayout(rectOutput, aktRenderModeOrSteinBasisSizeChanged)
@@ -410,11 +437,18 @@ Namespace Spielfeld
         Private Sub DoMouseActions(schnelltestHasMouseStateChange As Boolean)
 
             _sfd.SFRun.MousePolling.Poll()
+
+            If _sfd.SFMouse.DoubleClickGhostIsAktive Then
+                Dim steinInfoIndex As Integer = _sfd.SFInf.GetTopSteinInfoIndexAtPoint(_sfd.SFRun.MousePolling.MousePos)
+                If steinInfoIndex < 0 Then 'Maus befindet sich auf freier Fläche
+                    _sfd.SFMouse.ClearDoubleClickGhostBmp()
+                End If
+            End If
+
             If schnelltestHasMouseStateChange Then
                 _sfd.SFMouse.DoMouseDownAndDragDropAktion()
-            Else
-                _sfd.SFMouse.DoMouseUpMoveAktion()
             End If
+            _sfd.SFMouse.DoDoubleClickGhostPosition()
 
         End Sub
 

@@ -1,7 +1,7 @@
 ﻿'Hier ist mein MouseInputPoller.
 'Ich benötige eine Erkennung von Doppelklicks.
 'Das ganze kann hier nicht über die Zeit gemessen werden, sondern über die Renderschritte.
-'Dazu gibt es INI.RenderCounter_GetValue As Integer. 
+'Dazu gibt es INI.Volatil_RenderCounterValue As Integer. 
 'Und Const DOUBLEKLICKRENDERSTEPS As Integer = 4.
 'Die Abfrage, ob ein Doppelklick anliegt, soll Consumierend sein.
 'Bitte gib mir die Ergänzungen in den Code.
@@ -271,7 +271,7 @@ Public NotInheritable Class MouseInputPoller
     ''' </summary>
     Private _leftDoubleClickEdge As Boolean
 
-    Const DOUBLEKLICKRENDERSTEPS As Integer = 10
+    Const DOUBLEKLICKRENDERSTEPS As Integer = 14
 
 #End Region
 
@@ -408,7 +408,7 @@ Public NotInheritable Class MouseInputPoller
                     ' ---------------------------------
                     ' Doppelklick-Erkennung
                     ' ---------------------------------
-                    Dim aktRenderStep As Integer = INI.RenderCounter_GetValue
+                    Dim aktRenderStep As Integer = INI.Volatil_RenderCounterValue
 
                     If _leftDoubleClickPending Then
 
@@ -569,7 +569,7 @@ Public NotInheritable Class MouseInputPoller
         ' ---------------------------------------------------------
         If _leftDoubleClickPending Then
 
-            Dim delta As Integer = INI.RenderCounter_GetValue - _leftLastPressRenderStep
+            Dim delta As Integer = INI.Volatil_RenderCounterValue - _leftLastPressRenderStep
 
             If delta > DOUBLEKLICKRENDERSTEPS Then
                 _leftDoubleClickPending = False
@@ -827,22 +827,27 @@ Public NotInheritable Class MouseInputPoller
     ''' <summary>
     ''' Startet ein DragDrop.
     ''' Voraussetzung: gültiges linkes MouseDown ist aktiv.
+    ''' So programmieren, daß ein Abbruch möglich ist, wenn False zurückgegeben wird.
     ''' </summary>
-    Public Sub StartDragDrop()
+    Public Function StartDragDrop() As Boolean
 
         If _dragDropActive Then
-            Throw New InvalidOperationException("Programmierfehler: DragDrop ist bereits aktiv.")
+            Return False
+            ' Throw New InvalidOperationException("Programmierfehler: DragDrop ist bereits aktiv.")
         End If
 
         If Not _leftValidDownActive Then
-            Throw New InvalidOperationException("Programmierfehler: StartDragDrop ohne gültiges linkes MouseDown.")
+            'Das passiert, wenn während der Insert-Animation im Stock auf einen Stein geklickt wird.
+            Return False
+            ' Throw New InvalidOperationException("Programmierfehler: StartDragDrop ohne gültiges linkes MouseDown.")
         End If
 
         _dragDropActive = True
         _dragEndedEdge = False
         _dragMoved = False
+        Return True
 
-    End Sub
+    End Function
 
     '
     ''' <summary>
