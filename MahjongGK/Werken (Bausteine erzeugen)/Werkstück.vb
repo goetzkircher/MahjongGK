@@ -82,7 +82,7 @@ Public Class Werkstück
     ''' Steinen im Vorrat übergeben.
     ''' </summary>
     ''' <param name="vorrat"></param>
-    Public Sub SetSteinVorrat(vorrat As List(Of SteinTyp))
+    Public Sub SetSteinVorrat(vorrat As List(Of SteinSymbol))
 
         If SteineNeeded <= 0 Then
             _resultOK = False

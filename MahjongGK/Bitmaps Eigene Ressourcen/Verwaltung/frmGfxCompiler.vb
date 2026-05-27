@@ -270,7 +270,7 @@ Public Class frmGfxCompiler
         Dim pack As New SteinPack With {.SteinSatz = steinSatz.ToString()}
         Dim refW As Integer = 0, refH As Integer = 0
         Dim allIndexNames As HashSet(Of String) =
-             [Enum].GetNames(GetType(SteinTyp)).ToHashSet(StringComparer.OrdinalIgnoreCase)
+             [Enum].GetNames(GetType(SteinSymbol)).ToHashSet(StringComparer.OrdinalIgnoreCase)
 
         'zuerst nach der Größe suchen
         For Each sd As StatusDir In statusDirs
@@ -420,7 +420,7 @@ Public Class frmGfxCompiler
     ''End Sub
 
     ' ''' Ermittelt die numerische Enum-ID aus dem Namen (z. B. "Bambus3" → 42).
-    ' ''' Passe "SteinTyp" an deinen Enumtyp an.
+    ' ''' Passe "SteinSymbol" an deinen Enumtyp an.
     ''Private Function TryGetEnumNumericValue(enumType As Type, name As String, ByRef value As Integer) As Boolean
     ''    value = 0
     ''    If enumType Is Nothing OrElse Not enumType.IsEnum Then Return False
@@ -439,7 +439,7 @@ Public Class frmGfxCompiler
         Dim lob As New List(Of Bitmap)
 
         ' For Each steinStatus As SteinStatus In DirectCast([Enum].GetValues(GetType(SteinStatus)), SteinStatus())
-        For Each sie As SteinTyp In DirectCast([Enum].GetValues(GetType(SteinTyp)), SteinTyp())
+        For Each sie As SteinSymbol In DirectCast([Enum].GetValues(GetType(SteinSymbol)), SteinSymbol())
 
             Dim bmp As Bitmap = CreateGhostBitmap(size, INI.GfxCompiler_GhostBasisColor(steinStatus), useRectangle:=False, steinStatus, geistertyp)
             lob.Add(bmp)

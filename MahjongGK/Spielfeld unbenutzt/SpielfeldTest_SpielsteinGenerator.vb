@@ -41,7 +41,7 @@
 '        ' Ziehe 10 Steine (jeweils RemoveAt an exakt dem Index)
 '        For i As Integer = 1 To 10
 '            Dim idx As Integer = Math.Min(gen.Stock.Count - 1, 5)
-'            Dim s As SteinTyp = gen.GetSteinTypIndexAndRemove(idx)
+'            Dim s As SteinSymbol = gen.GetSteinSymbolIndexAndRemove(idx)
 '            Debug.WriteLine($"Zug {i}: Index={idx}, Stein={s}, Rest={gen.Stock.Count}")
 '        Next
 
@@ -78,7 +78,7 @@
 
 '        ' Ziehe 25 Steine → danach Refill anstoßen
 '        For i As Integer = 1 To 25
-'            Dim s As SteinTyp = gen.GetSteinTypIndexAndRemove(0)
+'            Dim s As SteinSymbol = gen.GetSteinSymbolIndexAndRemove(0)
 '        Next
 '        Debug.WriteLine($"Nach 25 Ziehungen: Count={gen.Stock.Count}")
 
@@ -98,13 +98,13 @@
 '        Debug.WriteLine($"Nach Shuffle (erste 12): {Dump(gen.Stock, 12)}")
 
 '        ' Insert links von Index 3
-'        Dim testStein As SteinTyp = SteinTyp.Punkt01
+'        Dim testStein As SteinSymbol = SteinSymbol.Punkt01
 '        gen.InsertLeftFromSteinIdx(index:=3, sie:=testStein)
 '        Debug.WriteLine($"Nach Insert links von 3 (erste 8): {Dump(gen.Stock, 8)}")
 
-'        ' GetSteinTypIndexAndRemove löscht exakt an Position
-'        Dim old As SteinTyp = gen.Stock(3)
-'        Dim got As SteinTyp = gen.GetSteinTypIndexAndRemove(3)
+'        ' GetSteinSymbolIndexAndRemove löscht exakt an Position
+'        Dim old As SteinSymbol = gen.Stock(3)
+'        Dim got As SteinSymbol = gen.GetSteinSymbolIndexAndRemove(3)
 '        Debug.WriteLine($"Vorher an Pos 3: {old}, GetSelected(3)={got} → OK={old.Equals(got)}")
 '    End Sub
 
@@ -115,9 +115,9 @@
 '        ' Künstlich ein paar Steine duplizieren/entfernen, um ungerade Häufigkeit zu erzwingen
 '        ' Wir nehmen einige Normal-Steine und löschen ihren Partner
 '        ' (Vereinfachung: wir erzwingen garantiert ungerade Counts)
-'        EnsureOddCount(gen.Stock, SteinTyp.Punkt01)
-'        EnsureOddCount(gen.Stock, SteinTyp.Bambus3)
-'        EnsureOddCount(gen.Stock, SteinTyp.Symbol7)
+'        EnsureOddCount(gen.Stock, SteinSymbol.Punkt01)
+'        EnsureOddCount(gen.Stock, SteinSymbol.Bambus3)
+'        EnsureOddCount(gen.Stock, SteinSymbol.Symbol7)
 
 '        Dim hasWitwenVorher As Boolean = gen.VorratHasStrohWitwen(windsAreInOneClickGroup:=False)
 '        Debug.WriteLine($"HasStrohwitwen (vorher, nur berechnet): {hasWitwenVorher}")
@@ -153,7 +153,7 @@
 
 '    ' --- Helpers -------------------------------------------------------------
 
-'    Private Function Dump(list As List(Of SteinTyp), Optional take As Integer = 10) As String
+'    Private Function Dump(list As List(Of SteinSymbol), Optional take As Integer = 10) As String
 '        If list Is Nothing OrElse list.Count = 0 Then Return "(leer)"
 '        Dim n As Integer = Math.Min(list.Count, take)
 '        Dim parts As New List(Of String)(n)
@@ -163,10 +163,10 @@
 '        Return String.Join(", ", parts)
 '    End Function
 
-'    Private Sub EnsureOddCount(vorrat As List(Of SteinTyp), sie As SteinTyp)
+'    Private Sub EnsureOddCount(vorrat As List(Of SteinSymbol), sie As SteinSymbol)
 '        ' Zähle sie
 '        Dim c As Integer = 0
-'        For Each s As SteinTyp In vorrat
+'        For Each s As SteinSymbol In vorrat
 '            If s = sie Then c += 1
 '        Next
 '        If (c And 1) = 0 Then

@@ -56,7 +56,7 @@ Namespace Umfeld
         '           Entwickung, die nachzuholen mir schwer fällt.)
         '
         'Hinweis 3: In der WerkBank beim Adden von Steines ist es egal, welche
-        '           SteinTyp genommen wird.
+        '           SteinSymbol genommen wird.
         '           Die WerkBank trägt immer den SteinStatus.WerkstückEinfügeFehler ein und
         '           setzt das Flag IsWerkBankStein.
         '           Vor dem Adden zum Spielfeld muss der Baustein durch den
@@ -91,8 +91,8 @@ Namespace Umfeld
                             Dim tplQuestion As New Triple(idxX, idxY, idxZ)
                             Dim steinPos3D As Triple = wb.IsValidePlace(tplQuestion)
                             If steinPos3D.Valide = ValidePlace.Yes Then
-                                'Stein mit zufälliger SteinTyp setzen.
-                                wb.AddSteinToSpielfeld(CType(_rnd.Next(1, 43), SteinTyp), steinPos3D)
+                                'Stein mit zufälliger SteinSymbol setzen.
+                                wb.AddSteinToSpielfeld(CType(_rnd.Next(1, 43), SteinSymbol), steinPos3D)
                             End If
                         Next
                     Next
@@ -119,7 +119,7 @@ Namespace Umfeld
                             Dim tplQuestion As New Triple(idxX, idxY, idxZ)
                             Dim steinPos3D As Triple = wb.IsValidePlace(tplQuestion)
                             If steinPos3D.Valide = ValidePlace.Yes Then
-                                wb.AddSteinToSpielfeld(CType(_rnd.Next(1, 43), SteinTyp), steinPos3D)
+                                wb.AddSteinToSpielfeld(CType(_rnd.Next(1, 43), SteinSymbol), steinPos3D)
                             End If
                         Next
                     Next
@@ -146,7 +146,7 @@ Namespace Umfeld
                             Dim tplQuestion As New Triple(idxX, idxY, idxZ)
                             Dim tplAnswer As Triple = wb.IsValidePlace(tplQuestion)
                             If tplAnswer.Valide = ValidePlace.Yes Then
-                                wb.AddSteinToSpielfeld(CType(_rnd.Next(1, 43), SteinTyp), tplAnswer)
+                                wb.AddSteinToSpielfeld(CType(_rnd.Next(1, 43), SteinSymbol), tplAnswer)
                             End If
                         Next
                     Next
@@ -193,7 +193,7 @@ Namespace Umfeld
                                 If tplAnswer.Valide = ValidePlace.Yes Then
                                     'Das ist hier nur eine Sicherheitsgurt.
                                     '(Schützt vor Programmierfehlern, die sichtbar werden, weil der Stein dann fehlt.)
-                                    wb.AddSteinToSpielfeld(CType(_rnd.Next(1, 43), SteinTyp), tplAnswer)
+                                    wb.AddSteinToSpielfeld(CType(_rnd.Next(1, 43), SteinSymbol), tplAnswer)
                                 End If
                             End If
                         Next

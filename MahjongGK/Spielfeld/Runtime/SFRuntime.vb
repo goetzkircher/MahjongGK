@@ -221,7 +221,7 @@ Namespace Spielfeld
         ''' </summary>
         Public Property EditorSteinDoPlaceAtPosTriple As New Triple
 
-        Public Property EditorSteinDoPlace_SteinIndex As SteinTyp
+        Public Property EditorSteinDoPlace_SteinIndex As SteinSymbol
 
 #End Region
 

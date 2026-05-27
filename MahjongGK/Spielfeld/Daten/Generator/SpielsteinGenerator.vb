@@ -48,7 +48,7 @@ Namespace Spielfeld
     '    Season
     'End Enum
 
-    'Public Enum SteinTyp
+    'Public Enum SteinSymbol
     '    Dummy
     '    Punkt1
     '    Punkt2
@@ -183,10 +183,11 @@ Namespace Spielfeld
                 If Debugger.IsAttached Then
                     If value > 0 AndAlso value < Stock.Count AndAlso Stock.Count > 0 Then
                         StockStopNachschub = True
-                        Dim arrStock() As SteinTyp = Stock.ToArray
+                        Dim arrStock() As SteinSymbol = Stock.ToArray
                         ReDim Preserve arrStock(value - 1)
                         Stock.Clear()
                         Stock.AddRange(arrStock)
+                        _hasUndoStockSnapshot = True
                     End If
                 End If
             End Set
@@ -253,7 +254,7 @@ Namespace Spielfeld
         ''' Die Vorratskiste, in der sich die Steine befinden. 
         ''' </summary>
         ''' <returns></returns>
-        Public Property Stock As List(Of SteinTyp)
+        Public Property Stock As List(Of SteinSymbol)
         Public ReadOnly Property StockAktCount As Integer
             Get
                 If IsNothing(Stock) Then
@@ -359,30 +360,46 @@ Namespace Spielfeld
 
 #Region "statisch"
         '
-        Public Shared ReadOnly NORMALS As SteinTyp() = {
-            SteinTyp.Punkt01, SteinTyp.Punkt02, SteinTyp.Punkt03, SteinTyp.Punkt04, SteinTyp.Punkt05,
-            SteinTyp.Punkt06, SteinTyp.Punkt07, SteinTyp.Punkt08, SteinTyp.Punkt09,
-            SteinTyp.Bambus1, SteinTyp.Bambus2, SteinTyp.Bambus3, SteinTyp.Bambus4, SteinTyp.Bambus5,
-            SteinTyp.Bambus6, SteinTyp.Bambus7, SteinTyp.Bambus8, SteinTyp.Bambus9,
-            SteinTyp.Symbol1, SteinTyp.Symbol2, SteinTyp.Symbol3, SteinTyp.Symbol4, SteinTyp.Symbol5,
-            SteinTyp.Symbol6, SteinTyp.Symbol7, SteinTyp.Symbol8, SteinTyp.Symbol9,
-            SteinTyp.DracheR, SteinTyp.DracheG, SteinTyp.DracheW,
-            SteinTyp.WindOst, SteinTyp.WindSüd, SteinTyp.WindWst, SteinTyp.WindNrd
+        Public Shared ReadOnly NORMALS As SteinSymbol() = {
+            SteinSymbol.Punkt01, SteinSymbol.Punkt02, SteinSymbol.Punkt03, SteinSymbol.Punkt04, SteinSymbol.Punkt05,
+            SteinSymbol.Punkt06, SteinSymbol.Punkt07, SteinSymbol.Punkt08, SteinSymbol.Punkt09,
+            SteinSymbol.Bambus1, SteinSymbol.Bambus2, SteinSymbol.Bambus3, SteinSymbol.Bambus4, SteinSymbol.Bambus5,
+            SteinSymbol.Bambus6, SteinSymbol.Bambus7, SteinSymbol.Bambus8, SteinSymbol.Bambus9,
+            SteinSymbol.Symbol1, SteinSymbol.Symbol2, SteinSymbol.Symbol3, SteinSymbol.Symbol4, SteinSymbol.Symbol5,
+            SteinSymbol.Symbol6, SteinSymbol.Symbol7, SteinSymbol.Symbol8, SteinSymbol.Symbol9,
+            SteinSymbol.DracheR, SteinSymbol.DracheG, SteinSymbol.DracheW,
+            SteinSymbol.WindOst, SteinSymbol.WindSüd, SteinSymbol.WindWst, SteinSymbol.WindNrd
         } ' = 34
 
-        Public Shared ReadOnly FLOWERS As SteinTyp() = {
-        SteinTyp.BlütePf, SteinTyp.BlüteOr, SteinTyp.BlüteCt, SteinTyp.BlüteBa
+        Public Shared ReadOnly FLOWERS As SteinSymbol() = {
+        SteinSymbol.BlütePf, SteinSymbol.BlüteOr, SteinSymbol.BlüteCt, SteinSymbol.BlüteBa
         } ' = 4
 
-        Public Shared ReadOnly SEASONS As SteinTyp() = {
-        SteinTyp.JahrFrl, SteinTyp.JahrSom, SteinTyp.JahrHer, SteinTyp.JahrWin
+        Public Shared ReadOnly SEASONS As SteinSymbol() = {
+        SteinSymbol.JahrFrl, SteinSymbol.JahrSom, SteinSymbol.JahrHer, SteinSymbol.JahrWin
         } ' = 4
 
 #End Region
 
 #Region "Öffentliches"
 
-        Public Function GetGroup(ByVal idx As SteinTyp) As SteinRndGruppe
+        Private _hasUndoStockSnapshot As Boolean
+        Private _undoStockSnapShot() As SteinSymbol
+        Public Function ConsumeHasUndoStockSnapshot() As Boolean
+
+            If _hasUndoStockSnapshot Then
+                _hasUndoStockSnapshot = False
+                Return True
+            Else
+                Return False
+            End If
+        End Function
+
+        Public Function UndoStocksnapShot() As SteinSymbol()
+            Return _undoStockSnapShot
+        End Function
+
+        Public Function GetGroup(ByVal idx As SteinSymbol) As SteinRndGruppe
             Dim i As Integer
             For i = 0 To NORMALS.Length - 1
                 If NORMALS(i) = idx Then Return SteinRndGruppe.Normal
@@ -407,7 +424,7 @@ Namespace Spielfeld
         ''' </summary>
         Public Sub CheckAndRefillVorrat(Optional refillStoneSet As Boolean = False)
 
-            If Stock Is Nothing Then Stock = New List(Of SteinTyp)()
+            If Stock Is Nothing Then Stock = New List(Of SteinSymbol)()
 
             Dim genmod As (isStoneSet As Boolean, isBase152 As Boolean, count As Integer) = GetValueFromGeneratorModi(_GeneratorModus)
 
@@ -427,7 +444,7 @@ Namespace Spielfeld
 
             InitGenerator()
 
-            Dim stones As List(Of SteinTyp)
+            Dim stones As List(Of SteinSymbol)
 
             If genmod.isStoneSet Then
                 '-- endlicher Vorrat aus N Sets)
@@ -441,6 +458,8 @@ Namespace Spielfeld
                 stones = _packGen.BuildPortionStones(steinpaare)
             End If
 
+            _hasUndoStockSnapshot = True
+            _undoStockSnapShot = Stock.ToArray
             Stock.AddRange(stones)
 
         End Sub
@@ -452,11 +471,11 @@ Namespace Spielfeld
         ''' </summary>
         ''' <param name="index"></param>
         ''' <returns></returns>
-        Public Function GetSteinTypIndexAndRemove(index As Integer) As SteinTyp
+        Public Function GetSteinSymbolIndexAndRemove(index As Integer) As SteinSymbol
             If index < 0 OrElse Stock Is Nothing OrElse Stock.Count = 0 OrElse index > Stock.Count - 1 Then
-                Return SteinTyp.ErrorSy 'Die Fehlergrafik
+                Return SteinSymbol.ErrorSy 'Die Fehlergrafik
             Else
-                Dim retval As SteinTyp = Stock(index)
+                Dim retval As SteinSymbol = Stock(index)
                 Stock.RemoveAt(index)  ' <- exakt diese Position löschen
                 Return retval
             End If
@@ -468,11 +487,11 @@ Namespace Spielfeld
         ''' </summary>
         ''' <param name="index"></param>
         ''' <returns></returns>
-        Public Function GetSteinTypIndexDontRemove(index As Integer) As SteinTyp
+        Public Function GetSteinSymbolIndexDontRemove(index As Integer) As SteinSymbol
             If index < 0 OrElse Stock Is Nothing OrElse Stock.Count = 0 OrElse index > Stock.Count - 1 Then
-                Return SteinTyp.ErrorSy 'Die Fehlergrafik
+                Return SteinSymbol.ErrorSy 'Die Fehlergrafik
             Else
-                Dim retval As SteinTyp = Stock(index)
+                Dim retval As SteinSymbol = Stock(index)
                 Return retval
             End If
         End Function
@@ -487,7 +506,7 @@ Namespace Spielfeld
         ''' </summary>
         ''' <param name="index"></param>
         ''' <param name="sie"></param>
-        Public Sub InsertLeftFromSteinIdx(index As Integer, sie As SteinTyp)
+        Public Sub InsertLeftFromSteinIdx(index As Integer, sie As SteinSymbol)
 
             If Stock.Count = 0 Then
                 Stock.Add(sie)
@@ -505,7 +524,7 @@ Namespace Spielfeld
         ''' Vorsicht: nur verwenden um entnommene Steine wieder hinzuzufügen.
         ''' </summary>
         ''' <param name="sie"></param>
-        Public Sub AddAtStockEnd(sie As SteinTyp)
+        Public Sub AddAtStockEnd(sie As SteinSymbol)
             Stock.Add(sie)
         End Sub
 
@@ -533,22 +552,191 @@ Namespace Spielfeld
                 idxTo = StockNoSortAreaEndIndex + 1
             End If
 
+            _hasUndoStockSnapshot = True
+            _undoStockSnapShot = Stock.ToArray
+
             For idx1 As Integer = Stock.Count - 1 To idxTo Step -1
                 Dim idx2 As Integer = GetZufallszahl(idxTo, idx1 + 1)
-                Dim tmp As SteinTyp = Stock(idx1)
+                Dim tmp As SteinSymbol = Stock(idx1)
                 Stock(idx1) = Stock(idx2)
                 Stock(idx2) = tmp
             Next
 
         End Sub
+        Public Sub SortStockPur()
+            _hasUndoStockSnapshot = True
+            _undoStockSnapShot = Stock.ToArray
+            Stock.Sort()
+        End Sub
+        '
+        ''' <summary>
+        ''' Gibt einen Array() As Boolean zurück, der an den Indexpositionen True enthält,
+        ''' an denen im Stock ein Witwenstein steht.
+        ''' </summary>
+        ''' <returns></returns>
+        Public Function GetArrayStockWidows() As Boolean()
 
+            'Die Methode der Feststellung weicht von SortStockByPairs ab.
+            '
+            '
+            If Stock.Count <= 0 Then
+                'hier gibt es nichts zu tun
+                Return Array.Empty(Of Boolean)
+            End If
+
+            ''Hier nicht nötig, sogar falsch, da der Stock nicht verändert wird.
+            ''_hasUndoStockSnapshot = True
+            ''_undoStockSnapShot = Stock.ToArray
+
+            Dim arrSteine() As SteinSymbol = Stock.ToArray
+            '
+            'hier beidesmal wird rückwärts gesucht
+            '(Der Grund warum SortStockByPairs anders gesucht wird, liegt in der Umsortierung.)
+            For idx1 As Integer = arrSteine.GetUpperBound(0) To 0 Step -1
+                If arrSteine(idx1) >= 0 Then
+                    'Im SpielsteinGenerator wird generell windsInOneClickGroup:=False verwendet, damit das Spiel auch
+                    'mit windsInOneClickGroup:=False gespielt werden kann. windsInOneClickGroup:=True soll eine
+                    'Spielvereinfachung bedeuten und keine Editorvereinfachung, die zur Folge hätte, das diese
+                    'so entwickelten Spiele nur mit windsInOneClickGroup:=True gespielt werden können.
+                    '(Alleine die Prüfung, ob ein Spiel spielfähig ist, müssse an weitere Randbedingungen geknüpft werden.)
+                    Dim klickgruppe As Integer = SFInfo.GetSteinClickGruppe(arrSteine(idx1), windsInOneClickGroup:=False)
+                    For idx2 As Integer = arrSteine.GetUpperBound(0) To idx1 + 1 Step -1
+                        If arrSteine(idx2) >= 0 Then
+                            If klickgruppe = SFInfo.GetSteinClickGruppe(arrSteine(idx2), windsInOneClickGroup:=False) Then
+                                arrSteine(idx1) = CType(-1, SteinSymbol) 'als entnommen Kennzeichnen
+                                arrSteine(idx2) = CType(-1, SteinSymbol) 'als entnommen Kennzeichnen
+                                Exit For
+                            End If
+                        End If
+                    Next
+                End If
+            Next
+            '
+            'Übrig bleiben die Witwen
+            Dim arrResult(Stock.Count - 1) As Boolean
+            For idx As Integer = 0 To arrSteine.GetUpperBound(0)
+                arrResult(idx) = arrSteine(idx) >= 0
+            Next
+
+            Return arrResult
+
+        End Function
+        '
+        ''' <summary>
+        ''' Sortiert den Vorrat so, daß alle Steinpaare zusammenstehen.
+        ''' Gibt zurück, wieviele "Witwen" am Anfang stehen.
+        ''' </summary>
+        ''' <returns></returns>
+        Public Function SortStockByPairs() As Integer
+
+            If Stock.Count <= 1 Then
+                'hier gibt es nichts zu sortieren
+                Return Stock.Count
+            End If
+            '
+            _hasUndoStockSnapshot = True
+            _undoStockSnapShot = Stock.ToArray
+            '
+            'Die Idee ist, daß die Reihenfolge der Steine grundsätzlich erhalten bleibt.
+            'd.h. aus einer Kopie der Liste der Steine wird von vorne ein Stein nach dem anderen
+            'entnommen und von hinten der zugehörige Paarstein gesucht,
+            '
+            Dim arrSteine() As SteinSymbol = Stock.ToArray
+            Stock.Clear()
+
+            For idx1 As Integer = 0 To arrSteine.GetUpperBound(0)
+                If arrSteine(idx1) >= 0 Then
+                    Dim klickgruppe As Integer = SFInfo.GetSteinClickGruppe(arrSteine(idx1), windsInOneClickGroup:=False)
+                    For idx2 As Integer = arrSteine.GetUpperBound(0) To idx1 + 1 Step -1
+                        If arrSteine(idx2) >= 0 Then
+                            If klickgruppe = SFInfo.GetSteinClickGruppe(arrSteine(idx2), windsInOneClickGroup:=False) Then
+                                Stock.Add(arrSteine(idx1))
+                                arrSteine(idx1) = CType(-1, SteinSymbol) 'als entnommen Kennzeichnen
+                                Stock.Add(arrSteine(idx2))
+                                arrSteine(idx2) = CType(-1, SteinSymbol) 'als entnommen Kennzeichnen
+                                Exit For
+                            End If
+                        End If
+                    Next
+                End If
+            Next
+
+            'Die Witwen bleiben bei dieser Sortiermethode in arrSteine übrig.
+            'Diese suchen
+            Dim witwen As New List(Of SteinSymbol)
+            For idx1 As Integer = 0 To arrSteine.GetUpperBound(0)
+                If arrSteine(idx1) >= 0 Then
+                    witwen.Add(arrSteine(idx1))
+                End If
+            Next
+
+            If witwen.Count = 0 Then
+                Return 0
+            End If
+
+            Stock.InsertRange(0, witwen)
+
+            Return witwen.Count
+
+        End Function
+
+        Public Sub SeperateStockWidow()
+
+            If Stock.Count <= 2 Then
+                'hier gibt es nichts zu separieren.
+                '(Wenn Stock.Count = 2, dann ist das entweder ein Steinpaar oder zwei Steinwitwen.
+                'beides braucht nicht separiert werden. )
+                Exit Sub
+            End If
+
+            '' wied in SortStockByPairs erledigt
+            ''_hasUndoStockSnapshot = True
+            ''_undoStockSnapShot = Stock.ToArray
+
+            Dim sicStock() As SteinSymbol = Stock.ToArray()
+            'zunächste mit SortStockByPairs sortieren, um alle Witwen an den Anfang zu spülen.
+            Dim witwenCount As Integer = SortStockByPairs()
+
+            If witwenCount = 0 Then
+                'Stock wiederherstellen
+                Stock.Clear()
+                Stock.InsertRange(0, sicStock)
+                Exit Sub
+            End If
+            '
+            'die Witwen separieren
+            Dim witwen(witwenCount - 1) As SteinSymbol
+            For idx As Integer = 0 To witwenCount - 1
+                witwen(idx) = Stock(idx)
+            Next
+            '
+            'Stock wiederherstellen
+            Stock.Clear()
+            Stock.InsertRange(0, sicStock)
+            '
+            'In dem wiederhergestelltem Stock sind die Witwen ja noch drin.
+            'diese herauslöschen
+            For idx1 As Integer = 0 To witwen.GetUpperBound(0)
+                Dim klickgruppe As Integer = SFInfo.GetSteinClickGruppe(witwen(idx1), windsInOneClickGroup:=False)
+                For idx2 As Integer = 0 To Stock.Count - 1
+                    If SFInfo.GetSteinClickGruppe(Stock(idx2), windsInOneClickGroup:=False) = klickgruppe Then
+                        Stock.RemoveAt(idx2)
+                        Exit For
+                    End If
+                Next
+            Next
+            '
+            'und am Anfang wieder hinzu fügen
+            Stock.InsertRange(0, witwen)
+
+        End Sub
 #End Region
 
 #Region "Statistik"
 
         ''' <summary>
         ''' Wertet den aktuellen Vorrat aus
-        ''' Liefert je SteinTyp einen Single:
+        ''' Liefert je SteinSymbol einen Single:
         '''   Vorkomma  = absolute Anzahl des Steins in Vorrat,
         '''   Nachkomma = Anteil (0..0.999) auf 3 Nachkommastellen gerundet.
         ''' Sonderfall: Liegt der Anteil bei 1.000 (100 %), wird er auf 0.999 gesetzt.
@@ -613,7 +801,7 @@ Namespace Spielfeld
                 Return "(keine Daten)"
             End If
 
-            For idx As SteinTyp = 0 To CType(MJ_STEININDEX_MAX, SteinTyp)
+            For idx As SteinSymbol = 0 To CType(MJ_STEININDEX_MAX, SteinSymbol)
                 Dim absCount As Integer
                 Dim ratio As Single
                 ParseStatisticValue(stats(idx), absCount, ratio)
@@ -621,7 +809,7 @@ Namespace Spielfeld
                 If (Not onlyNonZero) OrElse absCount > 0 Then
                     Dim label As String
                     If showEnumName Then
-                        Dim name As String = CType(idx, SteinTyp).ToString()
+                        Dim name As String = CType(idx, SteinSymbol).ToString()
                         'label = String.Format("{0,2} {1,-16}", idx, name)
                         label = String.Format("{0,-8}", name)
                     Else
@@ -640,13 +828,13 @@ Namespace Spielfeld
                     sb.Append(piece)
                     col += 1
                     If itemsPerLine = 9 Then
-                        If idx = SteinTyp.ErrorSy OrElse
-                            idx = SteinTyp.Punkt09 OrElse
-                            idx = SteinTyp.Bambus9 OrElse
-                            idx = SteinTyp.Symbol9 OrElse
-                            idx = SteinTyp.DracheW OrElse
-                            idx = SteinTyp.WindNrd OrElse
-                            idx = SteinTyp.BlüteBa OrElse
+                        If idx = SteinSymbol.ErrorSy OrElse
+                            idx = SteinSymbol.Punkt09 OrElse
+                            idx = SteinSymbol.Bambus9 OrElse
+                            idx = SteinSymbol.Symbol9 OrElse
+                            idx = SteinSymbol.DracheW OrElse
+                            idx = SteinSymbol.WindNrd OrElse
+                            idx = SteinSymbol.BlüteBa OrElse
                             col >= itemsPerLine Then
 
                             sb.AppendLine()
@@ -694,7 +882,7 @@ Namespace Spielfeld
 
 #Region "Strohwitwen"
 
-        Private ReadOnly _VorratStrohWitwen As New List(Of SteinTyp)
+        Private ReadOnly _VorratStrohWitwen As New List(Of SteinSymbol)
 
         ''' <summary>
         ''' Entfernt alls Paare aus dem Vorrat, sodaß anschließend nur noch Strohwitwen darin sind.
@@ -712,7 +900,7 @@ Namespace Spielfeld
             Return Stock.Count
         End Function
 
-        Public ReadOnly Property VorratStrohWitwen(windsAreInOneClickGroup As Boolean) As List(Of SteinTyp)
+        Public ReadOnly Property VorratStrohWitwen(windsAreInOneClickGroup As Boolean) As List(Of SteinSymbol)
             Get
                 CreateVorratStrohWitwen(windsAreInOneClickGroup)
                 Return _VorratStrohWitwen
@@ -737,7 +925,7 @@ Namespace Spielfeld
             Dim counts(MJ_STEININDEX_MAX) As Integer
 
             For i As Integer = 0 To Stock.Count - 1
-                Dim idx As Integer = SFInfo.GetSteinClickGruppe(CType(Stock(i), SteinTyp), windsAreInOneClickGroup)
+                Dim idx As Integer = SFInfo.GetSteinClickGruppe(CType(Stock(i), SteinSymbol), windsAreInOneClickGroup)
                 If idx >= 0 AndAlso idx <= MJ_STEININDEX_MAX Then
                     counts(idx) += 1
                 End If
@@ -745,13 +933,13 @@ Namespace Spielfeld
 
             ' ---- Sonderfall Fehlergrafik (0): bei Vorkommen immer genau einmal aufnehmen
             If counts(0) > 0 Then
-                _VorratStrohWitwen.Add(CType(0, SteinTyp))
+                _VorratStrohWitwen.Add(CType(0, SteinSymbol))
             End If
 
             ' ---- Alle anderen: nur bei ungerader Häufigkeit je einmal aufnehmen
             For idx As Integer = 1 To MJ_STEININDEX_MAX
                 If (counts(idx) And 1) <> 0 Then
-                    _VorratStrohWitwen.Add(CType(idx, SteinTyp))
+                    _VorratStrohWitwen.Add(CType(idx, SteinSymbol))
                 End If
             Next
         End Sub
@@ -861,9 +1049,9 @@ Namespace Spielfeld
         End Class
 
         Public Structure Pack
-            Public ReadOnly A As SteinTyp
-            Public ReadOnly B As SteinTyp
-            Public Sub New(ByVal a As SteinTyp, ByVal b As SteinTyp)
+            Public ReadOnly A As SteinSymbol
+            Public ReadOnly B As SteinSymbol
+            Public Sub New(ByVal a As SteinSymbol, ByVal b As SteinSymbol)
                 Me.A = a
                 Me.B = b
             End Sub
@@ -926,7 +1114,7 @@ Namespace Spielfeld
                     Dim i As Integer
                     For i = 0 To NORMALS.Length - 1
                         ' ergibt 34 Steinpaare, also 68 Steine.
-                        Dim idx As SteinTyp = NORMALS(i)
+                        Dim idx As SteinSymbol = NORMALS(i)
                         packs.Add(New Pack(idx, idx))
                         packs.Add(New Pack(idx, idx))
                     Next
@@ -962,7 +1150,7 @@ Namespace Spielfeld
 
             Private Sub AddFlowers(packs As List(Of Pack))
                 ' Flowers: 4 Einzelsteine => 2 Packs
-                Dim arr As SteinTyp() = CType(FLOWERS.Clone(), SteinTyp())
+                Dim arr As SteinSymbol() = CType(FLOWERS.Clone(), SteinSymbol())
                 ShuffleInPlace(arr)
                 packs.Add(New Pack(arr(0), arr(1)))
                 packs.Add(New Pack(arr(2), arr(3)))
@@ -970,7 +1158,7 @@ Namespace Spielfeld
 
             Private Sub AddSeasons(packs As List(Of Pack))
                 ' Seasons: 4 Einzelsteine => 2 Packs
-                Dim arr As SteinTyp() = CType(SEASONS.Clone(), SteinTyp())
+                Dim arr As SteinSymbol() = CType(SEASONS.Clone(), SteinSymbol())
                 ShuffleInPlace(arr)
                 packs.Add(New Pack(arr(0), arr(1)))
                 packs.Add(New Pack(arr(2), arr(3)))
@@ -1020,7 +1208,7 @@ Namespace Spielfeld
             ''' INI.Spielfeld_StandardMengeSteinPaareJePortion angegebn.
             ''' </summary>
             ''' <returns></returns>
-            Public Function BuildPacksetOfStones() As List(Of SteinTyp)
+            Public Function BuildPacksetOfStones() As List(Of SteinSymbol)
 
                 If _stoneSet IsNot Nothing Then
                     Return BuildPortionStones(9999)
@@ -1029,7 +1217,7 @@ Namespace Spielfeld
                 End If
             End Function
 
-            Public Function BuildPortionStones(ByVal packsPerPortion As Integer) As List(Of SteinTyp)
+            Public Function BuildPortionStones(ByVal packsPerPortion As Integer) As List(Of SteinSymbol)
 
                 If packsPerPortion = 0 Then
                     Throw New Exception("packsPerPortion darf nicht 0 sein.(Hinweis: UseStoneSet mit überprüfen.)")
@@ -1047,7 +1235,7 @@ Namespace Spielfeld
                     portionPacks.Add(p)
                 Next
 
-                Dim tiles As New List(Of SteinTyp)(portionPacks.Count * 2)
+                Dim tiles As New List(Of SteinSymbol)(portionPacks.Count * 2)
                 Dim k As Integer
                 For k = 0 To portionPacks.Count - 1
                     tiles.Add(portionPacks(k).A)
@@ -1105,21 +1293,21 @@ Namespace Spielfeld
                 ' Pack + Statistik
                 Select Case choice.Kind
                     Case SteinRndGruppe.Normal
-                        Dim idx As SteinTyp = NORMALS(choice.NormalIndex)
+                        Dim idx As SteinSymbol = NORMALS(choice.NormalIndex)
                         _stats.NormalPackCount(choice.NormalIndex) += 1
                         _stats.TotalPacks += 1
                         Return New Pack(idx, idx)
 
                     Case SteinRndGruppe.Flower
-                        Dim a As SteinTyp = RandomOf(FLOWERS, _cfg.RndSelect)
-                        Dim b As SteinTyp = RandomOf(FLOWERS, _cfg.RndSelect)
+                        Dim a As SteinSymbol = RandomOf(FLOWERS, _cfg.RndSelect)
+                        Dim b As SteinSymbol = RandomOf(FLOWERS, _cfg.RndSelect)
                         _stats.FlowerPackCount += 1
                         _stats.TotalPacks += 1
                         Return New Pack(a, b)
 
                     Case SteinRndGruppe.Season
-                        Dim a2 As SteinTyp = RandomOf(SEASONS, _cfg.RndSelect)
-                        Dim b2 As SteinTyp = RandomOf(SEASONS, _cfg.RndSelect)
+                        Dim a2 As SteinSymbol = RandomOf(SEASONS, _cfg.RndSelect)
+                        Dim b2 As SteinSymbol = RandomOf(SEASONS, _cfg.RndSelect)
                         _stats.SeasonPackCount += 1
                         _stats.TotalPacks += 1
                         Return New Pack(a2, b2)
@@ -1137,7 +1325,7 @@ Namespace Spielfeld
                 Return v
             End Function
 
-            Private Shared Function RandomOf(ByVal arr As SteinTyp(), ByVal rnd As Random) As SteinTyp
+            Private Shared Function RandomOf(ByVal arr As SteinSymbol(), ByVal rnd As Random) As SteinSymbol
                 Return arr(rnd.Next(arr.Length))
             End Function
 

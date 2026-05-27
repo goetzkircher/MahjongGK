@@ -59,7 +59,7 @@ Public Class SpielsteinGeneratorValuesForXml
     '
     Public Property StockStopNachschubXmlOnly As Boolean
     Public Property StockNoSortAreaEndIndex As Integer
-    Public Property Stock As List(Of SteinTyp)
+    Public Property Stock As List(Of SteinSymbol)
 
     Public Sub CopySpielsteinGeneratorValues_To_SpielsteinGenerator(gen As SpielsteinGenerator)
 

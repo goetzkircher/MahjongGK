@@ -66,10 +66,7 @@ Public Module TileFactoryAPI
         End If
 
         Select Case request.SteinStatus
-            Case SteinStatus.I00Unsichtbar,
-                 SteinStatus.I10Reserve1,
-                 SteinStatus.I11Reserve2
-
+            Case SteinStatus.I00Unsichtbar
                 Return Nothing
         End Select
 
@@ -77,21 +74,8 @@ Public Module TileFactoryAPI
             Return Nothing
         End If
 
-        If Not request.Ghost Then
-            Dim bmp As Bitmap = _manager.GetTile(request)
-            Return bmp
-        Else
-
-            'Geister gibt es immer nur zum Normalstatus
-            request.SetSteinStatusToI01Normal()
-
-            Dim bmpGhost As Bitmap =
-                GhostTileBitmapCache.GetGhostBitmap(request,
-                Function(req As TileRequest) _manager.GetTile(req))
-
-            Return bmpGhost
-
-        End If
+        Dim bmp As Bitmap = _manager.GetTile(request)
+        Return bmp
 
     End Function
 
@@ -204,18 +188,18 @@ Public Module TileFactoryAPI
     '
     Public Function DeepCopyTransparenceFast(bmpSrc As Bitmap, transparence As Single, lighten As Single) As Bitmap
 
-        Dim bmpDst As Bitmap = New Bitmap(bmpSrc.Width, bmpSrc.Height, bmpSrc.PixelFormat) ' CType(bmpSrc.Clone(), Bitmap)
+        Dim bmpDst As New Bitmap(bmpSrc.Width, bmpSrc.Height, bmpSrc.PixelFormat) ' CType(bmpSrc.Clone(), Bitmap)
         Using gfx As Graphics = Graphics.FromImage(bmpDst)
 
             Using ia As New Imaging.ImageAttributes()
 
                 'Wie erweitere ich diese Matrix um die Bitmap heller zu machen?
-                Dim cm As New Imaging.ColorMatrix()
-                cm.Matrix33 = transparence  ' Alpha-Faktor: 1.0 = deckend, 0.0 = unsichtbar
-
-                cm.Matrix40 = lighten        ' Rot aufhellen
-                cm.Matrix41 = lighten        ' Grün aufhellen
-                cm.Matrix42 = lighten        ' Blau aufhellen
+                Dim cm As New Imaging.ColorMatrix With {
+                    .Matrix33 = transparence,  ' Alpha-Faktor: 1.0 = deckend, 0.0 = unsichtbar
+                    .Matrix40 = lighten,        ' Rot aufhellen
+                    .Matrix41 = lighten,        ' Grün aufhellen
+                    .Matrix42 = lighten        ' Blau aufhellen
+                    }
 
                 ia.SetColorMatrix(cm)
 

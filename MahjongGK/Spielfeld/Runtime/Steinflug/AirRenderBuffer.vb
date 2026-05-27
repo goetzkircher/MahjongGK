@@ -13,7 +13,7 @@ Option Strict On
 '''
 ''' Arbeitsweise:
 ''' - AddRenderBitmapTopZOrder(...) hängt einen Eintrag hinten an.
-''' - NextRenderBitmap(...) liefert die Einträge in Einfügereihenfolge.
+''' - GetNextRenderBitmap(...) liefert die Einträge in Einfügereihenfolge.
 ''' - Sobald kein Eintrag mehr vorhanden ist, werden die Indizes zurückgesetzt.
 ''' - Vor dem ersten AddRenderBitmapTopZOrder des nächsten Durchlaufs werden alte Referenzen
 '''   intern vollständig gelöscht.

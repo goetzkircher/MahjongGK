@@ -45,32 +45,32 @@ Namespace Spielfeld
 
             With newSpielfeldInfo.SFInf
                 Dim centerXyz As Triple = .GetSpielfeldCenter(0)
-                .AddSteinToSpielfeld(SteinTyp.Bambus1, centerXyz)
+                .AddSteinToSpielfeld(SteinSymbol.Bambus1, centerXyz)
 
                 Dim tplr As Triple
                 tplr = .SearchPlace(centerXyz, Direction.Left)
                 If tplr.Valide = ValidePlace.Yes Then
-                    .AddSteinToSpielfeld(SteinTyp.Bambus2, tplr)
+                    .AddSteinToSpielfeld(SteinSymbol.Bambus2, tplr)
                 End If
 
                 tplr = .SearchPlace(centerXyz, Direction.LeftUp)
                 If tplr.Valide = ValidePlace.Yes Then
-                    .AddSteinToSpielfeld(SteinTyp.Bambus3, tplr)
+                    .AddSteinToSpielfeld(SteinSymbol.Bambus3, tplr)
                 End If
 
                 tplr = .SearchPlace(centerXyz, Direction.RightDown)
                 If tplr.Valide = ValidePlace.Yes Then
-                    .AddSteinToSpielfeld(SteinTyp.Bambus4, tplr)
+                    .AddSteinToSpielfeld(SteinSymbol.Bambus4, tplr)
                 End If
 
                 tplr = .SearchPlace(tplr, Direction.Up)
                 If tplr.Valide = ValidePlace.Yes Then
-                    .AddSteinToSpielfeld(SteinTyp.Bambus5, tplr)
+                    .AddSteinToSpielfeld(SteinSymbol.Bambus5, tplr)
                 End If
 
                 tplr = .SearchPlace(tplr, Direction.Up)
                 If tplr.Valide = ValidePlace.Yes Then
-                    .AddSteinToSpielfeld(SteinTyp.Bambus6, tplr)
+                    .AddSteinToSpielfeld(SteinSymbol.Bambus6, tplr)
                 End If
 
             End With

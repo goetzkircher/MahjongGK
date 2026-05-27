@@ -27,6 +27,14 @@ Option Strict On
 '
 #Disable Warning IDE0079
 #Disable Warning IDE1006
+
+Public Enum AirPointIs
+    Center
+    LeftUp
+    CenterQuadrantLO
+    CenterStein
+End Enum
+
 '
 ''' <summary>
 ''' Pfad: MahjongGK\Spielfeld\Runtime\Steinflug
@@ -69,9 +77,9 @@ Public NotInheritable Class AirplanesFlightPath
     ''' <summary>
     ''' Fortschritt auf dem Pfad: 0.0 bis 1.0
     ''' </summary>
-    Private _t As Double
+    Private _progress As Double
 
-    Private _isFinished As Boolean
+    Private _isFlying As Boolean
     Private _lastPoint As Point
 
     '
@@ -79,36 +87,61 @@ Public NotInheritable Class AirplanesFlightPath
     ''' Erzeugt eine Flugroute eines Mahjongsteins von Start nach Ziel.
     ''' speedPerFrame = Pixel pro Soll-Frame.
     ''' </summary>
-    Public Sub New(ByVal ptStart As Point,
-                   ByVal ptZiel As Point,
-                   ByVal steinSize As Size,
-                   ByVal flightPath As PlaneFlightPath,
-                   ByVal speedPerFrame As Double,
-                   Optional ptStartIsMouseAnkerPos As Boolean = False)
+    Public Sub New(ptStart As Point,
+                   startPointIs As AirPointIs,
+                   ptZiel As Point,
+                   zielPointIs As AirPointIs,
+                   steinSize As Size,
+                   flightPath As PlaneFlightPath,
+                   speedPerFrame As Double
+                   )
 
         _steinWidthHalf = steinSize.Width \ 2
         _steinHeightHalf = steinSize.Height \ 2
+        _steinSize = steinSize
 
-        If ptStartIsMouseAnkerPos Then
-            With ptStart
-                'auf die Ecke links oben umrechnen
-                _ptStart = New Point(.X - _steinWidthHalf \ 2, .Y - _steinHeightHalf \ 2)
-            End With
-        Else
-            _ptStart = ptStart
-        End If
         '
-        'Auf Steinmitte umrechnen, damit die Flugroute immer entlang der Stenmitte verläuft.
+        'Auf Steinmitte umrechnen, damit die Flugroute immer entlang der Steinmitte verläuft.
         '(bei sich drehenden Steinen wichtig)
-        With ptStart
-            _ptStart = New Point(.X + _steinWidthHalf, .Y + _steinHeightHalf)
-        End With
-        With ptZiel
-            _ptZiel = New Point(.X + _steinWidthHalf, .Y + _steinHeightHalf)
-        End With
+        Select Case startPointIs
+            Case AirPointIs.Center, AirPointIs.CenterStein
+                _ptStart = ptStart
 
-        If speedPerFrame <= 0.0 Then
-            _speedPerFrame = 1.0
+            Case AirPointIs.CenterQuadrantLO
+                With ptStart
+                    'auf die Mitte umrechnen
+                    _ptStart = New Point(.X + _steinWidthHalf \ 2, .Y + _steinHeightHalf \ 2)
+                End With
+
+            Case AirPointIs.LeftUp
+                With ptStart
+                    _ptStart = New Point(.X + _steinWidthHalf, .Y + _steinHeightHalf)
+                End With
+            Case Else
+                Throw New Exception("Unbekannte Enumeration.")
+        End Select
+
+        Select Case zielPointIs
+            Case AirPointIs.Center, AirPointIs.CenterStein
+                _ptZiel = ptZiel
+
+            Case AirPointIs.CenterQuadrantLO
+                With ptZiel
+                    'auf die Mitte umrechnen
+                    _ptZiel = New Point(.X + _steinWidthHalf \ 2, .Y + _steinHeightHalf \ 2)
+                End With
+
+            Case AirPointIs.LeftUp
+                With ptZiel
+                    _ptZiel = New Point(.X + _steinWidthHalf, .Y + _steinHeightHalf)
+                End With
+
+            Case Else
+                Throw New Exception("Unbekannte Enumeration.")
+        End Select
+
+        If speedPerFrame <= 10.0 Then
+            _speedPerFrame = 10.0
         Else
             _speedPerFrame = speedPerFrame
         End If
@@ -119,191 +152,147 @@ Public NotInheritable Class AirplanesFlightPath
             _flightPath = flightPath
         End If
 
-        _startF = New PointF(CSng(ptStart.X), CSng(ptStart.Y))
-        _zielF = New PointF(CSng(ptZiel.X), CSng(ptZiel.Y))
+        _startF = New PointF(CSng(_ptStart.X), CSng(_ptStart.Y))
+        _zielF = New PointF(CSng(_ptZiel.X), CSng(_ptZiel.Y))
 
-        Dim c1 As PointF
-        Dim c2 As PointF
-        ComputeControlPoints(c1, c2)
-        _control1 = c1
-        _control2 = c2
+        ComputeControlPoints(_control1, _control2)
 
         _pathLength = Math.Max(1.0, EstimatedPathLength())
 
-        _t = 0.0
-        _isFinished = False
+        _progress = 0.0
+        _isFlying = True
         _lastPoint = ptStart
+
     End Sub
 
-    Public ReadOnly Property PtCenterStart As Point
+    Public ReadOnly Property RectStart As Rectangle
+        Get
+            With _steinSize
+                Return New Rectangle(_ptStart.X - .Width \ 2, _ptStart.Y - .Height \ 2, .Width, .Height)
+            End With
+        End Get
+    End Property
+    Public ReadOnly Property RectZiel As Rectangle
+        Get
+            With _steinSize
+                Return New Rectangle(_ptZiel.X - .Width \ 2, _ptZiel.Y - .Height \ 2, .Width, .Height)
+            End With
+        End Get
+    End Property
+
+    '
+    Public ReadOnly Property PtStart As Point
         Get
             Return _ptStart
         End Get
     End Property
-
-    Public ReadOnly Property PtCenterZiel As Point
+    Public ReadOnly Property PtZiel As Point
         Get
             Return _ptZiel
         End Get
     End Property
-    Public ReadOnly Property PtLeftUpStart As Point
-        Get
-            With _ptStart
-                Return New Point(.X - _steinWidthHalf, .Y - _steinHeightHalf)
-            End With
-        End Get
-    End Property
-
-    Public ReadOnly Property PtLeftUpZiel As Point
-        Get
-            With _ptZiel
-                Return New Point(.X - _steinWidthHalf, .Y - _steinHeightHalf)
-            End With
-        End Get
-    End Property
-
-    Public ReadOnly Property SteinSize As Size
-        Get
-            Return _steinSize
-        End Get
-    End Property
-
-    Public ReadOnly Property AirPlaneFlightPath As PlaneFlightPath
-        Get
-            Return _flightPath
-        End Get
-    End Property
-
-    Public ReadOnly Property SpeedPerFrame As Double
-        Get
-            Return _speedPerFrame
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Geschätzte Anzahl der Render-Schritte bei Soll-Frame-Zeit.
-    ''' Mit kleinem Sicherheitsaufschlag. (+2)
-    ''' Die tatsächliche Anzahl ist abhängig von den Werten des timeDifferenzFaktor.
-    ''' </summary>
-    Public ReadOnly Property RenderCountEstimate As Integer
-        Get
-            Return Math.Max(1, CInt(Math.Ceiling(_pathLength / _speedPerFrame)) + 2)
-        End Get
-    End Property
-
-    Public ReadOnly Property IsFinished As Boolean
-        Get
-            Return _isFinished
-        End Get
-    End Property
+    '' Im Bedarfsfall können die Propierties aktiviert werden.
     '
-    ''' <summary>
-    ''' Gibt Not IsFinished zurück.
-    ''' Gibt True zurück, solange noch neue Positionswerte geliefert werden können.
-    ''' Sobald das Ziel erreicht ist, wird False zurückgegeben.
-    ''' </summary>
-    ''' <returns></returns>
-    Public ReadOnly Property IsFlying As Boolean
-        Get
-            Return Not _isFinished
-        End Get
-    End Property
+    ''Public ReadOnly Property PtCenterStart As Point
+    ''    Get
+    ''        Return _ptStart
+    ''    End Get
+    ''End Property
 
-    Public ReadOnly Property CurrentCenterPoint As Point
-        Get
-            Return _lastPoint
-        End Get
-    End Property
-    Public ReadOnly Property CurrentLeftUpPoint As Point
-        Get
-            With _lastPoint
-                Return New Point(.X - _steinWidthHalf, .Y - _steinHeightHalf)
-            End With
-        End Get
-    End Property
+    ''Public ReadOnly Property PtCenterZiel As Point
+    ''    Get
+    ''        Return _ptZiel
+    ''    End Get
+    ''End Property
+    ''Public ReadOnly Property PtLeftUpStart As Point
+    ''    Get
+    ''        With _ptStart
+    ''            Return New Point(.X - _steinWidthHalf, .Y - _steinHeightHalf)
+    ''        End With
+    ''    End Get
+    ''End Property
+
+    ''Public ReadOnly Property PtLeftUpZiel As Point
+    ''    Get
+    ''        With _ptZiel
+    ''            Return New Point(.X - _steinWidthHalf, .Y - _steinHeightHalf)
+    ''        End With
+    ''    End Get
+    ''End Property
+
+    ''Public ReadOnly Property SteinSize As Size
+    ''    Get
+    ''        Return _steinSize
+    ''    End Get
+    ''End Property
+
+    ''Public ReadOnly Property AirPlaneFlightPath As PlaneFlightPath
+    ''    Get
+    ''        Return _flightPath
+    ''    End Get
+    ''End Property
+
+    ''Public ReadOnly Property SpeedPerFrame As Double
+    ''    Get
+    ''        Return _speedPerFrame
+    ''    End Get
+    ''End Property
+
+    ''''' <summary>
+    ''''' Geschätzte Anzahl der Render-Schritte bei Soll-Frame-Zeit.
+    ''''' Mit kleinem Sicherheitsaufschlag. (+2)
+    ''''' Die tatsächliche Anzahl ist abhängig von den Werten des timeDifferenzFaktor.
+    ''''' </summary>
+    ''Public ReadOnly Property RenderCountEstimate As Integer
+    ''    Get
+    ''        Return Math.Max(1, CInt(Math.Ceiling(_pathLength / _speedPerFrame)) + 2)
+    ''    End Get
+    ''End Property
+
+    ''Public ReadOnly Property CurrentCenterPoint As Point
+    ''    Get
+    ''        Return _lastPoint
+    ''    End Get
+    ''End Property
+    ''Public ReadOnly Property CurrentLeftUpPoint As Point
+    ''    Get
+    ''        With _lastPoint
+    ''            Return New Point(.X - _steinWidthHalf, .Y - _steinHeightHalf)
+    ''        End With
+    ''    End Get
+    ''End Property
 
     '
     ''' <summary>
     ''' Liefert die nächste Center-Position für den aktuellen Render-Schritt.
-    ''' timeDifferenzFaktor = tatsächliche Zeit / Soll-Frame-Zeit
-    ''' Beispiel:
-    ''' Soll = 25 ms
-    ''' Ist = 50 ms
-    ''' Faktor = 2.0
+    ''' Das ist die Basisfunktion, die von allen GetNext... Funktionen aufgerufen wird.
     ''' </summary>
-    Public Function GetNextCenterPoint(ByVal timeDifferenzFaktor As Double) As Point
+    Public Function GetNextCenterPoint(ByVal timeDifferenzFaktor As Double) As (HasValue As Boolean, pt As Point)
 
-        If _isFinished Then
-            Return _ptZiel
-        End If
-
-        If timeDifferenzFaktor <= 0.0 Then
-            Return _lastPoint
+        If Not _isFlying Then
+            Return (False, Point.Empty)
         End If
 
         Dim pixelSchritt As Double = _speedPerFrame * timeDifferenzFaktor
 
         If pixelSchritt <= 0.0 Then
-            Return _lastPoint
+            Return (False, Point.Empty)
         End If
 
         Dim deltaT As Double = pixelSchritt / _pathLength
-        _t += deltaT
+        _progress += deltaT
 
-        If _t >= 1.0 Then
-            _t = 1.0
+        If _progress >= 1.0 Then
+            _progress = 1.0
             _lastPoint = _ptZiel
-            _isFinished = True
-            Return _lastPoint
+            _isFlying = False
+            Return (True, _ptZiel)
         End If
 
-        Dim pt As PointF = EvalPoint(_t)
+        Dim pt As PointF = EvalPoint(_progress)
 
         _lastPoint = New Point(CInt(Math.Round(pt.X)), CInt(Math.Round(pt.Y)))
-        Return _lastPoint
-    End Function
-
-    Public Function GetNextLeftUpPoint(ByVal timeDifferenzFaktor As Double) As Point
-
-        If _isFinished Then
-            With _ptZiel
-                Return New Point(.X - _steinWidthHalf, .Y - _steinHeightHalf)
-            End With
-
-        End If
-
-        If timeDifferenzFaktor <= 0.0 Then
-            With _lastPoint
-                Return New Point(.X - _steinWidthHalf, .Y - _steinHeightHalf)
-            End With
-        End If
-
-        Dim pixelSchritt As Double = _speedPerFrame * timeDifferenzFaktor
-
-        If pixelSchritt <= 0.0 Then
-            With _lastPoint
-                Return New Point(.X - _steinWidthHalf, .Y - _steinHeightHalf)
-            End With
-        End If
-
-        Dim deltaT As Double = pixelSchritt / _pathLength
-        _t += deltaT
-
-        If _t >= 1.0 Then
-            _t = 1.0
-            _lastPoint = _ptZiel
-            _isFinished = True
-            With _lastPoint
-                Return New Point(.X - _steinWidthHalf, .Y - _steinHeightHalf)
-            End With
-        End If
-
-        Dim pt As PointF = EvalPoint(_t)
-
-        _lastPoint = New Point(CInt(Math.Round(pt.X)), CInt(Math.Round(pt.Y)))
-        With _lastPoint
-            Return New Point(.X - _steinWidthHalf, .Y - _steinHeightHalf)
-        End With
+        Return (True, _lastPoint)
 
     End Function
 
@@ -312,8 +301,8 @@ Public NotInheritable Class AirplanesFlightPath
     ''' Setzt den Flug auf den Anfang zurück.
     ''' </summary>
     Public Sub Reset()
-        _t = 0.0
-        _isFinished = False
+        _progress = 0.0
+        _isFlying = False
         _lastPoint = _ptStart
     End Sub
 
@@ -322,9 +311,15 @@ Public NotInheritable Class AirplanesFlightPath
     ''' Optional: setzt den Flug sofort ins Ziel.
     ''' </summary>
     Public Sub FinishNow()
-        _t = 1.0
-        _isFinished = True
+        _progress = 1.0
+        _isFlying = True
         _lastPoint = _ptZiel
+    End Sub
+    ''' <summary>
+    ''' Optional: bricht den Flug sofort ab.
+    ''' </summary>
+    Public Sub Abort()
+        _isFlying = False
     End Sub
 
     Private Sub ComputeControlPoints(ByRef control1 As PointF, ByRef control2 As PointF)

@@ -182,11 +182,13 @@
     <Compile Include="Spielfeld\Contextmenues\ContextMenueEditor.vb">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Spielfeld\Daten\EditorUndoItem.vb" />
+    <Compile Include="Spielfeld\Daten\EditorUndoItems.vb" />
     <Compile Include="Spielfeld\Runtime\MouseAktionen\MouseWheelPoller.vb" />
     <Compile Include="Spielfeld\Runtime\MouseAktionen\SFStockJobs.vb" />
     <Compile Include="Spielfeld\Runtime\Steinflug\AirHelper.vb" />
     <Compile Include="Spielfeld\Runtime\Steinflug\AirEnumerationen.vb" />
-    <Compile Include="Spielfeld\Runtime\Steinflug\AirJobSelector.vb" />
+    <Compile Include="Spielfeld\Runtime\Steinflug\AirJobSelector_ZLV.vb" />
     <Compile Include="Spielfeld\Runtime\MouseAktionen\MouseAnkerPosition.vb" />
     <Compile Include="Spielfeld\Runtime\Steinflug\AirRenderBuffer.vb" />
     <Compile Include="Spielfeld\Runtime\frmTooltip\frmTooltipSteinInfo.vb">

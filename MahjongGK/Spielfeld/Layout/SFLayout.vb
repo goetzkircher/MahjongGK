@@ -716,6 +716,7 @@ Namespace Spielfeld
             Const UNDOH As Integer = 32
 
             Const UNDOMARGIN As Integer = 10
+            Const UNDOBOTTOM As Integer = 10
             Const UNDOMARGINRIGHT As Integer = 32
 
             Select Case AktLayout
@@ -765,13 +766,13 @@ Namespace Spielfeld
                         rxUndo.Width = UNDOW
                         rxUndo.Height = UNDOH
                         rxUndo.Left = rxContent.Right - UNDOW - UNDOMARGIN - UNDOH - UNDOMARGINRIGHT
-                        rxUndo.Top = rxContent.Bottom - UNDOH - UNDOMARGIN
+                        rxUndo.Top = rxContent.Bottom - UNDOH - UNDOMARGIN - UNDOBOTTOM
                         '
                         rxRedo = New RectangleX
                         rxRedo.Width = UNDOW
                         rxRedo.Height = UNDOH
                         rxRedo.Left = rxContent.Right - UNDOW - UNDOMARGINRIGHT
-                        rxRedo.Top = rxContent.Bottom - UNDOH - UNDOMARGIN
+                        rxRedo.Top = rxContent.Bottom - UNDOH - UNDOMARGIN - UNDOBOTTOM
                     End If
                 Case Layout.SplfldWithHeaderAndHistRight
                     rxBitmapUgrd = New RectangleX(rxOutputUsed)
@@ -791,13 +792,13 @@ Namespace Spielfeld
                         rxUndo.Width = UNDOW
                         rxUndo.Height = UNDOH
                         rxUndo.Left = rxContent.Left + UNDOMARGIN
-                        rxUndo.Top = rxContent.Bottom - UNDOH - UNDOMARGIN
+                        rxUndo.Top = rxContent.Bottom - UNDOH - UNDOMARGIN - UNDOBOTTOM
                         '
                         rxRedo = New RectangleX
                         rxRedo.Width = UNDOW
                         rxRedo.Height = UNDOH
                         rxRedo.Left = rxContent.Left + UNDOMARGIN + UNDOW + UNDOMARGIN
-                        rxRedo.Top = rxContent.Bottom - UNDOH - UNDOMARGIN
+                        rxRedo.Top = rxContent.Bottom - UNDOH - UNDOMARGIN - UNDOBOTTOM
                     End If
 
                 Case Layout.EditorWithHeader
@@ -824,13 +825,13 @@ Namespace Spielfeld
                         rxUndo.Width = UNDOW
                         rxUndo.Height = UNDOH
                         rxUndo.Left = rxContent.Right - UNDOW - UNDOMARGIN - UNDOW - UNDOMARGINRIGHT
-                        rxUndo.Top = rxContent.Bottom - UNDOH - UNDOMARGIN
+                        rxUndo.Top = rxContent.Bottom - UNDOH - UNDOMARGIN - UNDOBOTTOM
                         '
                         rxRedo = New RectangleX
                         rxRedo.Width = UNDOW
                         rxRedo.Height = UNDOH
                         rxRedo.Left = rxContent.Right - UNDOW - UNDOMARGINRIGHT
-                        rxRedo.Top = rxContent.Bottom - UNDOH - UNDOMARGIN
+                        rxRedo.Top = rxContent.Bottom - UNDOH - UNDOMARGIN - UNDOBOTTOM
                     End If
                 Case Else
                     Stop

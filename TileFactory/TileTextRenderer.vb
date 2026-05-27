@@ -74,12 +74,16 @@ Friend Module TileTextRenderer
 
         Dim textUgrdDiameter As Single = trv.TextUgrdDiameter
         Dim bmpSize As Integer = CInt(Math.Ceiling(trv.TextUgrdDiameter))
-        If bmpSize <= 0 Then
-            bmpSize = CInt(trv.FontSize)
-            textUgrdDiameter = bmpSize
-        End If
-
         Dim fontSize As Single = trv.FontSize
+
+        If bmpSize <= 0 Then
+            Dim fontFamily As FontFamily = SymbolFontManager.ResolveFontFamily(trv.FontFamilyName)
+            Using font As New Font(fontFamily, fontSize, trv.FontStyle, GraphicsUnit.Pixel)
+
+                textUgrdDiameter = GetTextUgrdDiameter(symbolText, font)
+                bmpSize = CInt(textUgrdDiameter)
+            End Using
+        End If
 
         Using tmpBmp As New Bitmap(bmpSize, bmpSize, Imaging.PixelFormat.Format32bppArgb)
 
@@ -251,6 +255,72 @@ Friend Module TileTextRenderer
 
     End Function
 
+    Private Function AdjustRect(gfx As Graphics,
+                            symbolText As String,
+                            font As Font,
+                            rect As Rectangle) As Rectangle
+
+        If gfx Is Nothing Then Throw New ArgumentNullException(NameOf(gfx))
+        If font Is Nothing Then Throw New ArgumentNullException(NameOf(font))
+
+        If String.IsNullOrEmpty(symbolText) Then
+            Return rect
+        End If
+
+        Dim textSize As SizeF = gfx.MeasureString(symbolText, font)
+
+        Dim neededWidth As Integer = CInt(Math.Ceiling(textSize.Width))
+        Dim neededHeight As Integer = CInt(Math.Ceiling(textSize.Height))
+
+        If rect.Width >= neededWidth AndAlso rect.Height >= neededHeight Then
+            Return rect
+        End If
+
+        Dim newWidth As Integer = Math.Max(rect.Width, neededWidth)
+        Dim newHeight As Integer = Math.Max(rect.Height, neededHeight)
+
+        'Zentrisch um das bisherige Rechteck vergrößern.
+        Dim dx As Integer = (newWidth - rect.Width) \ 2
+        Dim dy As Integer = (newHeight - rect.Height) \ 2
+
+        Return New Rectangle(rect.Left - dx,
+                         rect.Top - dy,
+                         newWidth,
+                         newHeight)
+
+    End Function
+
+    Private Function GetTextUgrdDiameter(symbolText As String,
+                                     font As Font) As Integer
+
+        If font Is Nothing Then Throw New ArgumentNullException(NameOf(font))
+
+        If String.IsNullOrEmpty(symbolText) Then
+            Return Math.Max(1, CInt(Math.Ceiling(font.GetHeight())))
+        End If
+
+        Using bmpMeasure As New Bitmap(1, 1)
+            Using gfxMeasure As Graphics = Graphics.FromImage(bmpMeasure)
+                Using sf As New StringFormat(StringFormat.GenericTypographic)
+
+                    sf.Alignment = StringAlignment.Center
+                    sf.LineAlignment = StringAlignment.Center
+                    sf.FormatFlags = sf.FormatFlags Or StringFormatFlags.NoClip
+
+                    Dim size As SizeF = gfxMeasure.MeasureString(symbolText,
+                                                             font,
+                                                             PointF.Empty,
+                                                             sf)
+
+                    Dim needed As Single = Math.Max(size.Width, size.Height)
+
+                    Return Math.Max(1, CInt(Math.Ceiling(needed)))
+
+                End Using
+            End Using
+        End Using
+
+    End Function
     Public Sub DisposeYCorrectedBitmap()
         For idx As Integer = 0 To UBND15
             If _yCorrectionBitmap(idx) IsNot Nothing Then

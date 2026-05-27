@@ -48,7 +48,7 @@ Public Class SpielfeldSteineAustauscher
     ''' </summary>
     ''' <param name="steininfos"></param>
     ''' <param name="vorrat"></param>
-    Sub New(steininfos As List(Of Spielfeld.SteinInfo), vorrat As List(Of SteinTyp))
+    Sub New(steininfos As List(Of Spielfeld.SteinInfo), vorrat As List(Of SteinSymbol))
         Me._steininfos = steininfos
         Me.vorrat = vorrat
         _werkstattJob = False
@@ -71,7 +71,7 @@ Public Class SpielfeldSteineAustauscher
     End Sub
 
     Private ReadOnly _steininfos As List(Of Spielfeld.SteinInfo)
-    Private vorrat As List(Of SteinTyp)
+    Private vorrat As List(Of SteinSymbol)
 
     Private _resultOK As Boolean = False
     Private ReadOnly _werkstattJob As Boolean
@@ -112,7 +112,7 @@ Public Class SpielfeldSteineAustauscher
 
         For idx As Integer = 0 To _steininfos.Count - 1
             With _steininfos(idx)
-                .SteinTypIndex = vorrat(idx)
+                .SteinSymbolIndex = vorrat(idx)
                 'TODO
                 '.SteinStatusIst = SteinStatus.I01Normal
                 .IsWerkbankStein = False
@@ -147,7 +147,7 @@ Public Class SpielfeldSteineAustauscher
     ''' Steinen im Vorrat übergeben.
     ''' </summary>
     ''' <param name="vorrat"></param>
-    Public Sub SetSteinVorrat(vorrat As List(Of SteinTyp))
+    Public Sub SetSteinVorrat(vorrat As List(Of SteinSymbol))
         Me.vorrat = vorrat
         DoJobWerkstattJob()
     End Sub
@@ -158,7 +158,7 @@ Public Class SpielfeldSteineAustauscher
             For idx As Integer = 0 To _steininfos.Count - 1
                 With _steininfos(idx)
                     If _steininfos(idx).IsWerkbankStein Then
-                        .SteinTypIndex = vorrat(idxSchlepp)
+                        .SteinSymbolIndex = vorrat(idxSchlepp)
                         idxSchlepp += 1
                         'TODO
                         '.SteinStatusIst = SteinStatus.I01Normal

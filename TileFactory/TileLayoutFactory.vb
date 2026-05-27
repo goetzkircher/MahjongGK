@@ -2,6 +2,7 @@
 Option Explicit On
 Option Infer Off
 Option Strict On
+
 Imports System.Drawing
 
 '
@@ -9,16 +10,12 @@ Imports System.Drawing
 ''' Zentrale Erzeugung von Layoutdaten.
 ''' Hier kann später ohne Eingriff in den Rendercode ein Cache ergänzt werden.
 ''' </summary>
-Friend NotInheritable Class TileLayoutFactory
-
-    Private Sub New()
-    End Sub
-
+Friend Module TileLayoutFactory
     '
     ''' <summary>
     ''' Erzeugt ein Layout direkt aus Breite und Höhe.
     ''' </summary>
-    Public Shared Function Create(steinSize As Size, steinBasisSize As Size) As TileLayout
+    Public Function Create(steinSize As Size, steinBasisSize As Size) As TileLayout
 
         Return New TileLayout(steinSize, steinBasisSize)
 
@@ -28,7 +25,7 @@ Friend NotInheritable Class TileLayoutFactory
     ''' <summary>
     ''' Erzeugt ein Layout aus einem RenderRequest.
     ''' </summary>
-    Public Shared Function Create(request As TileRequest) As TileLayout
+    Public Function Create(request As TileRequest) As TileLayout
 
         If request Is Nothing Then Throw New ArgumentNullException(NameOf(request))
 
@@ -36,4 +33,4 @@ Friend NotInheritable Class TileLayoutFactory
 
     End Function
 
-End Class
+End Module

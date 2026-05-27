@@ -218,5 +218,32 @@ Public Class Triple
     Public Sub CopyToArrFBMain(arrFB(,,) As Integer, fb As Integer)
         arrFB(x, y, z) = fb
     End Sub
-
+    '
+    ''' <summary>
+    ''' Wichtig: hier werden nur die Koordinaten verschlüssselt, nicht die Eigenschaft Valide!
+    ''' </summary>
+    ''' <returns></returns>
+    Public Function ToXmlString() As String
+        Return $"{_x};{_y};{_z}"
+    End Function
+    '
+    ''' <summary>
+    ''' Wenn IsNullOrWhiteSpace(value) ist valide=ValidePlace.NotSet.
+    ''' Bei Fehlern: ValidePlace.No ansonsten ValidePlace.Yes.
+    ''' Das ursprüngliche ValidePlace wurde nicht gespeichert.
+    ''' </summary>
+    ''' <param name="value"></param>
+    ''' <returns></returns>
+    Public Shared Function FromXmlString(value As String) As TripleX
+        If String.IsNullOrWhiteSpace(value) Then
+            Return New TripleX(valide:=ValidePlace.NotSet)
+        Else
+            Dim arr() As String = value.Split(";"c)
+            If arr.GetUpperBound(0) <> 2 Then
+                Return New TripleX(valide:=ValidePlace.No)
+            Else
+                Return New TripleX(x:=CInt(Val(arr(0))), y:=CInt(Val(arr(1))), z:=CInt(Val(arr(2))), valide:=ValidePlace.Yes)
+            End If
+        End If
+    End Function
 End Class

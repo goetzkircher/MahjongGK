@@ -108,7 +108,7 @@ Public Class MouseWheelPoller
     ''' der Status der linken oder rechten Maustaste oder der Status 
     ''' der Strg- oder Alt-Taste oder das Scrollrad geändert hat.
     ''' </summary>
-    Public Function ConsumeSchnelltestHasMouseStateChange(rxStageUsed As RectangleX, rxStock As RectangleX, rxStockScrollbar As RectangleX) As MouseStateChanged
+    Public Function ConsumeSchnelltestHasMouseStateChange(rxContent As RectangleX) As MouseStateChanged
 
         Dim aktState As New MouseStateSnapshot(
         Control.MousePosition,
@@ -116,15 +116,12 @@ Public Class MouseWheelPoller
         Control.ModifierKeys,
         _mouseWheelSerial)
 
-        Dim found As Boolean
+        Dim found As Boolean = False
+
         If _ctrl IsNot Nothing Then
             Dim mpc As Point = _ctrl.PointToClient(aktState.MousePosScreen)
 
-            If rxStageUsed?.Contains(mpc) Then
-                found = True
-            ElseIf rxStock?.Contains(mpc) Then
-                found = True
-            ElseIf rxStockscrollbar?.Contains(mpc) Then
+            If rxContent?.Contains(mpc) Then
                 found = True
             End If
         End If
@@ -160,8 +157,7 @@ Public Class MouseWheelPoller
         'Reine Positionsänderung gesondert bewerten.
         If aktState.MousePosScreen <> _lastMouseState.MousePosScreen Then
 
-            Dim leftMouseIsReleased As Boolean =
-            (aktState.Buttons And MouseButtons.Left) = MouseButtons.None
+            Dim leftMouseIsReleased As Boolean = (aktState.Buttons And MouseButtons.Left) = MouseButtons.None
 
             _lastMouseState = aktState
 

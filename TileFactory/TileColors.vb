@@ -70,9 +70,8 @@ Public Class TileColors
         With tileRenderRequest
             _aktRenderMode = .AktRenderMode
             _steinStatus = .SteinStatus
-            _steinType = .SteinTyp
-            _steinTypVersion = .SteinTypVersion
-            _steinFrameVersion = .SteinFrameVersion
+            _steinSymbole = .SteinSymbol
+            _steinSymbolVersion = .SteinSymbolVersion
             _steinSize = .SteinSize
             _steinBasisSize = .SteinBasisSize
         End With
@@ -204,10 +203,6 @@ Public Class TileColors
     '=================================================================
 
     Private ReadOnly _arrCopyNonColorValues() As String = {
-        "AlphaGhost",
-        "DBrgGhost",
-        "DHueGhost",
-        "DSatGhost",
         "FaktorOutlineIsZeroIfTileSizeLowerAs",
         "FaktorSymbolOffsetLeft",
         "FaktorSymbolOffsetTop",
@@ -216,10 +211,33 @@ Public Class TileColors
         "FaktorTextOffsetLeft",
         "FaktorTextOffsetTop",
         "FaktorTextSize",
-        "InsertFaceFramAlways",
-        "InsertFaceFrameNever",
-        "InsertFaceFramOnlyMouseOver",
-        "InsertFaceFramOnlyNormaleOne",
+        "Ghost1AlphaAbsolut",
+        "Ghost1FColorizeColor",
+        "Ghost1FColorizeLevel",
+        "Ghost1FDeltaBrg",
+        "Ghost1FDeltaSat",
+        "Ghost1LColorizeColor",
+        "Ghost1LColorizeLevel",
+        "Ghost1LDeltaBrg",
+        "Ghost1LDeltaSat",
+        "Ghost2AlphaAbsolut",
+        "Ghost2FColorizeColor",
+        "Ghost2FColorizeLevel",
+        "Ghost2FDeltaBrg",
+        "Ghost2FDeltaSat",
+        "Ghost2LColorizeColor",
+        "Ghost2LColorizeLevel",
+        "Ghost2LDeltaBrg",
+        "Ghost2LDeltaSat",
+        "Ghost3AlphaAbsolut",
+        "Ghost3FColorizeColor",
+        "Ghost3FColorizeLevel",
+        "Ghost3FDeltaBrg",
+        "Ghost3FDeltaSat",
+        "Ghost3LColorizeColor",
+        "Ghost3LColorizeLevel",
+        "Ghost3LDeltaBrg",
+        "Ghost3LDeltaSat",
         "InsertTextBlumen",
         "InsertTextDrachen",
         "InsertTextJZeiten",
@@ -300,13 +318,10 @@ Public Class TileColors
         "BrgSymbolGradientFrom",
         "BrgSymbolGradientTo",
         "BrgSymbolOutline",
-        "DBrgSummenÄnderungAdd",
-        "DBrgSummenÄnderungMul",
         "DeltaHueLayerBlüten",
         "DeltaHueLayerJZeiten",
         "DeltaHueLayerNormal",
         "DeltaHueLayerWinde",
-        "DSatSummenÄnderung",
         "DShiftNormalBlüten",
         "DShiftNormalJZeiten",
         "DShiftNormalNormal",
@@ -330,9 +345,6 @@ Public Class TileColors
         "FaceAGrainSteinStatusRemovable",
         "FaceAGrainSteinStatusSelectable",
         "FaceAGrainSteinStatusSelected",
-        "FaceFrameEditorCanDrop",
-        "FaceFrameEditorMouseOver",
-        "FaceFrameEditorMouseSelected",
         "FaceICloudSteinStatusNormal",
         "FaceICloudSteinStatusRemovable",
         "FaceICloudSteinStatusSelectable",
@@ -439,6 +451,15 @@ Public Class TileColors
         "ShiftLightMapSteinStatusRemovable",
         "ShiftLightMapSteinStatusSelectable",
         "ShiftLightMapSteinStatusSelected",
+        "SumAdjustAlphaAbsolut",
+        "SumAdjustFColorizeColor",
+        "SumAdjustFColorizeLevel",
+        "SumAdjustFDeltaBrg",
+        "SumAdjustFDeltaSat",
+        "SumAdjustLColorizeColor",
+        "SumAdjustLColorizeLevel",
+        "SumAdjustLDeltaBrg",
+        "SumAdjustLDeltaSat",
         "SymbolColBlauerDrache",
         "SymbolColBlüten",
         "SymbolColGrünerDrache",
@@ -449,10 +470,6 @@ Public Class TileColors
     }
 
     Public Property CloudGrainKoppeln As Boolean = False
-    Public Property DebugFaceFrameEditorCanDrop As Boolean = False
-    Public Property DebugFaceFrameEditorMouseOver As Boolean = True
-    Public Property DebugFaceFrameEditorMouseSelected As Boolean = False
-    Public Property DebugShowFaceFrameMouse As Boolean = False
     Public Property DeltaHueLayerBlüten As Integer = 0
     Public Property DeltaHueLayerJZeiten As Integer = 10
     Public Property DeltaHueLayerNormal As Integer = 0
@@ -642,15 +659,12 @@ Public Class TileColors
     Public Property FaceAGrainSteinStatusRemovable As Decimal = 0D
     Public Property FaceAGrainSteinStatusSelectable As Decimal = 0D
     Public Property FaceAGrainSteinStatusSelected As Decimal = 0D
-    Public Property BrgFaceFrameBlüten As Integer = 100
     Public Property SatFaceFrameBlüten As Integer = 100
-    Public Property FaceFrameEditorCanDrop As String = "FF3CB371"
-    Public Property FaceFrameEditorMouseOver As String = "FFFFFFFF"
-    Public Property FaceFrameEditorMouseSelected As String = "FFADFF2F"
+    Public Property BrgFaceFrameBlüten As Integer = 100
     Public Property BrgFaceFrameJZeiten As Integer = 100
     Public Property SatFaceFrameJZeiten As Integer = 90
-    Public Property SatFaceFrameNormal As Integer = 100
     Public Property BrgFaceFrameNormal As Integer = 100
+    Public Property SatFaceFrameNormal As Integer = 100
     Public Property BrgFaceFrameWinde As Integer = 30
     Public Property SatFaceFrameWinde As Integer = 95
     Public Property FaceICloudSteinStatusNormal As Decimal = 0D
@@ -674,11 +688,33 @@ Public Class TileColors
     Public Property FaktorTextOffsetLeft As Decimal = 1D
     Public Property FaktorTextOffsetTop As Decimal = 1D
     Public Property FaktorTextSize As Decimal = 1D
-    Public Property DBrgGhost As Integer = 0
-    Public Property DSatGhost As Integer = 0
-    Public Property DHueGhost As Integer = 0
-    Public Property AlphaGhost As Integer = 255
-    Public Property GhostUseFastMethode As Boolean = True
+    Public Property Ghost1AlphaAbsolut As Integer = 255
+    Public Property Ghost1FColorizeColor As String = "FF000000"
+    Public Property Ghost1FColorizeLevel As Integer = 0
+    Public Property Ghost1FDeltaBrg As Integer = 0
+    Public Property Ghost1FDeltaSat As Integer = -50
+    Public Property Ghost1LColorizeColor As String = "FF000000"
+    Public Property Ghost1LColorizeLevel As Integer = 0
+    Public Property Ghost1LDeltaBrg As Integer = 0
+    Public Property Ghost1LDeltaSat As Integer = -50
+    Public Property Ghost2AlphaAbsolut As Integer = 255
+    Public Property Ghost2FColorizeColor As String = "FF000000"
+    Public Property Ghost2FColorizeLevel As Integer = 0
+    Public Property Ghost2FDeltaBrg As Integer = 0
+    Public Property Ghost2FDeltaSat As Integer = -75
+    Public Property Ghost2LColorizeColor As String = "FF000000"
+    Public Property Ghost2LColorizeLevel As Integer = 0
+    Public Property Ghost2LDeltaBrg As Integer = 0
+    Public Property Ghost2LDeltaSat As Integer = -75
+    Public Property Ghost3AlphaAbsolut As Integer = 150
+    Public Property Ghost3FColorizeColor As String = "FF000000"
+    Public Property Ghost3FColorizeLevel As Integer = 0
+    Public Property Ghost3FDeltaBrg As Integer = 0
+    Public Property Ghost3FDeltaSat As Integer = -100
+    Public Property Ghost3LColorizeColor As String = "FF000000"
+    Public Property Ghost3LColorizeLevel As Integer = 0
+    Public Property Ghost3LDeltaBrg As Integer = 0
+    Public Property Ghost3LDeltaSat As Integer = -100
     Public Property SatI01NormalBlüten As Integer = 35
     Public Property BrgI01NormalBlüten As Integer = 88
     Public Property SatI01NormalJZeiten As Integer = 30
@@ -695,14 +731,14 @@ Public Class TileColors
     Public Property SatI02SelectedNormal As Integer = -20
     Public Property BrgI02SelectedWinde As Integer = 15
     Public Property SatI02SelectedWinde As Integer = -20
-    Public Property BrgI03SelectableBlüten As Integer = 10
     Public Property SatI03SelectableBlüten As Integer = 10
-    Public Property BrgI03SelectableJZeiten As Integer = 10
+    Public Property BrgI03SelectableBlüten As Integer = 10
     Public Property SatI03SelectableJZeiten As Integer = 10
+    Public Property BrgI03SelectableJZeiten As Integer = 10
     Public Property BrgI03SelectableNormal As Integer = 10
     Public Property SatI03SelectableNormal As Integer = 10
-    Public Property BrgI03SelectableWinde As Integer = 10
     Public Property SatI03SelectableWinde As Integer = 10
+    Public Property BrgI03SelectableWinde As Integer = 10
     Public Property SatI04RemovableBlüten As Integer = -15
     Public Property BrgI04RemovableBlüten As Integer = 5
     Public Property SatI04RemovableJZeiten As Integer = -15
@@ -711,34 +747,34 @@ Public Class TileColors
     Public Property BrgI04RemovableNormal As Integer = 5
     Public Property SatI04RemovableWinde As Integer = -15
     Public Property BrgI04RemovableWinde As Integer = 5
-    Public Property BrgI05LockedBlüten As Integer = 0
     Public Property SatI05LockedBlüten As Integer = 0
+    Public Property BrgI05LockedBlüten As Integer = 0
     Public Property SatI05LockedJZeiten As Integer = 0
     Public Property BrgI05LockedJZeiten As Integer = 0
-    Public Property BrgI05LockedNormal As Integer = 0
     Public Property SatI05LockedNormal As Integer = 0
-    Public Property SatI05LockedWinde As Integer = 0
+    Public Property BrgI05LockedNormal As Integer = 0
     Public Property BrgI05LockedWinde As Integer = 0
-    Public Property BrgI06WerkstückSteinBlüten As Integer = 0
+    Public Property SatI05LockedWinde As Integer = 0
     Public Property SatI06WerkstückSteinBlüten As Integer = 0
-    Public Property SatI06WerkstückSteinJZeiten As Integer = 0
+    Public Property BrgI06WerkstückSteinBlüten As Integer = 0
     Public Property BrgI06WerkstückSteinJZeiten As Integer = 0
+    Public Property SatI06WerkstückSteinJZeiten As Integer = 0
     Public Property BrgI06WerkstückSteinNormal As Integer = 0
     Public Property SatI06WerkstückSteinNormal As Integer = 0
     Public Property BrgI06WerkstückSteinWinde As Integer = 0
     Public Property SatI06WerkstückSteinWinde As Integer = 0
-    Public Property BrgI07MissingSecondBlüten As Integer = 0
     Public Property SatI07MissingSecondBlüten As Integer = 0
-    Public Property BrgI07MissingSecondJZeiten As Integer = 0
+    Public Property BrgI07MissingSecondBlüten As Integer = 0
     Public Property SatI07MissingSecondJZeiten As Integer = 0
-    Public Property BrgI07MissingSecondNormal As Integer = 0
+    Public Property BrgI07MissingSecondJZeiten As Integer = 0
     Public Property SatI07MissingSecondNormal As Integer = 0
+    Public Property BrgI07MissingSecondNormal As Integer = 0
     Public Property SatI07MissingSecondWinde As Integer = 0
     Public Property BrgI07MissingSecondWinde As Integer = 0
     Public Property SatI08WerkstückEinfügeFehlerBlüten As Integer = 0
     Public Property BrgI08WerkstückEinfügeFehlerBlüten As Integer = 0
-    Public Property BrgI08WerkstückEinfügeFehlerJZeiten As Integer = 0
     Public Property SatI08WerkstückEinfügeFehlerJZeiten As Integer = 0
+    Public Property BrgI08WerkstückEinfügeFehlerJZeiten As Integer = 0
     Public Property BrgI08WerkstückEinfügeFehlerNormal As Integer = 0
     Public Property SatI08WerkstückEinfügeFehlerNormal As Integer = 0
     Public Property BrgI08WerkstückEinfügeFehlerWinde As Integer = 0
@@ -749,12 +785,8 @@ Public Class TileColors
     Public Property BrgI09WerkstückZufallsgrafikJZeiten As Integer = 0
     Public Property BrgI09WerkstückZufallsgrafikNormal As Integer = 0
     Public Property SatI09WerkstückZufallsgrafikNormal As Integer = 0
-    Public Property BrgI09WerkstückZufallsgrafikWinde As Integer = 0
     Public Property SatI09WerkstückZufallsgrafikWinde As Integer = 0
-    Public Property InsertFaceFramAlways As Boolean = False
-    Public Property InsertFaceFrameNever As Boolean = False
-    Public Property InsertFaceFramOnlyMouseOver As Boolean = True
-    Public Property InsertFaceFramOnlyNormaleOne As Boolean = False
+    Public Property BrgI09WerkstückZufallsgrafikWinde As Integer = 0
     Public Property InsertTextBlumen As Boolean = True
     Public Property InsertTextDrachen As Boolean = False
     Public Property InsertTextJZeiten As Boolean = True
@@ -801,6 +833,7 @@ Public Class TileColors
     Public Property BrgLayerUpNormal As Integer = 80
     Public Property SatLayerUpWinde As Integer = 100
     Public Property BrgLayerUpWinde As Integer = 80
+
     Private _ShiftLayerNormalBlüten As Integer = 0
     Public Property ShiftLayerNormalBlüten As Integer
         Get
@@ -1033,10 +1066,15 @@ Public Class TileColors
         End Set
     End Property
 
-    Public Property DSatSummenÄnderung As Decimal = 1D
-    Public Property DBrgSummenÄnderungAdd As Decimal = 0D
-    Public Property DBrgSummenÄnderungMul As Decimal = 1D
-    Public Property DBrgSummenÄnderungMultiplikation As Boolean = True
+    Public Property SumAdjustAlphaAbsolut As Integer = 255
+    Public Property SumAdjustFColorizeColor As String = "FF000000"
+    Public Property SumAdjustFColorizeLevel As Integer = 0
+    Public Property SumAdjustFDeltaBrg As Integer = 0
+    Public Property SumAdjustFDeltaSat As Integer = 0
+    Public Property SumAdjustLColorizeColor As String = "FF000000"
+    Public Property SumAdjustLColorizeLevel As Integer = 0
+    Public Property SumAdjustLDeltaBrg As Integer = 0
+    Public Property SumAdjustLDeltaSat As Integer = 0
     Public Property SymbolColBlauerDrache As String = "00FFFFFF"
     Public Property SymbolColBlüten As String = "00FFFFFF"
     Public Property SymbolColGrünerDrache As String = "00FFFFFF"
@@ -1048,8 +1086,8 @@ Public Class TileColors
     Public Property BrgSymbolGradientTo As Integer = 100
     Public Property SatSymbolGradientTo As Integer = 100
     Public Property SymbolGradientToKoppeln As Boolean = False
-    Public Property BrgSymbolOutline As Integer = 100
     Public Property SatSymbolOutLine As Integer = 100
+    Public Property BrgSymbolOutline As Integer = 100
     Public Property TextColor As String = "FF000000"
     Public Property TextFondStyleBoldOnlySizeGreaterThan As Integer = 100
     Public Property TextFontStyleBold As Boolean = True
@@ -1060,8 +1098,6 @@ Public Class TileColors
     Public Property TextUgrdDiameter As Integer = 0
     Public Property TileBasisHeight As Integer = 230
     Public Property TileBasisWidth As Integer = 200
-    Public Property TilesSpaceBetweenHeight As Integer = 0
-    Public Property TilesSpaceBetweenWidth As Integer = 0
     Public Property UsedFontNotoSansSymbol2 As Boolean
         Get
             Return _SteinFont = SteinFont.Noto
@@ -1286,11 +1322,11 @@ Public Class TileColors
                    Return StringComparer.Ordinal.Compare(left.Name, right.Name)
                End Function)
 
-        Dim lines As New List(Of String)()
-
-        lines.Add("Hash Me        : " & Me.GetMyHash())
-        lines.Add("Hash Vergleich : " & tileColors.GetMyHash())
-        lines.Add(String.Empty)
+        Dim lines As New List(Of String) From {
+            "Hash Me        : " & Me.GetMyHash(),
+            "Hash Vergleich : " & tileColors.GetMyHash(),
+            String.Empty
+        }
 
         For Each prop As PropertyInfo In props
             If Not prop.CanRead Then Continue For
@@ -1327,9 +1363,8 @@ Public Class TileColors
 
     Private _aktRenderMode As AktRenderMode
     Private _steinStatus As SteinStatus
-    Private _steinType As SteinTyp
-    Private _steinTypVersion As SteinTypVersion
-    Private _steinFrameVersion As SteinFrameVersion
+    Private _steinSymbole As SteinSymbol
+    Private _steinSymbolVersion As SteinSymbolVersion
     '
     ''' <summary>
     ''' Der aktuelle SteinStatus minus eins. (also ohne die unsichtbaren Steine) 
@@ -1342,9 +1377,8 @@ Public Class TileColors
         With tileRequest
             _aktRenderMode = .AktRenderMode
             _steinStatus = .SteinStatus
-            _steinType = .SteinTyp
-            _steinTypVersion = .SteinTypVersion
-            _steinFrameVersion = .SteinFrameVersion
+            _steinSymbole = .SteinSymbol
+            _steinSymbolVersion = .SteinSymbolVersion
             _steinSize = .SteinSize
             _steinBasisSize = .SteinBasisSize
 
@@ -1372,10 +1406,6 @@ Public Class TileColors
 
     End Function
 
-    Public Function GetSteinFrameVersion() As SteinFrameVersion
-        Return _steinFrameVersion
-    End Function
-
     Public Function GetSymbolFontFamilyName() As String
         If _SteinFont = SteinFont.Segoe Then
             Return "Segoe UI Symbol"
@@ -1392,173 +1422,173 @@ Public Class TileColors
 
         Select Case _steinStatus
             Case SteinStatus.I01Normal
-                Select Case _steinTypVersion
-                    Case SteinTypVersion.Normal
+                Select Case _steinSymbolVersion
+                    Case SteinSymbolVersion.Normal
                         hue = HueBasisNormal
                         sat = SatI01NormalNormal
                         brg = BrgI01NormalNormal
-                    Case SteinTypVersion.Blüten
+                    Case SteinSymbolVersion.Blüten
                         hue = HueBasisBlüten
                         sat = SatI01NormalBlüten
                         brg = BrgI01NormalBlüten
-                    Case SteinTypVersion.Winde
+                    Case SteinSymbolVersion.Winde
                         hue = HueBasisWinde
                         sat = SatI01NormalWinde
                         brg = BrgI01NormalWinde
-                    Case SteinTypVersion.JZeiten
+                    Case SteinSymbolVersion.JZeiten
                         hue = HueBasisJZeiten
                         sat = SatI01NormalJZeiten
                         brg = BrgI01NormalJZeiten
                 End Select
             Case SteinStatus.I02Selected
-                Select Case _steinTypVersion
-                    Case SteinTypVersion.Normal
+                Select Case _steinSymbolVersion
+                    Case SteinSymbolVersion.Normal
                         hue = HueBasisNormal
                         sat = AddAndClamp(SatI02SelectedNormal, SatI01NormalNormal)
                         brg = AddAndClamp(BrgI02SelectedNormal, BrgI01NormalNormal)
-                    Case SteinTypVersion.Blüten
+                    Case SteinSymbolVersion.Blüten
                         hue = HueBasisBlüten
                         sat = AddAndClamp(SatI02SelectedBlüten, SatI01NormalNormal)
                         brg = AddAndClamp(BrgI02SelectedBlüten, BrgI01NormalNormal)
-                    Case SteinTypVersion.Winde
+                    Case SteinSymbolVersion.Winde
                         hue = HueBasisWinde
                         sat = AddAndClamp(SatI02SelectedWinde, SatI01NormalNormal)
                         brg = AddAndClamp(BrgI02SelectedWinde, BrgI01NormalNormal)
-                    Case SteinTypVersion.JZeiten
+                    Case SteinSymbolVersion.JZeiten
                         hue = HueBasisJZeiten
                         sat = AddAndClamp(SatI02SelectedJZeiten, SatI01NormalNormal)
                         brg = AddAndClamp(BrgI02SelectedJZeiten, BrgI01NormalNormal)
                 End Select
             Case SteinStatus.I03Selectable
-                Select Case _steinTypVersion
-                    Case SteinTypVersion.Normal
+                Select Case _steinSymbolVersion
+                    Case SteinSymbolVersion.Normal
                         hue = HueBasisNormal
                         sat = AddAndClamp(SatI03SelectableNormal, SatI01NormalNormal)
                         brg = AddAndClamp(BrgI03SelectableNormal, BrgI01NormalNormal)
-                    Case SteinTypVersion.Blüten
+                    Case SteinSymbolVersion.Blüten
                         hue = HueBasisBlüten
                         sat = AddAndClamp(SatI03SelectableBlüten, SatI01NormalNormal)
                         brg = AddAndClamp(BrgI03SelectableBlüten, BrgI01NormalNormal)
-                    Case SteinTypVersion.Winde
+                    Case SteinSymbolVersion.Winde
                         hue = HueBasisWinde
                         sat = AddAndClamp(SatI03SelectableWinde, SatI01NormalNormal)
                         brg = AddAndClamp(BrgI03SelectableWinde, BrgI01NormalNormal)
-                    Case SteinTypVersion.JZeiten
+                    Case SteinSymbolVersion.JZeiten
                         hue = HueBasisJZeiten
                         sat = AddAndClamp(SatI03SelectableJZeiten, SatI01NormalNormal)
                         brg = AddAndClamp(BrgI03SelectableJZeiten, BrgI01NormalNormal)
                 End Select
             Case SteinStatus.I04Removable
-                Select Case _steinTypVersion
-                    Case SteinTypVersion.Normal
+                Select Case _steinSymbolVersion
+                    Case SteinSymbolVersion.Normal
                         hue = HueBasisNormal
                         sat = AddAndClamp(SatI04RemovableNormal, SatI01NormalNormal)
                         brg = AddAndClamp(BrgI04RemovableNormal, BrgI01NormalNormal)
-                    Case SteinTypVersion.Blüten
+                    Case SteinSymbolVersion.Blüten
                         hue = HueBasisBlüten
                         sat = AddAndClamp(SatI04RemovableBlüten, SatI01NormalNormal)
                         brg = AddAndClamp(BrgI04RemovableBlüten, BrgI01NormalNormal)
-                    Case SteinTypVersion.Winde
+                    Case SteinSymbolVersion.Winde
                         hue = HueBasisWinde
                         sat = AddAndClamp(SatI04RemovableWinde, SatI01NormalNormal)
                         brg = AddAndClamp(BrgI04RemovableWinde, BrgI01NormalNormal)
-                    Case SteinTypVersion.JZeiten
+                    Case SteinSymbolVersion.JZeiten
                         hue = HueBasisJZeiten
                         sat = AddAndClamp(SatI04RemovableJZeiten, SatI01NormalNormal)
                         brg = AddAndClamp(BrgI04RemovableJZeiten, BrgI01NormalNormal)
                 End Select
             Case SteinStatus.I05Locked
-                Select Case _steinTypVersion
-                    Case SteinTypVersion.Normal
+                Select Case _steinSymbolVersion
+                    Case SteinSymbolVersion.Normal
                         hue = HueBasisNormal
                         sat = AddAndClamp(SatI05LockedNormal, SatI01NormalNormal)
                         brg = AddAndClamp(BrgI05LockedNormal, BrgI01NormalNormal)
-                    Case SteinTypVersion.Blüten
+                    Case SteinSymbolVersion.Blüten
                         hue = HueBasisBlüten
                         sat = AddAndClamp(SatI05LockedBlüten, SatI01NormalNormal)
                         brg = AddAndClamp(BrgI05LockedBlüten, BrgI01NormalNormal)
-                    Case SteinTypVersion.Winde
+                    Case SteinSymbolVersion.Winde
                         hue = HueBasisWinde
                         sat = AddAndClamp(SatI05LockedWinde, SatI01NormalNormal)
                         brg = AddAndClamp(BrgI05LockedWinde, BrgI01NormalNormal)
-                    Case SteinTypVersion.JZeiten
+                    Case SteinSymbolVersion.JZeiten
                         hue = HueBasisJZeiten
                         sat = AddAndClamp(SatI05LockedJZeiten, SatI01NormalNormal)
                         brg = AddAndClamp(BrgI05LockedJZeiten, BrgI01NormalNormal)
                 End Select
             Case SteinStatus.I06WerkstückStein
-                Select Case _steinTypVersion
-                    Case SteinTypVersion.Normal
+                Select Case _steinSymbolVersion
+                    Case SteinSymbolVersion.Normal
                         hue = HueBasisNormal
                         sat = AddAndClamp(SatI06WerkstückSteinNormal, SatI01NormalNormal)
                         brg = AddAndClamp(BrgI06WerkstückSteinNormal, BrgI01NormalNormal)
-                    Case SteinTypVersion.Blüten
+                    Case SteinSymbolVersion.Blüten
                         hue = HueBasisBlüten
                         sat = AddAndClamp(SatI06WerkstückSteinBlüten, SatI01NormalNormal)
                         brg = AddAndClamp(BrgI06WerkstückSteinBlüten, BrgI01NormalNormal)
-                    Case SteinTypVersion.Winde
+                    Case SteinSymbolVersion.Winde
                         hue = HueBasisWinde
                         sat = AddAndClamp(SatI06WerkstückSteinWinde, SatI01NormalNormal)
                         brg = AddAndClamp(BrgI06WerkstückSteinWinde, BrgI01NormalNormal)
-                    Case SteinTypVersion.JZeiten
+                    Case SteinSymbolVersion.JZeiten
                         hue = HueBasisJZeiten
                         sat = AddAndClamp(SatI06WerkstückSteinJZeiten, SatI01NormalNormal)
                         brg = AddAndClamp(BrgI06WerkstückSteinJZeiten, BrgI01NormalNormal)
                 End Select
             Case SteinStatus.I07MissingSecond
-                Select Case _steinTypVersion
-                    Case SteinTypVersion.Normal
+                Select Case _steinSymbolVersion
+                    Case SteinSymbolVersion.Normal
                         hue = HueBasisNormal
                         sat = AddAndClamp(SatI07MissingSecondNormal, SatI01NormalNormal)
                         brg = AddAndClamp(BrgI07MissingSecondNormal, BrgI01NormalNormal)
-                    Case SteinTypVersion.Blüten
+                    Case SteinSymbolVersion.Blüten
                         hue = HueBasisBlüten
                         sat = AddAndClamp(SatI07MissingSecondBlüten, SatI01NormalNormal)
                         brg = AddAndClamp(BrgI07MissingSecondBlüten, BrgI01NormalNormal)
-                    Case SteinTypVersion.Winde
+                    Case SteinSymbolVersion.Winde
                         hue = HueBasisWinde
                         sat = AddAndClamp(SatI07MissingSecondWinde, SatI01NormalNormal)
                         brg = AddAndClamp(BrgI07MissingSecondWinde, BrgI01NormalNormal)
-                    Case SteinTypVersion.JZeiten
+                    Case SteinSymbolVersion.JZeiten
                         hue = HueBasisJZeiten
                         sat = AddAndClamp(SatI07MissingSecondJZeiten, SatI01NormalNormal)
                         brg = AddAndClamp(BrgI07MissingSecondJZeiten, BrgI01NormalNormal)
                 End Select
 
             Case SteinStatus.I08WerkstückEinfügeFehler
-                Select Case _steinTypVersion
-                    Case SteinTypVersion.Normal
+                Select Case _steinSymbolVersion
+                    Case SteinSymbolVersion.Normal
                         hue = HueBasisNormal
                         sat = AddAndClamp(SatI08WerkstückEinfügeFehlerNormal, SatI01NormalNormal)
                         brg = AddAndClamp(BrgI08WerkstückEinfügeFehlerNormal, BrgI01NormalNormal)
-                    Case SteinTypVersion.Blüten
+                    Case SteinSymbolVersion.Blüten
                         hue = HueBasisBlüten
                         sat = AddAndClamp(SatI08WerkstückEinfügeFehlerBlüten, SatI01NormalNormal)
                         brg = AddAndClamp(BrgI08WerkstückEinfügeFehlerBlüten, BrgI01NormalNormal)
-                    Case SteinTypVersion.Winde
+                    Case SteinSymbolVersion.Winde
                         hue = HueBasisWinde
                         sat = AddAndClamp(SatI08WerkstückEinfügeFehlerWinde, SatI01NormalNormal)
                         brg = AddAndClamp(BrgI08WerkstückEinfügeFehlerWinde, BrgI01NormalNormal)
-                    Case SteinTypVersion.JZeiten
+                    Case SteinSymbolVersion.JZeiten
                         hue = HueBasisJZeiten
                         sat = AddAndClamp(SatI08WerkstückEinfügeFehlerJZeiten, SatI01NormalNormal)
                         brg = AddAndClamp(BrgI08WerkstückEinfügeFehlerJZeiten, BrgI01NormalNormal)
                 End Select
             Case SteinStatus.I09WerkstückZufallsgrafik
-                Select Case _steinTypVersion
-                    Case SteinTypVersion.Normal
+                Select Case _steinSymbolVersion
+                    Case SteinSymbolVersion.Normal
                         hue = HueBasisNormal
                         sat = AddAndClamp(SatI09WerkstückZufallsgrafikNormal, SatI01NormalNormal)
                         brg = AddAndClamp(BrgI09WerkstückZufallsgrafikNormal, BrgI01NormalNormal)
-                    Case SteinTypVersion.Blüten
+                    Case SteinSymbolVersion.Blüten
                         hue = HueBasisBlüten
                         sat = AddAndClamp(SatI09WerkstückZufallsgrafikBlüten, SatI01NormalNormal)
                         brg = AddAndClamp(BrgI09WerkstückZufallsgrafikBlüten, BrgI01NormalNormal)
-                    Case SteinTypVersion.Winde
+                    Case SteinSymbolVersion.Winde
                         hue = HueBasisWinde
                         sat = AddAndClamp(SatI09WerkstückZufallsgrafikWinde, SatI01NormalNormal)
                         brg = AddAndClamp(BrgI09WerkstückZufallsgrafikWinde, BrgI01NormalNormal)
-                    Case SteinTypVersion.JZeiten
+                    Case SteinSymbolVersion.JZeiten
                         hue = HueBasisJZeiten
                         sat = AddAndClamp(SatI09WerkstückZufallsgrafikJZeiten, SatI01NormalNormal)
                         brg = AddAndClamp(BrgI09WerkstückZufallsgrafikJZeiten, BrgI01NormalNormal)
@@ -1581,20 +1611,20 @@ Public Class TileColors
         Dim sat As Integer
         Dim brg As Integer
 
-        Select Case _steinTypVersion
-            Case SteinTypVersion.Normal
+        Select Case _steinSymbolVersion
+            Case SteinSymbolVersion.Normal
                 hue = DeltaHueLayerNormal
                 sat = SatLayerUpNormal
                 brg = BrgLayerUpNormal
-            Case SteinTypVersion.Blüten
+            Case SteinSymbolVersion.Blüten
                 hue = DeltaHueLayerBlüten
                 sat = SatLayerUpBlüten
                 brg = BrgLayerUpBlüten
-            Case SteinTypVersion.Winde
+            Case SteinSymbolVersion.Winde
                 hue = DeltaHueLayerWinde
                 sat = SatLayerUpWinde
                 brg = BrgLayerUpWinde
-            Case SteinTypVersion.JZeiten
+            Case SteinSymbolVersion.JZeiten
                 hue = DeltaHueLayerJZeiten
                 sat = SatLayerUpJZeiten
                 brg = BrgLayerUpJZeiten
@@ -1611,20 +1641,20 @@ Public Class TileColors
         Dim sat As Integer
         Dim brg As Integer
 
-        Select Case _steinTypVersion
-            Case SteinTypVersion.Normal
+        Select Case _steinSymbolVersion
+            Case SteinSymbolVersion.Normal
                 hue = DeltaHueLayerNormal
                 sat = SatLayerMidUpNormal
                 brg = BrgLayerMidUpNormal
-            Case SteinTypVersion.Blüten
+            Case SteinSymbolVersion.Blüten
                 hue = DeltaHueLayerBlüten
                 sat = SatLayerMidUpBlüten
                 brg = BrgLayerMidUpBlüten
-            Case SteinTypVersion.Winde
+            Case SteinSymbolVersion.Winde
                 hue = DeltaHueLayerWinde
                 sat = SatLayerMidUpWinde
                 brg = BrgLayerMidUpWinde
-            Case SteinTypVersion.JZeiten
+            Case SteinSymbolVersion.JZeiten
                 hue = DeltaHueLayerJZeiten
                 sat = SatLayerMidUpJZeiten
                 brg = BrgLayerMidUpJZeiten
@@ -1642,20 +1672,20 @@ Public Class TileColors
         Dim sat As Integer
         Dim brg As Integer
 
-        Select Case _steinTypVersion
-            Case SteinTypVersion.Normal
+        Select Case _steinSymbolVersion
+            Case SteinSymbolVersion.Normal
                 hue = DeltaHueLayerNormal
                 sat = SatLayerMidDnNormal
                 brg = BrgLayerMidDnNormal
-            Case SteinTypVersion.Blüten
+            Case SteinSymbolVersion.Blüten
                 hue = DeltaHueLayerBlüten
                 sat = SatLayerMidDnBlüten
                 brg = BrgLayerMidDnBlüten
-            Case SteinTypVersion.Winde
+            Case SteinSymbolVersion.Winde
                 hue = DeltaHueLayerWinde
                 sat = SatLayerMidDnWinde
                 brg = BrgLayerMidDnWinde
-            Case SteinTypVersion.JZeiten
+            Case SteinSymbolVersion.JZeiten
                 hue = DeltaHueLayerJZeiten
                 sat = SatLayerMidDnJZeiten
                 brg = BrgLayerMidDnJZeiten
@@ -1674,20 +1704,20 @@ Public Class TileColors
         Dim sat As Integer
         Dim brg As Integer
 
-        Select Case _steinTypVersion
-            Case SteinTypVersion.Normal
+        Select Case _steinSymbolVersion
+            Case SteinSymbolVersion.Normal
                 hue = DeltaHueLayerNormal
                 sat = SatLayerDnNormal
                 brg = BrgLayerDnNormal
-            Case SteinTypVersion.Blüten
+            Case SteinSymbolVersion.Blüten
                 hue = DeltaHueLayerBlüten
                 sat = SatLayerDnBlüten
                 brg = BrgLayerDnBlüten
-            Case SteinTypVersion.Winde
+            Case SteinSymbolVersion.Winde
                 hue = DeltaHueLayerWinde
                 sat = SatLayerDnWinde
                 brg = BrgLayerDnWinde
-            Case SteinTypVersion.JZeiten
+            Case SteinSymbolVersion.JZeiten
                 hue = DeltaHueLayerJZeiten
                 sat = SatLayerDnJZeiten
                 brg = BrgLayerDnJZeiten
@@ -1706,20 +1736,20 @@ Public Class TileColors
         Dim sat As Integer
         Dim brg As Integer
 
-        Select Case _steinTypVersion
-            Case SteinTypVersion.Normal
+        Select Case _steinSymbolVersion
+            Case SteinSymbolVersion.Normal
                 hue = DeltaHueLayerNormal
                 sat = SatLayerLineNormal
                 brg = BrgLayerLineNormal
-            Case SteinTypVersion.Blüten
+            Case SteinSymbolVersion.Blüten
                 hue = DeltaHueLayerBlüten
                 sat = SatLayerLineBlüten
                 brg = BrgLayerLineBlüten
-            Case SteinTypVersion.Winde
+            Case SteinSymbolVersion.Winde
                 hue = DeltaHueLayerWinde
                 sat = SatLayerLineWinde
                 brg = BrgLayerLineWinde
-            Case SteinTypVersion.JZeiten
+            Case SteinSymbolVersion.JZeiten
                 hue = DeltaHueLayerJZeiten
                 sat = SatLayerLineJZeiten
                 brg = BrgLayerLineJZeiten
@@ -1813,191 +1843,6 @@ Public Class TileColors
         Return New Size(GetTileBasisWidth, GetTileBasisHeight)
     End Function
 
-    Public Function GetColFaceFrame() As Color
-
-        'GetDrawingFaceFrame beachten
-
-        Dim sat As Integer
-        Dim brg As Integer
-
-        If DrawingFaceFrameDebugModePossible() AndAlso DebugShowFaceFrameMouse Then
-            If DebugFaceFrameEditorMouseOver Then
-                Dim col As Color
-                If TryParseArgbHexColor(FaceFrameEditorMouseOver, col) Then
-                    Return col
-                Else
-                    Return Color.Black
-                End If
-            ElseIf DebugFaceFrameEditorMouseSelected Then
-                Dim col As Color
-                If TryParseArgbHexColor(FaceFrameEditorMouseSelected, col) Then
-                    Return col
-                Else
-                    Return Color.Black
-                End If
-            ElseIf DebugFaceFrameEditorCanDrop Then
-                Dim col As Color
-                If TryParseArgbHexColor(FaceFrameEditorCanDrop, col) Then
-                    Return col
-                Else
-                    Return Color.Black
-                End If
-            Else
-                If Debugger.IsAttached Then
-                    Throw New Exception("DrawingFaceFrameDebugModePossible: Dreimal False in GetColFaceFrame")
-                Else
-                    Dim col As Color
-                    If TryParseArgbHexColor(FaceFrameEditorMouseOver, col) Then
-                        Return col
-                    Else
-                        Return Color.Black
-                    End If
-                End If
-            End If
-        End If
-
-        If _steinFrameVersion = SteinFrameVersion.Standard Then
-
-            Select Case _steinTypVersion
-                Case SteinTypVersion.Normal
-                    sat = SatFaceFrameNormal
-                    brg = BrgFaceFrameNormal
-                Case SteinTypVersion.Blüten
-                    sat = SatFaceFrameBlüten
-                    brg = BrgFaceFrameBlüten
-                Case SteinTypVersion.Winde
-                    sat = SatFaceFrameWinde
-                    brg = BrgFaceFrameWinde
-                Case SteinTypVersion.JZeiten
-                    sat = SatFaceFrameJZeiten
-                    brg = BrgFaceFrameJZeiten
-            End Select
-
-            Return New HsbInteger(HueFaceFrame, sat, brg, normaliszeTo361:=True).ToColorB360
-        Else
-
-            Select Case _steinFrameVersion
-                Case SteinFrameVersion.MouseOver
-                    Dim col As Color
-                    If TryParseArgbHexColor(FaceFrameEditorMouseOver, col) Then
-                        Return col
-                    Else
-                        Return Color.Black
-                    End If
-
-                Case SteinFrameVersion.MouseSelected
-                    Dim col As Color
-                    If TryParseArgbHexColor(FaceFrameEditorMouseSelected, col) Then
-                        Return col
-                    Else
-                        Return Color.Black
-                    End If
-
-                Case SteinFrameVersion.MouseCanDrop
-                    Dim col As Color
-                    If TryParseArgbHexColor(FaceFrameEditorCanDrop, col) Then
-                        Return col
-                    Else
-                        Return Color.Black
-                    End If
-
-            End Select
-
-        End If
-
-        Throw New Exception("Ungültige Enumeration in GetColFaceFrame")
-
-    End Function
-
-    Public Function GetInsertFaceFrame() As Boolean
-
-        'GetColFaceFrame beachten
-        If DrawingFaceFrameDebugModePossible() AndAlso DebugShowFaceFrameMouse Then
-            'unabhängig der Auswahl True zurückgeben,
-            'weil die Farben in GetColFaceFrame umgebogen werden.
-            Return True
-        End If
-
-        If InsertFaceFramAlways Then
-            Return True
-        ElseIf InsertFaceFrameNever Then
-            Return False
-        ElseIf InsertFaceFramOnlyMouseOver Then
-            If _steinFrameVersion = SteinFrameVersion.Standard Then
-                Return False
-            Else
-                Return True
-            End If
-        ElseIf InsertFaceFramOnlyNormaleOne Then
-            If _steinFrameVersion = SteinFrameVersion.Standard Then
-                Return True
-            Else
-                Return False
-            End If
-        Else
-            If Debugger.IsAttached Then
-                Throw New Exception("Dreimal False in GetInsertFaceFrame")
-            Else
-                Return True
-            End If
-        End If
-
-    End Function
-
-    Private _drawingFaceFrameDebugModePossible As Boolean?
-
-    Private Function DrawingFaceFrameDebugModePossible() As Boolean
-
-        If Not _drawingFaceFrameDebugModePossible.HasValue Then
-            If My.Application.Info.AssemblyName = DEBUGAPPNAME Then
-                _drawingFaceFrameDebugModePossible = True
-            Else
-                _drawingFaceFrameDebugModePossible = False
-            End If
-        End If
-
-        Return _drawingFaceFrameDebugModePossible.Value
-
-    End Function
-
-    Public Function GetIndexSmallCache() As CacheIndex
-
-        Select Case _aktRenderMode
-            Case AktRenderMode.Spiel
-                Select Case _steinFrameVersion
-                    Case SteinFrameVersion.Standard
-                        Return CacheIndex.SpielStein
-
-                    Case SteinFrameVersion.MouseOver
-                        Return CacheIndex.SpielMouseOver
-
-                    Case SteinFrameVersion.MouseSelected
-                        Return CacheIndex.SpielSelected
-
-                    Case SteinFrameVersion.MouseCanDrop
-                        Return CacheIndex.SpielCanDrop
-                End Select
-            Case AktRenderMode.Edit
-                Select Case _steinFrameVersion
-                    Case SteinFrameVersion.Standard
-                        Return CacheIndex.EditorStein
-
-                    Case SteinFrameVersion.MouseOver
-                        Return CacheIndex.EditorMouseOver
-
-                    Case SteinFrameVersion.MouseSelected
-                        Return CacheIndex.EditorSelected
-
-                    Case SteinFrameVersion.MouseCanDrop
-                        Return CacheIndex.EditorCanDrop
-                End Select
-            Case Else
-        End Select
-        '
-        Throw New Exception("Ungültige Enumeration in GetIndexSmallCache")
-        '
-    End Function
-
     Public Structure SymbolRenderValues
         Public DonotInsertSymbol As Boolean
         Public RenderSymbolHalfSize As Boolean
@@ -2021,31 +1866,31 @@ Public Class TileColors
         Dim srv As New SymbolRenderValues
 
         With srv
-            .Symbol = ResolveSymbolText(_steinType)
+            .Symbol = ResolveSymbolText(_steinSymbole)
 
             .DonotInsertSymbol = DonotInsertSymbol
 
             Dim coltext As String
 
-            Select Case _steinTypVersion
-                Case SteinTypVersion.Blüten
+            Select Case _steinSymbolVersion
+                Case SteinSymbolVersion.Blüten
                     coltext = SymbolColBlüten
 
-                Case SteinTypVersion.JZeiten
+                Case SteinSymbolVersion.JZeiten
                     coltext = SymbolColJZeiten
 
-                Case SteinTypVersion.Winde
+                Case SteinSymbolVersion.Winde
                     coltext = SymbolColWinde
 
-                Case SteinTypVersion.Normal
-                    Select Case _steinType
-                        Case SteinTyp.DracheG
+                Case SteinSymbolVersion.Normal
+                    Select Case _steinSymbole
+                        Case SteinSymbol.DracheG
                             coltext = SymbolColGrünerDrache
 
-                        Case SteinTyp.DracheR
+                        Case SteinSymbol.DracheR
                             coltext = SymbolColRoterDrache
 
-                        Case SteinTyp.DracheW
+                        Case SteinSymbol.DracheW
                             coltext = SymbolColBlauerDrache
 
                         Case Else
@@ -2112,67 +1957,67 @@ Public Class TileColors
 
     End Function
 
-    Private ReadOnly _symbolTextBySteinTyp As _
-        New Dictionary(Of SteinTyp, String) From {
-            {SteinTyp.WindOst, U(&H1F000)},
-            {SteinTyp.WindSüd, U(&H1F001)},
-            {SteinTyp.WindWst, U(&H1F002)},
-            {SteinTyp.WindNrd, U(&H1F003)},
-                                           _
-            {SteinTyp.DracheR, U(&H1F004)},
-            {SteinTyp.DracheG, U(&H1F005)},
-            {SteinTyp.DracheW, U(&H1F006)},
-                                           _
-            {SteinTyp.Symbol1, U(&H1F007)},
-            {SteinTyp.Symbol2, U(&H1F008)},
-            {SteinTyp.Symbol3, U(&H1F009)},
-            {SteinTyp.Symbol4, U(&H1F00A)},
-            {SteinTyp.Symbol5, U(&H1F00B)},
-            {SteinTyp.Symbol6, U(&H1F00C)},
-            {SteinTyp.Symbol7, U(&H1F00D)},
-            {SteinTyp.Symbol8, U(&H1F00E)},
-            {SteinTyp.Symbol9, U(&H1F00F)},
-                                           _
-            {SteinTyp.Bambus1, U(&H1F010)},
-            {SteinTyp.Bambus2, U(&H1F011)},
-            {SteinTyp.Bambus3, U(&H1F012)},
-            {SteinTyp.Bambus4, U(&H1F013)},
-            {SteinTyp.Bambus5, U(&H1F014)},
-            {SteinTyp.Bambus6, U(&H1F015)},
-            {SteinTyp.Bambus7, U(&H1F016)},
-            {SteinTyp.Bambus8, U(&H1F017)},
-            {SteinTyp.Bambus9, U(&H1F018)},
-                                           _
-            {SteinTyp.Punkt01, U(&H1F019)},
-            {SteinTyp.Punkt02, U(&H1F01A)},
-            {SteinTyp.Punkt03, U(&H1F01B)},
-            {SteinTyp.Punkt04, U(&H1F01C)},
-            {SteinTyp.Punkt05, U(&H1F01D)},
-            {SteinTyp.Punkt06, U(&H1F01E)},
-            {SteinTyp.Punkt07, U(&H1F01F)},
-            {SteinTyp.Punkt08, U(&H1F020)},
-            {SteinTyp.Punkt09, U(&H1F021)},
-                                           _
-            {SteinTyp.BlütePf, U(&H1F022)},
-            {SteinTyp.BlüteOr, U(&H1F023)},
-            {SteinTyp.BlüteCt, U(&H1F024)},
-            {SteinTyp.BlüteBa, U(&H1F025)},
-                                           _
-            {SteinTyp.JahrFrl, U(&H1F026)},
-            {SteinTyp.JahrSom, U(&H1F027)},
-            {SteinTyp.JahrHer, U(&H1F028)},
-            {SteinTyp.JahrWin, U(&H1F029)}
+    Private ReadOnly _symbolTextBySteinSymbol As _
+        New Dictionary(Of SteinSymbol, String) From {
+            {SteinSymbol.WindOst, U(&H1F000)},
+            {SteinSymbol.WindSüd, U(&H1F001)},
+            {SteinSymbol.WindWst, U(&H1F002)},
+            {SteinSymbol.WindNrd, U(&H1F003)},
+                                              _
+            {SteinSymbol.DracheR, U(&H1F004)},
+            {SteinSymbol.DracheG, U(&H1F005)},
+            {SteinSymbol.DracheW, U(&H1F006)},
+                                              _
+            {SteinSymbol.Symbol1, U(&H1F007)},
+            {SteinSymbol.Symbol2, U(&H1F008)},
+            {SteinSymbol.Symbol3, U(&H1F009)},
+            {SteinSymbol.Symbol4, U(&H1F00A)},
+            {SteinSymbol.Symbol5, U(&H1F00B)},
+            {SteinSymbol.Symbol6, U(&H1F00C)},
+            {SteinSymbol.Symbol7, U(&H1F00D)},
+            {SteinSymbol.Symbol8, U(&H1F00E)},
+            {SteinSymbol.Symbol9, U(&H1F00F)},
+                                              _
+            {SteinSymbol.Bambus1, U(&H1F010)},
+            {SteinSymbol.Bambus2, U(&H1F011)},
+            {SteinSymbol.Bambus3, U(&H1F012)},
+            {SteinSymbol.Bambus4, U(&H1F013)},
+            {SteinSymbol.Bambus5, U(&H1F014)},
+            {SteinSymbol.Bambus6, U(&H1F015)},
+            {SteinSymbol.Bambus7, U(&H1F016)},
+            {SteinSymbol.Bambus8, U(&H1F017)},
+            {SteinSymbol.Bambus9, U(&H1F018)},
+                                              _
+            {SteinSymbol.Punkt01, U(&H1F019)},
+            {SteinSymbol.Punkt02, U(&H1F01A)},
+            {SteinSymbol.Punkt03, U(&H1F01B)},
+            {SteinSymbol.Punkt04, U(&H1F01C)},
+            {SteinSymbol.Punkt05, U(&H1F01D)},
+            {SteinSymbol.Punkt06, U(&H1F01E)},
+            {SteinSymbol.Punkt07, U(&H1F01F)},
+            {SteinSymbol.Punkt08, U(&H1F020)},
+            {SteinSymbol.Punkt09, U(&H1F021)},
+                                              _
+            {SteinSymbol.BlütePf, U(&H1F022)},
+            {SteinSymbol.BlüteOr, U(&H1F023)},
+            {SteinSymbol.BlüteCt, U(&H1F024)},
+            {SteinSymbol.BlüteBa, U(&H1F025)},
+                                              _
+            {SteinSymbol.JahrFrl, U(&H1F026)},
+            {SteinSymbol.JahrSom, U(&H1F027)},
+            {SteinSymbol.JahrHer, U(&H1F028)},
+            {SteinSymbol.JahrWin, U(&H1F029)}
         }
 
     Private Function U(codePoint As Integer) As String
         Return Char.ConvertFromUtf32(codePoint)
     End Function
 
-    Private Function ResolveSymbolText(steinTyp As SteinTyp) As String
+    Private Function ResolveSymbolText(steinSymbol As SteinSymbol) As String
 
         Dim result As String = Nothing
 
-        If _symbolTextBySteinTyp.TryGetValue(steinTyp, result) Then
+        If _symbolTextBySteinSymbol.TryGetValue(steinSymbol, result) Then
             Return result
         End If
 
@@ -2244,30 +2089,30 @@ Public Class TileColors
 
             .Text = String.Empty 'Default
 
-            Select Case _steinTypVersion
-                Case SteinTypVersion.Blüten
+            Select Case _steinSymbolVersion
+                Case SteinSymbolVersion.Blüten
                     If InsertTextBlumen Then .Text = txtSymb.Substring(5, 1)
-                Case SteinTypVersion.JZeiten
+                Case SteinSymbolVersion.JZeiten
                     If InsertTextJZeiten Then .Text = txtSymb.Substring(6, 1)
-                Case SteinTypVersion.Winde
+                Case SteinSymbolVersion.Winde
                     useArial = True
-                    Select Case _steinType
-                        Case SteinTyp.WindOst
+                    Select Case _steinSymbole
+                        Case SteinSymbol.WindOst
                             If InsertTextWinde Then .Text = txtSymb.Substring(2, 1)
-                        Case SteinTyp.WindNrd
+                        Case SteinSymbol.WindNrd
                             If InsertTextWinde Then .Text = txtSymb.Substring(0, 1)
-                        Case SteinTyp.WindSüd
+                        Case SteinSymbol.WindSüd
                             If InsertTextWinde Then .Text = txtSymb.Substring(1, 1)
-                        Case SteinTyp.WindWst
+                        Case SteinSymbol.WindWst
                             If InsertTextWinde Then .Text = txtSymb.Substring(3, 1)
                     End Select
-                Case SteinTypVersion.Normal
-                    Select Case _steinType
-                        Case SteinTyp.DracheG
+                Case SteinSymbolVersion.Normal
+                    Select Case _steinSymbole
+                        Case SteinSymbol.DracheG
                             If InsertTextDrachen Then .Text = txtSymb.Substring(4, 1)
-                        Case SteinTyp.DracheR
+                        Case SteinSymbol.DracheR
                             If InsertTextDrachen Then .Text = txtSymb.Substring(4, 1)
-                        Case SteinTyp.DracheW
+                        Case SteinSymbol.DracheW
                             If InsertTextDrachen Then .Text = txtSymb.Substring(4, 1)
                     End Select
             End Select
@@ -2287,7 +2132,7 @@ Public Class TileColors
             If useArial Then
                 .FontFamilyName = "Arial"
             Else
-                If _steinTypVersion = SteinTypVersion.Winde Then
+                If _steinSymbolVersion = SteinSymbolVersion.Winde Then
                     'Das sind die Buchstaben, die in Arial besser sind
                     .FontFamilyName = "Arial"
                 Else
@@ -2309,7 +2154,14 @@ Public Class TileColors
             .HasText = .Text <> String.Empty
 
             If DonotInsertSymbol Then
-                .HasText = False
+                If .Text.Length = 1 Then
+                    If .Text <> "!" Then
+                        .HasText = False
+                    End If
+                Else
+                    'das ist das "!" für MissingSecond, das weiterhin ausgegeben werden muss.
+                    .Text = .Text.Substring(2)
+                End If
             End If
 
             'Exponent 1.0 = linear, zu stark
@@ -2488,6 +2340,139 @@ Public Class TileColors
 
     End Function
 
+    '####################################################################
+    Public Structure AdjustAlphaSatBrgColorizeValues
+        Public HasValues As Boolean
+        Public alphaAbsolut As Integer
+        Public deltaSaturation As Integer ' -100 bis +100
+        Public deltaBrightness As Integer ' -100 bis +100
+        Public colorizeColor As Color
+        Public colorizeLevel As Integer   ' 0 nicht einfärben, 100 deckend einfärben
+    End Structure
+
+    Public Function GetCvtToGhostValues(sg As SteinGhost, faceValues As Boolean) As AdjustAlphaSatBrgColorizeValues
+
+        Dim cvtVal As New AdjustAlphaSatBrgColorizeValues
+
+        If sg = SteinGhost.None Then
+            Return cvtVal 'wichtig ist hier, daß HasValues = False.
+        End If
+
+        Dim colStrg As String
+
+        With cvtVal
+            If faceValues Then
+                Select Case sg
+                    Case SteinGhost.Dark
+                        .alphaAbsolut = Ghost1AlphaAbsolut
+                        .deltaSaturation = Ghost1FDeltaSat
+                        .deltaBrightness = Ghost1FDeltaBrg
+                        colStrg = Ghost1FColorizeColor
+                        .colorizeLevel = Ghost1FColorizeLevel
+
+                    Case SteinGhost.Medium
+                        .alphaAbsolut = Ghost2AlphaAbsolut
+                        .deltaSaturation = Ghost2FDeltaSat
+                        .deltaBrightness = Ghost2FDeltaBrg
+                        colStrg = Ghost2FColorizeColor
+                        .colorizeLevel = Ghost2FColorizeLevel
+
+                    Case SteinGhost.Light
+                        .alphaAbsolut = Ghost3AlphaAbsolut
+                        .deltaSaturation = Ghost3FDeltaSat
+                        .deltaBrightness = Ghost3FDeltaBrg
+                        colStrg = Ghost3FColorizeColor
+                        .colorizeLevel = Ghost3FColorizeLevel
+
+                    Case Else
+                        Throw New Exception("Unbekannte Enumeration")
+                End Select
+            Else 'LayerValues
+                Select Case sg
+                    Case SteinGhost.Dark
+                        .alphaAbsolut = Ghost1AlphaAbsolut
+                        .deltaSaturation = Ghost1LDeltaSat
+                        .deltaBrightness = Ghost1LDeltaBrg
+                        colStrg = Ghost1LColorizeColor
+                        .colorizeLevel = Ghost1LColorizeLevel
+
+                    Case SteinGhost.Medium
+                        .alphaAbsolut = Ghost2AlphaAbsolut
+                        .deltaSaturation = Ghost2LDeltaSat
+                        .deltaBrightness = Ghost2LDeltaBrg
+                        colStrg = Ghost2LColorizeColor
+                        .colorizeLevel = Ghost2LColorizeLevel
+
+                    Case SteinGhost.Light
+                        .alphaAbsolut = Ghost3AlphaAbsolut
+                        .deltaSaturation = Ghost3LDeltaSat
+                        .deltaBrightness = Ghost3LDeltaBrg
+                        colStrg = Ghost3LColorizeColor
+                        .colorizeLevel = Ghost3LColorizeLevel
+
+                    Case Else
+                        Throw New Exception("Unbekannte Enumeration")
+                End Select
+            End If
+
+            Dim tmpCol As Color
+            If TryParseArgbHexColor(colStrg, tmpCol) Then
+                .colorizeColor = tmpCol
+            Else
+                .colorizeColor = Color.Black 'irgend eine Farbe
+                .colorizeLevel = 0 '          abschalten
+            End If
+
+            .HasValues = .alphaAbsolut <> 255 OrElse
+                         .deltaSaturation <> 0 OrElse
+                         .deltaBrightness <> 0 OrElse
+                         .colorizeLevel <> 0
+
+        End With
+
+        Return cvtVal
+
+    End Function
+
+    Public Function GetSumAdjustValues(faceValues As Boolean) As AdjustAlphaSatBrgColorizeValues
+
+        Dim cvtVal As New AdjustAlphaSatBrgColorizeValues
+        Dim tmpCol As Color
+        Dim colStrg As String
+
+        With cvtVal
+            If faceValues Then
+                .alphaAbsolut = SumAdjustAlphaAbsolut
+                .deltaSaturation = SumAdjustFDeltaSat
+                .deltaBrightness = SumAdjustFDeltaBrg
+                .colorizeLevel = SumAdjustFColorizeLevel
+                colStrg = SumAdjustFColorizeColor
+
+            Else 'Layer
+                .alphaAbsolut = SumAdjustAlphaAbsolut
+                .deltaSaturation = SumAdjustLDeltaSat
+                .deltaBrightness = SumAdjustLDeltaBrg
+                .colorizeLevel = SumAdjustLColorizeLevel
+                colStrg = SumAdjustLColorizeColor
+            End If
+
+            If TryParseArgbHexColor(SumAdjustLColorizeColor, tmpCol) Then
+                .colorizeColor = tmpCol
+            Else
+                .colorizeColor = Color.Black 'irgend eine Farbe
+                .colorizeLevel = 0 '          abschalten
+            End If
+
+            .HasValues = .alphaAbsolut <> 255 OrElse
+            .deltaSaturation <> 0 OrElse
+            .deltaBrightness <> 0 OrElse
+            .colorizeLevel <> 0
+
+            Return cvtVal
+
+        End With
+    End Function
+
 #End Region
 
 #Region "ShiftXxx"
@@ -2507,108 +2492,108 @@ Public Class TileColors
     '
     '
     Private Sub CreateShiftLayerNormalNormal(shift As Integer)
-        CreateShiftLayer(SteinStatus.I01Normal, SteinTypVersion.Normal, shift)
+        CreateShiftLayer(SteinStatus.I01Normal, SteinSymbolVersion.Normal, shift)
     End Sub
     Private Sub CreateShiftLayerNormalBlüten(shift As Integer)
-        CreateShiftLayer(SteinStatus.I01Normal, SteinTypVersion.Blüten, shift)
+        CreateShiftLayer(SteinStatus.I01Normal, SteinSymbolVersion.Blüten, shift)
     End Sub
     Private Sub CreateShiftLayerNormalWinde(shift As Integer)
-        CreateShiftLayer(SteinStatus.I01Normal, SteinTypVersion.Winde, shift)
+        CreateShiftLayer(SteinStatus.I01Normal, SteinSymbolVersion.Winde, shift)
     End Sub
     Private Sub CreateShiftLayerNormalJZeiten(shift As Integer)
-        CreateShiftLayer(SteinStatus.I01Normal, SteinTypVersion.JZeiten, shift)
+        CreateShiftLayer(SteinStatus.I01Normal, SteinSymbolVersion.JZeiten, shift)
     End Sub
     '
     '
     Private Sub CreateShiftLayerSelectedNormal(shift As Integer)
-        CreateShiftLayer(SteinStatus.I02Selected, SteinTypVersion.Normal, shift)
+        CreateShiftLayer(SteinStatus.I02Selected, SteinSymbolVersion.Normal, shift)
     End Sub
     Private Sub CreateShiftLayerSelectedBlüten(shift As Integer)
-        CreateShiftLayer(SteinStatus.I02Selected, SteinTypVersion.Blüten, shift)
+        CreateShiftLayer(SteinStatus.I02Selected, SteinSymbolVersion.Blüten, shift)
     End Sub
     Private Sub CreateShiftLayerSelectedWinde(shift As Integer)
-        CreateShiftLayer(SteinStatus.I02Selected, SteinTypVersion.Winde, shift)
+        CreateShiftLayer(SteinStatus.I02Selected, SteinSymbolVersion.Winde, shift)
     End Sub
     Private Sub CreateShiftLayerSelectedJZeiten(shift As Integer)
-        CreateShiftLayer(SteinStatus.I02Selected, SteinTypVersion.JZeiten, shift)
+        CreateShiftLayer(SteinStatus.I02Selected, SteinSymbolVersion.JZeiten, shift)
     End Sub
     '
     '
     Private Sub CreateShiftLayerSelectableNormal(shift As Integer)
-        CreateShiftLayer(SteinStatus.I03Selectable, SteinTypVersion.Normal, shift)
+        CreateShiftLayer(SteinStatus.I03Selectable, SteinSymbolVersion.Normal, shift)
     End Sub
     Private Sub CreateShiftLayerSelectableBlüten(shift As Integer)
-        CreateShiftLayer(SteinStatus.I03Selectable, SteinTypVersion.Blüten, shift)
+        CreateShiftLayer(SteinStatus.I03Selectable, SteinSymbolVersion.Blüten, shift)
     End Sub
     Private Sub CreateShiftLayerSelectableWinde(shift As Integer)
-        CreateShiftLayer(SteinStatus.I03Selectable, SteinTypVersion.Winde, shift)
+        CreateShiftLayer(SteinStatus.I03Selectable, SteinSymbolVersion.Winde, shift)
     End Sub
     Private Sub CreateShiftLayerSelectableJZeiten(shift As Integer)
-        CreateShiftLayer(SteinStatus.I03Selectable, SteinTypVersion.JZeiten, shift)
+        CreateShiftLayer(SteinStatus.I03Selectable, SteinSymbolVersion.JZeiten, shift)
     End Sub
     '
     '
     Private Sub CreateShiftLayerRemovableNormal(shift As Integer)
-        CreateShiftLayer(SteinStatus.I04Removable, SteinTypVersion.Normal, shift)
+        CreateShiftLayer(SteinStatus.I04Removable, SteinSymbolVersion.Normal, shift)
     End Sub
     Private Sub CreateShiftLayerRemovableBlüten(shift As Integer)
-        CreateShiftLayer(SteinStatus.I04Removable, SteinTypVersion.Blüten, shift)
+        CreateShiftLayer(SteinStatus.I04Removable, SteinSymbolVersion.Blüten, shift)
     End Sub
     Private Sub CreateShiftLayerRemovableWinde(shift As Integer)
-        CreateShiftLayer(SteinStatus.I04Removable, SteinTypVersion.Winde, shift)
+        CreateShiftLayer(SteinStatus.I04Removable, SteinSymbolVersion.Winde, shift)
     End Sub
     Private Sub CreateShiftLayerRemovableJZeiten(shift As Integer)
-        CreateShiftLayer(SteinStatus.I04Removable, SteinTypVersion.JZeiten, shift)
+        CreateShiftLayer(SteinStatus.I04Removable, SteinSymbolVersion.JZeiten, shift)
     End Sub
     '
     '
     Private Sub CreateDShiftNormalBlüten(shift As Integer)
-        CreateDShift(steinStatus:=SteinStatus.I01Normal, steinTypVersion:=SteinTypVersion.Blüten, shift)
+        CreateDShift(steinStatus:=SteinStatus.I01Normal, steinSymbolVersion:=SteinSymbolVersion.Blüten, shift)
     End Sub
     Private Sub CreateDShiftNormalJZeiten(shift As Integer)
-        CreateDShift(steinStatus:=SteinStatus.I01Normal, steinTypVersion:=SteinTypVersion.JZeiten, shift)
+        CreateDShift(steinStatus:=SteinStatus.I01Normal, steinSymbolVersion:=SteinSymbolVersion.JZeiten, shift)
     End Sub
     Private Sub CreateDShiftNormalNormal(shift As Integer)
-        CreateDShift(steinStatus:=SteinStatus.I01Normal, steinTypVersion:=SteinTypVersion.Normal, shift)
+        CreateDShift(steinStatus:=SteinStatus.I01Normal, steinSymbolVersion:=SteinSymbolVersion.Normal, shift)
     End Sub
     Private Sub CreateDShiftNormalWinde(shift As Integer)
-        CreateDShift(steinStatus:=SteinStatus.I01Normal, steinTypVersion:=SteinTypVersion.Winde, shift)
+        CreateDShift(steinStatus:=SteinStatus.I01Normal, steinSymbolVersion:=SteinSymbolVersion.Winde, shift)
     End Sub
     Private Sub CreateDShiftRemovableBlüten(shift As Integer)
-        CreateDShift(steinStatus:=SteinStatus.I04Removable, steinTypVersion:=SteinTypVersion.Blüten, shift)
+        CreateDShift(steinStatus:=SteinStatus.I04Removable, steinSymbolVersion:=SteinSymbolVersion.Blüten, shift)
     End Sub
     Private Sub CreateDShiftRemovableJZeiten(shift As Integer)
-        CreateDShift(steinStatus:=SteinStatus.I04Removable, steinTypVersion:=SteinTypVersion.JZeiten, shift)
+        CreateDShift(steinStatus:=SteinStatus.I04Removable, steinSymbolVersion:=SteinSymbolVersion.JZeiten, shift)
     End Sub
     Private Sub CreateDShiftRemovableNormal(shift As Integer)
-        CreateDShift(steinStatus:=SteinStatus.I04Removable, steinTypVersion:=SteinTypVersion.Normal, shift)
+        CreateDShift(steinStatus:=SteinStatus.I04Removable, steinSymbolVersion:=SteinSymbolVersion.Normal, shift)
     End Sub
     Private Sub CreateDShiftRemovableWinde(shift As Integer)
-        CreateDShift(steinStatus:=SteinStatus.I04Removable, steinTypVersion:=SteinTypVersion.Winde, shift)
+        CreateDShift(steinStatus:=SteinStatus.I04Removable, steinSymbolVersion:=SteinSymbolVersion.Winde, shift)
     End Sub
     Private Sub CreateDShiftSelectableBlüten(shift As Integer)
-        CreateDShift(steinStatus:=SteinStatus.I03Selectable, steinTypVersion:=SteinTypVersion.Blüten, shift)
+        CreateDShift(steinStatus:=SteinStatus.I03Selectable, steinSymbolVersion:=SteinSymbolVersion.Blüten, shift)
     End Sub
     Private Sub CreateDShiftSelectableJZeiten(shift As Integer)
-        CreateDShift(steinStatus:=SteinStatus.I03Selectable, steinTypVersion:=SteinTypVersion.JZeiten, shift)
+        CreateDShift(steinStatus:=SteinStatus.I03Selectable, steinSymbolVersion:=SteinSymbolVersion.JZeiten, shift)
     End Sub
     Private Sub CreateDShiftSelectableNormal(shift As Integer)
-        CreateDShift(steinStatus:=SteinStatus.I03Selectable, steinTypVersion:=SteinTypVersion.Normal, shift)
+        CreateDShift(steinStatus:=SteinStatus.I03Selectable, steinSymbolVersion:=SteinSymbolVersion.Normal, shift)
     End Sub
     Private Sub CreateDShiftSelectableWinde(shift As Integer)
-        CreateDShift(steinStatus:=SteinStatus.I03Selectable, steinTypVersion:=SteinTypVersion.Winde, shift)
+        CreateDShift(steinStatus:=SteinStatus.I03Selectable, steinSymbolVersion:=SteinSymbolVersion.Winde, shift)
     End Sub
     Private Sub CreateDShiftSelectedBlüten(shift As Integer)
-        CreateDShift(steinStatus:=SteinStatus.I02Selected, steinTypVersion:=SteinTypVersion.Blüten, shift)
+        CreateDShift(steinStatus:=SteinStatus.I02Selected, steinSymbolVersion:=SteinSymbolVersion.Blüten, shift)
     End Sub
     Private Sub CreateDShiftSelectedJZeiten(shift As Integer)
-        CreateDShift(steinStatus:=SteinStatus.I02Selected, steinTypVersion:=SteinTypVersion.JZeiten, shift)
+        CreateDShift(steinStatus:=SteinStatus.I02Selected, steinSymbolVersion:=SteinSymbolVersion.JZeiten, shift)
     End Sub
     Private Sub CreateDShiftSelectedNormal(shift As Integer)
-        CreateDShift(steinStatus:=SteinStatus.I02Selected, steinTypVersion:=SteinTypVersion.Normal, shift)
+        CreateDShift(steinStatus:=SteinStatus.I02Selected, steinSymbolVersion:=SteinSymbolVersion.Normal, shift)
     End Sub
     Private Sub CreateDShiftSelectedWinde(shift As Integer)
-        CreateDShift(steinStatus:=SteinStatus.I02Selected, steinTypVersion:=SteinTypVersion.Winde, shift)
+        CreateDShift(steinStatus:=SteinStatus.I02Selected, steinSymbolVersion:=SteinSymbolVersion.Winde, shift)
     End Sub
 
     Private _shiftLightMapLookup(3, 255) As Integer
@@ -2621,25 +2606,25 @@ Public Class TileColors
             _shiftLightMapLookup(index - 1, idx) = arr(idx)
         Next
     End Sub
-    Private Sub CreateShiftLayer(steinStatus As SteinStatus, steinTypVersion As SteinTypVersion, shift As Integer)
+    Private Sub CreateShiftLayer(steinStatus As SteinStatus, steinSymbolVersion As SteinSymbolVersion, shift As Integer)
         Dim idxSteinStatus As Integer = GetSteinStatusForLookup(steinStatus)
-        Dim idxSteinTypVersion As Integer = steinTypVersion
+        Dim idxSteinSymbolVersion As Integer = steinSymbolVersion
 
         Dim arr() As Integer = CreateLinearGrayLookup(shift)
         For idxLookUp As Integer = 0 To 255
-            _shiftLayerLookup(idxSteinStatus, idxSteinTypVersion, idxLookUp) = arr(idxLookUp)
+            _shiftLayerLookup(idxSteinStatus, idxSteinSymbolVersion, idxLookUp) = arr(idxLookUp)
         Next
 
     End Sub
 
-    Private Sub CreateDShift(steinStatus As SteinStatus, steinTypVersion As SteinTypVersion, shift As Integer)
+    Private Sub CreateDShift(steinStatus As SteinStatus, steinSymbolVersion As SteinSymbolVersion, shift As Integer)
 
         Dim idxSteinStatus As Integer = GetSteinStatusForLookup(steinStatus)
-        Dim idxSteinTypVersion As Integer = steinTypVersion
+        Dim idxSteinSymbolVersion As Integer = steinSymbolVersion
 
         Dim arr() As Integer = CreateLinearGrayLookup(shift)
         For idxLookUp As Integer = 0 To 255
-            _dShiftLightMapLookup(idxSteinStatus, idxSteinTypVersion, idxLookUp) = arr(idxLookUp)
+            _dShiftLightMapLookup(idxSteinStatus, idxSteinSymbolVersion, idxLookUp) = arr(idxLookUp)
         Next
 
     End Sub
@@ -2704,7 +2689,7 @@ Public Class TileColors
             Return color
         End If
 
-        Dim newMax As Integer = CInt(_shiftLayerLookup(_idxSteinStatusForLookup, _steinTypVersion, oldMax))
+        Dim newMax As Integer = CInt(_shiftLayerLookup(_idxSteinStatusForLookup, _steinSymbolVersion, oldMax))
 
         Dim rNew As Integer = (r * newMax + (oldMax \ 2)) \ oldMax
         Dim gNew As Integer = (g * newMax + (oldMax \ 2)) \ oldMax
@@ -3093,7 +3078,7 @@ Public Class TileColors
 
         Dim filePath As String = String.Empty
         Dim tempPath As String = String.Empty
-        Dim backupPath As String = String.Empty
+        Dim backupPath As String
 
         Try
             Me.UseDevelopmentPath = useDevelopmentPath

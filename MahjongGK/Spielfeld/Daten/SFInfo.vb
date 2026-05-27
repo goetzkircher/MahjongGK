@@ -40,6 +40,7 @@ Namespace Spielfeld
     ''' Pfad: MahjongGK/Spielfeld/Daten
     ''' Die Klasse hieß ursprünglich SpielFeldInfo und beinhaltet alle Spielfeld-Daten
     ''' darunter eine List(Of SteinInfo), die die SteinInfo für jeden Stein hält.
+    ''' Das ist die Klasse, die gespeichert wird.
     ''' </summary>
     Public Class SFInfo
 
@@ -394,11 +395,6 @@ Namespace Spielfeld
 
 #Region "arrFB Serialisierung / Laufzeitobjekte"
 
-        <XmlIgnore>
-        Public Property Generator As SpielsteinGenerator = Nothing
-
-        Public Property GeneratorValuesForXml As SpielsteinGeneratorValuesForXml = Nothing
-
         Private _arrFB As Integer(,,)
 
         <XmlIgnore>
@@ -425,6 +421,71 @@ Namespace Spielfeld
                 End If
             End Set
         End Property
+
+        <XmlIgnore>
+        Public Property Generator As SpielsteinGenerator = Nothing
+
+        Public Property GeneratorValuesForXml As SpielsteinGeneratorValuesForXml = Nothing
+
+        Public Property EditorUndo As New EditorUndoItems
+
+        Private _undoText As String
+        Private _undoStep As Integer = -1
+        Private Const STEPSVISIBLE As Integer = 30
+
+        Public ReadOnly Property HasUndoText As Boolean
+            Get
+                Return _undoStep >= 0
+            End Get
+        End Property
+        '
+        ''' <summary>
+        ''' Text, der sowohl im Edtor als auch im Stock links mittig
+        ''' in rxHeader ausgegeben wird und der nach STEPSVISIBLE Rendersteps
+        ''' sich selber löscht.
+        ''' </summary>
+        ''' <returns></returns>
+        Public ReadOnly Property ConsumeUndoText As String
+            Get
+                _undoStep -= 1
+                If _undoStep < 0 Then
+                    _undoText = String.Empty
+                End If
+                Return _undoText
+            End Get
+        End Property
+
+        Public Sub SetUndoText(text As String)
+            If Not String.IsNullOrEmpty(text) Then
+                _undoStep = STEPSVISIBLE
+                _undoText = text
+            Else
+                _undoStep = -1
+                _undoText = String.Empty
+            End If
+        End Sub
+        Public Sub SetUndoText(job As UnReDoJob)
+
+            Select Case job
+                Case UnReDoJob.EtoE
+                    SetUndoText("Undo Edit->Edit")
+                Case UnReDoJob.EtoS
+                    SetUndoText("Undo Edit-Stock")
+                Case UnReDoJob.FillStock
+                    SetUndoText("Undo Füllen")
+                Case UnReDoJob.None
+                    SetUndoText("Nichts")
+                Case UnReDoJob.SortStock
+                    SetUndoText("Undo Sort")
+                Case UnReDoJob.StoE
+                    SetUndoText("Undo Stock-Editor")
+                Case UnReDoJob.StoS
+                    SetUndoText("Undo Stock-Stoc")
+                Case Else
+                    SetUndoText("???")
+            End Select
+
+        End Sub
 
 #End Region
 
@@ -802,7 +863,7 @@ Namespace Spielfeld
         ''' </summary>
         ''' <param name="steinPos3D"></param>
         ''' <returns></returns>
-        Public Function AddSteinToSpielfeld(steinIndex As SteinTyp, steinPos3D As Triple) As Boolean
+        Public Function AddSteinToSpielfeld(steinIndex As SteinSymbol, steinPos3D As Triple) As Boolean
 
             'Der steinInfoIndex wird hier gesichert, obwohl er gleichlautend ist mit dem
             'Index in SteinInfos. Grund: werden später Steine im Editor entfernt, verschieben sich die
@@ -837,14 +898,14 @@ Namespace Spielfeld
                                 tpl.y = 2
 
                                 'SetStein rekursiv, aber mit jetzt gültigen Werten aufrufen
-                                AddSteinToSpielfeld(SteinTyp.ErrorSy, tpl)
+                                AddSteinToSpielfeld(SteinSymbol.ErrorSy, tpl)
                                 Return False
                             End If
 
                         Case ValidePlace.Yes, ValidePlace.NoFundamentFound
                             ' FoundResult.NoFundament ist in diesem Fall OK, er wird zum freischwebendem Stein.
                             'SetStein rekursiv, aber mit jetzt gültigen Werten aufrufen
-                            AddSteinToSpielfeld(SteinTyp.ErrorSy, tplR)
+                            AddSteinToSpielfeld(SteinSymbol.ErrorSy, tplR)
                             Return False
                     End Select
                 Loop
@@ -904,14 +965,14 @@ Namespace Spielfeld
                                 tpl.y = 2
 
                                 'SetStein rekursiv, aber mit jetzt gültigen Werten aufrufen
-                                AddSteinToSpielfeld(SteinTyp.ErrorSy, tpl)
+                                AddSteinToSpielfeld(SteinSymbol.ErrorSy, tpl)
                                 Return False
                             End If
 
                         Case ValidePlace.Yes, ValidePlace.NoFundamentFound
                             ' FoundResult.NoFundament ist in diesem Fall OK, er wird zum freischwebendem Stein.
                             'SetStein rekursiv, aber mit jetzt gültigen Werten aufrufen
-                            AddSteinToSpielfeld(SteinTyp.ErrorSy, tplR)
+                            AddSteinToSpielfeld(SteinSymbol.ErrorSy, tplR)
                             Return False
                     End Select
                 Loop
@@ -1008,7 +1069,7 @@ Namespace Spielfeld
         ''' Hinweis: Um ihn nicht mehr anzuzeigen muß er nicht entfernt werden. Dazu wird
         ''' lediglich in arrFB IsRemoved gesetzt.
         ''' </summary>
-        Public Sub RemoveSteinFromSpielfeld(steinInfoIndex As Integer)
+        Public Sub RealRemoveSteinFromSpielfeld(steinInfoIndex As Integer)
 
             If steinInfoIndex >= SteinInfos.Count Then
                 Throw New Exception($"Programmierfehler: Versuch mit dem nicht vorhandenen steinInfoIndex = {steinInfoIndex} einen Stein zu entfernen.")
@@ -1046,34 +1107,34 @@ Namespace Spielfeld
         ''' Entfernt den Stein vom Spielfeld (Nicht verwechseln mit IsRemoved, dem Flag) 
         ''' </summary>
         ''' <param name="steinInfo"></param>
-        Public Sub RemoveSteinFromSpielfeld(steinInfo As SteinInfo)
-            RemoveSteinFromSpielfeld(steinInfo.SteinInfoIndex)
+        Public Sub RealRemoveSteinFromSpielfeld(steinInfo As SteinInfo)
+            RealRemoveSteinFromSpielfeld(steinInfo.SteinInfoIndex)
         End Sub
         '
         ''' <summary>
         ''' Entfernt den Stein vom Spielfeld (Nicht verwechseln mit IsRemoved, dem Flag) 
         ''' </summary>
         ''' <param name="triple"></param>
-        Public Sub RemoveSteinFromSpielfeld(triple As Triple)
-            RemoveSteinFromSpielfeld(GetSteinInfoIndex(triple))
+        Public Sub RealRemoveSteinFromSpielfeld(triple As Triple)
+            RealRemoveSteinFromSpielfeld(GetSteinInfoIndex(triple))
         End Sub
         '
         ''' <summary>
         ''' Entfernt den Stein vom Spielfeld (Nicht verwechseln mit IsRemoved, dem Flag) 
         ''' </summary>
         ''' <param name="tripleX"></param>
-        Public Sub RemoveSteinFromSpielfeld(tripleX As TripleX)
-            RemoveSteinFromSpielfeld(GetSteinInfoIndex(tripleX.ToTriple))
+        Public Sub RealRemoveSteinFromSpielfeld(tripleX As TripleX)
+            RealRemoveSteinFromSpielfeld(GetSteinInfoIndex(tripleX.ToTriple))
         End Sub
         '
         ''' <summary>
         ''' Entfernt den Stein vom Spielfeld (Nicht verwechseln mit IsRemoved, dem Flag) 
         ''' </summary>
-        Public Sub RemoveLastSteinFromSpielfeld()
+        Public Sub RealRemoveLastSteinFromSpielfeld()
             If SteinInfos.Count = 0 Then
                 Exit Sub
             Else
-                RemoveSteinFromSpielfeld(steinInfoIndex:=SteinInfos.Count - 1)
+                RealRemoveSteinFromSpielfeld(steinInfoIndex:=SteinInfos.Count - 1)
             End If
         End Sub
 
@@ -1081,7 +1142,7 @@ Namespace Spielfeld
 
 #Region "Spielfeld - interne AddRenderBitmapTopZOrder/Remove-Helfer"
 
-        Private Function HandleInvalidInsertPosition(steinIndex As SteinTyp, steinPos3D As Triple) As Boolean
+        Private Function HandleInvalidInsertPosition(steinIndex As SteinSymbol, steinPos3D As Triple) As Boolean
 
             ' optional später aus AddSteinToSpielfeld herausziehen
             Return False
@@ -1738,7 +1799,7 @@ Namespace Spielfeld
             'offsetX und Offset Y sind 0, d.h. x und y werden nicht verändert.
             'Der Index ((arrFB(x - offsetX, y - offsetY, z) >> FB_INDEX_SHIFT)) ist auch 0
             '1 ab, gibt minus 1. ==> es muss nicht extra auf arrFB(x, y, z) = 0 geprüft werden,
-            'ob ein Feld leer ist, es kann immer gleich nach dem SteinTypIndex gefragt werden.
+            'ob ein Feld leer ist, es kann immer gleich nach dem SteinSymbolIndex gefragt werden.
         End Function
 
         ''
@@ -1779,7 +1840,7 @@ Namespace Spielfeld
         End Function
 
         ''' <summary>
-        ''' Prüft, ob an der Stelle ein Felbbeschreiber FB ist, der einen SteinTypIndex enthält.
+        ''' Prüft, ob an der Stelle ein Felbbeschreiber FB ist, der einen SteinSymbolIndex enthält.
         ''' Kann zum Iterieren durch das Feld benutzt werden.
         ''' </summary>
         ''' <param name="fb"></param>
@@ -1793,7 +1854,7 @@ Namespace Spielfeld
         End Function
 
         ''' <summary>
-        ''' Prüft, ob an der Stelle ein Felbeschreiber FB ist, der einen SteinTypIndex enthält.
+        ''' Prüft, ob an der Stelle ein Felbeschreiber FB ist, der einen SteinSymbolIndex enthält.
         ''' Kann zum Iterieren durch das Feld benutzt werden.
         ''' </summary>
         Public Function IsIndexQuadrant(tripl As Triple) As Boolean
@@ -2152,10 +2213,10 @@ Namespace Spielfeld
         ''' und setzt das Flag IsTmpRemoved im SteinInfo
         ''' </summary>
         ''' <param name="steinInfoIndex"></param>
-        Public Sub TmpRemoveStein(steinInfoIndex As Integer)
+        Public Sub TmpRealRemoveStein(steinInfoIndex As Integer)
 
             If _tmpRemoveSteinAktive Then
-                Throw New Exception("TmpRemoveStein ist noch aktiv.")
+                Throw New Exception("TmpRealRemoveStein ist noch aktiv.")
             End If
 
             _tmpRemoveSteinAktive = True
@@ -2186,10 +2247,10 @@ Namespace Spielfeld
 
         End Sub
 
-        Public Sub TmpReturnRemovedStein()
+        Public Sub TmpRealReturnRemovedStein()
 
             If Not _tmpRemoveSteinAktive Then
-                Throw New Exception("TmpReturnRemovedStein aufgerufen ohne vorheriges TmpRemoveStein")
+                Throw New Exception("TmpRealReturnRemovedStein aufgerufen ohne vorheriges TmpRealRemoveStein")
             End If
             '
             If _tmpSteinInfoIndex < 0 Then
@@ -2600,7 +2661,7 @@ Namespace Spielfeld
                         aktSIE = New TripleX
                     Else
                         With SteinInfos(idx)
-                            aktSIE = New TripleX(.X, .Y, idxZ, ValidePlace.Yes, .SteinInfoIndex, .SteinTypIndex, GetQuadrant(Kandidat.x, Kandidat.y, idxZ), SteinInfos(idx))
+                            aktSIE = New TripleX(.X, .Y, idxZ, ValidePlace.Yes, .SteinInfoIndex, .SteinSymbolIndex, GetQuadrant(Kandidat.x, Kandidat.y, idxZ), SteinInfos(idx))
                         End With
                     End If
                     ssi.Add(aktSIE)
@@ -3026,8 +3087,8 @@ Namespace Spielfeld
                             '    .RenderRect = GetSteinRenderRect(x, y, z)
                             .SteinInfoIndex = GetSteinInfoIndex(x, y, z)
                             .SteinInfo = _SteinInfos(.SteinInfoIndex)
-                            .SteinTypIndex = .SteinInfo.SteinTypIndex
-                            .SteinClickGruppe = GetSteinClickGruppe(.SteinTypIndex)
+                            .SteinSymbolIndex = .SteinInfo.SteinSymbolIndex
+                            .SteinClickGruppe = GetSteinClickGruppe(.SteinSymbolIndex)
 
                             If showSelectableSteine OrElse showRemovableSteine Then
                                 If (hasFreeSide And 3) <> 0 Then
@@ -3297,7 +3358,7 @@ Namespace Spielfeld
         ''' </summary>
         Private Sub UpdateFoundMissingSecond()
 
-            Dim maxClickGruppe As Integer = [Enum].GetValues(GetType(SteinTyp)).Length - 1
+            Dim maxClickGruppe As Integer = [Enum].GetValues(GetType(SteinSymbol)).Length - 1
             Dim groupCount(maxClickGruppe) As Integer
 
             For x As Integer = xMin To xMax
@@ -3347,27 +3408,27 @@ Namespace Spielfeld
             'Wenn die Enumeration "Stein" geändert wird, muß die Lockuptabelle GruppeLookup
             'angepasst werden.
             'Diese Prüfung erinnert daran :-)
-            Dim enumLength As Integer = [Enum].GetValues(GetType(SteinTyp)).Length
+            Dim enumLength As Integer = [Enum].GetValues(GetType(SteinSymbol)).Length
 
             If GruppeLookupNormal.Length <> enumLength Then
                 Throw New InvalidOperationException(
-            $"Programmierfehler! GruppeLookupNormal hat {GruppeLookupNormal.Length} Einträge, Enum SteinTyp hat {enumLength}. Tabelle anpassen!")
+            $"Programmierfehler! GruppeLookupNormal hat {GruppeLookupNormal.Length} Einträge, Enum SteinSymbol hat {enumLength}. Tabelle anpassen!")
             End If
 
             If GruppeLookupVereinfacht.Length <> enumLength Then
                 Throw New InvalidOperationException(
-            $"Programmierfehler! GruppeLookupVereinfacht hat {GruppeLookupVereinfacht.Length} Einträge, Enum SteinTyp hat {enumLength}. Tabelle anpassen!")
+            $"Programmierfehler! GruppeLookupVereinfacht hat {GruppeLookupVereinfacht.Length} Einträge, Enum SteinSymbol hat {enumLength}. Tabelle anpassen!")
             End If
         End Sub
 
         ' Lookup-Tabelle.
-        ' Muss aus der Reihenfolge der Enum-Deklarationen SteinTyp
+        ' Muss aus der Reihenfolge der Enum-Deklarationen SteinSymbol
         ' und SteinClickGruppe gebaut sein!
         ' Hintergrund: Die Regel "Steine mit gleichem Symbol können paarweise
         ' entfernt werden" gilt meistens, aber nicht immer.
         ' Die Blüten und Jahressymbole sind optisch unterschiedlich, können
         ' aber paarweise entfernt werden. Deshalb gibt es die SteinClickGruppe
-        ' und das hier ist die Übersetzungstabellevom SteinTyp zur
+        ' und das hier ist die Übersetzungstabellevom SteinSymbol zur
         ' SteinClickGruppe
         ' Der Wert des Index selber ist egal, wichtig ist, daß Steine einer
         ' Klickgruppe den gleichen Wert haben.
@@ -3465,12 +3526,12 @@ Namespace Spielfeld
     }
 
         ''' <summary>
-        ''' Gibt die SteinklickGruppe aus dem SteinTypIndex zurück. 
-        ''' Greift auf INI.Regeln_WindsInOneClickGroup zu.
+        ''' Gibt die SteinklickGruppe aus dem SteinSymbolIndex zurück. 
+        ''' Greift auf INI.Spielbetrieb_WindsAreInOneClickGroup zu.
         ''' </summary>
         ''' <param name="index"></param>
         ''' <returns></returns>
-        Public Shared Function GetSteinClickGruppe(index As SteinTyp) As Integer
+        Public Shared Function GetSteinClickGruppe(index As SteinSymbol) As Integer
             If INI.Spielbetrieb_WindsAreInOneClickGroup Then
                 Return GruppeLookupVereinfacht(index)
             Else
@@ -3479,12 +3540,12 @@ Namespace Spielfeld
         End Function
         '
         ''' <summary>
-        ''' Gibt die SteinklickGruppe aus dem SteinTypIndex zurück unter Auswertung von windsInOneClickGroup.
+        ''' Gibt die SteinklickGruppe aus dem SteinSymbolIndex zurück unter Auswertung von windsInOneClickGroup.
         ''' </summary>
         ''' <param name="index"></param>
         ''' <param name="windsInOneClickGroup"></param>
         ''' <returns></returns>
-        Public Shared Function GetSteinClickGruppe(index As SteinTyp, windsInOneClickGroup As Boolean) As Integer
+        Public Shared Function GetSteinClickGruppe(index As SteinSymbol, windsInOneClickGroup As Boolean) As Integer
             If windsInOneClickGroup Then
                 Return GruppeLookupVereinfacht(index)
             Else
@@ -3497,13 +3558,13 @@ Namespace Spielfeld
 #Region "Statistik"
 
         Public Sub ShowMessageBoxStatistik()
-            Dim steineVorrat As New List(Of SteinTyp)
-            Dim steineSpielfeld As New List(Of SteinTyp)
+            Dim steineVorrat As New List(Of SteinSymbol)
+            Dim steineSpielfeld As New List(Of SteinSymbol)
 
             If SteinInfos IsNot Nothing AndAlso SteinInfos.Count > 0 Then
                 'Steine einsammeln
                 For Each item As SteinInfo In SteinInfos
-                    steineSpielfeld.Add(item.SteinTypIndex)
+                    steineSpielfeld.Add(item.SteinSymbolIndex)
                 Next
             End If
         End Sub

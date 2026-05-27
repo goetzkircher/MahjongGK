@@ -376,7 +376,7 @@ Public NotInheritable Class frmTooltipSteinInfo
                                       isDebugAttached As Boolean) As String
 
         Dim quadrantText As String = GetQuadrantText(value.Quadrant)
-        Dim steinText As String = GetSteinText(value.SteinTypIndex)
+        Dim steinText As String = GetSteinText(value.SteinSymbolIndex)
 
         ''If isDebugAttached Then
         ''    Return value.SteinInfoIndex.ToString().PadLeft(3) & " " & quadrantText & " " & steinText
@@ -410,58 +410,58 @@ Public NotInheritable Class frmTooltipSteinInfo
     ''' <summary>
     ''' Wandelt einen Stein-Enum in Anzeigetext um.
     ''' </summary>
-    Private Shared Function GetSteinText(value As SteinTyp) As String
+    Private Shared Function GetSteinText(value As SteinSymbol) As String
 
         Select Case value
-            Case SteinTyp.ErrorSy : Return "Error"
-            Case SteinTyp.Punkt01 : Return "Punkt 01"
-            Case SteinTyp.Punkt02 : Return "Punkt 02"
-            Case SteinTyp.Punkt03 : Return "Punkt 03"
-            Case SteinTyp.Punkt04 : Return "Punkt 04"
-            Case SteinTyp.Punkt05 : Return "Punkt 05"
-            Case SteinTyp.Punkt06 : Return "Punkt 06"
-            Case SteinTyp.Punkt07 : Return "Punkt 07"
-            Case SteinTyp.Punkt08 : Return "Punkt 08"
-            Case SteinTyp.Punkt09 : Return "Punkt 09"
+            Case SteinSymbol.ErrorSy : Return "Error"
+            Case SteinSymbol.Punkt01 : Return "Punkt 01"
+            Case SteinSymbol.Punkt02 : Return "Punkt 02"
+            Case SteinSymbol.Punkt03 : Return "Punkt 03"
+            Case SteinSymbol.Punkt04 : Return "Punkt 04"
+            Case SteinSymbol.Punkt05 : Return "Punkt 05"
+            Case SteinSymbol.Punkt06 : Return "Punkt 06"
+            Case SteinSymbol.Punkt07 : Return "Punkt 07"
+            Case SteinSymbol.Punkt08 : Return "Punkt 08"
+            Case SteinSymbol.Punkt09 : Return "Punkt 09"
 
-            Case SteinTyp.Bambus1 : Return "Bambus 1"
-            Case SteinTyp.Bambus2 : Return "Bambus 2"
-            Case SteinTyp.Bambus3 : Return "Bambus 3"
-            Case SteinTyp.Bambus4 : Return "Bambus 4"
-            Case SteinTyp.Bambus5 : Return "Bambus 5"
-            Case SteinTyp.Bambus6 : Return "Bambus 6"
-            Case SteinTyp.Bambus7 : Return "Bambus 7"
-            Case SteinTyp.Bambus8 : Return "Bambus 8"
-            Case SteinTyp.Bambus9 : Return "Bambus 9"
+            Case SteinSymbol.Bambus1 : Return "Bambus 1"
+            Case SteinSymbol.Bambus2 : Return "Bambus 2"
+            Case SteinSymbol.Bambus3 : Return "Bambus 3"
+            Case SteinSymbol.Bambus4 : Return "Bambus 4"
+            Case SteinSymbol.Bambus5 : Return "Bambus 5"
+            Case SteinSymbol.Bambus6 : Return "Bambus 6"
+            Case SteinSymbol.Bambus7 : Return "Bambus 7"
+            Case SteinSymbol.Bambus8 : Return "Bambus 8"
+            Case SteinSymbol.Bambus9 : Return "Bambus 9"
 
-            Case SteinTyp.Symbol1 : Return "Symbol 1"
-            Case SteinTyp.Symbol2 : Return "Symbol 2"
-            Case SteinTyp.Symbol3 : Return "Symbol 3"
-            Case SteinTyp.Symbol4 : Return "Symbol 4"
-            Case SteinTyp.Symbol5 : Return "Symbol 5"
-            Case SteinTyp.Symbol6 : Return "Symbol 6"
-            Case SteinTyp.Symbol7 : Return "Symbol 7"
-            Case SteinTyp.Symbol8 : Return "Symbol 8"
-            Case SteinTyp.Symbol9 : Return "Symbol 9"
+            Case SteinSymbol.Symbol1 : Return "Symbol 1"
+            Case SteinSymbol.Symbol2 : Return "Symbol 2"
+            Case SteinSymbol.Symbol3 : Return "Symbol 3"
+            Case SteinSymbol.Symbol4 : Return "Symbol 4"
+            Case SteinSymbol.Symbol5 : Return "Symbol 5"
+            Case SteinSymbol.Symbol6 : Return "Symbol 6"
+            Case SteinSymbol.Symbol7 : Return "Symbol 7"
+            Case SteinSymbol.Symbol8 : Return "Symbol 8"
+            Case SteinSymbol.Symbol9 : Return "Symbol 9"
 
-            Case SteinTyp.DracheR : Return "roter Drache"
-            Case SteinTyp.DracheG : Return "grüner Drache"
-            Case SteinTyp.DracheW : Return "weißer Drache"
+            Case SteinSymbol.DracheR : Return "roter Drache"
+            Case SteinSymbol.DracheG : Return "grüner Drache"
+            Case SteinSymbol.DracheW : Return "weißer Drache"
 
-            Case SteinTyp.WindOst : Return "Ostwind"
-            Case SteinTyp.WindSüd : Return "Südwind"
-            Case SteinTyp.WindWst : Return "Westwind"
-            Case SteinTyp.WindNrd : Return "Nordwind"
+            Case SteinSymbol.WindOst : Return "Ostwind"
+            Case SteinSymbol.WindSüd : Return "Südwind"
+            Case SteinSymbol.WindWst : Return "Westwind"
+            Case SteinSymbol.WindNrd : Return "Nordwind"
 
-            Case SteinTyp.BlütePf : Return "Pfaume"
-            Case SteinTyp.BlüteOr : Return "Orchidee"
-            Case SteinTyp.BlüteCt : Return "Chrysantheme"
-            Case SteinTyp.BlüteBa : Return "Bambus"
+            Case SteinSymbol.BlütePf : Return "Pfaume"
+            Case SteinSymbol.BlüteOr : Return "Orchidee"
+            Case SteinSymbol.BlüteCt : Return "Chrysantheme"
+            Case SteinSymbol.BlüteBa : Return "Bambus"
 
-            Case SteinTyp.JahrFrl : Return "Frühling"
-            Case SteinTyp.JahrSom : Return "Sommer"
-            Case SteinTyp.JahrHer : Return "Herbst"
-            Case SteinTyp.JahrWin : Return "Winter"
+            Case SteinSymbol.JahrFrl : Return "Frühling"
+            Case SteinSymbol.JahrSom : Return "Sommer"
+            Case SteinSymbol.JahrHer : Return "Herbst"
+            Case SteinSymbol.JahrWin : Return "Winter"
 
             Case Else
                 Return value.ToString()

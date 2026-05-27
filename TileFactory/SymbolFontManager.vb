@@ -8,18 +8,15 @@ Imports System.Drawing.Text
 Imports System.IO
 Imports System.Windows.Forms
 
-Friend NotInheritable Class SymbolFontManager
+Friend Module SymbolFontManager
 
-    Private Shared ReadOnly _privateFonts As New PrivateFontCollection()
-    Private Shared ReadOnly _syncRoot As New Object()
+    Private ReadOnly _privateFonts As New PrivateFontCollection()
+    Private ReadOnly _syncRoot As New Object()
 
-    Private Shared _isInitialized As Boolean = False
-    Private Shared _notoFamily As FontFamily = Nothing
+    Private _isInitialized As Boolean = False
+    Private _notoFamily As FontFamily = Nothing
 
-    Private Sub New()
-    End Sub
-
-    Private Shared Sub EnsureInitialized()
+    Private Sub EnsureInitialized()
 
         If _isInitialized Then
             Exit Sub
@@ -48,7 +45,7 @@ Friend NotInheritable Class SymbolFontManager
 
     End Sub
 
-    Public Shared Function ResolveFontFamily(preferredFontFamilyName As String) As FontFamily
+    Public Function ResolveFontFamily(preferredFontFamilyName As String) As FontFamily
 
         EnsureInitialized()
 
@@ -85,21 +82,21 @@ Friend NotInheritable Class SymbolFontManager
 
     End Function
 
-    Public Shared Function ResolveFontFamilyName(preferredFontFamilyName As String) As String
+    Public Function ResolveFontFamilyName(preferredFontFamilyName As String) As String
 
         Dim ff As FontFamily = ResolveFontFamily(preferredFontFamilyName)
         Return ff.Name
 
     End Function
 
-    Public Shared Function IsPrivateNotoLoaded() As Boolean
+    Public Function IsPrivateNotoLoaded() As Boolean
 
         EnsureInitialized()
         Return _notoFamily IsNot Nothing
 
     End Function
 
-    Private Shared Function FindInstalledFontFamily(fontFamilyName As String) As FontFamily
+    Private Function FindInstalledFontFamily(fontFamilyName As String) As FontFamily
 
         If String.IsNullOrWhiteSpace(fontFamilyName) Then
             Return Nothing
@@ -115,7 +112,7 @@ Friend NotInheritable Class SymbolFontManager
 
     End Function
 
-    Private Shared Function NormalizeFontName(value As String) As String
+    Private Function NormalizeFontName(value As String) As String
 
         If value Is Nothing Then
             Return String.Empty
@@ -129,10 +126,10 @@ Friend NotInheritable Class SymbolFontManager
 
     End Function
 
-    Private Shared Function IsNotoName(normalizedName As String) As Boolean
+    Private Function IsNotoName(normalizedName As String) As Boolean
 
         Return normalizedName = "notosanssymbols2"
 
     End Function
 
-End Class
+End Module

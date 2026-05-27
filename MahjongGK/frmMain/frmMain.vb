@@ -81,7 +81,7 @@ Public Class frmMain
         'Dim wbsSF As Werkstück = Umfeld.Werkstück_Rechteck(New Triple(2, 2, 1), demoMode:=True) ', True, True)
 
         'newSpielfeldInfo.AddWerkstückToSpielfeld(wbsSF, New Triple(1, 1, 0))
-        Dim generator As New SpielsteinGenerator(GeneratorModus.StoneStream_Base152_Continuous)
+        Dim generator As New SpielsteinGenerator(GeneratorModus.StoneSet_072)
         '  generator.DebugStoneCountLimit = 16
         SFMain.CreateSpielfeld(newSpielfeldInfo, generator)
 
@@ -952,7 +952,7 @@ Public Class frmMain
         UpdateSpielfeldEditorButtons()
     End Sub
 
-    Private Sub DoToolBox()
+    Public Sub DoToolBox()
         'TODO SFD - Anpassung
         If SFMain.RenderMode = RenderMode.NoRendering Then
             MsgBox("Kein Spielfeld geladen", MsgBoxStyle.Information)

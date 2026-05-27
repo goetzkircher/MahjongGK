@@ -20,7 +20,7 @@ Public Class TripleX
     Inherits Triple
 
     Private _Quadrant As Quadrant
-    Private _SteinIndex As SteinTyp
+    Private _SteinIndex As SteinSymbol
     Private _SteinInfoIndex As Integer
     Private _SteinInfo As SteinInfo
 
@@ -33,11 +33,11 @@ Public Class TripleX
         End Set
     End Property
 
-    Public Property SteinTypIndex As SteinTyp
+    Public Property SteinSymbolIndex As SteinSymbol
         Get
             Return _SteinIndex
         End Get
-        Set(value As SteinTyp)
+        Set(value As SteinSymbol)
             _SteinIndex = value
         End Set
     End Property
@@ -77,7 +77,7 @@ Public Class TripleX
                        z As Integer,
                        valide As ValidePlace,
                        steinInfoIndex As Integer,
-                       steinIndex As SteinTyp,
+                       steinIndex As SteinSymbol,
                        quadrant As Quadrant,
                        steinInfo As SteinInfo)
 
@@ -105,14 +105,14 @@ Public Class TripleX
         MyBase.New(triplx.x, triplx.y, triplx.z, triplx.Valide)
 
         _SteinInfoIndex = triplx.SteinInfoIndex
-        _SteinIndex = triplx.SteinTypIndex
+        _SteinIndex = triplx.SteinSymbolIndex
         _Quadrant = triplx.Quadrant
         Me.Tag = triplx.Tag
     End Sub
 
     Public Overloads ReadOnly Property DeepCopy As TripleX
         Get
-            Dim result As New TripleX(x, y, z, Valide, SteinInfoIndex, SteinTypIndex, Quadrant, SteinInfo)
+            Dim result As New TripleX(x, y, z, Valide, SteinInfoIndex, SteinSymbolIndex, Quadrant, SteinInfo)
             result.Tag = Me.Tag
             Return result
         End Get
@@ -120,12 +120,12 @@ Public Class TripleX
 
     Public Overloads ReadOnly Property DeepCopy(Optional addX As Integer = 0, Optional addY As Integer = 0, Optional addZ As Integer = 0) As TripleX
         Get
-            Return New TripleX(x + addX, y + addY, z + addZ, Valide, SteinInfoIndex, SteinTypIndex, Quadrant, SteinInfo)
+            Return New TripleX(x + addX, y + addY, z + addZ, Valide, SteinInfoIndex, SteinSymbolIndex, Quadrant, SteinInfo)
         End Get
     End Property
 
     Public Overrides Function ToString() As String
-        Return $"(X={x}, Y={y}, Z={z}, Valide={Valide}, SteinInfoIndex={SteinInfoIndex}, SteinTypIndex={SteinTypIndex}, Quadrant={Quadrant})"
+        Return $"(X={x}, Y={y}, Z={z}, Valide={Valide}, SteinInfoIndex={SteinInfoIndex}, SteinSymbolIndex={SteinSymbolIndex}, Quadrant={Quadrant})"
     End Function
 
     Public Function ToTriple() As Triple

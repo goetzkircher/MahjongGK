@@ -16,25 +16,21 @@ Imports TileFactory.TileColors
 ''' - diese Grundform mehrfach versetzt übereinander zeichnen
 ''' - darauf die Frontplatte setzen
 ''' </summary>
-Friend NotInheritable Class TileRenderer
-
-    Private Sub New()
-    End Sub
+Friend Module TileRenderer
 
     '
     ''' <summary>
     ''' Rendert den neutralen Grundstein.
     ''' </summary>
-    Public Shared Sub RenderTileBase(g As Graphics,
+    Public Sub RenderTileBase(g As Graphics,
                                      layout As TileLayout,
                                      colors As TileColors)
 
         RenderDepthStack(g, layout, colors)
-        RenderFrontPlate(g, layout, colors)
 
     End Sub
 
-    Public Shared Function CreateBaseTileBitmap(request As TileRequest,
+    Public Function CreateBaseTileBitmap(request As TileRequest,
                                                 layout As TileLayout,
                                                 colors As TileColors) As Bitmap
 
@@ -63,7 +59,7 @@ Friend NotInheritable Class TileRenderer
     ''' <summary>
     ''' Zeichnet die Tiefenlagen von hinten nach vorne.
     ''' </summary>
-    Private Shared Sub RenderDepthStack(g As Graphics,
+    Private Sub RenderDepthStack(g As Graphics,
                                        layout As TileLayout,
                                        colors As TileColors)
 
@@ -94,7 +90,7 @@ Friend NotInheritable Class TileRenderer
     ''' - Hauptfläche in faceColor
     ''' - rechts und unten Rand in layerColor
     ''' </summary>
-    Private Shared Sub RenderDepthBaseShape(g As Graphics,
+    Private Sub RenderDepthBaseShape(g As Graphics,
                                     layout As TileLayout,
                                     offsetX As Integer,
                                     offsetY As Integer,
@@ -148,74 +144,12 @@ Friend NotInheritable Class TileRenderer
     End Sub
 
     '
-    ''' <summary>
-    ''' Rendert die Frontplatte mit Rahmen und Innenfläche.
-    ''' </summary>
-    Private Shared Sub RenderFrontPlate(g As Graphics,
-                                        layout As TileLayout,
-                                        colors As TileColors)
-
-        'Dim frameTopColor As Color = Lighten(colors.FaceBasisColor, 0.04R)
-        'Dim frameBottomColor As Color = Darken(colors.FaceBasisColor, 0.03R)
-
-        'Dim innerTopColor As Color = Lighten(colors.FaceBasisColor, 0.03R)
-        'Dim innerBottomColor As Color = Darken(colors.FaceBasisColor, 0.03R)
-
-        'Dim layerLineColor As Color = Darken(colors.LayerLineColor, 0.05R)
-        'Dim frameShadowColor As Color = Darken(colors.FaceBasisColor, 0.12R)
-
-        'Using gpOuter As GraphicsPath = CreateRoundedRectPath(layout.FaceOuterRect, layout.FaceOuterCornerRadius),
-        '      brOuter As New LinearGradientBrush(layout.FaceOuterRect, frameTopColor, frameBottomColor, LinearGradientMode.Vertical),
-        '      pnOuter As New Pen(layerLineColor, 1.0F)
-
-        '    g.FillPath(brOuter, gpOuter)
-        '    g.DrawPath(pnOuter, gpOuter)
-
-        'End Using
-
-        'Dim rcShadowRight As New Rectangle(
-        '    layout.FaceOuterRect.Right - Math.Max(1, layout.FrameThickness),
-        '    layout.FaceOuterRect.Top + layout.FrameThickness,
-        '    Math.Max(1, layout.FrameThickness),
-        '    Math.Max(1, layout.FaceOuterRect.Height - (2 * layout.FrameThickness)))
-
-        'Dim rcShadowBottom As New Rectangle(
-        '    layout.FaceOuterRect.Left + layout.FrameThickness,
-        '    layout.FaceOuterRect.Bottom - Math.Max(1, layout.FrameThickness),
-        '    Math.Max(1, layout.FaceOuterRect.Width - (2 * layout.FrameThickness)),
-        '    Math.Max(1, layout.FrameThickness))
-
-        'Using brFrameShadow As New SolidBrush(Color.FromArgb(65, frameShadowColor))
-        '    If rcShadowRight.Width > 0 AndAlso rcShadowRight.Height > 0 Then g.FillRectangle(brFrameShadow, rcShadowRight)
-        '    If rcShadowBottom.Width > 0 AndAlso rcShadowBottom.Height > 0 Then g.FillRectangle(brFrameShadow, rcShadowBottom)
-        'End Using
-
-        'Using gpInner As GraphicsPath = CreateRoundedRectPath(layout.FaceInnerRect, layout.FaceInnerCornerRadius),
-        '      brInner As New LinearGradientBrush(layout.FaceInnerRect, innerTopColor, innerBottomColor, LinearGradientMode.Vertical),
-        '      pnInner As New Pen(Color.FromArgb(90, Lighten(colors.FaceBasisColor, 0.06R)), 1.0F)
-
-        '    g.FillPath(brInner, gpInner)
-        '    g.DrawPath(pnInner, gpInner)
-
-        'End Using
-
-        'Dim rcSoftTop As New Rectangle(
-        '    layout.FaceInnerRect.Left + Math.Max(2, CInt(Math.Round(layout.FaceInnerRect.Width * 0.08R))),
-        '    layout.FaceInnerRect.Top + Math.Max(2, CInt(Math.Round(layout.FaceInnerRect.Height * 0.05R))),
-        '    Math.Max(1, CInt(Math.Round(layout.FaceInnerRect.Width * 0.72R))),
-        '    Math.Max(1, CInt(Math.Round(layout.FaceInnerRect.Height * 0.15R))))
-
-        'Using brSoftTop As New SolidBrush(Color.FromArgb(10, Color.White))
-        '    If rcSoftTop.Width > 0 AndAlso rcSoftTop.Height > 0 Then g.FillRectangle(brSoftTop, rcSoftTop)
-        'End Using
-
-    End Sub
 
     '
     ''' <summary>
     ''' Erzeugt ein abgerundetes Rechteck.
     ''' </summary>
-    Private Shared Function CreateRoundedRectPath(rect As Rectangle, radius As Integer) As GraphicsPath
+    Private Function CreateRoundedRectPath(rect As Rectangle, radius As Integer) As GraphicsPath
 
         Dim gp As New GraphicsPath()
 
@@ -258,7 +192,7 @@ Friend NotInheritable Class TileRenderer
     ''' <summary>
     ''' Mischt zwei Farben.
     ''' </summary>
-    Private Shared Function Blend(c1 As Color, c2 As Color, ratio As Double) As Color
+    Private Function Blend(c1 As Color, c2 As Color, ratio As Double) As Color
 
         If ratio < 0.0R Then ratio = 0.0R
         If ratio > 1.0R Then ratio = 1.0R
@@ -281,7 +215,7 @@ Friend NotInheritable Class TileRenderer
     ''' <summary>
     ''' Hellt eine Farbe auf.
     ''' </summary>
-    Private Shared Function Lighten(source As Color, factor As Double) As Color
+    Private Function Lighten(source As Color, factor As Double) As Color
 
         If factor < 0.0R Then factor = 0.0R
         If factor > 1.0R Then factor = 1.0R
@@ -298,7 +232,7 @@ Friend NotInheritable Class TileRenderer
     ''' <summary>
     ''' Dunkelt eine Farbe ab.
     ''' </summary>
-    Private Shared Function Darken(source As Color, factor As Double) As Color
+    Private Function Darken(source As Color, factor As Double) As Color
 
         If factor < 0.0R Then factor = 0.0R
         If factor > 1.0R Then factor = 1.0R
@@ -315,7 +249,7 @@ Friend NotInheritable Class TileRenderer
     ''' <summary>
     ''' Begrenzt auf 0..255.
     ''' </summary>
-    Private Shared Function ClampByteValue(value As Integer) As Integer
+    Private Function ClampByteValue(value As Integer) As Integer
 
         If value < 0 Then
             Return 0
@@ -327,7 +261,7 @@ Friend NotInheritable Class TileRenderer
 
     End Function
 
-    Private Shared Function GetInsetRectangle(source As Rectangle, inset As Integer) As Rectangle
+    Private Function GetInsetRectangle(source As Rectangle, inset As Integer) As Rectangle
 
         If inset <= 0 Then
             Return source
@@ -344,4 +278,4 @@ Friend NotInheritable Class TileRenderer
         Return New Rectangle(left, top, width, height)
 
     End Function
-End Class
+End Module

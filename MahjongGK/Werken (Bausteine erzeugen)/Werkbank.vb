@@ -188,7 +188,7 @@ Public Class Werkbank
     ''' </summary>
     ''' <param name="steinPos3D"></param>
     ''' <returns></returns>
-    Public Function AddSteinToSpielfeld(steinIndex As SteinTyp, steinPos3D As Triple, Optional tmpDebug As Integer = 0) As Boolean
+    Public Function AddSteinToSpielfeld(steinIndex As SteinSymbol, steinPos3D As Triple, Optional tmpDebug As Integer = 0) As Boolean
 
         'Der steinInfoIndex wird hier gesichert, obwohl er gleichlautend ist mit dem
         'Index in SteinInfos. Grund: werden später Steine im Editor entfernt, verschieben sich die
@@ -224,14 +224,14 @@ Public Class Werkbank
                             tpl.y = 2
 
                             'SetStein rekursiv, aber mit jetzt gültigen Werten aufrufen
-                            AddSteinToSpielfeld(SteinTyp.ErrorSy, tpl)
+                            AddSteinToSpielfeld(SteinSymbol.ErrorSy, tpl)
                             Return False
                         End If
 
                     Case ValidePlace.Yes, ValidePlace.NoFundamentFound
                         ' FoundResult.NoFundament ist in diesem Fall OK, er wird zum freischwebendem Stein.
                         'SetStein rekursiv, aber mit jetzt gültigen Werten aufrufen
-                        AddSteinToSpielfeld(SteinTyp.ErrorSy, tplR)
+                        AddSteinToSpielfeld(SteinSymbol.ErrorSy, tplR)
                         Return False
                 End Select
             Loop

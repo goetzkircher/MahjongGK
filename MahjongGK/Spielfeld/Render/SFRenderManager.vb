@@ -105,7 +105,7 @@ Namespace Spielfeld
                 'Zeitlupe zum Debuggen
 #Const Zeitlupe = False
 #If Zeitlupe Then
-                Const framesAussetzen As Integer = 10
+                Const framesAussetzen As Integer = 5 '5 bis 10
                 If _zeitlupeCountdown < INI.Volatil_RenderCounterValue Then
                     _zeitlupeCountdown = INI.Volatil_RenderCounterValue + framesAussetzen
                 Else
@@ -211,6 +211,16 @@ Namespace Spielfeld
 
 #Region "Mausaktionen und Größenänderung der Form auswerten und Rendern ggf verkürzen."
 
+            'völlig außer Konkurenz dieser Aufruf:
+            If _sfd.SFInf.Generator.ConsumeHasUndoStockSnapshot Then
+                Dim ss As SteinSymbol() = _sfd.SFInf.Generator.UndoStocksnapShot
+                If ss.Length > _sfd.SFInf.Generator.Stock.Count Then
+                    _sfd.SFInf.EditorUndo.AddNewUndo(job:=UnReDoJob.FillStock, _sfd.SFInf.Generator.UndoStocksnapShot)
+                Else
+                    _sfd.SFInf.EditorUndo.AddNewUndo(job:=UnReDoJob.SortStock, _sfd.SFInf.Generator.UndoStocksnapShot)
+                End If
+            End If
+
             Dim somethingDoneResizePoll As Boolean
             Dim somethingDoneTopSteinInfosPoll As Boolean
             Dim somethingDoneBitmapUGrd As Boolean
@@ -242,18 +252,17 @@ Namespace Spielfeld
 
             'Die eigentliche Abfrage nach Mausaktivitäten ist mit dem Zugriff auf Werte verbunden, die erst nach
             'dem Update des Spielfeldes zur Verfügung stehen. Daher hier nur die Prüfung, ob sich überhaupt was geändert hat.
-            With _sfd.SFLay
-                Select Case _sfd.SFMouse.ConsumeQuicktestHasMouseStateChange(.rxStageUsed, .rxStock, .rxStockScrollbar)
-                    Case MouseStateChanged.MouseMovedWhileLeftMouseReleased
-                        doRendering = True
-                        Debug.Print("MouseMovedWhileLeftMouseReleased " & Now.Millisecond.ToString)
-                    Case MouseStateChanged.AllOtherMouseEvents
-                        doRendering = True
-                        schnelltestHasMouseStateChange = True
-                    Case MouseStateChanged.None
-                        'nichts machen
-                End Select
-            End With
+            'Es werden nur Mausbewegungen gemeldet, die innerhalb rxContent stattfinden  
+            Select Case _sfd.SFMouse.ConsumeQuicktestHasMouseStateChange(_sfd.SFLay.rxContent)
+                Case MouseStateChanged.MouseMovedWhileLeftMouseReleased
+                    doRendering = True
+                       ' Debug.Print("MouseMovedWhileLeftMouseReleased " & Now.Millisecond.ToString)
+                Case MouseStateChanged.AllOtherMouseEvents
+                    doRendering = True
+                    schnelltestHasMouseStateChange = True
+                Case MouseStateChanged.None
+                    'nichts machen
+            End Select
             If _sfd.SFMouse.GapJobIsWorking Then
                 schnelltestHasMouseStateChange = True
                 doRendering = True
@@ -286,7 +295,10 @@ Namespace Spielfeld
                     End If
                 ElseIf somethingDoneTopSteinInfosPoll Then
                     doRendering = True
-
+                ElseIf _sfd.SFAir.HasAnyRenderJob Then
+                    doRendering = True
+                ElseIf _sfd.SFInf.HasUndoText Then
+                    doRendering = True
                 End If
 
                 If _sfd.SFRun.ResizingIsAktiv Then
@@ -316,6 +328,10 @@ Namespace Spielfeld
 
             If _sfd.SFRun.ConsumeSessionIdentChanged Then
                 updateSpielfeld = True
+                doRendering = True
+            End If
+
+            If INI.Volatil_ConsumeDoRenderAfterContextMenueClosed Then
                 doRendering = True
             End If
 
@@ -446,9 +462,9 @@ Namespace Spielfeld
             End If
 
             If schnelltestHasMouseStateChange Then
-                _sfd.SFMouse.DoMouseDownAndDragDropAktion()
+                _sfd.SFMouse.DoMouseDownDoubleklickAndDragDropAktion()
             End If
-            _sfd.SFMouse.DoDoubleClickGhostPosition()
+            _sfd.SFMouse.DoGhostPositionForDoubleKlick()
 
         End Sub
 

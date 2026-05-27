@@ -58,7 +58,7 @@
 '        Private ReadOnly _rcEditor As New RenderCache()
 
 '        Private Shared ReadOnly SteinStatusCount As Integer = [Enum].GetValues(GetType(SteinStatus)).Length
-'        Private Shared ReadOnly SteinIndexCount As Integer = [Enum].GetValues(GetType(SteinTyp)).Length
+'        Private Shared ReadOnly SteinIndexCount As Integer = [Enum].GetValues(GetType(SteinSymbol)).Length
 
 '        '###############################################################################
 '        '# Öffentliche API
@@ -117,10 +117,10 @@
 '                _baseCache.Clear()
 '                If decodeAllBasePNGs Then
 '                    Dim statuses As SteinStatus() = CType([Enum].GetValues(GetType(SteinStatus)), SteinStatus())
-'                    Dim indices As SteinTyp() = CType([Enum].GetValues(GetType(SteinTyp)), SteinTyp())
+'                    Dim indices As SteinSymbol() = CType([Enum].GetValues(GetType(SteinSymbol)), SteinSymbol())
 
 '                    For Each st As SteinStatus In statuses
-'                        For Each idx As SteinTyp In indices
+'                        For Each idx As SteinSymbol In indices
 '                            Dim baseBmp As Bitmap = ResolveBaseBitmap(st, idx) ' dekodiert oder Ghost
 '                            Dim key As String = MakeKey(st, idx)
 '                            If Not _baseCache.ContainsKey(key) Then
@@ -158,7 +158,7 @@
 '        ''' <param name="size">die aktuelle Größe</param>
 '        ''' <param name="aktRendering">Bestimmt das benutzte Cache</param>
 '        ''' <returns></returns>
-'        Public Function GetStein(index As SteinTyp, status As SteinStatus, size As Size, aktRendering As AktRenderMode) As Bitmap
+'        Public Function GetStein(index As SteinSymbol, status As SteinStatus, size As Size, aktRendering As AktRenderMode) As Bitmap
 
 '            ' Muss ein Satz geladen sein.
 '            If _pack Is Nothing Then
@@ -232,7 +232,7 @@
 '            _baseCache.Clear()
 '        End Sub
 
-'        Private Shared Function MakeKey(status As SteinStatus, index As SteinTyp) As String
+'        Private Shared Function MakeKey(status As SteinStatus, index As SteinSymbol) As String
 '            Return status.ToString() & "|" & index.ToString()
 '        End Function
 
@@ -244,7 +244,7 @@
 '            End Select
 '        End Function
 
-'        Private Function GetBaseBitmap(status As SteinStatus, index As SteinTyp) As Bitmap
+'        Private Function GetBaseBitmap(status As SteinStatus, index As SteinSymbol) As Bitmap
 '            Dim key As String = MakeKey(status, index)
 '            Dim bmp As Bitmap = Nothing
 '            If _baseCache.TryGetValue(key, bmp) Then
@@ -261,7 +261,7 @@
 '        ''' Sucht den XML-Eintrag und dekodiert PNG (Ref-Größe) oder erzeugt Ghost.
 '        ''' Gibt IMMER ein Bitmap zurück (nie Nothing).
 '        ''' </summary>
-'        Private Function ResolveBaseBitmap(status As SteinStatus, index As SteinTyp) As Bitmap
+'        Private Function ResolveBaseBitmap(status As SteinStatus, index As SteinSymbol) As Bitmap
 '            ' Schutz, falls _pack fehlt
 '            If _pack Is Nothing OrElse _pack.Entries Is Nothing Then
 '                Return RenderGhost(200, 250, index.ToString()) ' defensive Defaults

@@ -99,13 +99,7 @@
         '
         ''' <summary>
         ''' Nothing zurückgeben
-        ''' </summary>
-        I10Reserve1
-        '
-        ''' <summary>
-        ''' Nothing zurückgeben
-        ''' </summary>
-        I11Reserve2            ' 
+        ''' </summary>   '
     End Enum
     '
     ''' <summary>
@@ -114,7 +108,7 @@
     ''' ein Verzeichnis und dort für jeden Stein
     ''' eine PNG-Datei, die die Bizmap des Steines enthält.)
     ''' </summary>
-    Public Enum SteinTyp
+    Public Enum SteinSymbol
         '
         ''' <summary>
         ''' In der TileFactory andere Bedeutung!
@@ -175,10 +169,10 @@
 
     '
     ''' <summary>
-    ''' Hinweis: Es gibt keinen einzigen SteinTyp in 
-    ''' mehreren SteinTypVersion gleichzeitig.
+    ''' Hinweis: Es gibt keinen einzigen SteinSymbol in 
+    ''' mehreren SteinSymbolVersion gleichzeitig.
     ''' </summary>
-    Public Enum SteinTypVersion
+    Public Enum SteinSymbolVersion
         '
         ''' <summary>
         ''' Die Standardversion
@@ -200,42 +194,6 @@
         ''' </summary>
         JZeiten
 
-    End Enum
-
-    Public Enum SteinFrameVersion
-        '
-        ''' <summary>
-        ''' Besitzer ist das Cache
-        ''' </summary>
-        Standard 'kommen direkt aus dem Cache
-        '
-        ''' <summary>
-        ''' Besitzer ist auch das Cache, das Cache fasst aber nur eine einzige Bitmap,
-        ''' die durch die nächste Anforderung überschrieben wird.
-        ''' </summary>
-        ''' '
-        MouseSelected
-        ''' <summary>
-        ''' Besitzer ist auch das Cache, das Cache fasst aber nur eine einzige Bitmap.
-        ''' </summary>
-        MouseOver
-        '
-        ''' <summary>
-        ''' Besitzer ist auch das Cache, das Cache fasst aber nur eine einzige Bitmap.
-        ''' </summary>
-        MouseCanDrop
-        '
-    End Enum
-    Public Enum CacheIndex
-        SpielStein
-        EditorStein
-        SpielMouseOver
-        EditorMouseOver
-        SpielSelected
-        EditorSelected
-        SpielCanDrop
-        EditorCanDrop
-        UBound = EditorCanDrop
     End Enum
 
     ''' <summary>
@@ -335,6 +293,13 @@
         ShiftFace
         Kommentar
         FaceBorderColor
+    End Enum
+
+    Public Enum SteinGhost
+        None = 0              'kein Geist: normaler Stein, Alpha 255
+        Dark = 1       'Geist: normaler Stein, Alpha < 255
+        Medium = 2         'Geist: heller/blasser Stein, Alpha 255 
+        Light = 3  'Geist: heller/blasser Stein, Alpha < 255
     End Enum
 
 End Module

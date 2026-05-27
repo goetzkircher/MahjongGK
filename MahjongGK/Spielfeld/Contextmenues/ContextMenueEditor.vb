@@ -11,23 +11,25 @@ Public NotInheritable Class ContextMenueEditor
     Private ReadOnly _mnuDoubleClickSetStein As ToolStripMenuItem
     Private ReadOnly _mnuDoubleClickRemoveStein As ToolStripMenuItem
     Private ReadOnly _mnuNoDoubleClick As ToolStripMenuItem
-
+    Private ReadOnly _mnuShowGhost As ToolStripMenuItem
     Private ReadOnly _mnuWindsAreInOneClickGroup As ToolStripMenuItem
-    Private ReadOnly _mnuEditorSteinflugAnimation As ToolStripMenuItem
 
     Public Sub New()
 
         _mnuDoubleClickSetStein = New ToolStripMenuItem("Doppelklick setzt Stein")
         _mnuDoubleClickRemoveStein = New ToolStripMenuItem("Doppelklick entfernt Stein")
         _mnuNoDoubleClick = New ToolStripMenuItem("Kein Doppelklick")
+        _mnuShowGhost = New ToolStripMenuItem("Ablegeposition als Geist")
 
         AddHandler _mnuDoubleClickSetStein.Click, AddressOf OnDoubleClickSetStein
         AddHandler _mnuDoubleClickRemoveStein.Click, AddressOf OnDoubleClickRemoveStein
         AddHandler _mnuNoDoubleClick.Click, AddressOf OnNoDoubleClick
+        AddHandler _mnuShowGhost.Click, AddressOf OnShowGhost
 
         Items.Add(_mnuDoubleClickSetStein)
         Items.Add(_mnuDoubleClickRemoveStein)
         Items.Add(_mnuNoDoubleClick)
+        Items.Add(_mnuShowGhost)
 
         Dim mnuInfoDoubleClick As New ToolStripMenuItem("Info")
         AddHandler mnuInfoDoubleClick.Click, AddressOf OnInfoDoubleClick
@@ -45,27 +47,45 @@ Public NotInheritable Class ContextMenueEditor
 
         Items.Add(New ToolStripSeparator())
 
-        _mnuEditorSteinflugAnimation = New ToolStripMenuItem("Steinfluganimation")
-        AddHandler _mnuEditorSteinflugAnimation.Click, AddressOf OnEditorSteinflugAnimation
-        Items.Add(_mnuEditorSteinflugAnimation)
+        Dim mnuToolBoxOpen As New ToolStripMenuItem("Toolbox öffnen")
+        AddHandler mnuToolBoxOpen.Click, AddressOf OnToolboxOpen
+        Items.Add(mnuToolBoxOpen)
 
-        Dim mnuInfoSteinflug As New ToolStripMenuItem("Info")
-        AddHandler mnuInfoSteinflug.Click, AddressOf OnInfoSteinflug
-        Items.Add(mnuInfoSteinflug)
+        Dim mnuInfoToolbox As New ToolStripMenuItem("Info")
+        AddHandler mnuInfoToolbox.Click, AddressOf OnInfoToolboxOpen
+        Items.Add(mnuInfoToolbox)
 
         Items.Add(New ToolStripSeparator())
 
         Dim mnuShuffleAll As New ToolStripMenuItem("Alle Steine mischen")
-        AddHandler mnuShuffleAll.Click, AddressOf OShuffleAll
+        AddHandler mnuShuffleAll.Click, AddressOf OnShuffleAll
         Items.Add(mnuShuffleAll)
 
-        Dim mnuShuffleOnly As New ToolStripMenuItem("Mischen ohne reservierte Steine")
-        AddHandler mnuShuffleOnly.Click, AddressOf ObShuffleOnly
+        Dim mnuShuffleOnly As New ToolStripMenuItem("Ohne reservierte Steine mischen")
+        AddHandler mnuShuffleOnly.Click, AddressOf OnShuffleOnly
         Items.Add(mnuShuffleOnly)
 
         Dim mnuInfoShuffle As New ToolStripMenuItem("Info + Info Doppelklick im Vorrat")
         AddHandler mnuInfoShuffle.Click, AddressOf OnInfoShuffle
         Items.Add(mnuInfoShuffle)
+
+        Items.Add(New ToolStripSeparator())
+
+        Dim mnuSortPur As New ToolStripMenuItem("Steine aufteigend sortieren")
+        AddHandler mnuSortPur.Click, AddressOf OnSortPur
+        Items.Add(mnuSortPur)
+
+        Dim mnuSortByPair As New ToolStripMenuItem("Steine paarweise zusammenstellen")
+        AddHandler mnuSortByPair.Click, AddressOf OnSortByPair
+        Items.Add(mnuSortByPair)
+
+        Dim mnuSeperateStockWidow As New ToolStripMenuItem("Witwen an den Anfang ziehen")
+        AddHandler mnuSeperateStockWidow.Click, AddressOf OnSeperateStockWidow
+        Items.Add(mnuSeperateStockWidow)
+
+        Dim mnuInfoSort As New ToolStripMenuItem("Info")
+        AddHandler mnuInfoSort.Click, AddressOf OnInfoSort
+        Items.Add(mnuInfoSort)
 
         RefreshCheckMarks()
 
@@ -80,8 +100,7 @@ Public NotInheritable Class ContextMenueEditor
             Not INI.Editor_DoubleClickRemoveStein
 
         _mnuWindsAreInOneClickGroup.Checked = INI.Spielbetrieb_WindsAreInOneClickGroup
-        _mnuEditorSteinflugAnimation.Checked = INI.Editor_SteinflugAnimation
-
+        _mnuShowGhost.Checked = INI.Editor_ShowDoubleclickGhost
     End Sub
 
     Private Sub OnDoubleClickSetStein(sender As Object, e As EventArgs)
@@ -110,6 +129,13 @@ Public NotInheritable Class ContextMenueEditor
         RefreshCheckMarks()
 
     End Sub
+    Private Sub OnShowGhost(sender As Object, e As EventArgs)
+
+        INI.Editor_ShowDoubleclickGhost = Not INI.Editor_ShowDoubleclickGhost
+
+        RefreshCheckMarks()
+
+    End Sub
 
     Private Sub OnWindsAreInOneClickGroup(sender As Object, e As EventArgs)
 
@@ -119,26 +145,32 @@ Public NotInheritable Class ContextMenueEditor
 
     End Sub
 
-    Private Sub OnEditorSteinflugAnimation(sender As Object, e As EventArgs)
-
-        INI.Editor_SteinflugAnimation = Not INI.Editor_SteinflugAnimation
-
-        RefreshCheckMarks()
-
+    Private Sub OnToolboxOpen(sender As Object, e As EventArgs)
+        frmMain.DoToolBox()
     End Sub
 
-    Private Sub OShuffleAll(sender As Object, e As EventArgs)
+    Private Sub OnShuffleAll(sender As Object, e As EventArgs)
         SFMain.SFDat.SFStock.ShuffleStock(includeNoSortArea:=True)
     End Sub
-    Private Sub ObShuffleOnly(sender As Object, e As EventArgs)
+    Private Sub OnShuffleOnly(sender As Object, e As EventArgs)
         SFMain.SFDat.SFStock.ShuffleStock(includeNoSortArea:=False)
+    End Sub
+    Private Sub OnSortPur(sender As Object, e As EventArgs)
+        SFMain.SFDat.SFStock.SortStockPur()
+    End Sub
+    Private Sub OnSortByPair(sender As Object, e As EventArgs)
+        SFMain.SFDat.SFStock.SortStockByPairs()
+    End Sub
+    Private Sub OnSeperateStockWidow(sender As Object, e As EventArgs)
+        SFMain.SFDat.SFStock.SeperateStockWidow()
     End Sub
 
     Private Sub OnInfoDoubleClick(sender As Object, e As EventArgs)
 
         Dim sb As New StringBuilder
+
         sb.Append("Wenn ""Doppelklick setzt Stein"" eingeschaltet ist, erscheint, sofern noch ein Stein im Vorrat ist, ")
-        sb.Append("eine Geistergrafik an den Stellen, wo eine Steinablage möglich ist. ")
+        sb.Append("eine Geistergrafik/ein Stein an den Stellen, wo eine Steinablage möglich ist. ")
         sb.Append("Ein Doppelklick setzt dort den Stein, der sich im Vorrat ganz links befindet.(Gemeint ist hier der erste sichtbare Stein, das ist nicht zwangsläufig der erste Stein im Vorrat.))")
         sb.AppendLine()
         sb.Append("Unabhängig davon kann jeder Stein aus Vorrat oder Spielfeld per Drag & Drop in alle Richtungen gezogen werden, ")
@@ -152,6 +184,9 @@ Public NotInheritable Class ContextMenueEditor
         sb.AppendLine()
         sb.Append("Hinweis: Ein Stein belegt vier Rechtecke. Das linke obere Rechteck ist das ""Führungsrechteck"". ")
         sb.Append("Ein Klick/Doppelklick in diesen Bereich eines Steines verhindert das gelegentliche Springen und andere Besonderheiten im Verhalten des Steins, das durch den ersten Klick ausgelößt wird.")
+        sb.AppendLine()
+        sb.AppendLine()
+        sb.AppendLine("Wenn ""Ablegeposition als Geist"" ausgeschaltet ist, erscheint dort ein (fast) normaler Stein.")
 
         MessageBox.Show(
             sb.ToString,
@@ -171,10 +206,10 @@ Public NotInheritable Class ContextMenueEditor
 
     End Sub
 
-    Private Sub OnInfoSteinflug(sender As Object, e As EventArgs)
+    Private Sub OnInfoToolboxOpen(sender As Object, e As EventArgs)
 
         MessageBox.Show(
-            "Wenn eine Aktion abgebrochen wird (Loslassen des Steines an einer Position ohne Geistergrafik) oder Steine per Doppelklick entfernt werden, beamen oder fliegen diese zurück, je nach Schalterstellung.",
+            "Die Toolbox ist die Werkzeugkiste, mit der Größe des Spielfeldes, Hintergrundbild und Name, festgelegt oder geändert werden.",
             "Info",
             MessageBoxButtons.OK,
             MessageBoxIcon.Information)
@@ -185,13 +220,44 @@ Public NotInheritable Class ContextMenueEditor
         Dim sb As New StringBuilder
 
         sb.AppendLine("Mischen der Steine:")
-        sb.Append("Zunächst: Es gibt im Steinvorrat zwei Bereiche: Am Anfang, die ersten 10 Steine (Menge in den Einstellungen änderbar; Im Steinvorrat abgetrennt durch einen schmalen Abstand) ")
+        sb.Append("Es gibt im Steinvorrat zwei Bereiche: Am Anfang, die ersten 10 Steine (Menge in den Einstellungen änderbar; im Steinvorrat abgetrennt durch einen schmalen Abstand) ")
         sb.Append("das ist der ""reservierte Bereich"". Das heißt: Dieser Bereich kann vom Mischen der Steine ausgenommen werden.")
         sb.AppendLine("Damit ist es möglich bestimmte Steine zu sammeln.")
         sb.AppendLine("Und damit dürfte auch klar sein, was mit: ""Alle Steine mischen"" und mit ""Mischen ohne reservierte Steine"" gemeint ist.")
         sb.AppendLine()
         sb.AppendLine("Doppelklick im Steinvorrat:")
-        sb.Append("Ein Doppelklick auf einen Stein im Steinvorrat transportiert diesen Stein immer ganz an den Anfang an die erste Position der reservierten Steine.")
+        sb.Append("Ein Doppelklick auf einen Stein im Steinvorrat transportiert diesen Stein immer ganz an den Anfang an die erste Position im reservierten Bereich.")
+
+        MessageBox.Show(
+            sb.ToString,
+            "Info",
+            MessageBoxButtons.OK,
+            MessageBoxIcon.Information)
+    End Sub
+
+    Private Sub OnInfoSort(sender As Object, e As EventArgs)
+
+        Dim sb As New StringBuilder
+        sb.AppendLine("Es gibt verschiedene Sortiermöglichkeiten.")
+        sb.AppendLine()
+        sb.AppendLine("Aufsteigend:")
+        sb.AppendLine("Einfache systematische Sortierung aller Steine.")
+        sb.AppendLine()
+        sb.AppendLine("Paarweise:")
+        sb.AppendLine("Die Reihenfolge bleibt erhalten mit zwei Besonderheiten:")
+        sb.AppendLine("1.) Jedem Stein wird sein Partnerstein zugeordnet.")
+        sb.AppendLine("2.) die ""Witwen"" kommen ganz nach vorne")
+        sb.AppendLine("Witwen sind die Steine, deren Partnerstein bereits auf dem Spielfeld steht.")
+        sb.AppendLine()
+        sb.AppendLine("Witwen an den Anfang ziehen:")
+        sb.AppendLine("Jeder Stein braucht einen Partnerstein.")
+        sb.AppendLine("Die Funktion zieht die im Spielfeld noch fehlenden Steine ganz nach vorne. Sie sind mit einem ""!"" markiert.")
+
+        sb.AppendLine("Generell:")
+        sb.Append("Witwensteine werden im Vorrat immer mit einem Ausrufezeichen ""!"" links oben markiert. ")
+        sb.Append("Aber: Wenn zwei gleiche Steine im Blickfeld sind, und einer wird entnommen, wird nicht ")
+        sb.Append("zwangsweise der Andere makiert. Es wird der erste Parterstein von Links markiert, und das ")
+        sb.Append("kann ein anderer Stein sein, der sich außerhalb des Sichtfeldes befindet.")
 
         MessageBox.Show(
             sb.ToString,
@@ -212,6 +278,6 @@ Public NotInheritable Class ContextMenueEditor
 
         MyBase.OnClosed(e)
         INI.Volatil_ContextMenueEditorIsOpen = False
-
+        INI.Volatil_SetConsumeDoRenderAfterContextMenueClosed()
     End Sub
 End Class

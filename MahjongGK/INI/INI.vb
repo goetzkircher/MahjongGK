@@ -1137,19 +1137,19 @@ Public Module INI
         End Set
     End Property
 
-    Private _Editor_SteinflugAnimation As Boolean?
-    Public Property Editor_SteinflugAnimation As Boolean
+    Private _Editor_ShowDoubleclickGhost As Boolean?
+    Public Property Editor_ShowDoubleclickGhost As Boolean
         Get
-            If IsNothing(_Editor_SteinflugAnimation) Then
-                Dim [Default] As Boolean = True
-                Dim comment As String = "Der aktuelle Wert im Kontextmenue Editor."
-                _Editor_SteinflugAnimation = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            If IsNothing(_Editor_ShowDoubleclickGhost) Then
+                Dim [Default] As Boolean = False
+                Dim comment As String = Nothing
+                _Editor_ShowDoubleclickGhost = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
             End If
-            Return CBool(_Editor_SteinflugAnimation)
+            Return CBool(_Editor_ShowDoubleclickGhost)
         End Get
         Set(value As Boolean)
             BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
-            _Editor_SteinflugAnimation = Nothing
+            _Editor_ShowDoubleclickGhost = Nothing
         End Set
     End Property
 
@@ -1638,7 +1638,7 @@ Public Module INI
         End Set
     End Property
 
-    Private _IfRunningInIDE_InsertStoneIndex As Boolean?
+    Private ReadOnly _IfRunningInIDE_InsertStoneIndex As Boolean?
     ''' <summary>
     ''' Gibt außerhalb der IDE immer False zurück
     ''' </summary>
@@ -1749,10 +1749,6 @@ Public Module INI
                     [Default] = IniManager.CvtHexStringToColor("FFFF0000")
                 Case SteinStatus.I09WerkstückZufallsgrafik
                     [Default] = IniManager.CvtHexStringToColor("FF000000")
-                Case SteinStatus.I10Reserve1
-                    [Default] = IniManager.CvtHexStringToColor("FF00FF00")
-                Case SteinStatus.I11Reserve2
-                    [Default] = IniManager.CvtHexStringToColor("FFFF00FF")
 
             End Select
             Dim comment As String = Nothing
@@ -2219,10 +2215,10 @@ Public Module INI
     Public Property Rendering_RenderTimerIntervalWorking As Integer
         Get
             If IsNothing(_Rendering_RenderTimerIntervalWorking) Then
-                Dim [Default] As Integer = 15
+                Dim [Default] As Integer = 1
                 Dim comment As String = "I01Normal 15 bis 20 (Einheit Millisekunden). Werte über 30 für schwache Rechner," &
                                     "~= 1 führt zu einem stabilerem Takt aller Timer auf dem Computer und zu etwas höherem Energieverbrauch." &
-                                    "~Zu hohe Werte verlangsamen und verlängern die Animation. Satz1: 15"
+                                    "~Zu hohe Werte verlangsamen und verlängern die Animation. 1"
                 _Rendering_RenderTimerIntervalWorking = Rendering.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
             End If
 
@@ -2446,19 +2442,21 @@ Public Module INI
     End Property
 
     '
-    Private _Rendering_SteinFlugGeschwindigkeit As Double?
-    Public Property Rendering_SteinFlugGeschwindigkeit As Double
+    Private _Rendering_SteinFlightSpeed As Double?
+    Public Property Rendering_SteinFlightSpeed As Double
         Get
-            If Not _Rendering_SteinFlugGeschwindigkeit.HasValue Then
-                Dim [Default] As Double = 36
-                Dim comment As String = "Die Anzahl der Pixel je Frame, die der Stein weiterkommt. Default: 36"
-                _Rendering_SteinFlugGeschwindigkeit = Rendering.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            If Not _Rendering_SteinFlightSpeed.HasValue Then
+                Dim [Default] As Double = 50
+                Dim comment As String = "Die Anzahl der Pixel je Frame, die der Stein weiterkommt. Default: 50, Min: 20, Max: 100"
+                _Rendering_SteinFlightSpeed = Rendering.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+                If _Rendering_SteinFlightSpeed < 20 Then _Rendering_SteinFlightSpeed = 20
+                If _Rendering_SteinFlightSpeed <> 100 Then _Rendering_SteinFlightSpeed = 100
             End If
-            Return _Rendering_SteinFlugGeschwindigkeit.Value
+            Return _Rendering_SteinFlightSpeed.Value
         End Get
         Set(value As Double)
             Rendering.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
-            _Rendering_SteinFlugGeschwindigkeit = Nothing
+            _Rendering_SteinFlightSpeed = Nothing
         End Set
     End Property
     '
@@ -2813,6 +2811,20 @@ Public Module INI
     End Property
 
     Public Property Volatil_ContextMenueEditorIsOpen As Boolean
+
+    Public Sub Volatil_SetConsumeDoRenderAfterContextMenueClosed()
+        _Volatil_ConsumeDoRenderAfterContextMenueClosed = True
+    End Sub
+
+    Private _Volatil_ConsumeDoRenderAfterContextMenueClosed As Boolean
+    Public Function Volatil_ConsumeDoRenderAfterContextMenueClosed() As Boolean
+        If _Volatil_ConsumeDoRenderAfterContextMenueClosed Then
+            _Volatil_ConsumeDoRenderAfterContextMenueClosed = False
+            Return True
+        Else
+            Return False
+        End If
+    End Function
 
 #End Region
 

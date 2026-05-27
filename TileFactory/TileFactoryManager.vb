@@ -14,18 +14,17 @@ Imports MahjongGK.Contracts.GlobalEnum
 ''' </summary>
 Friend Class TileFactoryManager
 
-    Private Const CACHE_MODE_COUNT As Integer = 2   'Spiel / Edit
-    Private Const CACHE_STATUS_COUNT As Integer = 9 'I01 .. I09
-    Private Const CACHE_TYPE_COUNT As Integer = 43  'SteinTyp 0 .. 42
-    Private Const CACHE_LENGTH As Integer = CACHE_MODE_COUNT * CACHE_STATUS_COUNT * CACHE_TYPE_COUNT
+    Private Const CACHE_MODE_COUNT As Integer = 2
+    Private Const CACHE_STATUS_COUNT As Integer = 9
+    Private Const CACHE_TYPE_COUNT As Integer = 43
+    Private Const CACHE_GHOST_COUNT As Integer = 3 'Transparent, LightOnly, LightTransparent
+    Private Const CACHE_NORMAL_LENGTH As Integer = CACHE_MODE_COUNT * CACHE_STATUS_COUNT * CACHE_TYPE_COUNT
+    Private Const CACHE_GHOST_LENGTH As Integer = CACHE_MODE_COUNT * CACHE_GHOST_COUNT * CACHE_TYPE_COUNT
+    Private Const CACHE_LENGTH As Integer = CACHE_NORMAL_LENGTH + CACHE_GHOST_LENGTH
 
     'Grundsatzfrage: für wen gilt das ReadOnly?
     Private ReadOnly _tileStandardCache(CACHE_LENGTH - 1) As Bitmap
     Private ReadOnly _tileStandardCacheQueryCount(CACHE_LENGTH - 1) As Long
-
-    Private ReadOnly _tileSmallCache(CacheIndex.UBound) As Bitmap
-    Private ReadOnly _tileSmallCacheQueryCount(CacheIndex.UBound) As Long
-    Private ReadOnly _tileSmallCacheLastRequestHash(CacheIndex.UBound) As Integer
 
     Private _spielSteinSize As Size = Size.Empty
     Private _editSteinSize As Size = Size.Empty
@@ -48,98 +47,39 @@ Friend Class TileFactoryManager
         'Note: Auskommentierte Stop-Bedingung 1. und 2. Stein links oben im Tester
         '1.Stein links oben im Tester
         'If request.SteinStatus = SteinStatus.I01Normal AndAlso
-        '    request.SteinTyp = SteinTyp.Bambus6 AndAlso
-        '    request.SteinTypVersion = SteinTypVersion.Normal AndAlso
+        '    request.SteinSymbol = SteinSymbol.Bambus6 AndAlso
+        '    request.SteinSymbolVersion = SteinSymbolVersion.Normal AndAlso
         '    request.SteinFrameVersion = SteinFrameVersion.Standard Then
         '    Stop
         'End If
 
         '2.Stein links oben im Tester
         'If request.SteinStatus = SteinStatus.I01Normal AndAlso
-        '    request.SteinTyp = SteinTyp.WindSüd AndAlso
-        '    request.SteinTypVersion = SteinTypVersion.Winde AndAlso
+        '    request.SteinSymbol = SteinSymbol.WindSüd AndAlso
+        '    request.SteinSymbolVersion = SteinSymbolVersion.Winde AndAlso
         '    request.SteinFrameVersion = SteinFrameVersion.Standard Then
         '    Stop
         'End If
         EnsureModeSize(request) 'Cleard ggf alle Caches, macht in diesem Fall absolut nichts, da sich die Steingröße und die TileColors nicht geändert haben.
 
-        If request.SteinFrameVersion = SteinFrameVersion.Standard Then
+        'Der cacheIndex gibt auch die immer gleichen gültigen Werte der immer gleichen Steine zurück
+        Dim cacheIndex As Integer = TileFactoryManager.GetIndexStandardCache(request)
 
-            'Der cacheIndex gibt auch die immer gleichen gültigen Werte der immer gleichen Steine zurück
-            Dim cacheIndex As Integer = TileFactoryManager.GetIndexStandardCache(request)
+        Dim bmp As Bitmap = _tileStandardCache(cacheIndex)
 
-            Dim bmp As Bitmap = _tileStandardCache(cacheIndex)
-
-            If bmp IsNot Nothing Then
-
-                If request.Ghost Then
-                    Return CvtToBmpGhost(bmp, request)
-                Else
-                    _tileStandardCacheQueryCount(cacheIndex) += 1
-                    Return bmp
-                End If '
-            End If
-
-            bmp = TileFactoryComposer.CreateTileBitmap(request) 'gibt immer eine Bitmap zurück, im Fehlerfall eine Rote.
-
-            _tileStandardCache(cacheIndex) = bmp
-
-            If request.Ghost Then
-                Return CvtToBmpGhost(bmp, request)
-            Else
-                Return bmp
-            End If
-
-        Else
-            Dim cacheIndex As CacheIndex = request.TileColors.GetIndexSmallCache
-
-            If CacheNeedsClear(cacheIndex, request.SteinTyp, request.SteinStatus) Then
-                If _tileSmallCache(cacheIndex) IsNot Nothing Then
-                    _tileSmallCache(cacheIndex).Dispose()
-                    _tileSmallCache(cacheIndex) = Nothing
-                End If
-            End If
-
-            Dim bmp As Bitmap = _tileSmallCache(cacheIndex)
-
-            If bmp IsNot Nothing Then
-                _tileSmallCacheQueryCount(cacheIndex) += 1
-                Return bmp
-            End If
-
-            bmp = TileFactoryComposer.CreateTileBitmap(request)
-
-            _tileSmallCache(cacheIndex) = bmp
-
+        If bmp IsNot Nothing Then
+            _tileStandardCacheQueryCount(cacheIndex) += 1
             Return bmp
-
         End If
 
+        bmp = TileFactoryComposer.CreateTileBitmap(request) 'gibt immer eine Bitmap zurück, im Fehlerfall eine Rote.
+
+        _tileStandardCache(cacheIndex) = bmp
+
+        Return bmp
+
     End Function
 
-    Private Function CvtToBmpGhost(bmp As Bitmap, request As TileRequest) As Bitmap
-
-        Dim bmpGhost As Bitmap = bmp.Clone(New Rectangle(0, 0, bmp.Width, bmp.Height), bmp.PixelFormat)
-
-        With request.TileColors
-            'Falls keine Werte vorhanden sind, Standardwerte nehmen
-            If (.AlphaGhost = 0 OrElse .AlphaGhost = 255) AndAlso .DHueGhost = 0 AndAlso .DSatGhost = 0 AndAlso .DBrgGhost = 0 Then
-                .GhostUseFastMethode = False
-                .AlphaGhost = 170
-                .DSatGhost = -80
-            End If
-            If .GhostUseFastMethode Then
-                Dim alpha As Single = CSng(Math.Abs(.AlphaGhost) / 255)
-                Dim lighten As Single = CSng(Math.Abs(.DBrgGhost) / 100)
-                bmpGhost = DeepCopyTransparenceFast(bmpGhost, alpha, lighten)
-            Else
-                bmpGhost = HsbColorHelper.HsbAdjustment(bmpGhost, .AlphaGhost, .DHueGhost, .DSatGhost, .DBrgGhost, disposeBmpSrc:=False)
-            End If
-        End With
-
-        Return bmpGhost
-    End Function
-    '
     ''' <summary>
     ''' Liefert den aktuell gemerkten Layoutdatensatz für Spiel oder Editor.
     ''' </summary>
@@ -347,16 +287,16 @@ Friend Class TileFactoryManager
         'Note: Auskommentierte Stop-Bedingung 1. und 2. Stein links oben im Tester
         ''1.Stein links oben im Tester
         'If request.SteinStatus = SteinStatus.I01Normal AndAlso
-        '    request.SteinTyp = SteinTyp.Bambus6 AndAlso
-        '    request.SteinTypVersion = SteinTypVersion.Normal AndAlso
+        '    request.SteinSymbol = SteinSymbol.Bambus6 AndAlso
+        '    request.SteinSymbolVersion = SteinSymbolVersion.Normal AndAlso
         '    request.SteinFrameVersion = SteinFrameVersion.Standard Then
         '    Stop
         'End If
 
         '2.Stein links oben im Tester
         'If request.SteinStatus = SteinStatus.I01Normal AndAlso
-        '    request.SteinTyp = SteinTyp.WindSüd AndAlso
-        '    request.SteinTypVersion = SteinTypVersion.Winde AndAlso
+        '    request.SteinSymbol = SteinSymbol.WindSüd AndAlso
+        '    request.SteinSymbolVersion = SteinSymbolVersion.Winde AndAlso
         '    request.SteinFrameVersion = SteinFrameVersion.Standard Then
         '    Stop
         'End If
@@ -393,8 +333,8 @@ Friend Class TileFactoryManager
             End If
 
             'If request.SteinStatus = SteinStatus.I01Normal AndAlso
-            '    request.SteinTyp = SteinTyp.WindSüd AndAlso
-            '    request.SteinTypVersion = SteinTypVersion.Winde AndAlso
+            '    request.SteinSymbol = SteinSymbol.WindSüd AndAlso
+            '    request.SteinSymbolVersion = SteinSymbolVersion.Winde AndAlso
             '    request.SteinFrameVersion = SteinFrameVersion.Standard Then
             '    Debug.Print(msg)
             'End If
@@ -465,19 +405,9 @@ Friend Class TileFactoryManager
         Dim i As Integer
 
         For i = 0 To _tileStandardCache.GetUpperBound(0)
-            If _tileStandardCache(i) IsNot Nothing Then
-                _tileStandardCache(i).Dispose()
-            End If
+            _tileStandardCache(i)?.Dispose()
             _tileStandardCache(i) = Nothing
             _tileStandardCacheQueryCount(i) = 0
-        Next
-
-        For i = 0 To _tileSmallCache.GetUpperBound(0)
-            If _tileSmallCache(i) IsNot Nothing Then
-                _tileSmallCache(i).Dispose()
-            End If
-            _tileSmallCache(i) = Nothing
-            _tileSmallCacheQueryCount(i) = 0
         Next
 
         _spielSteinSize = Size.Empty
@@ -492,11 +422,23 @@ Friend Class TileFactoryManager
 
         With request
             Dim modeIndex As Integer = GetModeIndex(.AktRenderMode)
-            Dim statusIndex As Integer = GetStatusIndex(.SteinStatus)
-            Dim typeIndex As Integer = CInt(.SteinTyp)
+            Dim typeIndex As Integer = CInt(.SteinSymbol)
 
-            Return ((modeIndex * CACHE_STATUS_COUNT) + statusIndex) * CACHE_TYPE_COUNT + typeIndex
+            If .SteinGhost = SteinGhost.None Then
+                Dim statusIndex As Integer = GetStatusIndex(.SteinStatus)
+
+                Return ((modeIndex * CACHE_STATUS_COUNT) + statusIndex) *
+                   CACHE_TYPE_COUNT + typeIndex
+            Else
+                Dim ghostIndex As Integer = CInt(.SteinGhost) - 1
+                'Transparent=0, LightOnly=1, LightTransparent=2
+
+                Return CACHE_NORMAL_LENGTH +
+                   ((modeIndex * CACHE_GHOST_COUNT) + ghostIndex) *
+                   CACHE_TYPE_COUNT + typeIndex
+            End If
         End With
+
     End Function
 
     Private Shared Function GetModeIndex(aktRenderMode As AktRenderMode) As Integer
@@ -538,25 +480,6 @@ Friend Class TileFactoryManager
             Case Else
                 Throw New InvalidOperationException("Programmierfehler: Dieser SteinStatus hat keinen Cacheindex.")
         End Select
-
-    End Function
-
-    Private Function CacheNeedsClear(
-            mainCacheIndex As Integer,
-            steinTyp As SteinTyp,
-            steinStatus As SteinStatus) As Boolean
-
-        Dim typValue As Integer = CInt(steinTyp)
-        Dim statusValue As Integer = CInt(steinStatus)
-
-        Dim currentHash As Integer = typValue Or (statusValue << 6)
-
-        If currentHash <> _tileSmallCacheLastRequestHash(mainCacheIndex) Then
-            _tileSmallCacheLastRequestHash(mainCacheIndex) = currentHash
-            Return True
-        Else
-            Return False
-        End If
 
     End Function
 

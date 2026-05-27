@@ -11,6 +11,7 @@ Imports TileFactory
 #Disable Warning IDE1006
 #Disable Warning IDE0031
 #Disable Warning IDE0017
+#Disable Warning IDE0044
 
 Public Class SFStockJobs
 
@@ -75,8 +76,8 @@ Public Class SFStockJobs
     ''' </summary>
     ''' <param name="index"></param>
     ''' <returns></returns>
-    Public Function GetSteinTypIndexAndRemove(index As Integer) As SteinTyp
-        Dim st As SteinTyp = _sfd.SFInf.Generator.GetSteinTypIndexAndRemove(index)
+    Public Function GetSteinSymbolIndexAndRemove(index As Integer) As SteinSymbol
+        Dim st As SteinSymbol = _sfd.SFInf.Generator.GetSteinSymbolIndexAndRemove(index)
         Return st
     End Function
     '
@@ -88,8 +89,8 @@ Public Class SFStockJobs
     ''' </summary>
     ''' <param name="index"></param>
     ''' <returns></returns>
-    Public Function GetSteinTypIndexDontRemove(index As Integer) As SteinTyp
-        Return _sfd.SFInf.Generator.GetSteinTypIndexDontRemove(index)
+    Public Function GetSteinSymbolIndexDontRemove(index As Integer) As SteinSymbol
+        Return _sfd.SFInf.Generator.GetSteinSymbolIndexDontRemove(index)
     End Function
     '
     ''' <summary>
@@ -103,7 +104,7 @@ Public Class SFStockJobs
     ''' </summary>
     ''' <param name="index"></param>
     ''' <param name="st"></param>
-    Public Sub InsertLeftFromSteinIdx(index As Integer, st As SteinTyp)
+    Public Sub InsertLeftFromSteinIdx(index As Integer, st As SteinSymbol)
         _sfd.SFInf.Generator.InsertLeftFromSteinIdx(index, st)
     End Sub
     '
@@ -114,7 +115,7 @@ Public Class SFStockJobs
     ''' sonst stimmt die Zusammensetzung des Vorrates nicht mehr.
     ''' </summary>
     ''' <param name="st"></param>
-    Public Sub AddAtStockEnd(st As SteinTyp)
+    Public Sub AddAtStockEnd(st As SteinSymbol)
         _sfd.SFInf.Generator.AddAtStockEnd(st)
     End Sub
 
@@ -147,6 +148,19 @@ Public Class SFStockJobs
         _sfd.SFInf.Generator.ShuffleStock(includeNoSortArea)
     End Sub
 
+    Public Sub SortStockPur()
+        _sfd.SFInf.Generator.SortStockPur()
+    End Sub
+    Public Sub SortStockByPairs()
+        _sfd.SFInf.Generator.SortStockByPairs()
+    End Sub
+    Public Sub SeperateStockWidow()
+        _sfd.SFInf.Generator.SeperateStockWidow()
+    End Sub
+
+    Public Function GetArrayStockWidows() As Boolean()
+        Return _sfd.SFInf.Generator.GetArrayStockWidows
+    End Function
 #End Region
 
 #Region "GapJob und StockValues"
@@ -161,7 +175,7 @@ Public Class SFStockJobs
         Public MousePos As Point
         Public AnkerPos As Point
         Public StockSteinIdx As Integer
-        Public SteinIndex As SteinTyp
+        Public SteinIndex As SteinSymbol
         Public RectStein As Rectangle
 
     End Structure
@@ -251,7 +265,7 @@ Public Class SFStockJobs
                         .HasAnkerPos = False
                         .HasValueAfterEndOfStock = True
                         .HasValueInsideStock = False
-                        .SteinIndex = SteinTyp.ErrorSy
+                        .SteinIndex = SteinSymbol.ErrorSy
                         .StockSteinIdx = _sfd.SFInf.Generator.StockAktUBnd + 1
                         .RectStein = rect
                     End With
@@ -280,8 +294,8 @@ Public Class SFStockJobs
     Private _bmpGapRemove As Bitmap
     Private _rectGapInsert As Rectangle
     Private _rectGapRemove As Rectangle
-    Private _steinTypInsert As SteinTyp
-    Private _steinTypRemove As SteinTyp
+    Private _steinSymbolInsert As SteinSymbol
+    Private _steinSymbolRemove As SteinSymbol
     Private _rectGapRemoveUseFirstRect As Boolean
     Private _rectGapRemoveFirstRectSelected As Boolean
 
@@ -340,7 +354,17 @@ Public Class SFStockJobs
 
     End Property
 
-    Private Sub ClearGapJob()
+    Public Sub DoGgfAbortAndClearGapJob()
+        '
+        'Bei sehr schnellem Klicken (Undo/Redo) kann es vorkommen, daß noch während der Animation
+        'bereits eine neue einläuft. Da das Einfügen erst am Ende der Animation erfolgt,
+        'kann die Animation zwar abgebrochen werden, das Einfügen muss aber durchgeführt werden.
+        If _IdxGapInsert >= 0 Then
+            With _sfd.SFStock
+                .InsertLeftFromSteinIdx(_IdxGapInsert, _steinSymbolInsert)
+                _sfd.SFStock.NotifyStockInsert(_IdxGapInsert)
+            End With
+        End If
 
         _IdxGapInsert = -1
         _WidthGapInsert = 0
@@ -366,10 +390,10 @@ Public Class SFStockJobs
     ''' </summary>
     Public Sub StartNewGapJob(Optional idxGapInsert As Integer = -1,
                               Optional bmpGapInsert As Bitmap = Nothing,
-                              Optional steinTypInsert As SteinTyp = SteinTyp.ErrorSy,
+                              Optional steinSymbolInsert As SteinSymbol = SteinSymbol.ErrorSy,
                               Optional idxGapRemove As Integer = -1,
                               Optional bmpGapRemove As Bitmap = Nothing,
-                              Optional steinTypRemove As SteinTyp = SteinTyp.ErrorSy,
+                              Optional steinSymbolRemove As SteinSymbol = SteinSymbol.ErrorSy,
                               Optional gapRemoveUseFirstRect As Boolean = False)
 
         If (idxGapInsert < 0 AndAlso idxGapRemove < 0) OrElse (bmpGapInsert Is Nothing AndAlso bmpGapRemove Is Nothing) Then
@@ -386,14 +410,14 @@ Public Class SFStockJobs
             Throw New Exception("Programmierfehler: idxGapInsert und idxGapRemove dürfen nicht gleich sein.")
         End If
 
-        ClearGapJob()
+        DoGgfAbortAndClearGapJob()
 
         _rectGapRemoveUseFirstRect = gapRemoveUseFirstRect
 
         If idxGapInsert >= 0 Then
             _IdxGapInsert = idxGapInsert
             _bmpGapInsert = bmpGapInsert
-            _steinTypInsert = steinTypInsert
+            _steinSymbolInsert = steinSymbolInsert
             _hasBmpGapInsert = True
             'Die _rect... werden in SetRectsFromVisibleStock zugewiesen,
             'da st sich laufend ändern können.
@@ -402,22 +426,22 @@ Public Class SFStockJobs
         If idxGapRemove >= 0 Then
             _IdxGapRemove = idxGapRemove
             _bmpGapRemove = bmpGapRemove
-            _steinTypRemove = steinTypRemove
+            _steinSymbolRemove = steinSymbolRemove
             _hasBmpGapRemove = True
-            GetSteinTypIndexAndRemove(_IdxGapRemove)
+            GetSteinSymbolIndexAndRemove(_IdxGapRemove)
             _sfd.SFStock.NotifyStockRemove(_IdxGapRemove)
         End If
 
-        SetRectsFromVisibleStock(startNewGapJob:=True)
+        SetRectsFromVisibleStockItems(startNewGapJob:=True)
 
     End Sub
 
     Public Sub ContinueGapJob()
-        SetRectsFromVisibleStock(startNewGapJob:=False)
+        SetRectsFromVisibleStockItems(startNewGapJob:=False)
     End Sub
 
-    Public Sub SetRectsFromVisibleStock()
-        SetRectsFromVisibleStock(startNewGapJob:=False)
+    Public Sub SetRectsFromVisibleStockItems()
+        SetRectsFromVisibleStockItems(startNewGapJob:=False)
     End Sub
 
     '
@@ -429,7 +453,7 @@ Public Class SFStockJobs
     ''' (nicht benötigte auf None stellen) WidthGapX setzt das Programm selber.
     ''' Nach der automatischen Durchführung der Jobs wird alles rückgestellt.
     ''' </summary>
-    Private Sub SetRectsFromVisibleStock(startNewGapJob As Boolean)
+    Private Sub SetRectsFromVisibleStockItems(startNewGapJob As Boolean)
 
         If startNewGapJob Then
             _gapJobIsWorking = True
@@ -471,15 +495,12 @@ Public Class SFStockJobs
             If endCount = 2 Then
                 If _IdxGapInsert >= 0 Then
                     With _sfd.SFStock
-                        .InsertLeftFromSteinIdx(_IdxGapInsert, _steinTypInsert)
+                        .InsertLeftFromSteinIdx(_IdxGapInsert, _steinSymbolInsert)
                         _sfd.SFStock.NotifyStockInsert(_IdxGapInsert)
-                        'andernfalls springt die Anzeige einmal.
-                        'mir ist nicht ganz klar warum, aber nach dem Einfügen wird einmalig
-                        'die falsche
-                        ' .ConsumeSkipOneRenderstep = True
                     End With
+                    _IdxGapInsert = -1 'sonst wird doppelt eingefügt
                 End If
-                ClearGapJob()
+                DoGgfAbortAndClearGapJob()
             End If
 
         Else
@@ -611,13 +632,22 @@ Public Class SFStockJobs
 
     End Function
 
+    Public Function GetCenterPointFromStockSteinIdx(stockSteinIdx As Integer) As Point
+
+        Dim rect As Rectangle = GetRectFromStockSteinIdx(stockSteinIdx)
+
+        With rect
+            Return New Point(.X + .Width \ 2, .Y + .Height \ 2)
+        End With
+
+    End Function
 #End Region
 
 #Region "FadeOutJob"
 
-    Private _fadeOutSteinTypEnum As SteinTyp
+    Private _fadeOutSteinSymbolEnum As SteinSymbol
     Private _fadeOutHasValues As Boolean = False
-    Private _fadeOutStartAsGhost As Boolean
+    Private _fadeOutStartAsGhost As SteinGhost
     Private _fadeOutAktStep As Integer
     Private _fadeOutMaxStep As Integer
     Private _fadeOutAlpha As Single
@@ -626,7 +656,7 @@ Public Class SFStockJobs
 
     Public Sub StartNewFadeOutJob(steinInfoIndex As Integer, startAsGhost As Boolean)
         With _sfd.SFInf.SteinInfos(steinInfoIndex)
-            _sfd.SFStock.StartNewFadeOutJob(.SteinTypIndex, .RectStein, .Z, startAsGhost:=False)
+            _sfd.SFStock.StartNewFadeOutJob(.SteinSymbolIndex, .RectStein, .Z, SteinGhost.None)
         End With
     End Sub
     ''' <summary>
@@ -634,8 +664,8 @@ Public Class SFStockJobs
     ''' da es aus dieser Klasse heraus angestoßen wird.
     ''' (Verschieben von Steinen aus dem Editor in den Vorrat.)
     ''' </summary>
-    Public Sub StartNewFadeOutJob(steinTypEnum As SteinTyp, rect As Rectangle, zEbene As Integer, startAsGhost As Boolean)
-        _fadeOutSteinTypEnum = steinTypEnum
+    Public Sub StartNewFadeOutJob(steinSymbolEnum As SteinSymbol, rect As Rectangle, zEbene As Integer, startAsGhost As SteinGhost)
+        _fadeOutSteinSymbolEnum = steinSymbolEnum
         _fadeOutStartAsGhost = startAsGhost
         _fadeOutHasValues = True
         _fadeOutMaxStep = INI.Editor_AnimationSteps + 1 'Siehe Kommentar in ConsumeHasFadeOutJob
@@ -692,7 +722,7 @@ Public Class SFStockJobs
     ''' <returns></returns>
     Public Function GetFadeOutBitmap() As Bitmap
 
-        Dim request As New TileRequest(_sfd.SFRun.AktRenderMode, INI.Tile_TileColors, _fadeOutSteinTypEnum, SteinStatus.I01Normal, SteinFrameVersion.Standard, _sfd.SFLay.steinSize, INI.Tile_BasisSize, _fadeOutStartAsGhost)
+        Dim request As New TileRequest(_sfd.SFRun.AktRenderMode, INI.Tile_TileColors, _fadeOutSteinSymbolEnum, SteinStatus.I01Normal, _sfd.SFLay.steinSize, INI.Tile_BasisSize, _fadeOutStartAsGhost)
 
         Dim bmpSrc As Bitmap = TileFactoryAPI.GetTile(request) 'Cache-Bitmap, nicht disposen
         Dim bmpFade As New Bitmap(bmpSrc.Width, bmpSrc.Height, Imaging.PixelFormat.Format32bppArgb)

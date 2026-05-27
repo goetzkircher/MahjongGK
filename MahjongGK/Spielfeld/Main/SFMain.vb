@@ -226,6 +226,7 @@ Namespace Spielfeld
         Public Function LoadSpielfeld(path As String) As Boolean
             Throw New Exception("noch nicht implementiert")
         End Function
+
         Public Function LoadLastSpielfeld() As Boolean
             Throw New Exception("noch nicht implementiert")
         End Function
@@ -250,6 +251,7 @@ Namespace Spielfeld
                 End If
             End With
         End Function
+
         Public Function SpielfeldIsNotEmpty() As Boolean
             Return Not SpielfeldIsEmpty()
         End Function
@@ -278,7 +280,6 @@ Namespace Spielfeld
         End Sub
 
         'Ist das korrekt?. 
-        '
         ''' <summary>
         ''' 
         ''' </summary>

@@ -26,7 +26,7 @@ Public Class TopSteinInfo
     End Sub
 
     Public Overrides Function ToString() As String
-        Return $"(X={x}, Y={y}, Z={z}, Valide={Valide}, SteinInfoIndex={SteinInfoIndex}, SteinTypIndex={SteinTypIndex}, Quadrant={Quadrant}, FreeSide={FreeSide})"
+        Return $"(X={x}, Y={y}, Z={z}, Valide={Valide}, SteinInfoIndex={SteinInfoIndex}, SteinSymbolIndex={SteinSymbolIndex}, Quadrant={Quadrant}, FreeSide={FreeSide})"
     End Function
 
     Public Overloads Function ToTriple() As Triple

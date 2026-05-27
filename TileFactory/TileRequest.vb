@@ -23,22 +23,20 @@ Public NotInheritable Class TileRequest
     ''' </summary>
     Public Sub New(aktRenderMode As AktRenderMode,
                    tileColors As TileColors,
-                   steinTyp As SteinTyp,
+                   steinSymbol As SteinSymbol,
                    steinStatus As SteinStatus,
-                   steinFrameVersion As SteinFrameVersion,
                    steinSize As Size,
                    steinBasisSize As Size,
-                   Optional ghost As Boolean = False)
+                   steinGhost As SteinGhost)
 
         Me.AktRenderMode = aktRenderMode
         Me.TileColors = tileColors
-        Me.SteinTyp = steinTyp
+        Me.SteinSymbol = steinSymbol
         Me.SteinStatus = steinStatus
-        Me.SteinTypVersion = GetSteinTypVersionFromSteinTyp(steinTyp)
-        Me._steinFrameVersion = steinFrameVersion
+        Me.SteinSymbolVersion = GetSteinSymbolVersionFromSteinSymbol(steinSymbol)
         Me.SteinSize = steinSize
         Me.SteinBasisSize = steinBasisSize
-        Me._ghost = ghost
+        Me._steinGhost = steinGhost
 
         CheckSize()
 
@@ -60,13 +58,12 @@ Public NotInheritable Class TileRequest
         'Von den TileColors kommt fast immer die selbe Instanz. Wenn eine andere Instanz kommt,
         'heißt das, daß irgendwelche Werte sich geändert haben. (anderes Layout)
         Me.TileColors = tilerequest.TileColors 'TileColors also bewusst keine echte DeepCopy, sondern eine Referenzkopie.
-        Me.SteinTyp = tilerequest.SteinTyp
+        Me.SteinSymbol = tilerequest.SteinSymbol
         Me.SteinStatus = tilerequest.SteinStatus
-        Me.SteinTypVersion = tilerequest.SteinTypVersion
-        Me._steinFrameVersion = tilerequest.SteinFrameVersion
+        Me.SteinSymbolVersion = tilerequest.SteinSymbolVersion
         Me.SteinSize = tilerequest.SteinSize
         Me.SteinBasisSize = tilerequest.SteinBasisSize
-        Me._ghost = tilerequest.Ghost
+        Me._steinGhost = tilerequest.SteinGhost
 
     End Sub
 
@@ -78,26 +75,14 @@ Public NotInheritable Class TileRequest
 
     Public ReadOnly Property TileColors As TileColors 'Hier muss nur geprüft werden, ob sich die Instanz geändert hat.
     Public ReadOnly Property AktRenderMode As AktRenderMode 'Enumeration
-    Public ReadOnly Property SteinTyp As SteinTyp 'Enumeration
+    Public ReadOnly Property SteinSymbol As SteinSymbol 'Enumeration
     Public ReadOnly Property SteinStatus As SteinStatus 'Enumeration
     '
     ''' <summary>
-    ''' SteinTypVersion wird immer aus SteinTyp abgeleitet.
+    ''' SteinSymbolVersion wird immer aus SteinSymbol abgeleitet.
     ''' </summary>
     ''' <returns></returns>
-    Public ReadOnly Property SteinTypVersion As SteinTypVersion 'Enumeration
-
-    Private _steinFrameVersion As SteinFrameVersion
-    Public ReadOnly Property SteinFrameVersion As SteinFrameVersion 'Enumeration
-        Get
-            Return _steinFrameVersion
-        End Get
-    End Property
-    Public Sub SetSteinFrameVersion(steinStatus As SteinStatus, SteinFrameVersion As SteinFrameVersion, ghost As Boolean)
-        _SteinStatus = steinStatus
-        _steinFrameVersion = SteinFrameVersion
-        _ghost = ghost
-    End Sub
+    Public ReadOnly Property SteinSymbolVersion As SteinSymbolVersion 'Enumeration
 
     Public Sub SetSteinStatusToI01Normal()
         _SteinStatus = SteinStatus.I01Normal
@@ -127,14 +112,14 @@ Public NotInheritable Class TileRequest
         End Get
     End Property
 
-    Private _ghost As Boolean
-    Public ReadOnly Property Ghost As Boolean
+    Private ReadOnly _steinGhost As SteinGhost
+    Public ReadOnly Property SteinGhost As SteinGhost
         Get
-            Return _ghost
+            Return _steinGhost
         End Get
     End Property
 
-    Private Shared ReadOnly SteinTypToSteinTypVersionLookup As Integer() = {
+    Private Shared ReadOnly SteinSymbolToSteinSymbolVersionLookup As Integer() = {
       0,  'ErrorSy
       0,  'Punkt01
       0,  'Punkt02
@@ -181,13 +166,13 @@ Public NotInheritable Class TileRequest
   }
     '
     ''' <summary>
-    ''' SteinTypVersion leitet sich aus dem SteinTyp ab.
+    ''' SteinSymbolVersion leitet sich aus dem SteinSymbol ab.
     ''' Hier die Umwandlung.
     ''' </summary>
     ''' <param name="Index"></param>
     ''' <returns></returns>
-    Public Shared Function GetSteinTypVersionFromSteinTyp(Index As SteinTyp) As SteinTypVersion
-        Return CType(SteinTypToSteinTypVersionLookup(CInt(Index)), SteinTypVersion)
+    Public Shared Function GetSteinSymbolVersionFromSteinSymbol(Index As SteinSymbol) As SteinSymbolVersion
+        Return CType(SteinSymbolToSteinSymbolVersionLookup(CInt(Index)), SteinSymbolVersion)
     End Function
 
     Public Function SomethingChanged(request As TileRequest) As Boolean
@@ -200,13 +185,12 @@ Public NotInheritable Class TileRequest
         If Me.TileColors.SessionIdent <> request.TileColors.SessionIdent Then Return True
 
         If Me.AktRenderMode <> request.AktRenderMode Then Return True
-        If Me.SteinTyp <> request.SteinTyp Then Return True
+        If Me.SteinSymbol <> request.SteinSymbol Then Return True
         If Me.SteinStatus <> request.SteinStatus Then Return True
-        '' If Me.SteinTypVersion <> request.SteinTypVersion Then Return True 'wird abgeleitet
-        If Me.SteinFrameVersion <> request.SteinFrameVersion Then Return True
+        '' If Me.SteinSymbolVersion <> request.SteinSymbolVersion Then Return True 'wird abgeleitet
         If Me.SteinWidth <> request.SteinWidth Then Return True
         If Me.SteinHeight <> request.SteinHeight Then Return True
-        '  If Me.Ghost <> request.Ghost Then Return True
+        If Me.SteinGhost <> SteinGhost Then Return True
 
         Return False
 

@@ -70,8 +70,7 @@ Namespace Spielfeld
             SFRen = New SFRender(Me)
             SFRenMan = New SFRenderManager(Me)
             SFUI = New SFUIFace(Me)
-            'ZLVxxx   SFMouse = New SFMouseRuntime_zlv(Me)
-            'ZLVSFAir = New SFAirflight(Me)
+            SFAir = New SFAirflight(Me)
             SFMouse = New SFMouseAktion(Me)
             SFStock = New SFStockJobs(Me)
         End Sub
@@ -86,8 +85,7 @@ Namespace Spielfeld
             SFRen = New SFRender(Me)
             SFRenMan = New SFRenderManager(Me)
             SFUI = New SFUIFace(Me)
-            'ZLVxxx   SFMouse = New SFMouseRuntime_zlv(Me)
-            'ZLV SFAir = New SFAirflight(Me)
+            SFAir = New SFAirflight(Me)
             SFMouse = New SFMouseAktion(Me)
             SFStock = New SFStockJobs(Me)
         End Sub
@@ -105,8 +103,7 @@ Namespace Spielfeld
         Public Property SFRenMan As SFRenderManager
         Public Property SFUI As SFUIFace
         '
-        ''ZLVxxx   Public Property SFMouse As SFMouseRuntime_zlv
-        'Public Property SFAir As SFAirflight
+        Public Property SFAir As SFAirflight
 
         Public Property SFMouse As SFMouseAktion
 

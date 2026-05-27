@@ -37,7 +37,7 @@ Namespace Spielfeld
     ''' Pfad: MahjongGK/Spielfeld/Daten
     ''' 
     ''' Beschreibt einen einzelnen Spielstein im MahjongGK-Spielfeld.
-    ''' Enthält Identität/Zuordnung (<c>SteinInfoIndex</c>, <c>SteinTypIndex</c>, <c>KlickGruppe</c>),
+    ''' Enthält Identität/Zuordnung (<c>SteinInfoIndex</c>, <c>SteinSymbolIndex</c>, <c>KlickGruppe</c>),
     ''' Lage (<c>Postion3D</c>, abgeleitete <c>X/Y/Z</c>), Sichtbarkeitsmaske (<c>Verdeckung</c>/<c>Sichtbar</c>)
     ''' sowie optionale Animationsparameter (nur Laufzeit, <c>XmlIgnore</c>).
     ''' Bietet eine typsichere <see cref="DeepCopy"/> zur Erstellung echter, referenzgetrennter Kopien.
@@ -45,7 +45,7 @@ Namespace Spielfeld
     ''' <remarks>
     ''' <para>
     ''' <b>Identität &amp; Paarlogik:</b> <c>SteinInfoIndex</c> entspricht dem Index in <c>SteinInfos</c>.
-    ''' Die Zuordnung zu Paaren erfolgt über <c>KlickGruppe</c> (Mapping aus <c>SteinTyp</c>),
+    ''' Die Zuordnung zu Paaren erfolgt über <c>KlickGruppe</c> (Mapping aus <c>SteinSymbol</c>),
     ''' sodass auch visuell unterschiedliche Steine paarweise entfernt werden können.
     ''' </para>
     ''' <para>
@@ -72,7 +72,7 @@ Namespace Spielfeld
     ''' <code language="vbnet">
     ''' ' Stein erzeugen und ins Spielfeld übernehmen
     ''' Dim s As New SteinInfo(steinInfoIndex:=0,
-    '''                        steinIndex:=SteinTyp.Bambus1,
+    '''                        steinIndex:=SteinSymbol.Bambus1,
     '''                        pos3D:=New Triple(5, 7, 0))
     '''
     ''' ' Sichtbarkeitsbits anpassen (Quadrant-bezogen)
@@ -101,7 +101,7 @@ Namespace Spielfeld
 
         Private _SteinInfoIndex As Integer
 
-        Private _SteinIndex As SteinTyp
+        Private _SteinIndex As SteinSymbol
 
         Private _KlickGruppe As Integer
 
@@ -136,9 +136,9 @@ Namespace Spielfeld
 
         End Sub
 
-        Sub New(steinInfoIndex As Integer, steinIndex As SteinTyp, pos3D As Triple, ByRef arrFB(,,) As Integer, sfd As SFDaten)
+        Sub New(steinInfoIndex As Integer, steinIndex As SteinSymbol, pos3D As Triple, ByRef arrFB(,,) As Integer, sfd As SFDaten)
             Me.SteinInfoIndex = steinInfoIndex
-            Me.SteinTypIndex = steinIndex
+            Me.SteinSymbolIndex = steinIndex
             'TODO
             'KlickGruppe = SFInfo.GetSteinClickGruppe(steinIndex, INI.Spielbetrieb_WindsAreInOneClickGroup)
             'SteinStatusIst = SteinStatus.I01Normal
@@ -247,11 +247,11 @@ Namespace Spielfeld
         ''' Eine Enumeration aller 43 verschiedenen Grafiken für die Steine.
         ''' </summary>
         <XmlElement("SIdx")>
-        Public Property SteinTypIndex As SteinTyp
+        Public Property SteinSymbolIndex As SteinSymbol
             Get
                 Return _SteinIndex
             End Get
-            Set(value As SteinTyp)
+            Set(value As SteinSymbol)
                 If _SteinIndex = value Then Return
                 _SteinIndex = value
                 MarkDirty()
@@ -288,7 +288,7 @@ Namespace Spielfeld
         '
         ''' <summary>
         ''' Die IsWerkstattStein setzt dieses Flag als Kennzeichen,
-        ''' das der SteinTyp noch nicht zugewiesen wurde.
+        ''' das der SteinSymbol noch nicht zugewiesen wurde.
         ''' Wird sicherheitshalber in der Xml mit gespeichert.
         ''' </summary>
         ''' <returns></returns>
@@ -803,22 +803,22 @@ Namespace Spielfeld
             With _pos3D
                 If _RectQuadrant(0).Contains(mousePos) Then
                     If .z = _arrFB.GetUpperBound(2) OrElse _arrFB(.x, .y, .z + 1) = 0 Then
-                        Return New TripleX(.x, .y, .z, ValidePlace.Yes, SteinInfoIndex, SteinTypIndex, Quadrant.LO, Me)
+                        Return New TripleX(.x, .y, .z, ValidePlace.Yes, SteinInfoIndex, SteinSymbolIndex, Quadrant.LO, Me)
                     End If
                 End If
                 If _RectQuadrant(1).Contains(mousePos) Then
                     If .z = _arrFB.GetUpperBound(2) OrElse _arrFB(.x + 1, .y, .z + 1) = 0 Then
-                        Return New TripleX(.x + 1, .y, .z, ValidePlace.Yes, SteinInfoIndex, SteinTypIndex, Quadrant.RO, Me)
+                        Return New TripleX(.x + 1, .y, .z, ValidePlace.Yes, SteinInfoIndex, SteinSymbolIndex, Quadrant.RO, Me)
                     End If
                 End If
                 If _RectQuadrant(2).Contains(mousePos) Then
                     If .z = _arrFB.GetUpperBound(2) OrElse _arrFB(.x, .y + 1, .z + 1) = 0 Then
-                        Return New TripleX(.x, .y + 1, .z, ValidePlace.Yes, SteinInfoIndex, SteinTypIndex, Quadrant.LU, Me)
+                        Return New TripleX(.x, .y + 1, .z, ValidePlace.Yes, SteinInfoIndex, SteinSymbolIndex, Quadrant.LU, Me)
                     End If
                 End If
                 If _RectQuadrant(3).Contains(mousePos) Then
                     If .z = _arrFB.GetUpperBound(2) OrElse _arrFB(.x + 1, .y + 1, .z + 1) = 0 Then
-                        Return New TripleX(.x + 1, .y + 1, .z, ValidePlace.Yes, SteinInfoIndex, SteinTypIndex, Quadrant.RU, Me)
+                        Return New TripleX(.x + 1, .y + 1, .z, ValidePlace.Yes, SteinInfoIndex, SteinSymbolIndex, Quadrant.RU, Me)
                     End If
                 End If
             End With

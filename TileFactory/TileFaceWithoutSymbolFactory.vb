@@ -12,9 +12,9 @@ Imports System.Runtime.InteropServices
 ''' Erzeugt eine transparente Bitmap mit einer skalierten LightMap
 ''' für die Oberseite eines Mahjong-Steines.
 ''' </summary>
-Friend NotInheritable Class TileOverlayGradientFactory
+Friend Module TileFaceWithoutSymbolFactory
 
-    Public Shared Function CreateGradientOverlayBitmap(request As TileRequest,
+    Public Function CreateFaceWithoutSymbolBitmap(request As TileRequest,
                                                    layout As TileLayout,
                                                    colors As TileColors) As Bitmap
 
@@ -107,4 +107,4 @@ Friend NotInheritable Class TileOverlayGradientFactory
 
     End Function
 
-End Class
+End Module
