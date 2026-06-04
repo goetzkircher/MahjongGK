@@ -38,9 +38,9 @@ Imports TileFactory
 Public Enum VisibleUserControl
     None = -1
     Spielfeld
+    Spielauswahl
     Einstellungen
     About
-    SpielfeldWählen
     Hilfe
 End Enum
 
@@ -63,6 +63,13 @@ Public Class frmMain
     End Sub
 
     Private Sub Test2()
+
+        Dim lwp As String = "C:\Users\goetz\MahjongGK\Temporär\SpielfeldInfo"
+        Dim dirInfo As New DirectoryInfo(lwp)
+
+        AktVisibleUserControl = VisibleUserControl.Spielauswahl
+        Dim arrFI() As FileInfo = dirInfo.GetFiles
+        UctlSpielauswahlMain.Initialisierung(arrFI)
         'Using frm As New frmWebPTest
         '    frm.ShowDialog()
         'End Using
@@ -226,6 +233,9 @@ Public Class frmMain
         VisibleUserControls.Add(UCtlSpielfeldMain)
         UCtlSpielfeldMain.Parent = Nothing
 
+        VisibleUserControls.Add(UctlSpielauswahlMain)
+        UctlSpielauswahlMain.Parent = Nothing
+
         VisibleUserControls.Add(UCtlEinstellungenMain)
         UCtlEinstellungenMain.Parent = Nothing
 
@@ -316,6 +326,7 @@ Public Class frmMain
         End If
         INI.Sonstiges_FrmMainStartMaximized = Me.WindowState = Global.System.Windows.Forms.FormWindowState.Maximized
         INI.AllIniManagerSave()
+        TileFactory.TileFactoryAPI.DisposeAll()
 
     End Sub
     'Private Sub frmMain_Move(sender As Object, e As EventArgs) Handles Me.Move
@@ -353,7 +364,7 @@ Public Class frmMain
 
 #End Region
 
-#Region "HauptMenue ZLV"
+#Region "VisibleUserControl"
 
     '' --- Properties, Felder, Enums ---
     'Private menuEnableBindings As New List(Of Tuple(Of ToolStripMenuItem, Func(Of Boolean)))
@@ -609,6 +620,8 @@ Public Class frmMain
         ToolStripExMain.Items.Add(MkLbl("stat_sel", "wählbar: 00"))
         ToolStripExMain.Items.Add(New ToolStripSeparator())
         ToolStripExMain.Items.Add(MkLbl("stat_pairs", "Paare: 00"))
+        ToolStripExMain.Items.Add(New ToolStripSeparator())
+        ToolStripExMain.Items.Add(MkLbl("stat_stock", "im Vorrat: 000"))
         ToolStripExMain.Items.Add(New ToolStripSeparator())
 
         ' =======================
@@ -943,7 +956,6 @@ Public Class frmMain
     End Sub
 
     Private Sub DoEditor()
-        ''TODO SFD-Anpassung
         If SFMain.RenderMode = RenderMode.NoRendering Then
             MsgBox("Kein Spielfeld geladen", MsgBoxStyle.Information)
         Else
@@ -953,7 +965,6 @@ Public Class frmMain
     End Sub
 
     Public Sub DoToolBox()
-        'TODO SFD - Anpassung
         If SFMain.RenderMode = RenderMode.NoRendering Then
             MsgBox("Kein Spielfeld geladen", MsgBoxStyle.Information)
         Else
@@ -962,7 +973,6 @@ Public Class frmMain
     End Sub
 
     Private Sub DoTakeScreenShot()
-        ''TODO SFD-Anpassung
         If SFMain.RenderMode = RenderMode.NoRendering Then
             MsgBox("Kein Spielfeld geladen", MsgBoxStyle.Information)
         Else
@@ -1056,7 +1066,7 @@ Public Class frmMain
             btnToolBox = TryCast(item, ToolStripButton)
         End If
 
-        If Not INI.ToolBox_FormIsVisible Then
+        If Not INI.ToolBox_VolatilFormIsVisible Then
 
             If btnToolBox IsNot Nothing Then
                 btnToolBox.Image = Theme.GetResBmp(AppGrafikName.WerkzeugAktiv.ToString)
@@ -1102,9 +1112,15 @@ Public Class frmMain
             End If
         End If
 
-        INI.ToolBox_FormIsVisible = Not INI.ToolBox_FormIsVisible
+        INI.ToolBox_VolatilFormIsVisible = Not INI.ToolBox_VolatilFormIsVisible
 
     End Sub
+
+    Public ReadOnly Property ToolBox As frmToolBox
+        Get
+            Return _frmToolBox
+        End Get
+    End Property
 
 #End Region
 
@@ -1149,8 +1165,8 @@ Public Class frmMain
 
     Private Sub InitializeMainMenu()
 
-        Dim mnuSpielOeffnen As New ToolStripMenuItem("&Spiel öffnen")
-        Dim mnuHintergrund As New ToolStripMenuItem("&Hintergrund")
+        Dim mnuSpielOeffnen As New ToolStripMenuItem("&Spiel öffnen (Einzeln)")
+        Dim mnuSpielauswählen As New ToolStripMenuItem("S&piel auswählen (Übersicht)")
         Dim mnuSteinDesign As New ToolStripMenuItem("S&tein-Design")
         Dim mnuEinstellungen As New ToolStripMenuItem("&Einstellungen")
         Dim mnuAbout As New ToolStripMenuItem("&About")
@@ -1159,9 +1175,6 @@ Public Class frmMain
         Dim mnuNeuesSpielOeffnen As New ToolStripMenuItem("&Neues Spiel öffnen")
         Dim mnuLetztesSpielOeffnen As New ToolStripMenuItem("&Letztes Spiel öffnen")
         Dim mnuNeuesSpielAnlegen As New ToolStripMenuItem("N&eues Spiel anlegen")
-
-        Dim mnuHintergrundAendern As New ToolStripMenuItem("&Hintergrund ändern")
-        Dim mnuHintergrundAendernUndSpeichern As New ToolStripMenuItem("Hintergrund ändern && &speichern")
 
         Dim mnuSegoe As New ToolStripMenuItem("&Segoe")
         Dim mnuNoto As New ToolStripMenuItem("&Noto")
@@ -1188,7 +1201,8 @@ Public Class frmMain
 
             AddHandler mnuNeuesSpielOeffnen.Click,
             Sub(sender As Object, e As EventArgs)
-                Me.AktVisibleUserControl = VisibleUserControl.SpielfeldWählen
+                Go()
+                'Me.AktVisibleUserControl = VisibleUserControl.SpielfeldWählen
             End Sub
 
             AddHandler mnuLetztesSpielOeffnen.Click,
@@ -1206,18 +1220,17 @@ Public Class frmMain
             mnuSpielOeffnen.DropDownItems.Add(New ToolStripSeparator())
             mnuSpielOeffnen.DropDownItems.Add(mnuNeuesSpielAnlegen)
 
-            AddHandler mnuHintergrundAendern.Click,
+            AddHandler mnuSpielOeffnen.Click,
             Sub(sender As Object, e As EventArgs)
-                OpenNewBackGround(False)
+                Me.AktVisibleUserControl = VisibleUserControl.Spielfeld
             End Sub
 
-            AddHandler mnuHintergrundAendernUndSpeichern.Click,
+            AddHandler mnuSpielauswählen.Click,
             Sub(sender As Object, e As EventArgs)
-                OpenNewBackGround(True)
+                Me.AktVisibleUserControl = VisibleUserControl.Spielauswahl
             End Sub
 
-            mnuHintergrund.DropDownItems.Add(mnuHintergrundAendern)
-            mnuHintergrund.DropDownItems.Add(mnuHintergrundAendernUndSpeichern)
+            '  mnuSpielauswählen.DropDownItems.Add(mnuSpielauswählen)
 
             BuildStoneDesignSubMenu(parentMenu:=mnuSegoe, steinFont:=SteinFont.Segoe)
             BuildStoneDesignSubMenu(parentMenu:=mnuNoto, steinFont:=SteinFont.Noto)
@@ -1248,7 +1261,7 @@ Public Class frmMain
             Me.MenuStripExMain.Items.AddRange(
             New ToolStripItem() {
                 mnuSpielOeffnen,
-                mnuHintergrund,
+                mnuSpielauswählen,
                 mnuSteinDesign,
                 mnuEinstellungen,
                 mnuAbout,
@@ -1274,22 +1287,22 @@ Public Class frmMain
                 End If
             End If
 
-            Dim mnuDesign As New ToolStripMenuItem(GetEnumDisplayText(currentDesign))
-
-            mnuDesign.Tag = New StoneDesignMenuSelection(
-                font:=steinFont,
-                design:=currentDesign)
+            Dim mnuDesign As New ToolStripMenuItem(GetEnumDisplayText(currentDesign)) With {
+                .Tag = New StoneDesignMenuSelection(
+                    font:=steinFont,
+                    design:=currentDesign)
+            }
 
             _stoneDesignItems.Add(mnuDesign)
 
             For Each currentSatz As SteinSatz In [Enum].GetValues(GetType(SteinSatz))
 
-                Dim mnuSatz As New ToolStripMenuItem(GetEnumDisplayText(currentSatz))
-
-                mnuSatz.Tag = New StoneMenuSelection(
-                    font:=steinFont,
-                    design:=currentDesign,
-                    satz:=currentSatz)
+                Dim mnuSatz As New ToolStripMenuItem(GetEnumDisplayText(currentSatz)) With {
+                    .Tag = New StoneMenuSelection(
+                        font:=steinFont,
+                        design:=currentDesign,
+                        satz:=currentSatz)
+                }
 
                 AddHandler mnuSatz.Click, AddressOf OnStoneDesignLeafClick
 
@@ -1507,8 +1520,6 @@ Public Class frmMain
                         "INI-Prüfung",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Error)
-
-        End
 
     End Sub
 

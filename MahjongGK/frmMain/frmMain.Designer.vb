@@ -28,6 +28,8 @@ Partial Class frmMain
         Me.TabControlMain = New System.Windows.Forms.TabControl()
         Me.TabPageSpielfeld = New System.Windows.Forms.TabPage()
         Me.UCtlSpielfeldMain = New MahjongGK.UCtlSpielfeld()
+        Me.TabPageSpielauswahl = New System.Windows.Forms.TabPage()
+        Me.UctlSpielauswahlMain = New MahjongGK.UctlSpielauswahl()
         Me.TabPageEinstellungen = New System.Windows.Forms.TabPage()
         Me.UCtlEinstellungenMain = New MahjongGK.UctlEinstellungen()
         Me.TabPageAbout = New System.Windows.Forms.TabPage()
@@ -41,6 +43,7 @@ Partial Class frmMain
         Me.PanelFrmMainUGrd.SuspendLayout()
         Me.TabControlMain.SuspendLayout()
         Me.TabPageSpielfeld.SuspendLayout()
+        Me.TabPageSpielauswahl.SuspendLayout()
         Me.TabPageEinstellungen.SuspendLayout()
         Me.TabPageAbout.SuspendLayout()
         Me.ToolStripExMain.SuspendLayout()
@@ -63,6 +66,7 @@ Partial Class frmMain
             Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.TabControlMain.Controls.Add(Me.TabPageSpielfeld)
+        Me.TabControlMain.Controls.Add(Me.TabPageSpielauswahl)
         Me.TabControlMain.Controls.Add(Me.TabPageEinstellungen)
         Me.TabControlMain.Controls.Add(Me.TabPageAbout)
         Me.TabControlMain.Location = New System.Drawing.Point(12, 28)
@@ -89,6 +93,24 @@ Partial Class frmMain
         Me.UCtlSpielfeldMain.Name = "UCtlSpielfeldMain"
         Me.UCtlSpielfeldMain.Size = New System.Drawing.Size(1046, 403)
         Me.UCtlSpielfeldMain.TabIndex = 0
+        '
+        'TabPageSpielauswahl
+        '
+        Me.TabPageSpielauswahl.Controls.Add(Me.UctlSpielauswahlMain)
+        Me.TabPageSpielauswahl.Location = New System.Drawing.Point(4, 22)
+        Me.TabPageSpielauswahl.Name = "TabPageSpielauswahl"
+        Me.TabPageSpielauswahl.Size = New System.Drawing.Size(1052, 409)
+        Me.TabPageSpielauswahl.TabIndex = 5
+        Me.TabPageSpielauswahl.Text = "Spielauswahl"
+        Me.TabPageSpielauswahl.UseVisualStyleBackColor = True
+        '
+        'UctlSpielauswahlMain
+        '
+        Me.UctlSpielauswahlMain.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.UctlSpielauswahlMain.Location = New System.Drawing.Point(0, 0)
+        Me.UctlSpielauswahlMain.Name = "UctlSpielauswahlMain"
+        Me.UctlSpielauswahlMain.Size = New System.Drawing.Size(1052, 409)
+        Me.UctlSpielauswahlMain.TabIndex = 0
         '
         'TabPageEinstellungen
         '
@@ -182,6 +204,7 @@ Partial Class frmMain
         Me.PanelFrmMainUGrd.ResumeLayout(False)
         Me.TabControlMain.ResumeLayout(False)
         Me.TabPageSpielfeld.ResumeLayout(False)
+        Me.TabPageSpielauswahl.ResumeLayout(False)
         Me.TabPageEinstellungen.ResumeLayout(False)
         Me.TabPageAbout.ResumeLayout(False)
         Me.ToolStripExMain.ResumeLayout(False)
@@ -207,4 +230,6 @@ Partial Class frmMain
     Friend WithEvents TabPageAbout As TabPage
     Friend WithEvents UCtlAboutMahjongGKMain As UICtlAboutMahjongGK
     Friend WithEvents FileSystemWatcher1 As IO.FileSystemWatcher
+    Friend WithEvents TabPageSpielauswahl As TabPage
+    Friend WithEvents UctlSpielauswahlMain As UctlSpielauswahl
 End Class

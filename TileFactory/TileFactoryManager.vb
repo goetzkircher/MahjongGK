@@ -23,8 +23,9 @@ Friend Class TileFactoryManager
     Private Const CACHE_LENGTH As Integer = CACHE_NORMAL_LENGTH + CACHE_GHOST_LENGTH
 
     'Grundsatzfrage: für wen gilt das ReadOnly?
-    Private ReadOnly _tileStandardCache(CACHE_LENGTH - 1) As Bitmap
-    Private ReadOnly _tileStandardCacheQueryCount(CACHE_LENGTH - 1) As Long
+    Private ReadOnly _tileCache(CACHE_LENGTH - 1) As Bitmap
+    Private ReadOnly _tileCacheQueryCount(CACHE_LENGTH - 1) As Integer
+    Private ReadOnly _tileCacheIsValide(CACHE_LENGTH - 1) As Boolean
 
     Private _spielSteinSize As Size = Size.Empty
     Private _editSteinSize As Size = Size.Empty
@@ -60,23 +61,25 @@ Friend Class TileFactoryManager
         '    request.SteinFrameVersion = SteinFrameVersion.Standard Then
         '    Stop
         'End If
-        EnsureModeSize(request) 'Cleard ggf alle Caches, macht in diesem Fall absolut nichts, da sich die Steingröße und die TileColors nicht geändert haben.
 
-        'Der cacheIndex gibt auch die immer gleichen gültigen Werte der immer gleichen Steine zurück
-        Dim cacheIndex As Integer = TileFactoryManager.GetIndexStandardCache(request)
+        IfNecessaryClearArrCacheIsValid(request)
 
-        Dim bmp As Bitmap = _tileStandardCache(cacheIndex)
+        ''Der cacheIndex gibt auch die immer gleichen gültigen Werte der immer gleichen Steine zurück
+        Dim cacheIndex As Integer = TileFactoryManager.GetIndexCache(request)
 
-        If bmp IsNot Nothing Then
-            _tileStandardCacheQueryCount(cacheIndex) += 1
-            Return bmp
+        If _tileCacheIsValide(cacheIndex) Then
+            _tileCacheQueryCount(cacheIndex) += 1
+            Return _tileCache(cacheIndex)
         End If
 
-        bmp = TileFactoryComposer.CreateTileBitmap(request) 'gibt immer eine Bitmap zurück, im Fehlerfall eine Rote.
+        _tileCache(cacheIndex)?.Dispose()
+        _tileCache(cacheIndex) = Nothing
+        _tileCacheQueryCount(cacheIndex) = 0
+        'gibt immer eine Bitmap zurück, im Fehlerfall eine Rote.
+        _tileCache(cacheIndex) = TileFactoryComposer.CreateTileBitmap(request)
+        _tileCacheIsValide(cacheIndex) = True
 
-        _tileStandardCache(cacheIndex) = bmp
-
-        Return bmp
+        Return _tileCache(cacheIndex)
 
     End Function
 
@@ -104,7 +107,7 @@ Friend Class TileFactoryManager
     ''' </summary>
     Public Sub DisposeAll()
 
-        ClearAllCaches()
+        DisposeTileCacheAndClearOtherValues()
         DisposeAllLichtkarten()
     End Sub
 
@@ -183,8 +186,8 @@ Friend Class TileFactoryManager
 
         Dim count As Long = 0
 
-        For i As Integer = 0 To _tileStandardCacheQueryCount.GetUpperBound(0)
-            count += _tileStandardCacheQueryCount(i)
+        For i As Integer = 0 To _tileCacheQueryCount.GetUpperBound(0)
+            count += _tileCacheQueryCount(i)
         Next
 
         Return count
@@ -198,7 +201,7 @@ Friend Class TileFactoryManager
         For statusIndex As Integer = 0 To CACHE_STATUS_COUNT - 1
             For typeIndex As Integer = 0 To CACHE_TYPE_COUNT - 1
                 Dim cacheIndex As Integer = ((GetModeIndex(aktRenderMode) * CACHE_STATUS_COUNT) + statusIndex) * CACHE_TYPE_COUNT + typeIndex
-                count += _tileStandardCacheQueryCount(cacheIndex)
+                count += _tileCacheQueryCount(cacheIndex)
             Next
         Next
 
@@ -215,7 +218,7 @@ Friend Class TileFactoryManager
 
         For typeIndex As Integer = 0 To CACHE_TYPE_COUNT - 1
             Dim cacheIndex As Integer = ((modeIndex * CACHE_STATUS_COUNT) + statusIndex) * CACHE_TYPE_COUNT + typeIndex
-            count += _tileStandardCacheQueryCount(cacheIndex)
+            count += _tileCacheQueryCount(cacheIndex)
         Next
 
         Return count
@@ -226,8 +229,8 @@ Friend Class TileFactoryManager
 
         Dim count As Integer = 0
 
-        For i As Integer = 0 To _tileStandardCache.GetUpperBound(0)
-            If _tileStandardCache(i) IsNot Nothing Then
+        For i As Integer = 0 To _tileCache.GetUpperBound(0)
+            If _tileCache(i) IsNot Nothing Then
                 count += 1
             End If
         Next
@@ -243,7 +246,7 @@ Friend Class TileFactoryManager
         For statusIndex As Integer = 0 To CACHE_STATUS_COUNT - 1
             For typeIndex As Integer = 0 To CACHE_TYPE_COUNT - 1
                 Dim cacheIndex As Integer = ((GetModeIndex(aktRenderMode) * CACHE_STATUS_COUNT) + statusIndex) * CACHE_TYPE_COUNT + typeIndex
-                If _tileStandardCache(cacheIndex) IsNot Nothing Then
+                If _tileCache(cacheIndex) IsNot Nothing Then
                     count += 1
                 End If
             Next
@@ -262,7 +265,7 @@ Friend Class TileFactoryManager
 
         For typeIndex As Integer = 0 To CACHE_TYPE_COUNT - 1
             Dim cacheIndex As Integer = ((modeIndex * CACHE_STATUS_COUNT) + statusIndex) * CACHE_TYPE_COUNT + typeIndex
-            If _tileStandardCache(cacheIndex) IsNot Nothing Then
+            If _tileCache(cacheIndex) IsNot Nothing Then
                 count += 1
             End If
         Next
@@ -281,8 +284,8 @@ Friend Class TileFactoryManager
 
     End Function
 
-    Private _tileColors As TileColors = Nothing
-    Private Sub EnsureModeSize(request As TileRequest)
+    Private _tileColors_SessionIdent As String = String.Empty
+    Private Sub IfNecessaryClearArrCacheIsValid(request As TileRequest)
 
         'Note: Auskommentierte Stop-Bedingung 1. und 2. Stein links oben im Tester
         ''1.Stein links oben im Tester
@@ -300,81 +303,89 @@ Friend Class TileFactoryManager
         '    request.SteinFrameVersion = SteinFrameVersion.Standard Then
         '    Stop
         'End If
+
+        ''VORSICHT FALLE:
+        ' in folgenden wird auf eine Änderung der .TileColors.SessionIdent geprüft.
+        ' Die unüberlegte Änderung einer SessionIdent, wie auch der Steingröße oder 
+        ' anderer Werte TileColors, können zu sehr schwer zu findenden Fehlern führen,
+        ' deren Ursache in der Änderung während des Renderns geschieht.
+        ' (Im Tester innderhalb der Ausgabeschleife der 20 Steine.)
+        ' Grund ist, daß die Änderung das Cache löscht, obwohl die Bitmaps noch geblittet
+        ' werden bzw. noch Bestandteil einer PictureBox sind und Das Paint-Event noch darauf
+        ' zugreift. Der Fehler tritt dann irgendwo in den Tiefen des Framework auf, ohne
+        ' Bezug zum Auslöser.)
+        ' Eine Änderung muss daher das vollständige Blitten betreffen, muss also bei der 
+        ' ersten Bitmap oder vorher auftreten und nicht zwischendrin.
+        ' Dann müssen stabile Verhältnisse herrschen bis zur Ausgabe des letzten Steines.
+        ' NACHTRAG:
+        ' Es gibt immer wieder Situationen, das daß Programm abstürzt, weil noch ein
+        ' Zugriff auf das Cache erfolgt, obwohl noch keine neue Bitmap erzeugt wurde,
+        ' das Cache aber gelöscht wurde.
+        ' Die genaue Ursache zu finden ist wegen des Polling und des Zusammenhangs mit
+        ' Mausbewegung und Größenänderung des Formulars nicht trivial.
+        ' Deshalb habe ich umgestellt auf ein anderes Verfahren des Disposen.
+
         With request
 
-            'Note: Überprüfung Änderung von TileColor DebugPrint-Ausgabe
 #Const WithMsg = False
+
 #If WithMsg Then
             Dim msg As String
             Dim cacheResetDone As Boolean = False
 
-            If _tileColors Is Nothing Then
-                _tileColors = .TileColors
-                ClearAllCaches()
-                cacheResetDone = True
-                msg = "_tileColors Is Nothing "
-
-            ElseIf .TileColors Is _tileColors Then
-                ' gleiche Instanz
-                If .TileColors.SessionIdent <> _tileColors.SessionIdent Then
-                    _tileColors = .TileColors
-                    ClearAllCaches()
-                    cacheResetDone = True
-                    msg = ".TileColors.SessionIdent <> _tileColors.SessionIdent"
-                Else
-                    msg = ".TileColors gleiche Instanz"
-                End If
-            Else
-                ' neue Instanz
-                _tileColors = .TileColors
-                ClearAllCaches()
+            If _tileColors_SessionIdent = String.Empty Then
+                _tileColors_SessionIdent = String.Copy(.TileColors.SessionIdent)
+                SetCacheInvalide()
                 cacheResetDone = True
                 msg = ".TileColors neue Instanz"
+
+            ElseIf _tileColors_SessionIdent <> .TileColors.SessionIdent Then
+                ' neue Instanz
+                _tileColors_SessionIdent = String.Copy(.TileColors.SessionIdent)
+                SetCacheInvalide()
+                cacheResetDone = True
+                msg = ".TileColors neue Instanz ==> lösche Cache <=="
+            Else
+                'gleiche Instanz
+                cacheResetDone = False
+                msg = ".TileColors gleiche Instanz"
             End If
 
-            'If request.SteinStatus = SteinStatus.I01Normal AndAlso
-            '    request.SteinSymbol = SteinSymbol.WindSüd AndAlso
-            '    request.SteinSymbolVersion = SteinSymbolVersion.Winde AndAlso
-            '    request.SteinFrameVersion = SteinFrameVersion.Standard Then
-            '    Debug.Print(msg)
-            'End If
             Debug.Print(msg & " - " & Now.ToString)
 
 #Else
             Dim cacheResetDone As Boolean = False
 
-            If _tileColors Is Nothing Then
-                _tileColors = .TileColors
-                ClearAllCaches()
+            If _tileColors_SessionIdent = String.Empty Then
+                _tileColors_SessionIdent = String.Copy(.TileColors.SessionIdent)
+                SetCacheInvalide()
                 cacheResetDone = True
 
-            ElseIf .TileColors Is _tileColors Then
-                ' gleiche Instanz
-                If .TileColors.SessionIdent <> _tileColors.SessionIdent Then
-                    _tileColors = .TileColors
-                    ClearAllCaches()
-                    cacheResetDone = True
-                End If
-            Else
+            ElseIf _tileColors_SessionIdent <> .TileColors.SessionIdent Then
                 ' neue Instanz
-                _tileColors = .TileColors
-                ClearAllCaches()
+                _tileColors_SessionIdent = String.Copy(.TileColors.SessionIdent)
+                SetCacheInvalide()
                 cacheResetDone = True
+            Else
+                'gleiche Instanz
+                cacheResetDone = False
             End If
 #End If
 
             Select Case .AktRenderMode
                 Case AktRenderMode.Spiel
-
+                    'Ein Wechel zwischen AktRenderMode.Spiel und AktRenderMode.Edit braucht
+                    'nicht festgestellt werden, da sich die Steingrößen immer gleichzeitig ändern.
                     If _spielSteinSize <> Size.Empty AndAlso _spielSteinSize <> .SteinSize Then
                         If Not cacheResetDone Then
-                            ClearAllCaches()
+                            SetCacheInvalide()
                         End If
                     End If
 
                     _spielSteinSize = .SteinSize
 
                     If _spielLayout Is Nothing Then
+                        'Wird in ClearAllCaches zurückgesetzt.
                         _spielLayout = TileLayoutFactory.Create(.SteinSize, .SteinBasisSize)
                     End If
 
@@ -382,9 +393,8 @@ Friend Class TileFactoryManager
 
                     If _editSteinSize <> Size.Empty AndAlso _editSteinSize <> .SteinSize Then
                         If Not cacheResetDone Then
-                            ClearAllCaches()
+                            SetCacheInvalide()
                         End If
-
                     End If
 
                     _editSteinSize = .SteinSize
@@ -400,14 +410,13 @@ Friend Class TileFactoryManager
         End With
     End Sub
 
-    Private Sub ClearAllCaches()
+    Private Sub DisposeTileCacheAndClearOtherValues()
 
-        Dim i As Integer
-
-        For i = 0 To _tileStandardCache.GetUpperBound(0)
-            _tileStandardCache(i)?.Dispose()
-            _tileStandardCache(i) = Nothing
-            _tileStandardCacheQueryCount(i) = 0
+        For idx As Integer = 0 To _tileCache.GetUpperBound(0)
+            _tileCache(idx)?.Dispose()
+            _tileCache(idx) = Nothing
+            _tileCacheQueryCount(idx) = 0
+            _tileCacheIsValide(idx) = False
         Next
 
         _spielSteinSize = Size.Empty
@@ -418,7 +427,20 @@ Friend Class TileFactoryManager
 
     End Sub
 
-    Private Shared Function GetIndexStandardCache(request As TileRequest) As Integer
+    Private Sub SetCacheInvalide()
+
+        For idx As Integer = 0 To _tileCache.GetUpperBound(0)
+            _tileCacheIsValide(idx) = False
+        Next
+
+        _spielSteinSize = Size.Empty
+        _editSteinSize = Size.Empty
+
+        _spielLayout = Nothing
+        _editLayout = Nothing
+    End Sub
+
+    Private Shared Function GetIndexCache(request As TileRequest) As Integer
 
         With request
             Dim modeIndex As Integer = GetModeIndex(.AktRenderMode)

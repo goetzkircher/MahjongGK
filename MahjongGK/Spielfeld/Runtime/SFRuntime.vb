@@ -122,11 +122,11 @@ Namespace Spielfeld
 
 #Region "Current / Session / Versionskontrolle"
 
-        Private _renderversionSpielfeld As Integer = -1
-        Private _renderversionWerkbank As Integer = -1
+        Private ReadOnly _renderversionSpielfeld As Integer = -1
+        Private ReadOnly _renderversionWerkbank As Integer = -1
 
-        Private _sessionIdentSpielfeld As String = "irgendwas"
-        Private _sessionIdentWerkbank As String = "irgendwas"
+        Private _sessionIdentSpielfeld As String = "irgendwas1"
+        Private ReadOnly _sessionIdentWerkbank As String = "irgendwas2"
 
         ''' <summary>
         ''' Analog RenderVersionChanged.
@@ -201,7 +201,7 @@ Namespace Spielfeld
 
 #Region "Polling / Eingabe / Beobachter"
 
-        Public Property ResizePolling As New ResizeActivityPoller(frmMain.UCtlSpielfeldMain)
+        Public Property ResizePolling As New ResizeActivityPoller(frmMain.UCtlSpielfeldMain, idleMs:=250)
         Public Property MousePolling As New MouseInputPoller(frmMain.UCtlSpielfeldMain)
 
 #End Region

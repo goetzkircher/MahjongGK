@@ -24,7 +24,7 @@ Option Compare Text
 Option Explicit On
 Option Infer Off
 Option Strict On
-
+'
 #Disable Warning IDE0079
 #Disable Warning IDE1006
 

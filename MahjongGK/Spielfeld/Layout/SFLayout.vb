@@ -32,6 +32,7 @@ Namespace Spielfeld
 
 #Disable Warning IDE0079
 #Disable Warning IDE1006
+#Disable Warning IDE0017
 
     'Auf dem Controll tummeln sich rund um das zentrale Spielfeld von MahjongGK mehrere Fenster.
     'Im Editiermodus wird das ganze verkleinert und um zusätzliche Fenster weitert. 
@@ -235,7 +236,7 @@ Namespace Spielfeld
 
         Public Property BitmapUGrdChanged As Boolean
 
-        Private _bitmapsUndoRedo(1, 3) As Bitmap 'Ist automatisch mit Nothigg initialisiert
+        Private ReadOnly _bitmapsUndoRedo(1, 3) As Bitmap 'Ist automatisch mit Nothigg initialisiert
 
         Public Enum UndoRedoBmp
             Undo
@@ -293,8 +294,8 @@ Namespace Spielfeld
         ''' und hier angepasst werden kann.
         ''' </summary>
         ''' <param name="outputRect"></param>
-        ''' <param name="aktRenderModeOrSteinBasisSizeChanged"></param>
-        Public Sub UpdateSpielfeldLayout(outputRect As Rectangle, aktRenderModeOrSteinBasisSizeChanged As Boolean)
+        ''' <param name="basisValuesChanged"></param>
+        Public Sub UpdateSpielfeldLayout(outputRect As Rectangle, basisValuesChanged As Boolean)
 
             Dim saveToTmpVerz As Boolean = False
 
@@ -303,7 +304,7 @@ Namespace Spielfeld
             'True: es gibt ein gültiges Rect, d.h. es wurde bereits gerendert
             Dim createFrozenBitmap As Boolean = (rxOutput IsNot Nothing AndAlso Not rxOutput.IsEmpty)
 
-            If aktRenderModeOrSteinBasisSizeChanged Then
+            If basisValuesChanged Then
                 changed = True
             End If
             '
@@ -545,6 +546,11 @@ Namespace Spielfeld
                         _sfd.SFRun.EditorFrmTooltipSteinInfo = New frmTooltipSteinInfo(frmMain, offsetRight:=18, offsetUp:=12)
                         _sfd.SFRun.EditorFrmTooltipSteinInfo.BringToFront()
                     End If
+                Else
+                    If _sfd.SFRun.EditorFrmTooltipSteinInfo IsNot Nothing Then
+                        _sfd.SFRun.EditorFrmTooltipSteinInfo.Dispose()
+                        _sfd.SFRun.EditorFrmTooltipSteinInfo = Nothing
+                    End If
                 End If
             Else
                 If _sfd.SFRun.EditorFrmTooltipSteinInfo IsNot Nothing Then
@@ -681,7 +687,7 @@ Namespace Spielfeld
         ''' <summary>
         ''' Setzt die einzelnen Bereiche, außer splfldUsedRect
         ''' </summary>
-        Private Sub CreateMainLayoutIterativStep(Optional fDoStop As Boolean = False)
+        Private Sub CreateMainLayoutIterativStep() '(Optional fDoStop As Boolean = False)
 
             ' 1.) _sfd.rxOutput ist gegeben.
             ' 2.) Der Renderer fragt _sfd.sflay.AktRendering nicht ab. 

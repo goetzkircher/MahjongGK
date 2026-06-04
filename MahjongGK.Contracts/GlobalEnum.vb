@@ -20,6 +20,7 @@
         [Default]
         UniDunkel
         UniGelbBraun
+        EditorSpezial
         Test
     End Enum
 
@@ -96,10 +97,7 @@
         ''' Normalgrafik mit halb so großem Symbol
         ''' </summary>
         I09WerkstückZufallsgrafik
-        '
-        ''' <summary>
-        ''' Nothing zurückgeben
-        ''' </summary>   '
+
     End Enum
     '
     ''' <summary>

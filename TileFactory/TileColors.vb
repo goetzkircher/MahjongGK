@@ -464,7 +464,10 @@ Public Class TileColors
         "SymbolColBlüten",
         "SymbolColGrünerDrache",
         "SymbolColJZeiten",
+        "SymbolColRemovable",
         "SymbolColRoterDrache",
+        "SymbolColSelectable",
+        "SymbolColSelected",
         "SymbolColWinde",
         "SymbolGradientMode"
     }
@@ -735,8 +738,8 @@ Public Class TileColors
     Public Property BrgI03SelectableBlüten As Integer = 10
     Public Property SatI03SelectableJZeiten As Integer = 10
     Public Property BrgI03SelectableJZeiten As Integer = 10
-    Public Property BrgI03SelectableNormal As Integer = 10
     Public Property SatI03SelectableNormal As Integer = 10
+    Public Property BrgI03SelectableNormal As Integer = 10
     Public Property SatI03SelectableWinde As Integer = 10
     Public Property BrgI03SelectableWinde As Integer = 10
     Public Property SatI04RemovableBlüten As Integer = -15
@@ -749,40 +752,40 @@ Public Class TileColors
     Public Property BrgI04RemovableWinde As Integer = 5
     Public Property SatI05LockedBlüten As Integer = 0
     Public Property BrgI05LockedBlüten As Integer = 0
-    Public Property SatI05LockedJZeiten As Integer = 0
     Public Property BrgI05LockedJZeiten As Integer = 0
-    Public Property SatI05LockedNormal As Integer = 0
+    Public Property SatI05LockedJZeiten As Integer = 0
     Public Property BrgI05LockedNormal As Integer = 0
-    Public Property BrgI05LockedWinde As Integer = 0
+    Public Property SatI05LockedNormal As Integer = 0
     Public Property SatI05LockedWinde As Integer = 0
+    Public Property BrgI05LockedWinde As Integer = 0
     Public Property SatI06WerkstückSteinBlüten As Integer = 0
     Public Property BrgI06WerkstückSteinBlüten As Integer = 0
-    Public Property BrgI06WerkstückSteinJZeiten As Integer = 0
     Public Property SatI06WerkstückSteinJZeiten As Integer = 0
+    Public Property BrgI06WerkstückSteinJZeiten As Integer = 0
     Public Property BrgI06WerkstückSteinNormal As Integer = 0
     Public Property SatI06WerkstückSteinNormal As Integer = 0
     Public Property BrgI06WerkstückSteinWinde As Integer = 0
     Public Property SatI06WerkstückSteinWinde As Integer = 0
     Public Property SatI07MissingSecondBlüten As Integer = 0
     Public Property BrgI07MissingSecondBlüten As Integer = 0
-    Public Property SatI07MissingSecondJZeiten As Integer = 0
     Public Property BrgI07MissingSecondJZeiten As Integer = 0
+    Public Property SatI07MissingSecondJZeiten As Integer = 0
     Public Property SatI07MissingSecondNormal As Integer = 0
     Public Property BrgI07MissingSecondNormal As Integer = 0
-    Public Property SatI07MissingSecondWinde As Integer = 0
     Public Property BrgI07MissingSecondWinde As Integer = 0
-    Public Property SatI08WerkstückEinfügeFehlerBlüten As Integer = 0
+    Public Property SatI07MissingSecondWinde As Integer = 0
     Public Property BrgI08WerkstückEinfügeFehlerBlüten As Integer = 0
-    Public Property SatI08WerkstückEinfügeFehlerJZeiten As Integer = 0
+    Public Property SatI08WerkstückEinfügeFehlerBlüten As Integer = 0
     Public Property BrgI08WerkstückEinfügeFehlerJZeiten As Integer = 0
+    Public Property SatI08WerkstückEinfügeFehlerJZeiten As Integer = 0
     Public Property BrgI08WerkstückEinfügeFehlerNormal As Integer = 0
     Public Property SatI08WerkstückEinfügeFehlerNormal As Integer = 0
-    Public Property BrgI08WerkstückEinfügeFehlerWinde As Integer = 0
     Public Property SatI08WerkstückEinfügeFehlerWinde As Integer = 0
+    Public Property BrgI08WerkstückEinfügeFehlerWinde As Integer = 0
     Public Property SatI09WerkstückZufallsgrafikBlüten As Integer = 0
     Public Property BrgI09WerkstückZufallsgrafikBlüten As Integer = 0
-    Public Property SatI09WerkstückZufallsgrafikJZeiten As Integer = 0
     Public Property BrgI09WerkstückZufallsgrafikJZeiten As Integer = 0
+    Public Property SatI09WerkstückZufallsgrafikJZeiten As Integer = 0
     Public Property BrgI09WerkstückZufallsgrafikNormal As Integer = 0
     Public Property SatI09WerkstückZufallsgrafikNormal As Integer = 0
     Public Property SatI09WerkstückZufallsgrafikWinde As Integer = 0
@@ -833,7 +836,6 @@ Public Class TileColors
     Public Property BrgLayerUpNormal As Integer = 80
     Public Property SatLayerUpWinde As Integer = 100
     Public Property BrgLayerUpWinde As Integer = 80
-
     Private _ShiftLayerNormalBlüten As Integer = 0
     Public Property ShiftLayerNormalBlüten As Integer
         Get
@@ -1079,12 +1081,15 @@ Public Class TileColors
     Public Property SymbolColBlüten As String = "00FFFFFF"
     Public Property SymbolColGrünerDrache As String = "00FFFFFF"
     Public Property SymbolColJZeiten As String = "00FFFFFF"
+    Public Property SymbolColRemovable As String = "00FFFFFF"
     Public Property SymbolColRoterDrache As String = "00FFFFFF"
+    Public Property SymbolColSelectable As String = "00FFFFFF"
+    Public Property SymbolColSelected As String = "00FFFFFF"
     Public Property SymbolColWinde As String = "00FFFFFF"
     Public Property BrgSymbolGradientFrom As Integer = 100
     Public Property SatSymbolGradientFrom As Integer = 100
-    Public Property BrgSymbolGradientTo As Integer = 100
     Public Property SatSymbolGradientTo As Integer = 100
+    Public Property BrgSymbolGradientTo As Integer = 100
     Public Property SymbolGradientToKoppeln As Boolean = False
     Public Property SatSymbolOutLine As Integer = 100
     Public Property BrgSymbolOutline As Integer = 100
@@ -1115,6 +1120,8 @@ Public Class TileColors
             _SteinFont = If(value, SteinFont.Segoe, SteinFont.Noto)
         End Set
     End Property
+
+    Public Property UseSymbolColorAsStatusColor As Boolean = False
 
     '=================================================================
     'bis hierher aus der Zwischenablage überschreiben
@@ -1872,39 +1879,57 @@ Public Class TileColors
 
             Dim coltext As String
 
-            Select Case _steinSymbolVersion
-                Case SteinSymbolVersion.Blüten
-                    coltext = SymbolColBlüten
+            If UseSymbolColorAsStatusColor Then
+                Select Case _steinStatus
+                    Case SteinStatus.I02Selected
+                        coltext = SymbolColSelected
 
-                Case SteinSymbolVersion.JZeiten
-                    coltext = SymbolColJZeiten
+                    Case SteinStatus.I03Selectable
+                        coltext = SymbolColSelectable
 
-                Case SteinSymbolVersion.Winde
-                    coltext = SymbolColWinde
+                    Case SteinStatus.I04Removable
+                        coltext = SymbolColRemovable
 
-                Case SteinSymbolVersion.Normal
-                    Select Case _steinSymbole
-                        Case SteinSymbol.DracheG
-                            coltext = SymbolColGrünerDrache
+                    Case Else
+                        coltext = "00FFFFFF"
+                End Select
+            Else
 
-                        Case SteinSymbol.DracheR
-                            coltext = SymbolColRoterDrache
+                Select Case _steinSymbolVersion
+                    Case SteinSymbolVersion.Blüten
+                        coltext = SymbolColBlüten
 
-                        Case SteinSymbol.DracheW
-                            coltext = SymbolColBlauerDrache
+                    Case SteinSymbolVersion.JZeiten
+                        coltext = SymbolColJZeiten
 
-                        Case Else
-                            coltext = "00FFFFFF"
+                    Case SteinSymbolVersion.Winde
+                        coltext = SymbolColWinde
 
-                    End Select
-                Case Else
-                    coltext = "00FFFFFF"
+                    Case SteinSymbolVersion.Normal
+                        Select Case _steinSymbole
+                            Case SteinSymbol.DracheG
+                                coltext = SymbolColGrünerDrache
 
-            End Select
+                            Case SteinSymbol.DracheR
+                                coltext = SymbolColRoterDrache
 
+                            Case SteinSymbol.DracheW
+                                coltext = SymbolColBlauerDrache
+
+                            Case Else
+                                coltext = "00FFFFFF"
+
+                        End Select
+                    Case Else
+                        coltext = "00FFFFFF"
+                End Select
+            End If
+
+            Dim found As Boolean = False
             If Not coltext.StartsWith("00") Then
                 Dim col As Color
                 .UseGradient = False
+                found = True
                 If TryParseArgbHexColor(coltext, col) Then
                     .NormalColor = col
                 Else
@@ -1925,7 +1950,7 @@ Public Class TileColors
             .OutlineColor = GetColSymbolOutline()
             .FaktorOutlineWidth = GetFaktorSymbolOutlineWidth()
 
-            If .OutlineColor.A > 0 AndAlso .FaktorOutlineWidth > 0 Then
+            If Not found AndAlso .OutlineColor.A > 0 AndAlso .FaktorOutlineWidth > 0 Then
                 'Outline funktioniert nur mit Gradient.
                 '==> ggf umstellen
                 .UseOutline = True

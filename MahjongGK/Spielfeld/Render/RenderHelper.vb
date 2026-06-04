@@ -518,7 +518,7 @@ Namespace Spielfeld
                 gfx.PixelOffsetMode = Drawing2D.PixelOffsetMode.HighQuality
 
                 Using pathFull As Drawing2D.GraphicsPath = CreateRoundedRectanglePath(0, 0, w - 1, h - 1, radius)
-                    Using penBase As Pen = New Pen(rahmenColor, rahmenbreite)
+                    Using penBase As New Pen(rahmenColor, rahmenbreite)
                         penBase.Alignment = Drawing2D.PenAlignment.Inset
                         penBase.LineJoin = Drawing2D.LineJoin.Round
                         gfx.DrawPath(penBase, pathFull)
@@ -578,14 +578,14 @@ Namespace Spielfeld
                 gfx.PixelOffsetMode = Drawing2D.PixelOffsetMode.HighQuality
 
                 Using pathFull As Drawing2D.GraphicsPath = CreateRoundedRectanglePath(0, 0, w - 1, h - 1, radius)
-                    Using penBase As Pen = New Pen(colorLight, rahmenbreite)
+                    Using penBase As New Pen(colorLight, rahmenbreite)
                         penBase.Alignment = Drawing2D.PenAlignment.Inset
                         penBase.LineJoin = Drawing2D.LineJoin.Round
                         gfx.DrawPath(penBase, pathFull)
                     End Using
                 End Using
 
-                Using penDark As Pen = New Pen(colorDark, rahmenbreite)
+                Using penDark As New Pen(colorDark, rahmenbreite)
                     penDark.Alignment = Drawing2D.PenAlignment.Inset
                     penDark.StartCap = Drawing2D.LineCap.Round
                     penDark.EndCap = Drawing2D.LineCap.Round
@@ -655,7 +655,7 @@ Namespace Spielfeld
                                                     ByVal height As Integer,
                                                     ByVal radius As Integer) As Drawing2D.GraphicsPath
 
-            Dim path As Drawing2D.GraphicsPath = New Drawing2D.GraphicsPath()
+            Dim path As New Drawing2D.GraphicsPath()
 
             If radius <= 0 Then
                 path.AddRectangle(New Rectangle(x, y, width, height))

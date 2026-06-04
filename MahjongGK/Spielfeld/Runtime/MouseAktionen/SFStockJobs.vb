@@ -354,7 +354,7 @@ Public Class SFStockJobs
 
     End Property
 
-    Public Sub DoGgfAbortAndClearGapJob()
+    Public Sub AbortAndOrClearGapJob()
         '
         'Bei sehr schnellem Klicken (Undo/Redo) kann es vorkommen, daß noch während der Animation
         'bereits eine neue einläuft. Da das Einfügen erst am Ende der Animation erfolgt,
@@ -410,7 +410,7 @@ Public Class SFStockJobs
             Throw New Exception("Programmierfehler: idxGapInsert und idxGapRemove dürfen nicht gleich sein.")
         End If
 
-        DoGgfAbortAndClearGapJob()
+        AbortAndOrClearGapJob()
 
         _rectGapRemoveUseFirstRect = gapRemoveUseFirstRect
 
@@ -500,7 +500,7 @@ Public Class SFStockJobs
                     End With
                     _IdxGapInsert = -1 'sonst wird doppelt eingefügt
                 End If
-                DoGgfAbortAndClearGapJob()
+                AbortAndOrClearGapJob()
             End If
 
         Else

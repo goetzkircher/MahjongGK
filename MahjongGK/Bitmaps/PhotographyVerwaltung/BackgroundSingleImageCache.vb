@@ -197,9 +197,10 @@ Namespace Images
                 Return Nothing
             End If
 
-            _backgroundDominantColor = If(backgroundColor.HasValue,
-                             backgroundColor.Value,
-                             If(_lastBg <> Color.Empty, _lastBg, MjGDI.ComputeDominantColor(_original)))
+            If _lastBg = Color.Empty Then
+                _lastBg = MjGDI.ComputeDominantColor(_original)
+            End If
+            _backgroundDominantColor = If(backgroundColor.HasValue, backgroundColor.Value, _lastBg)
 
             If _lastBitmap IsNot Nothing AndAlso
            _lastSize.Equals(targetSize) AndAlso

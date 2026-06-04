@@ -252,12 +252,6 @@
     <Compile Include="Spielfeld\Layout\Toolbox\PlacementSameGrid.vb" />
     <Compile Include="Helfer\DeepCopyExtensions.vb" />
     <Compile Include="Helfer\FormHelfer.vb" />
-    <Compile Include="UserControls\Spielfeldauswahl\UctlSpielauswahl.Designer.vb">
-      <DependentUpon>UctlSpielauswahl.vb</DependentUpon>
-    </Compile>
-    <Compile Include="UserControls\Spielfeldauswahl\UctlSpielauswahl.vb">
-      <SubType>UserControl</SubType>
-    </Compile>
     <Compile Include="UserControls\Verschiedene kleine\KompassDotFactory.vb" />
     <Compile Include="INI\FrmIniEditor.vb">
       <SubType>Form</SubType>
@@ -439,9 +433,6 @@
     <EmbeddedResource Include="Spielfeld\UI\Controls\UCtlSpielfeld.resx">
       <DependentUpon>UCtlSpielfeld.vb</DependentUpon>
       <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UserControls\Spielfeldauswahl\UctlSpielauswahl.resx">
-      <DependentUpon>UctlSpielauswahl.vb</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
@@ -687,18 +678,8 @@
     <Content Include="Spielfeld\TileColors\Test\Noto-Medium.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Spielfeld\TileColors\EditorSpezial\Segoe-Light.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Spielfeld\TileColors\EditorSpezial\Segoe-Medium.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Spielfeld\TileColors\EditorSpezial\Segoe-Dark.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Spielfeld\TileColors\EditorSpezial\Noto-Medium.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+  
+    <Content Include="Spielfeld\TileColors\EditorSpezial\Segoe-Light.xml"><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></Content>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Comparer\" />

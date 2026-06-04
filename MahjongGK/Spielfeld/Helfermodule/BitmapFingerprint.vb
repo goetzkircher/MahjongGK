@@ -32,7 +32,7 @@ Namespace Spielfeld
 
             Public Overrides Function Equals(ByVal obj As Object) As Boolean
 
-                If Not TypeOf obj Is BitmapFingerprint Then
+                If TypeOf obj IsNot BitmapFingerprint Then
                     Return False
                 End If
 
@@ -88,7 +88,7 @@ Namespace Spielfeld
                 End Using
             End If
 
-            Dim rect As Rectangle = New Rectangle(0, 0, bmp.Width, bmp.Height)
+            Dim rect As New Rectangle(0, 0, bmp.Width, bmp.Height)
             Dim data As BitmapData = bmp.LockBits(rect, ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb)
 
             Try

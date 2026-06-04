@@ -53,15 +53,15 @@ Namespace Spielfeld
 
         Private _lastRectOutput As New Rectangle
 
-        Private _initialisierungLäuft As Boolean
-
         Private _createScreenShot As Boolean
 
         Private _takteAussetzen As Integer
 
-        Private _zeitlupeCountdown As Integer
+        Private ReadOnly _zeitlupeCountdown As Integer
 
         Private _Spielbetrieb_PositionHistory As Integer = -1 'nicht möglicher Wert
+
+        Private _statusGrid As Boolean
 
         Public Sub PaintSpielfeld_CreateScreenShot()
             _createScreenShot = True
@@ -145,6 +145,13 @@ Namespace Spielfeld
         ''' <param name="timeDifferenzFaktor"></param>
         Public Sub PaintUCtlSpielfeld(e As PaintEventArgs, rectOutput As Rectangle, timeDifferenzFaktor As Double)
 
+            If INI.Global_AktVisibleUserControl <> VisibleUserControl.Spielfeld Then
+                Exit Sub
+            End If
+
+            _meter?.NotificationWindowsPaint()
+            _meter?.BeginnRendering()
+
             INI.Volatil_RenderCounterInc()
 
             'Select Case SFMain.RenderMode
@@ -183,10 +190,14 @@ Namespace Spielfeld
                         End If
                         'ignorieren
                     End Try
+                    _meter?.AbortRendering()
+                    _meter?.NotificationBlitLastRendering()
                     Exit Sub
                 End If
             Else
                 PaintStartScreen(e.Graphics, rectOutput)
+                _meter?.AbortRendering()
+                _meter?.NotificationBlitLastRendering()
                 Exit Sub
             End If
 
@@ -202,14 +213,14 @@ Namespace Spielfeld
                 'Auskommentieren, wenn man den Zeitpunkt sehen will,
                 'an dem die INI-Datei geändert wurde. Die Oberfläche friert dann kurz und schwarz eingefärbt ein.
                 If _sfd.SFRun.Backbuffer_HasContent Then
-                    PaintBackbuffer(e.Graphics, _sfd.SFLay.rxOutputUsed)
+                    PaintBackbuffer(e.Graphics, rectOutput) '_sfd.SFLay.rxOutputUsed)
                 Else
                     PaintStartScreen(e.Graphics, rectOutput)
                 End If
+                _meter?.AbortRendering()
+                _meter?.NotificationBlitLastRendering()
                 Exit Sub
             End If
-
-#Region "Mausaktionen und Größenänderung der Form auswerten und Rendern ggf verkürzen."
 
             'völlig außer Konkurenz dieser Aufruf:
             If _sfd.SFInf.Generator.ConsumeHasUndoStockSnapshot Then
@@ -221,17 +232,57 @@ Namespace Spielfeld
                 End If
             End If
 
-            Dim somethingDoneResizePoll As Boolean
             Dim somethingDoneTopSteinInfosPoll As Boolean
             Dim somethingDoneBitmapUGrd As Boolean
-            Dim aktRenderModeOrSteinBasisSizeChanged As Boolean
+            Dim basisValuesChanged As Boolean
 
             Dim updateSpielfeld As Boolean
             Dim doRendering As Boolean
             Dim schnelltestHasMouseStateChange As Boolean
             '
 
-            somethingDoneResizePoll = _sfd.SFRun.ResizePolling.Poll
+            If _sfd.SFRun.ResizePolling.Poll Then
+                'Hinweis: Auch bei Größenänderung muss das MousePolling ausgewertet zu werden, sonst wird der Stock falsch angezeigt.)
+                If _sfd.SFRun.ResizePolling.ConsumeResizeStarted Then
+                    _sfd.SFRun.ResizingIsAktiv = True
+                End If
+                If _sfd.SFRun.ResizePolling.ConsumeResizeEnded Then
+                    _sfd.SFRun.ResizingIsAktiv = False
+                    updateSpielfeld = True
+                    doRendering = True
+                    schnelltestHasMouseStateChange = True
+                End If
+            End If
+            'Die eigentliche Abfrage nach Mausaktivitäten ist mit dem Zugriff auf Werte verbunden, die erst nach
+            'dem Update des Spielfeldes zur Verfügung stehen. Daher hier nur die Prüfung, ob sich überhaupt was geändert hat.
+            'Es werden nur Mausbewegungen gemeldet, die innerhalb rxContent stattfinden  
+            Select Case _sfd.SFMouse.ConsumeQuicktestHasMouseStateChange(_sfd.SFLay.rxContent)
+                Case MouseStateChanged.MouseMovedWhileLeftMouseReleased
+                    doRendering = True
+                       ' Debug.Print("MouseMovedWhileLeftMouseReleased " & Now.Millisecond.ToString)
+                Case MouseStateChanged.AllOtherMouseEvents
+                    doRendering = True
+                    schnelltestHasMouseStateChange = True 'Sonst werden die Stock-Steine zu spät größenangepasst.
+                Case MouseStateChanged.None
+                    'nichts machen
+            End Select
+
+            If _sfd.SFMouse.GapJobIsWorking Then
+                schnelltestHasMouseStateChange = True
+                doRendering = True
+            End If
+            '()
+            If _sfd.SFRun.ResizingIsAktiv Then
+                If _sfd.SFRun.Backbuffer_HasContent Then
+                    PaintBackbuffer(e.Graphics, rectOutput) '_sfd.SFLay.rxOutputUsed)
+                Else
+                    PaintStartScreen(e.Graphics, rectOutput)
+                End If
+                _meter?.AbortRendering()
+                _meter?.NotificationBlitLastRendering()
+                Exit Sub
+            End If
+            '()
             somethingDoneTopSteinInfosPoll = _sfd.SFInf.ConsumeTopSteinInfosPolling()
 
             If _sfd.SFInf.BitmapUGrdSingleImgCache IsNot Nothing Then
@@ -250,24 +301,6 @@ Namespace Spielfeld
             '    doRendering = True
             'End If
 
-            'Die eigentliche Abfrage nach Mausaktivitäten ist mit dem Zugriff auf Werte verbunden, die erst nach
-            'dem Update des Spielfeldes zur Verfügung stehen. Daher hier nur die Prüfung, ob sich überhaupt was geändert hat.
-            'Es werden nur Mausbewegungen gemeldet, die innerhalb rxContent stattfinden  
-            Select Case _sfd.SFMouse.ConsumeQuicktestHasMouseStateChange(_sfd.SFLay.rxContent)
-                Case MouseStateChanged.MouseMovedWhileLeftMouseReleased
-                    doRendering = True
-                       ' Debug.Print("MouseMovedWhileLeftMouseReleased " & Now.Millisecond.ToString)
-                Case MouseStateChanged.AllOtherMouseEvents
-                    doRendering = True
-                    schnelltestHasMouseStateChange = True
-                Case MouseStateChanged.None
-                    'nichts machen
-            End Select
-            If _sfd.SFMouse.GapJobIsWorking Then
-                schnelltestHasMouseStateChange = True
-                doRendering = True
-            End If
-
             SetRendertimerIntervall(schnelltestHasMouseStateChange)
 
             If _Spielbetrieb_PositionHistory <> INI.Spielbetrieb_PositionHistory Then
@@ -282,49 +315,47 @@ Namespace Spielfeld
                 doRendering = True
             End If
 
-            If Not doRendering Then
-                If somethingDoneResizePoll Then
-                    'Auswertung des Resizing hat Priorität
-                    '(Bei Größenänderung braucht das MousePolling nicht ausgewertet zu werden
-                    'da die Maus beschäftigt ist)
-                    If _sfd.SFRun.ResizePolling.ConsumeResizeStarted Then
-                        _sfd.SFRun.ResizingIsAktiv = True
-                    End If
-                    If _sfd.SFRun.ResizePolling.ConsumeResizeEnded Then
-                        _sfd.SFRun.ResizingIsAktiv = False
-                    End If
-                ElseIf somethingDoneTopSteinInfosPoll Then
-                    doRendering = True
-                ElseIf _sfd.SFAir.HasAnyRenderJob Then
-                    doRendering = True
-                ElseIf _sfd.SFInf.HasUndoText Then
-                    doRendering = True
-                End If
-
-                If _sfd.SFRun.ResizingIsAktiv Then
-                    If _sfd.SFRun.Backbuffer_HasContent Then
-                        PaintBackbuffer(e.Graphics, _sfd.SFLay.rxOutputUsed)
-                    Else
-                        PaintStartScreen(e.Graphics, rectOutput)
-                    End If
-                    Exit Sub
-                End If
+            If somethingDoneTopSteinInfosPoll Then
+                doRendering = True
+            ElseIf _sfd.SFAir.HasAnyRenderJob Then
+                doRendering = True
+            ElseIf _sfd.SFInf.HasUndoText Then
+                doRendering = True
             End If
 
             'Die Consume... Abfragen dürfen nicht übersprungen werden,
             'also kein ElseIf...
 
             If _sfd.SFRun.ConsumeAktRenderModeChanged Then
-                aktRenderModeOrSteinBasisSizeChanged = True
+                basisValuesChanged = True
                 updateSpielfeld = True
                 doRendering = True
             End If
 
-            If INI.ToolBox_ConsumeTabPageChanged Then
-                'Sonst schaltet die Spielfeld/Editor-Umschaltung nicht, wenn die Toolbox auf frmMain steht.
-                updateSpielfeld = True
-                doRendering = True
-            End If
+            Select Case _sfd.SFTool.ConsumeToolboxPollEventJob
+                Case ToolboxJobAnswer.DoRendering
+                    doRendering = True
+                Case ToolboxJobAnswer.UpdateSpielfeld
+                    updateSpielfeld = True
+                    doRendering = True
+                Case ToolboxJobAnswer.UpdateSpielfeldX
+                    updateSpielfeld = True
+                    doRendering = True
+                    basisValuesChanged = True
+                Case ToolboxJobAnswer.CreateSpielbildStep1DoHideGridSetCreateSpielbild
+                    'abschalten...
+                    _statusGrid = INI.Editor_ShowGrid
+                    INI.Editor_ShowGrid = False
+                    doRendering = True
+                    '...und die Erzeugung des Spielbildes anordnen
+                    _sfd.SFTool.SetConsumeTabpagePollEvent(ToolboxPollEvent.CreateSpielbildStep2SetDoCreateSpielbild)
+
+                Case ToolboxJobAnswer.CreateSpielbildStep2DoCreateSpielbild
+                    _sfd.SFTool.CreateSpielbild()
+                    INI.Editor_ShowGrid = _statusGrid
+                    doRendering = True
+
+            End Select
 
             If _sfd.SFRun.ConsumeSessionIdentChanged Then
                 updateSpielfeld = True
@@ -341,20 +372,21 @@ Namespace Spielfeld
                 _lastRectOutput = rectOutput
             End If
 
-            'Die Consume... Abfragen dürfen nicht übersprungen werden,
-            'also kein ElseIf...
             If INI.Tile_ConsumeSteinSatzOrBasisSizeChanged Then
                 updateSpielfeld = True
                 doRendering = True
-                aktRenderModeOrSteinBasisSizeChanged = True
+                basisValuesChanged = True
             End If
+
+            ''If INI.Volatil_ConsumeRenderOnceMore Then
+            ''    updateSpielfeld = True
+            ''    doRendering = True
+            ''End If
 
             If doRendering = False Then
                 If somethingDoneBitmapUGrd Then
                     doRendering = True
                 ElseIf _createScreenShot Then
-                    doRendering = True
-                ElseIf _initialisierungLäuft Then
                     doRendering = True
                 ElseIf _takteAussetzen > 0 Then
                     doRendering = True
@@ -367,8 +399,8 @@ Namespace Spielfeld
                 End If
             End If
 
-            '
-            'Abfragen, die die Anzeige einfrieren.
+            'Letzter Block:
+            'Abfragen, die die Anzeige einfrieren 
             If INI.Volatil_ContextMenueEditorIsOpen Then
                 doRendering = False
             End If
@@ -379,13 +411,13 @@ Namespace Spielfeld
                 Else
                     PaintStartScreen(e.Graphics, rectOutput)
                 End If
+                _meter?.AbortRendering()
+                _meter?.NotificationBlitLastRendering()
                 Exit Sub
             End If
 
             _sfd.SFRun.RenderingSkipCounter = 0
             _sfd.SFRun.RenderingDoneCounter += 1
-
-#End Region
 
             If _createScreenShot Then
                 'Ich gehe davon aus, daß der Backpuffer Inhalt hat, denn es ist sehr unwahrscheinlich,
@@ -402,29 +434,6 @@ Namespace Spielfeld
                 End Try
             End If
 
-            If _initialisierungLäuft And _sfd.SFRun.AktRenderMode <> RenderingEnum.None Then
-                'Es muss sichergestellt sein, daß _initialisierungLäuft korrekt rückgestellt wird
-                'deshalb wird hier die Prüfung vorab durchgeführt, die in UpdateSpielfeld
-                'auch durchgeführt wird, aber ohne Möglichkeit im Fehlerfall das Flag stehen zu lassen.
-                Select Case _sfd.SFRun.AktRenderMode
-                    Case AktRenderMode.Spiel
-                        _initialisierungLäuft = False
-                        updateSpielfeld = False
-                        _sfd.SFLay.UpdateSpielfeldLayout(rectOutput, aktRenderModeOrSteinBasisSizeChanged)
-                        DoMouseActions(schnelltestHasMouseStateChange)
-                        _sfd.SFRen.RenderingHauptverteiler(e.Graphics, rectOutput, timeDifferenzFaktor)
-                        Exit Sub
-
-                    Case AktRenderMode.Edit
-                        _initialisierungLäuft = False
-                        updateSpielfeld = False
-                        _sfd.SFLay.UpdateSpielfeldLayout(rectOutput, aktRenderModeOrSteinBasisSizeChanged)
-                        DoMouseActions(schnelltestHasMouseStateChange)
-                        _sfd.SFRen.RenderingHauptverteiler(e.Graphics, rectOutput, timeDifferenzFaktor)
-                        Exit Sub
-
-                End Select
-            End If
             '
             'Die Scrollbars aktualisieren.
             Dim hsb As HScrollRenderer = _sfd.SFRun.HScrollBarStock
@@ -433,16 +442,21 @@ Namespace Spielfeld
             End If
 
             If updateSpielfeld Then
-                _sfd.SFLay.UpdateSpielfeldLayout(rectOutput, aktRenderModeOrSteinBasisSizeChanged)
-                DoMouseActions(schnelltestHasMouseStateChange)
-                _sfd.SFRen.RenderingHauptverteiler(e.Graphics, rectOutput, timeDifferenzFaktor)
-                updateSpielfeld = False
-                Exit Sub
+                _sfd.SFLay.UpdateSpielfeldLayout(rectOutput, basisValuesChanged)
+                doRendering = True 'sicherheitshalber
             End If
+
             If doRendering Then
                 DoMouseActions(schnelltestHasMouseStateChange)
                 _sfd.SFRen.RenderingHauptverteiler(e.Graphics, rectOutput, timeDifferenzFaktor)
             End If
+
+            If updateSpielfeld Then
+                _meter?.EndRenderingWithCreateNewLayout()
+            Else
+                _meter?.EndRenderingPur()
+            End If
+
         End Sub
 
         '
@@ -485,7 +499,7 @@ Namespace Spielfeld
                     scaled = True
                 End If
                 If INI.Rendering_DrawRenderingSkipDoneMarker Then
-                    'unterer rechter Marker, .
+                    'oberer rechter Marker, .
                     DrawRenderingSkipDoneMarker(PaintEventGfx, rectOutput.Width, rectOutput.Height, _sfd.SFRun.RenderingSkipCounter, "Skip", scaled)
                 End If
                 MjGDI.GfxPopStored(PaintEventGfx)
@@ -494,6 +508,21 @@ Namespace Spielfeld
             End If
         End Sub
         '
+#Region "RenderLoadMeter"
+
+        Private _meter As FrmRenderLoadMeter
+        Public Sub StartRenderMeter()
+
+            If _meter Is Nothing Then
+                _meter = New FrmRenderLoadMeter With {
+                    .Location = New Point(50, 50)
+                }
+                _meter.Show()
+            End If
+
+        End Sub
+
+#End Region
 
         Private _disposed As Boolean
         Public Sub Dispose() Implements IDisposable.Dispose

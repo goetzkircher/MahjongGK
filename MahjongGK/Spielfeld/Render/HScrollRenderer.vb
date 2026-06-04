@@ -69,7 +69,7 @@ Public Class HScrollRenderer
     Private _rectHScrollbar As Rectangle = Rectangle.Empty
     Private _colorschemeEnabled As ScrollColorScheme
     Private _colorschemeDisabled As ScrollColorScheme
-    Private _isInit As Boolean = False
+    Private ReadOnly _isInit As Boolean = False
 
     Private _AktVisibleSteinNumberFrom As Integer
     Private _AktVisibleSteinNumberTo As Integer
@@ -133,7 +133,7 @@ Public Class HScrollRenderer
         End If
     End Sub
 
-    Public Sub SetRange(minimum As Integer, maximum As Integer, Optional adjustValue As Boolean = False)
+    Public Sub SetRange(minimum As Integer, maximum As Integer)
         If maximum < minimum Then maximum = minimum
         _minimum = minimum
         _maximum = maximum

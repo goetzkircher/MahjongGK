@@ -2,6 +2,7 @@
 Option Explicit On
 Option Infer Off
 Option Strict On
+
 Imports System.Text
 Imports System.Xml.Serialization
 Imports MahjongGK.Contracts.GlobalEnum

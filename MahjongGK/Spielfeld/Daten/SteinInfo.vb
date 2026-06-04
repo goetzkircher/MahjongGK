@@ -29,67 +29,11 @@ Imports MahjongGK.Contracts.GlobalEnum
 
 #Disable Warning IDE0079
 #Disable Warning IDE1006
+#Disable Warning IDE0044
 
 Namespace Spielfeld
 
     '
-    ''' <summary>
-    ''' Pfad: MahjongGK/Spielfeld/Daten
-    ''' 
-    ''' Beschreibt einen einzelnen Spielstein im MahjongGK-Spielfeld.
-    ''' Enthält Identität/Zuordnung (<c>SteinInfoIndex</c>, <c>SteinSymbolIndex</c>, <c>KlickGruppe</c>),
-    ''' Lage (<c>Postion3D</c>, abgeleitete <c>X/Y/Z</c>), Sichtbarkeitsmaske (<c>Verdeckung</c>/<c>Sichtbar</c>)
-    ''' sowie optionale Animationsparameter (nur Laufzeit, <c>XmlIgnore</c>).
-    ''' Bietet eine typsichere <see cref="DeepCopy"/> zur Erstellung echter, referenzgetrennter Kopien.
-    ''' </summary>
-    ''' <remarks>
-    ''' <para>
-    ''' <b>Identität &amp; Paarlogik:</b> <c>SteinInfoIndex</c> entspricht dem Index in <c>SteinInfos</c>.
-    ''' Die Zuordnung zu Paaren erfolgt über <c>KlickGruppe</c> (Mapping aus <c>SteinSymbol</c>),
-    ''' sodass auch visuell unterschiedliche Steine paarweise entfernt werden können.
-    ''' </para>
-    ''' <para>
-    ''' <b>Position:</b> <c>Postion3D</c> enthält die Koordinaten im Spielfeldraster.
-    ''' Die ReadOnly-Properties <c>X</c>, <c>Y</c>, <c>Z</c> leiten direkt daraus ab.
-    ''' </para>
-    ''' <para>
-    ''' <b>Sichtbarkeit:</b> Die Oberfläche ist in 4 Quadranten unterteilt.
-    ''' <c>Verdeckung</c> (Bitmaske) und <c>Sichtbar</c> sind logisch komplementär (4-Bit-Raum).
-    ''' Über <c>VerdecktQuadrant</c>/<c>SichtbarQuadrant</c> lassen sich einzelne Quadranten bequem lesen/setzen.
-    ''' </para>
-    ''' <para>
-    ''' <b>Animation (nur Laufzeit):</b> <c>AnimTyp</c>, <c>AnimShowAnimated</c>, <c>AnimStartDelay</c>,
-    ''' <c>AnimMaxStep</c> (intern ×100 skaliert), <c>AnimCurStep</c>, <c>AnimLoops</c>, <c>AnimLoopCount</c>
-    ''' sind mit <c>XmlIgnore</c> markiert und werden nicht serialisiert.
-    ''' </para>
-    ''' <para>
-    ''' <b>DeepCopy:</b> <see cref="DeepCopy"/> nutzt <c>MemberwiseClone</c> für die flache Kopie und
-    ''' klont Referenzen explizit (z. B. <c>Postion3D.DeepCopy()</c>). So bleiben Original und Kopie
-    ''' vollständig unabhängig (Editor ⇄ Testspiel).
-    ''' </para>
-    ''' </remarks>
-    ''' <example>
-    ''' <code language="vbnet">
-    ''' ' Stein erzeugen und ins Spielfeld übernehmen
-    ''' Dim s As New SteinInfo(steinInfoIndex:=0,
-    '''                        steinIndex:=SteinSymbol.Bambus1,
-    '''                        pos3D:=New Triple(5, 7, 0))
-    '''
-    ''' ' Sichtbarkeitsbits anpassen (Quadrant-bezogen)
-    ''' s.SichtbarQuadrant(Quadrant.LinksOben) = True
-    ''' s.VerdecktQuadrant(Quadrant.RechtsUnten) = True
-    '''
-    ''' ' Laufzeit-Animation konfigurieren (wird nicht serialisiert)
-    ''' s.AnimTyp = Animation.Puls
-    ''' s.AnimMaxStep = 12   ' wird intern als 1200 gespeichert
-    ''' s.AnimLoops = 1.5F
-    '''
-    ''' ' Echte tiefe Kopie anlegen (z. B. für Testmodus)
-    ''' Dim copy As SteinInfo = s.DeepCopy()
-    ''' copy.Postion3D.x += 2  ' verändert nur die Kopie
-    ''' </code>
-    ''' </example>
-
     <Serializable>
     Public Class SteinInfo
 
@@ -128,6 +72,10 @@ Namespace Spielfeld
         Private _AnimMaxStep As Integer
 
         Private _AnimLoops As Single
+
+        Private _x As Integer
+        Private _y As Integer
+        Private _z As Integer
 
         <XmlIgnore>
         Public Property IsDirty As Boolean
@@ -171,10 +119,10 @@ Namespace Spielfeld
             IsDirty = True
         End Sub
 
-        Private Sub Pos3D_Changed(sender As Triple)
-            ' Jede Änderung in Triple (x/y/z/Valide) zählt als "dirty"
-            MarkDirty()
-        End Sub
+        'Private Sub Pos3D_Changed(sender As Triple)
+        '    ' Jede Änderung in Triple (x/y/z/Valide) zählt als "dirty"
+        '    MarkDirty()
+        'End Sub
         '
         ''' <summary>
         ''' Es kann ein einzelner Stein temporär entnommen werden, insbesondere den Stein,
@@ -196,6 +144,7 @@ Namespace Spielfeld
         ''' Durch die Speicherung im arrFB bleibt der Status von IsRemoved automatisch erhalten.
         ''' </summary>
         ''' <returns></returns>
+        <XmlIgnore>
         Public Property IsRemoved() As Boolean
             Get
                 'Weil zeitkritisch doppelter Code
@@ -315,6 +264,9 @@ Namespace Spielfeld
             Set(value As Triple)
                 If Not value?.IsEqual(_pos3D) Then
                     _pos3D = value
+                    _x = _pos3D.x
+                    _y = _pos3D.y
+                    _z = _pos3D.z
                     MarkDirty()
                 End If
             End Set
@@ -365,8 +317,7 @@ Namespace Spielfeld
         ''' <returns></returns>
         Public ReadOnly Property X As Integer
             Get
-                If _pos3D Is Nothing Then Return 0
-                Return _pos3D.x
+                Return _x
             End Get
         End Property
         '
@@ -376,8 +327,7 @@ Namespace Spielfeld
         ''' <returns></returns>
         Public ReadOnly Property Y As Integer
             Get
-                If _pos3D Is Nothing Then Return 0
-                Return _pos3D.y
+                Return _y
             End Get
         End Property
         '
@@ -387,8 +337,7 @@ Namespace Spielfeld
         ''' <returns></returns>
         Public ReadOnly Property Z As Integer
             Get
-                If _pos3D Is Nothing Then Return 0
-                Return _pos3D.z
+                Return _z
             End Get
         End Property
         '

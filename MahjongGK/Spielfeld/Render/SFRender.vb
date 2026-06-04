@@ -162,8 +162,9 @@ Namespace Spielfeld
                 'unterer rechter Marker, wenn der Backpuffer wiederverwendet wird
                 DrawRenderingSkipDoneMarker(_paintEventGfx, rectOutput.Width, rectOutput.Height, _sfd.SFRun.RenderingDoneCounter, "Done")
             End If
-
-            _sfd.SFLay.rxHeader?.DrawStringCentered("Hallo", New Font("Arial", 16, FontStyle.Bold), usePadding:=False, foreColor:=Nothing)
+            '
+            'Name des Spiels
+            _sfd.SFLay.rxHeader?.DrawStringCentered(_sfd.SFInf.Name, New Font("Arial", 16, FontStyle.Bold), usePadding:=False, foreColor:=Nothing)
 
             Dim msg As String = _sfd.SFInf.ConsumeUndoText
             If Not String.IsNullOrEmpty(msg) AndAlso _sfd.SFLay.rxUndo IsNot Nothing Then
@@ -208,7 +209,7 @@ Namespace Spielfeld
                     For x As Integer = .xMin To .xMax
                         For y As Integer = .yMin To .yMax
 
-                            If .arrFB(x, y, z) = 0 Then
+                            If .ArrFB(x, y, z) = 0 Then
                                 'unbelegtes Feld
                                 Continue For
                             End If
@@ -217,7 +218,7 @@ Namespace Spielfeld
                                 'bereits verarbeitetes Feld
                                 Continue For
 
-                            ElseIf .arrFB(x, y, z) = 0 Then
+                            ElseIf .ArrFB(x, y, z) = 0 Then
                                 'unbelegtes Feld
                                 Continue For
 
@@ -274,7 +275,7 @@ Namespace Spielfeld
                                 'bereits verarbeitetes Feld
                                 Continue For
 
-                            ElseIf .arrFB(x, y, z) = 0 Then
+                            ElseIf .ArrFB(x, y, z) = 0 Then
                                 'unbelegtes Feld
                                 Continue For
 
@@ -570,9 +571,10 @@ Namespace Spielfeld
             Dim values As (has As Boolean, bmp As Bitmap, rect As Rectangle, zEbeneHierOhneBedeutung As Integer)
             values = _sfd.SFMouse.GetSpecialBmps(SpecialBmps.AtStockMousePos)
             If values.has Then
-                'On Error Resume Next
+                On Error Resume Next
+
                 _backBufferGfx.DrawImage(values.bmp, values.rect)
-                'On Error GoTo 0
+                On Error GoTo 0
             End If
 
             values = _sfd.SFMouse.GetSpecialBmps(SpecialBmps.AtEditorMousePos)
@@ -639,5 +641,6 @@ Namespace Spielfeld
         End Function
 
 #End Region
+
     End Class
 End Namespace

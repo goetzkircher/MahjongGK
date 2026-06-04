@@ -12,10 +12,13 @@ Public NotInheritable Class ContextMenueEditor
     Private ReadOnly _mnuDoubleClickRemoveStein As ToolStripMenuItem
     Private ReadOnly _mnuNoDoubleClick As ToolStripMenuItem
     Private ReadOnly _mnuShowGhost As ToolStripMenuItem
+    Private ReadOnly _mnuShowTooltip As ToolStripMenuItem
     Private ReadOnly _mnuWindsAreInOneClickGroup As ToolStripMenuItem
+    Private ReadOnly _sfd As SFDaten
 
-    Public Sub New()
+    Public Sub New(sfd As SFDaten)
 
+        _sfd = sfd
         _mnuDoubleClickSetStein = New ToolStripMenuItem("Doppelklick setzt Stein")
         _mnuDoubleClickRemoveStein = New ToolStripMenuItem("Doppelklick entfernt Stein")
         _mnuNoDoubleClick = New ToolStripMenuItem("Kein Doppelklick")
@@ -50,6 +53,10 @@ Public NotInheritable Class ContextMenueEditor
         Dim mnuToolBoxOpen As New ToolStripMenuItem("Toolbox öffnen")
         AddHandler mnuToolBoxOpen.Click, AddressOf OnToolboxOpen
         Items.Add(mnuToolBoxOpen)
+
+        _mnuShowTooltip = New ToolStripMenuItem("Tooltips zu denSteinen zeigen")
+        AddHandler _mnuShowTooltip.Click, AddressOf OnShowTooltip
+        Items.Add(_mnuShowTooltip)
 
         Dim mnuInfoToolbox As New ToolStripMenuItem("Info")
         AddHandler mnuInfoToolbox.Click, AddressOf OnInfoToolboxOpen
@@ -87,6 +94,13 @@ Public NotInheritable Class ContextMenueEditor
         AddHandler mnuInfoSort.Click, AddressOf OnInfoSort
         Items.Add(mnuInfoSort)
 
+        If INI.Editor_UsingFrmRenderLoadMeter Then
+            Items.Add(New ToolStripSeparator())
+            Dim mnuRenderLoadMeter As New ToolStripMenuItem("Renderlast-Messung")
+            AddHandler mnuRenderLoadMeter.Click, AddressOf OnRenderLoadMeter
+            Items.Add(mnuRenderLoadMeter)
+        End If
+
         RefreshCheckMarks()
 
     End Sub
@@ -101,13 +115,14 @@ Public NotInheritable Class ContextMenueEditor
 
         _mnuWindsAreInOneClickGroup.Checked = INI.Spielbetrieb_WindsAreInOneClickGroup
         _mnuShowGhost.Checked = INI.Editor_ShowDoubleclickGhost
+        _mnuShowTooltip.Checked = INI.Editor_ShowFrmTooltipSteinInfo
     End Sub
 
     Private Sub OnDoubleClickSetStein(sender As Object, e As EventArgs)
 
         INI.Editor_DoubleClickSetStein = True
         INI.Editor_DoubleClickRemoveStein = False
-
+        _sfd.SFTool.SetConsumeTabpagePollEvent(ToolboxPollEvent.ContextmenueEditor_SomethingChanged)
         RefreshCheckMarks()
 
     End Sub
@@ -116,7 +131,7 @@ Public NotInheritable Class ContextMenueEditor
 
         INI.Editor_DoubleClickSetStein = False
         INI.Editor_DoubleClickRemoveStein = True
-
+        _sfd.SFTool.SetConsumeTabpagePollEvent(ToolboxPollEvent.ContextmenueEditor_SomethingChanged)
         RefreshCheckMarks()
 
     End Sub
@@ -125,14 +140,14 @@ Public NotInheritable Class ContextMenueEditor
 
         INI.Editor_DoubleClickSetStein = False
         INI.Editor_DoubleClickRemoveStein = False
-
+        _sfd.SFTool.SetConsumeTabpagePollEvent(ToolboxPollEvent.ContextmenueEditor_SomethingChanged)
         RefreshCheckMarks()
 
     End Sub
     Private Sub OnShowGhost(sender As Object, e As EventArgs)
 
         INI.Editor_ShowDoubleclickGhost = Not INI.Editor_ShowDoubleclickGhost
-
+        _sfd.SFTool.SetConsumeTabpagePollEvent(ToolboxPollEvent.ContextmenueEditor_SomethingChanged)
         RefreshCheckMarks()
 
     End Sub
@@ -140,13 +155,18 @@ Public NotInheritable Class ContextMenueEditor
     Private Sub OnWindsAreInOneClickGroup(sender As Object, e As EventArgs)
 
         INI.Spielbetrieb_WindsAreInOneClickGroup = Not INI.Spielbetrieb_WindsAreInOneClickGroup
-
+        _sfd.SFTool.SetConsumeTabpagePollEvent(ToolboxPollEvent.ContextmenueEditor_SomethingChanged)
         RefreshCheckMarks()
 
     End Sub
 
     Private Sub OnToolboxOpen(sender As Object, e As EventArgs)
         frmMain.DoToolBox()
+    End Sub
+    Private Sub OnShowTooltip(sender As Object, e As EventArgs)
+        INI.Editor_ShowFrmTooltipSteinInfo = Not INI.Editor_ShowFrmTooltipSteinInfo
+        _sfd.SFTool.SetConsumeTabpagePollEvent(ToolboxPollEvent.ContextmenueEditor_ShowTooltipChanged)
+        RefreshCheckMarks()
     End Sub
 
     Private Sub OnShuffleAll(sender As Object, e As EventArgs)
@@ -208,8 +228,12 @@ Public NotInheritable Class ContextMenueEditor
 
     Private Sub OnInfoToolboxOpen(sender As Object, e As EventArgs)
 
+        Dim sb As New StringBuilder
+        sb.AppendLine("Die Toolbox ist die Werkzeugkiste, mit der Größe des Spielfeldes, Hintergrundbild und Name, festgelegt oder geändert werden.")
+        sb.AppendLine()
+        sb.AppendLine("Die Tooltips geben den Aufbau des Stapels unter dem linken oberen Quadrant eines Steines an.")
         MessageBox.Show(
-            "Die Toolbox ist die Werkzeugkiste, mit der Größe des Spielfeldes, Hintergrundbild und Name, festgelegt oder geändert werden.",
+            sb.ToString,
             "Info",
             MessageBoxButtons.OK,
             MessageBoxIcon.Information)
@@ -264,6 +288,10 @@ Public NotInheritable Class ContextMenueEditor
             "Info",
             MessageBoxButtons.OK,
             MessageBoxIcon.Information)
+    End Sub
+
+    Private Sub OnRenderLoadMeter(sender As Object, e As EventArgs)
+        SFMain.SFDat.SFRenMan.StartRenderMeter()
     End Sub
 
     Protected Overrides Sub OnOpening(e As System.ComponentModel.CancelEventArgs)

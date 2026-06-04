@@ -73,6 +73,7 @@ Namespace Spielfeld
             SFAir = New SFAirflight(Me)
             SFMouse = New SFMouseAktion(Me)
             SFStock = New SFStockJobs(Me)
+            SFTool = New SFToolbox(Me)
         End Sub
 
         Public Sub New(spielfeldinfo As SFInfo)
@@ -88,6 +89,7 @@ Namespace Spielfeld
             SFAir = New SFAirflight(Me)
             SFMouse = New SFMouseAktion(Me)
             SFStock = New SFStockJobs(Me)
+            SFTool = New SFToolbox(Me)
         End Sub
 
 #End Region
@@ -108,6 +110,8 @@ Namespace Spielfeld
         Public Property SFMouse As SFMouseAktion
 
         Public Property SFStock As SFStockJobs
+        Public Property SFTool As SFToolbox
+
 #End Region
 
 #Region "Dispose"

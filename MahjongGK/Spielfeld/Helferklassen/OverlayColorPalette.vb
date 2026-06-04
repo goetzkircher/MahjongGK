@@ -153,7 +153,7 @@ Public NotInheritable Class OverlayColorPalette
             Return Color.Black
         End If
 
-        Dim imgRect As Rectangle = New Rectangle(0, 0, bmpSrc.Width, bmpSrc.Height)
+        Dim imgRect As New Rectangle(0, 0, bmpSrc.Width, bmpSrc.Height)
         Dim rect As Rectangle = Rectangle.Intersect(imgRect, sampleRect)
 
         If rect.Width <= 0 OrElse rect.Height <= 0 Then

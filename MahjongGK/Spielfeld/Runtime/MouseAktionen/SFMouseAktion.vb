@@ -197,7 +197,8 @@ Namespace Spielfeld
         End Function
 
         Private Sub SetSpecialBmps(specialBitmap As SpecialBmps, bmp As Bitmap, rect As Rectangle, zEbene As Integer)
-            _hasSpecialBmps(specialBitmap) = True
+
+            _hasSpecialBmps(specialBitmap) = bmp IsNot Nothing
             _bmpSpecialBmps(specialBitmap) = bmp
             _rectSpecialBmps(specialBitmap) = rect
             _zEbeneSpecialBmp(specialBitmap) = zEbene
@@ -271,7 +272,7 @@ Namespace Spielfeld
             _sfd.SFRun.MousePolling.AbortDragDrop()
             ClearSpecialBmps()
             ClearDoubleClickGhostBmp()
-            _sfd.SFStock.DoGgfAbortAndClearGapJob()
+            _sfd.SFStock.AbortAndOrClearGapJob()
 
         End Sub
 
@@ -323,7 +324,7 @@ Namespace Spielfeld
             _wheelSteps = _mouseWheelPoller.PollWheelStep()
 
             If _sfd.SFRun.MousePolling.ConsumeRightMousePressed() Then
-                frmMain.UCtlSpielfeldMain.ContextMenuStrip = New ContextMenueEditor()
+                frmMain.UCtlSpielfeldMain.ContextMenuStrip = New ContextMenueEditor(_sfd)
                 Exit Sub
             End If
 

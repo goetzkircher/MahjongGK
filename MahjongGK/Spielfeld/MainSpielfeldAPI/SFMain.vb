@@ -187,8 +187,12 @@ Namespace Spielfeld
             CloseToolBox()
 
             If SFDat IsNot Nothing Then
-                SFDatDisposeAndSetNothing(saveSpielFeld:=If(SFDat.SFInf.xMax = 0, False, True))
+                SFDat.SFTool.ClearStatusDatenInFrmMain()
+                SFDatDisposeAndSetNothing(saveSpielFeld:=SFDat.SFInf.xMax <> 0)
             End If
+
+            TileFactory.TileFactoryAPI.DisposeAll()
+
         End Sub
 
         Public ReadOnly Property SFDatHasDataAndDoRender As Boolean
@@ -257,10 +261,10 @@ Namespace Spielfeld
         End Function
         Public Sub CloseToolBox()
 
-            Dim frm As Form = INI.ToolBox_FormToolBox
+            Dim frm As Form = INI.ToolBox_VolatilFormToolBox
 
             If frm Is Nothing Then
-                INI.ToolBox_FormIsVisible = False
+                INI.ToolBox_VolatilFormIsVisible = False
                 Exit Sub
             End If
 
@@ -274,8 +278,8 @@ Namespace Spielfeld
                 End If
             End Try
 
-            INI.ToolBox_FormToolBox = Nothing
-            INI.ToolBox_FormIsVisible = False
+            INI.ToolBox_VolatilFormToolBox = Nothing
+            INI.ToolBox_VolatilFormIsVisible = False
 
         End Sub
 

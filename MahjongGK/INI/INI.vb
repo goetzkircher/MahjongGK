@@ -1152,7 +1152,16 @@ Public Module INI
             _Editor_ShowDoubleclickGhost = Nothing
         End Set
     End Property
-
+    Public Property Editor_UsingFrmRenderLoadMeter As Boolean
+        Get
+            Dim [Default] As Boolean = Debugger.IsAttached
+            Dim comment As String = "Ein Tool, daß die Prozessorbelastung misst. Wird aus dem Kontextmenue des Spielfeldes oder des Editors aufgerufen."
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As Boolean)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
+        End Set
+    End Property
     Public Property SpielsteinGenerator_VerhältnisNormalsteineZuSondersteine As Double
         Get
             Dim [Default] As Double = 17
@@ -1889,7 +1898,7 @@ Public Module INI
 
 #Region "Toolbox"
     Private _ToolBox_FormToolBox As Form
-    Public Property ToolBox_FormToolBox As Form
+    Public Property ToolBox_VolatilFormToolBox As Form
         Get
             Return _ToolBox_FormToolBox
         End Get
@@ -1902,9 +1911,9 @@ Public Module INI
     End Property
 
     Private _ToolBox_FormIsVisible As Boolean
-    Public Property ToolBox_FormIsVisible As Boolean
+    Public Property ToolBox_VolatilFormIsVisible As Boolean
         Get
-            If ToolBox_FormToolBox Is Nothing Then
+            If ToolBox_VolatilFormToolBox Is Nothing Then
                 _ToolBox_FormIsVisible = False
             End If
             Return _ToolBox_FormIsVisible
@@ -1913,21 +1922,7 @@ Public Module INI
             _ToolBox_FormIsVisible = value
         End Set
     End Property
-    Private _ToolBox_TabPageChangedConsume As Boolean
 
-    Public Property ToolBox_ConsumeTabPageChanged As Boolean
-        Get
-            If _ToolBox_TabPageChangedConsume Then
-                _ToolBox_TabPageChangedConsume = False
-                Return True
-            Else
-                Return False
-            End If
-        End Get
-        Set(value As Boolean)
-            _ToolBox_TabPageChangedConsume = value
-        End Set
-    End Property
     '
     ''' <summary>
     ''' Speicherung der aktuellen Position der Form Toolbox
@@ -2807,6 +2802,21 @@ Public Module INI
     Public ReadOnly Property Volatil_RenderCounterValue As Integer
         Get
             Return _renderCounter
+        End Get
+    End Property
+    '
+    ''' <summary>
+    ''' Mehrfache Aufrufe zwischen zwei Renderungen zählen nur einmal hoch.
+    ''' </summary>
+    Public Sub Volatil_SetRenderOnceMore()
+        _Volatil_ConsumeRenderOnceMoreCounter = _renderCounter + 1
+    End Sub
+
+    Private _Volatil_ConsumeRenderOnceMoreCounter As Integer
+    Public ReadOnly Property Volatil_ConsumeRenderOnceMore As Boolean
+        Get
+            _Volatil_ConsumeRenderOnceMoreCounter -= 1 'laufendes abwärtszählen ist unschädlich.
+            Return _Volatil_ConsumeRenderOnceMoreCounter >= _renderCounter
         End Get
     End Property
 
