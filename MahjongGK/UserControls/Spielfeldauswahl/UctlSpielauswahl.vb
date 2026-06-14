@@ -8,17 +8,19 @@ Option Strict On
 
 Imports System.Drawing.Drawing2D
 Imports System.IO
+Imports MahjongGK.Contracts
 Imports MahjongGK.Spielfeld
 
 Public Class UctlSpielauswahl
 
-    Public Event SpielAusgewaehlt(fullPath As String, sfInfo As SFInfo)
+    Public Event SpielSelected(sender As Object, e As EventArgs)
+    Public Event SpielauswahlAbbrechen(sender As Object, e As EventArgs)
 
     Private Const ITEM_W As Integer = 420
     Private Const ITEM_H As Integer = 235
     Private Shadows Const MARGIN As Integer = 12
-    Private Const PIC_W As Integer = 380
-    Private Const PIC_H As Integer = 165
+    Private Const PIC_W As Integer = MJ_THUMB_W '380
+    Private Const PIC_H As Integer = MJ_THUMB_H ' 165
     Private Const TEXT_W As Integer = 380
     Private Const ITEM_GAP_X As Integer = 12
     Private Const ITEM_GAP_Y As Integer = 12
@@ -27,9 +29,12 @@ Public Class UctlSpielauswahl
     Private _selectedIndex As Integer = -1
 
     Private Class SpielauswahlItem
-        Public Property FullName As String
+        Public Property FullPath As String
         Public Property SFInfo As SFInfo
         Public Property Picture As Bitmap
+        Public Property Name As String
+        Public Property SpielInfo As String
+        Public Property Datum As Date
     End Class
 
     Public Sub New()
@@ -47,43 +52,75 @@ Public Class UctlSpielauswahl
                  ControlStyles.ResizeRedraw Or
                  ControlStyles.Selectable, True)
 
+        InitContextMenueSpielauswahl()
+
     End Sub
 
-    Public Sub Initialisierung(arrFI() As FileInfo)
+    Public Sub Initialisierung(sq As GlobalEnum.SpielQuelle, sg As GlobalEnum.SpielStärke)
+
+        Dim path As String
+
+        Select Case sq
+            Case SpielQuelle.Eigene
+                path = INI.BasisIni.AppDataDirectory(AppDataSubDir.Spiele, AppDataSubSubDir.EigeneSpiele)
+            Case SpielQuelle.Sammlung
+                path = INI.BasisIni.AppDataDirectory(AppDataSubDir.Spiele, AppDataSubSubDir.Spielesammlung)
+            Case Else
+                Throw New Exception("ungültige SpielQuelle")
+        End Select
+
+        Dim dirInfo As New DirectoryInfo(path)
+        Dim fis() As FileInfo = dirInfo.GetFiles
+
+        Dim loSfi As New List(Of SFInfo)
+        For Each fi As FileInfo In fis
+            Dim sfInf As SFInfo = SFInfo.Load(fi.FullName)
+            If sfInf IsNot Nothing AndAlso sfInf.IsValide Then
+                If sg = -1 Then
+                    loSfi.Add(sfInf)
+                ElseIf sg = sfInf.SpielStärke Then
+                    loSfi.Add(sfInf)
+                End If
+            End If
+        Next
+
+        Initialisierung(loSfi)
+
+    End Sub
+
+    Public Sub Initialisierung(loSfi As List(Of SFInfo))
 
         ClearItems()
 
-        If arrFI Is Nothing Then
+        If loSfi Is Nothing Then
             UpdateScrollbars()
             Invalidate()
             Return
         End If
 
-        For Each item As FileInfo In arrFI
+        If INI.Spielauswahl_SortorderName Then
+            loSfi.Sort(Function(a As SFInfo, b As SFInfo) StringComparer.CurrentCultureIgnoreCase.Compare(a.Name, b.Name))
+        Else
+            loSfi.Sort(Function(a As SFInfo, b As SFInfo) b.Speicherdatum.CompareTo(a.Speicherdatum))
+        End If
 
-            Dim fullName As String = item.FullName
+        For Each sfInf As SFInfo In loSfi
 
-            If String.IsNullOrWhiteSpace(fullName) OrElse Not File.Exists(fullName) Then
-                Continue For
+            Dim bmp As Bitmap = Nothing
+
+            If Not String.IsNullOrEmpty(sfInf.SpielfeldPictureXml) Then
+                'Die Bitmap liegt als Base64-String vor.
+                bmp = New Bitmap(sfInf.SpielfeldPicture)
             End If
 
-            Dim sfInf As SFInfo = SFInfo.Load(fullName)
-
-            If sfInf IsNot Nothing AndAlso sfInf.IsValide Then
-
-                Dim bmp As Bitmap = Nothing
-
-                If sfInf.SpielfeldPicture IsNot Nothing Then
-                    bmp = New Bitmap(sfInf.SpielfeldPicture)
-                End If
-
-                _items.Add(New SpielauswahlItem With {
-                    .FullName = fullName,
-                    .SFInfo = sfInf,
-                    .Picture = bmp
-                })
-
-            End If
+            _items.Add(New SpielauswahlItem With {
+                .FullPath = sfInf.fullPath,
+                .SFInfo = sfInf,
+                .Picture = bmp,
+                .Name = sfInf.Name,
+                .Datum = sfInf.Speicherdatum,
+                .SpielInfo = sfInf.SpielInfo
+            })
         Next
 
         If _items.Count > 0 Then
@@ -96,6 +133,11 @@ Public Class UctlSpielauswahl
         Invalidate()
 
     End Sub
+
+    Private _selectedSfInfo As SFInfo
+    Public Function SelectedSfInfo() As SFInfo
+        Return _selectedSfInfo
+    End Function
 
     Private Sub ClearItems()
 
@@ -249,16 +291,16 @@ Public Class UctlSpielauswahl
                 Using sf As New StringFormat()
                     sf.Trimming = StringTrimming.EllipsisWord
                     sf.FormatFlags = StringFormatFlags.LineLimit
-                    g.DrawString(If(it.SFInfo.Beschreibung, ""), fText, br, beschrRect, sf)
+                    g.DrawString(it.SpielInfo, fText, br, beschrRect, sf)
                 End Using
 
-                y += 48
+                'y += 48
 
-                Using sfInfo As New StringFormat()
-                    sfInfo.Trimming = StringTrimming.EllipsisCharacter
-                    sfInfo.FormatFlags = StringFormatFlags.NoWrap
-                    g.DrawString(If(it.SFInfo.SpielInfo, ""), fText, br, New RectangleF(x, y, TEXT_W, 18.0F), sfInfo)
-                End Using
+                'Using sfInfo As New StringFormat()
+                '    sfInfo.Trimming = StringTrimming.EllipsisCharacter
+                '    sfInfo.FormatFlags = StringFormatFlags.NoWrap
+                '    g.DrawString(If(it.SFInfo.SpielInfo, ""), fText, br, New RectangleF(x, y, TEXT_W, 18.0F), sfInfo)
+                'End Using
 
             End Using
         End Using
@@ -337,7 +379,7 @@ Public Class UctlSpielauswahl
 
         If idx >= 0 Then
             _selectedIndex = idx
-            SelectCurrentGame()
+            SelectCurrentSpiel()
         End If
 
     End Sub
@@ -417,7 +459,7 @@ Public Class UctlSpielauswahl
                 e.Handled = True
 
             Case Keys.Enter
-                SelectCurrentGame()
+                SelectCurrentSpiel()
                 e.Handled = True
 
         End Select
@@ -461,14 +503,14 @@ Public Class UctlSpielauswahl
 
     End Sub
 
-    Private Sub SelectCurrentGame()
+    Private Sub SelectCurrentSpiel()
 
         If _selectedIndex < 0 OrElse _selectedIndex >= _items.Count Then
             Return
         End If
 
-        Dim it As SpielauswahlItem = _items(_selectedIndex)
-        RaiseEvent SpielAusgewaehlt(it.FullName, it.SFInfo)
+        _selectedSfInfo = _items(_selectedIndex).SFInfo
+        RaiseEvent SpielSelected(Me, New EventArgs)
 
     End Sub
 
@@ -508,5 +550,98 @@ Public Class UctlSpielauswahl
         ClearItems()
 
     End Sub
+
+#Region "Contextmenue"
+    'In der Klasse:
+
+    Private _contextMenueSpielauswahl As ContextMenuStrip
+
+    Private _mnuSpielLaden As ToolStripMenuItem
+    Private _mnuSortierungName As ToolStripMenuItem
+    Private _mnuSortierungDatum As ToolStripMenuItem
+    Private _mnuLöschen As ToolStripMenuItem
+    Private _mnuAbbrechen As ToolStripMenuItem
+
+    Private Sub InitContextMenueSpielauswahl()
+
+        _contextMenueSpielauswahl = New ContextMenuStrip()
+
+        _mnuSpielLaden = New ToolStripMenuItem("Spiel laden")
+        _mnuSortierungName = New ToolStripMenuItem("Sortierung Name")
+        _mnuSortierungDatum = New ToolStripMenuItem("Sortierung Datum")
+        _mnuLöschen = New ToolStripMenuItem("Löschen")
+        _mnuAbbrechen = New ToolStripMenuItem("Abbrechen")
+
+        _mnuSortierungName.CheckOnClick = False
+        _mnuSortierungDatum.CheckOnClick = False
+
+        AddHandler _mnuSpielLaden.Click, AddressOf OnMnuSpielLadenClick
+        AddHandler _mnuSortierungName.Click, AddressOf OnMnuSortierungNameClick
+        AddHandler _mnuSortierungDatum.Click, AddressOf OnMnuSortierungDatumClick
+        AddHandler _mnuLöschen.Click, AddressOf OnMnuLöschenClick
+        AddHandler _mnuAbbrechen.Click, AddressOf OnMnuAbbrechenClick
+
+        AddHandler _contextMenueSpielauswahl.Opening, AddressOf OnContextMenueSpielauswahlOpening
+
+        _contextMenueSpielauswahl.Items.Add(_mnuSpielLaden)
+        _contextMenueSpielauswahl.Items.Add(New ToolStripSeparator())
+        _contextMenueSpielauswahl.Items.Add(_mnuSortierungName)
+        _contextMenueSpielauswahl.Items.Add(_mnuSortierungDatum)
+        _contextMenueSpielauswahl.Items.Add(New ToolStripSeparator())
+        _contextMenueSpielauswahl.Items.Add(_mnuLöschen)
+        _contextMenueSpielauswahl.Items.Add(New ToolStripSeparator())
+        _contextMenueSpielauswahl.Items.Add(_mnuAbbrechen)
+
+        Me.ContextMenuStrip = _contextMenueSpielauswahl
+
+    End Sub
+
+    Private Sub OnContextMenueSpielauswahlOpening(sender As Object, e As System.ComponentModel.CancelEventArgs)
+
+        UpdateSortierHaken()
+
+    End Sub
+
+    Private Sub UpdateSortierHaken()
+
+        Dim sortOrderName As Boolean = INI.Spielauswahl_SortorderName
+
+        _mnuSortierungName.Checked = sortOrderName
+        _mnuSortierungDatum.Checked = Not sortOrderName
+
+    End Sub
+
+    Private Sub OnMnuSpielLadenClick(sender As Object, e As EventArgs)
+        SelectCurrentSpiel()
+    End Sub
+
+    Private Sub OnMnuSortierungNameClick(sender As Object, e As EventArgs)
+
+        INI.Spielauswahl_SortorderName = True
+        UpdateSortierHaken()
+
+        _items.Sort(Function(a As SpielauswahlItem, b As SpielauswahlItem) StringComparer.CurrentCultureIgnoreCase.Compare(a.Name, b.Name))
+        Me.Invalidate()
+
+    End Sub
+
+    Private Sub OnMnuSortierungDatumClick(sender As Object, e As EventArgs)
+
+        INI.Spielauswahl_SortorderName = False
+        UpdateSortierHaken()
+
+        _items.Sort(Function(a As SpielauswahlItem, b As SpielauswahlItem) b.Datum.CompareTo(a.Datum))
+        Me.Invalidate()
+
+    End Sub
+
+    Private Sub OnMnuAbbrechenClick(sender As Object, e As EventArgs)
+
+    End Sub
+    Private Sub OnMnuLöschenClick(sender As Object, e As EventArgs)
+
+    End Sub
+
+#End Region
 
 End Class

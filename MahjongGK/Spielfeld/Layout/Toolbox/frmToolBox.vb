@@ -28,11 +28,10 @@ Option Strict On
 #Disable Warning IDE1006
 
 Imports System.ComponentModel
-Imports System.Drawing.Drawing2D
-Imports System.Drawing.Imaging
 Imports MahjongGK.Contracts
 Imports MahjongGK.Helfer
 Imports MahjongGK.Spielfeld
+Imports Microsoft.VisualBasic.FileIO
 '
 ''' <summary>
 ''' Wichtiger Hinweis zur Toolbox:
@@ -85,14 +84,19 @@ Public Class frmToolBox
         ''_toolboxBinder = New MousePollerHandleBinder(Spielfeld.SFD.MousePolling, Me)
 
         lblSpielSizeOK.Location = lblSpielSizeError.Location
+        optSaveSpielesammlung.Visible = INI.Editor_SaveToSpielesammlungAllowed
+        optSteinDesignTest.Visible = INI.Tile_AllowTileColorsTestFiles
 
         _zuweisungAktiv = 0
         '()
     End Sub
     Private Sub frmToolBox_Closing(sender As Object, e As CancelEventArgs) Handles Me.Closing
         frmMain.ShowOrHideToolboxAndUpdateToolboxButton()
+        e.Cancel = True
     End Sub
-
+    Private Sub btnClose_Click(sender As Object, e As EventArgs) Handles btnClose.Click
+        frmMain.ShowOrHideToolboxAndUpdateToolboxButton()
+    End Sub
     Private Function DpiScale(ByVal value As Integer) As Integer
         Return CInt(Math.Round(value * Me.DeviceDpi / 96.0F))
     End Function
@@ -103,10 +107,10 @@ Public Class frmToolBox
     End Function
     Private Sub frmToolBox_Shown(sender As Object, e As EventArgs) Handles Me.Shown
 
-        With lblInfoGrenzen.Text
-            lblInfoGrenzen.Text = .Replace("xx", GlobalConstants.MJ_STEINE_MAXX.ToString)
-            lblInfoGrenzen.Text = .Replace("yy", GlobalConstants.MJ_STEINE_MAXY.ToString)
-            lblInfoGrenzen.Text = .Replace("zz", GlobalConstants.MJ_STEINE_MAXZ.ToString)
+        With lblInfoGrenzen
+            .Text = .Text.Replace("xx", GlobalConstants.MJ_STEINE_MAXX.ToString)
+            .Text = .Text.Replace("yy", GlobalConstants.MJ_STEINE_MAXY.ToString)
+            .Text = .Text.Replace("zz", GlobalConstants.MJ_STEINE_MAXZ.ToString)
         End With
 
         Num2UpDownSteineNebeneinander.MinValue = 1
@@ -118,6 +122,7 @@ Public Class frmToolBox
 
         UctlToolboxHintergrund1.InitialisierungAndUpdate()
         SFMain.SFDat.SFTool.SetConsumeTabpagePollEvent(ToolboxPollEvent.DoLoadSFInfoValues)
+
     End Sub
     Private Sub frmToolBox_FormClosing(sender As Object, e As FormClosingEventArgs) Handles Me.FormClosing
         If e.CloseReason = CloseReason.UserClosing Then
@@ -173,24 +178,24 @@ Public Class frmToolBox
 
     Private Sub TabControlToolBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles TabControlToolBox.SelectedIndexChanged
         ''TODO SFD-Anpassung
-        If TabControlToolBox.SelectedTab Is TabPageNameBild Then
-            SFMain.RenderMode = RenderMode.Spiel
-            SFMain.SFDat.SFTool.SetConsumeTabpagePollEvent(ToolboxPollEvent.ChangedTabPage)
+        'If TabControlToolBox.SelectedTab Is TabPageNameSpeicherung Then
+        '    SFMain.RenderMode = RenderMode.Spiel
+        '    SFMain.SFDat.SFTool.SetConsumeTabpagePollEvent(ToolboxPollEvent.ChangedTabPage)
 
-        ElseIf TabControlToolBox.SelectedTab Is TabPageGröße Then
-            SFMain.RenderMode = RenderMode.Edit
-            SFMain.SFDat.SFTool.SetConsumeTabpagePollEvent(ToolboxPollEvent.ChangedTabPage)
+        'ElseIf TabControlToolBox.SelectedTab Is TabPageGröße Then
+        '    SFMain.RenderMode = RenderMode.Edit
+        '    SFMain.SFDat.SFTool.SetConsumeTabpagePollEvent(ToolboxPollEvent.ChangedTabPage)
 
-        ElseIf TabControlToolBox.SelectedTab Is TabPageHintergrund Then
-            UctlToolboxHintergrund1.InitialisierungAndUpdate()
+        'ElseIf TabControlToolBox.SelectedTab Is TabPageHintergrund Then
+        '    UctlToolboxHintergrund1.InitialisierungAndUpdate()
 
-        Else
-            If Debugger.IsAttached Then
-                Stop 'Programmierfehler: hinzugefügte TabPag auch hier hinzufügen.
-            End If
-        End If
+        'Else
+        '    If Debugger.IsAttached Then
+        '        Stop 'Programmierfehler: hinzugefügte TabPag auch hier hinzufügen.
+        '    End If
+        'End If
 
-        UpDateSelectedTabIcon()
+        'UpDateSelectedTabIcon()
 
     End Sub
 
@@ -257,14 +262,14 @@ Public Class frmToolBox
         With _sfd.SFInf
             txtName.Text = .Name
             txtAnmerkung.Text = .Anmerkung
-            txtBeschreibung.Text = .Beschreibung
-            picSpielfeldPicture.Image = .SpielfeldPicture
             '
             Num2UpDownSteineNebeneinander.Value = .SpielSizeInSteinen.x
             Num2UpDownSteineÜbereinander.Value = .SpielSizeInSteinen.y
             Num2UpDownSteineAufeinander.Value = .SpielSizeInSteinen.z
         End With
         _oldStatusSpielfeldSize = GetStatusSpielfeldSize()
+
+        CopySfInfoToOptSteinDesign()
         _zuweisungAktiv -= 1
     End Sub
 
@@ -374,8 +379,7 @@ Public Class frmToolBox
 
     Private Sub txtNameAnmBeschr_TextChanged(sender As Object, e As EventArgs) _
         Handles txtName.TextChanged,
-                txtAnmerkung.TextChanged,
-                txtBeschreibung.TextChanged
+                txtAnmerkung.TextChanged
 
         If _zuweisungAktiv <> 0 Then Exit Sub
 
@@ -394,7 +398,6 @@ Public Class frmToolBox
         With _sfd.SFInf
             .Name = txtName.Text
             .Anmerkung = txtAnmerkung.Text
-            .Beschreibung = txtBeschreibung.Text
             _sfd.SFTool.SetConsumeTabpagePollEvent(ToolboxPollEvent.ChangedTexte)
         End With
     End Sub
@@ -409,85 +412,148 @@ Public Class frmToolBox
         _zuweisungAktiv -= 1
     End Sub
 
-    Private Sub btnCreteSpielbild_Click(sender As Object, e As EventArgs) Handles btnCreteSpielbild.Click
-        If _sfd.SFRun.AktRenderMode = AktRenderMode.Edit Then
-            _sfd.SFTool.SetConsumeTabpagePollEvent(ToolboxPollEvent.CreateSpielbildStep1SetHideGridSetCreateSpielbild)
-        Else
-            MsgBox("Ein Spielbild kann nur erzeugt werden, wenn der Editor aktiv ist. Bitte umschalten.")
-        End If
-    End Sub
-
-    Public Sub SetSpielbild(bmpSpiel As Bitmap)
-
-        bmpSpiel = ScaleBitmapToFit(bmpSpiel, picSpielfeldPicture.Width, picSpielfeldPicture.Height)
-
-        _sfd.SFInf.SpielfeldPicture = bmpSpiel
-
-        With picSpielfeldPicture
-            .SizeMode = PictureBoxSizeMode.CenterImage
-            .Image = bmpSpiel
-            .Refresh()
-        End With
-
-    End Sub
     '#############################################################################################
 
-    Public Shared Function ScaleBitmapToFit(src As Bitmap,
-                                        maxWidth As Integer,
-                                        maxHeight As Integer) As Bitmap
+    Private Sub btnSave_Click(sender As Object, e As EventArgs) Handles btnSave.Click
+        'zuerst ein "Foto" des Spielfeldes erzeugen
+        CopyOptSteinDesignToSFInf()
+        _sfd.SFTool.SetConsumeTabpagePollEvent(ToolboxPollEvent.CreateSpielbildStep1SetHideGridSetCreateSpielbild)
+        'Das dauert zwei Renderungen plus Vorlaufzeit = drei Renderungen plus Reserve
+        '= vier Renderungen = mindestens 160 ms. Gewählt: 250 ms.
+        tmrDelaySave.Interval = 250
+        tmrDelaySave.Start()
+    End Sub
 
-        If src Is Nothing Then
-            Throw New ArgumentNullException(NameOf(src))
+    Private Sub tmrDelaySave_Tick(sender As Object, e As EventArgs) Handles tmrDelaySave.Tick
+        tmrDelaySave.Stop()
+        DoSave()
+    End Sub
+
+    Private Sub DoSave()
+
+        Dim fullpath As String
+
+        If optSaveEigeneSammlung.Checked Then
+            fullpath = INI.BasisIni.AppDataFullPathSpiel(AppDataSubDir.Spiele, AppDataSubSubDir.EigeneSpiele, _sfd.SFInf.FileName)
+            _sfd.SFInf.SpielStärke = GetSpielGrad()
+            _sfd.SFInf.Save(fullpath)
+            MsgBox("gespeichert", MsgBoxStyle.Information)
+
+        ElseIf optSaveSpielesammlung.Checked Then
+            _sfd.SFInf.SpielStärke = GetSpielGrad()
+            fullpath = INI.BasisIni.AppDataFullPathSpiel(AppDataSubDir.Spiele, AppDataSubSubDir.Spielesammlung, _sfd.SFInf.FileName)
+            _sfd.SFInf.Save(fullpath)
+            MsgBox("gespeichert", MsgBoxStyle.Information)
+
+        ElseIf optSaveAußerhalb.Checked Then
+            Dim sfd As New SaveFileDialog
+            With sfd
+                .DefaultExt = "xml"
+                .FileName = _sfd.SFInf.FileName
+                .Filter = "xml|xml"
+                .InitialDirectory = SpecialDirectories.MyDocuments
+                If .ShowDialog = DialogResult.OK Then
+                    _sfd.SFInf.Save(.FileName)
+                End If
+            End With
         End If
+    End Sub
 
-        If maxWidth <= 0 Then
-            Throw New ArgumentOutOfRangeException(NameOf(maxWidth))
+    Private Function GetSpielGrad() As SpielStärke
+        If optLeicht.Checked Then
+            Return SpielStärke.Leicht
+        ElseIf optMittel.Checked Then
+            Return SpielStärke.Mittel
+        ElseIf optSchwer.Checked Then
+            Return SpielStärke.Schwer
+        ElseIf optProfi.Checked Then
+            Return SpielStärke.Profi
+        Else
+            Return SpielStärke.Ohne
         End If
-
-        If maxHeight <= 0 Then
-            Throw New ArgumentOutOfRangeException(NameOf(maxHeight))
-        End If
-
-        Dim scaleX As Double = CDbl(maxWidth) / CDbl(src.Width)
-        Dim scaleY As Double = CDbl(maxHeight) / CDbl(src.Height)
-
-        'kleinerer Faktor bestimmt, damit nichts übersteht
-        Dim scale As Double = Math.Min(scaleX, scaleY)
-
-        Dim targetWidth As Integer = Math.Max(1, CInt(Math.Round(src.Width * scale)))
-        Dim targetHeight As Integer = Math.Max(1, CInt(Math.Round(src.Height * scale)))
-
-        Dim dst As New Bitmap(targetWidth, targetHeight, PixelFormat.Format32bppArgb)
-
-        Using gfx As Graphics = Graphics.FromImage(dst)
-            gfx.CompositingMode = CompositingMode.SourceCopy
-            gfx.CompositingQuality = CompositingQuality.HighQuality
-            gfx.InterpolationMode = InterpolationMode.HighQualityBicubic
-            gfx.SmoothingMode = SmoothingMode.HighQuality
-            gfx.PixelOffsetMode = PixelOffsetMode.HighQuality
-
-            Using ia As New ImageAttributes()
-                ia.SetWrapMode(WrapMode.TileFlipXY)
-
-                Dim dstRect As New Rectangle(0, 0, targetWidth, targetHeight)
-                Dim srcRect As New Rectangle(0, 0, src.Width, src.Height)
-
-                gfx.DrawImage(src,
-                          dstRect,
-                          srcRect.Left,
-                          srcRect.Top,
-                          srcRect.Width,
-                          srcRect.Height,
-                          GraphicsUnit.Pixel,
-                          ia)
-            End Using
-        End Using
-
-        src.Dispose()
-
-        Return dst
-
     End Function
+
+    Private Sub CopyOptSteinDesignToSFInf()
+
+        Dim sf As SteinFont, sd As SteinDesign, ss As SteinSatz
+
+        If optSteinFontNoto.Checked Then
+            sf = SteinFont.Noto
+        Else
+            sf = SteinFont.Segoe
+        End If
+
+        If optSteinDesignDefault.Checked Then
+            sd = SteinDesign.Default
+
+        ElseIf optSteinDesignUniDunkel.Checked Then
+            sd = SteinDesign.UniDunkel
+
+        ElseIf optSteinDesignUniGelb.Checked Then
+            sd = SteinDesign.UniGelbBraun
+
+        ElseIf optSteinDesignEditorSpezial.Checked Then
+            sd = SteinDesign.EditorSpezial
+
+        ElseIf optSteinDesignTest.Checked Then
+            sd = SteinDesign.Test
+        Else
+            sd = SteinDesign.Default
+        End If
+
+        _sfd.SFInf.SetDesignForSpielfeldPicture(sf, sd, ss)
+
+    End Sub
+
+    Private Sub CopySfInfoToOptSteinDesign()
+
+        Dim sf As SteinFont = _sfd.SFInf.SpielfeldPictureSteinFont
+        Dim sd As SteinDesign = _sfd.SFInf.SpielfeldPictureSteinDesign
+        Dim ss As SteinSatz = _sfd.SFInf.SpielfeldPictureSteinSatz
+
+        If Not _sfd.SFInf.SpielfeldPictureSteinIsInit Then
+            _sfd.SFInf.SpielfeldPictureSteinFont = INI.Tile_SteinFont
+            _sfd.SFInf.SpielfeldPictureSteinDesign = INI.Tile_SteinDesign
+            _sfd.SFInf.SpielfeldPictureSteinSatz = INI.Tile_SteinSatz
+            sf = INI.Tile_SteinFont
+            sd = INI.Tile_SteinDesign
+            ss = INI.Tile_SteinSatz
+        End If
+
+        Select Case sf
+            Case SteinFont.Noto : optSteinFontNoto.Checked = True
+            Case Else : optSteinFontSegeo.Checked = True
+        End Select
+
+        Select Case sd
+            Case SteinDesign.Default
+                optSteinDesignDefault.Checked = True
+
+            Case SteinDesign.UniDunkel
+                optSteinDesignUniDunkel.Checked = True
+
+            Case SteinDesign.UniGelbBraun
+                optSteinDesignUniGelb.Checked = True
+
+            Case SteinDesign.EditorSpezial
+                optSteinDesignEditorSpezial.Checked = True
+            Case SteinDesign.Test
+                optSteinDesignTest.Checked = True
+            Case Else
+                optSteinDesignDefault.Checked = True
+
+        End Select
+
+        Select Case ss
+            Case SteinSatz.Light
+                optSteinSatzLight.Checked = True
+            Case SteinSatz.Dark
+                optSteinSatzDark.Checked = True
+            Case Else
+                optSteinSatzMedium.Checked = True
+        End Select
+
+    End Sub
 
 #End Region
 

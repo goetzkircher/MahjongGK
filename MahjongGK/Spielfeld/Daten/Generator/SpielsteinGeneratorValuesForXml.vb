@@ -51,6 +51,11 @@ Public Class SpielsteinGeneratorValuesForXml
     Public Property GeneratorVersion As Integer = 1
 
     Public Property GeneratorModusForXml As GeneratorModus
+    Public ReadOnly Property GeneratorModusStoneStream As Boolean
+        Get
+            Return (GeneratorModusForXml And 8) = 0
+        End Get
+    End Property
     Public Property HalfSteinsetsCount As Integer
     Public Property StoneSet152SteineErzeugen As Boolean
     Public Property StockMaxUBound As Integer
@@ -63,35 +68,59 @@ Public Class SpielsteinGeneratorValuesForXml
 
     Public Sub CopySpielsteinGeneratorValues_To_SpielsteinGenerator(gen As SpielsteinGenerator)
 
+        If gen Is Nothing Then
+            Throw New ArgumentNullException(NameOf(gen))
+        End If
+
         With gen
-            SchemaVersion = .SchemaVersion
-            GeneratorVersion = .GeneratorVersion
-            GeneratorModusForXml = .GeneratorModusForXml
-            HalfSteinsetsCount = .HalfSteinsetsCount
-            StoneSet152SteineErzeugen = .StoneSet152SteineErzeugen
-            Stock = .Stock
-            StockMaxUBound = .StockMaxUBound
-            StockNachschubschwelle = .StockNachschubschwelle
-            StockStopNachschub = .StockStopNachschub
-            StockStopNachschubXmlOnly = .StockStopNachschubXmlOnly
-            StockNoSortAreaEndIndex = .StockNoSortAreaEndIndex
+            .SchemaVersion = SchemaVersion
+            .GeneratorVersion = GeneratorVersion
+            .GeneratorModusForXml = GeneratorModusForXml
+            .HalfSteinsetsCount = HalfSteinsetsCount
+            .StoneSet152SteineErzeugen = StoneSet152SteineErzeugen
+
+            If Stock Is Nothing Then
+                .Stock = New List(Of SteinSymbol)
+            Else
+                .Stock = New List(Of SteinSymbol)(Stock)
+            End If
+
+            .StockMaxUBound = StockMaxUBound
+            .StockNachschubschwelle = StockNachschubschwelle
+
+            'Wichtig: NICHT .StockStopNachschub setzen,
+            'weil dessen Setter ggf. sofort CheckAndRefillVorrat() auslöst.
+            .StockStopNachschubXmlOnly = StockStopNachschubXmlOnly
+
+            .StockNoSortAreaEndIndex = StockNoSortAreaEndIndex
         End With
 
     End Sub
     Public Sub CopySpielsteinGenerator_To_SpielsteinGeneratorValues(gen As SpielsteinGenerator)
+
+        If gen Is Nothing Then
+            Throw New ArgumentNullException(NameOf(gen))
+        End If
+
         With gen
             SchemaVersion = .SchemaVersion
             GeneratorVersion = .GeneratorVersion
             GeneratorModusForXml = .GeneratorModusForXml
             HalfSteinsetsCount = .HalfSteinsetsCount
             StoneSet152SteineErzeugen = .StoneSet152SteineErzeugen
-            Stock = .Stock
+
+            If .Stock Is Nothing Then
+                Stock = New List(Of SteinSymbol)
+            Else
+                Stock = New List(Of SteinSymbol)(.Stock)
+            End If
+
             StockMaxUBound = .StockMaxUBound
             StockNachschubschwelle = .StockNachschubschwelle
-            StockStopNachschub = .StockStopNachschub
             StockStopNachschubXmlOnly = .StockStopNachschubXmlOnly
             StockNoSortAreaEndIndex = .StockNoSortAreaEndIndex
         End With
+
     End Sub
 
 End Class

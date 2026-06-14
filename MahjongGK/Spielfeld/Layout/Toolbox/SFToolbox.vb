@@ -24,7 +24,10 @@ Option Strict On
 '###########################################################################
 '
 '
+Imports System.Drawing.Drawing2D
 Imports System.Drawing.Imaging
+Imports System.Text
+Imports MahjongGK.Contracts
 Imports MahjongGK.Spielfeld
 
 #Disable Warning IDE0079
@@ -245,22 +248,28 @@ Public Class SFToolbox
         _oldSteinCountInfo = sci
 
         With frmMain.ToolStripExMain
-            Dim lblSize As ToolStripLabel = TryCast(.Items("stat_size"), ToolStripLabel)
-            Dim lblGesamt As ToolStripLabel = TryCast(.Items("stat_total"), ToolStripLabel)
-            Dim lblAktuell As ToolStripLabel = TryCast(.Items("stat_current"), ToolStripLabel)
-            Dim lblWaehlbar As ToolStripLabel = TryCast(.Items("stat_sel"), ToolStripLabel)
-            Dim lblPaare As ToolStripLabel = TryCast(.Items("stat_pairs"), ToolStripLabel)
-            Dim lblStock As ToolStripLabel = TryCast(.Items("stat_stock"), ToolStripLabel)
+
+            'Dim lblGesamt As ToolStripLabel = TryCast(.Items("stat_total"), ToolStripLabel)
+            'Dim lblAktuell As ToolStripLabel = TryCast(.Items("stat_current"), ToolStripLabel)
+            'Dim lblWaehlbar As ToolStripLabel = TryCast(.Items("stat_sel"), ToolStripLabel)
+            'Dim lblPaare As ToolStripLabel = TryCast(.Items("stat_pairs"), ToolStripLabel)
+            'Dim lblStock As ToolStripLabel = TryCast(.Items("stat_stock"), ToolStripLabel)
+            Dim sb As New StringBuilder(256)
+
             With sci
-                lblGesamt.Text = $"Summe der Steine { .summeSteineGesamt} gesamt"
-                lblAktuell.Text = $"{ .summeSteineAktuell} aktuell"
-                lblWaehlbar.Text = $"{ .davonSelectable} wählbar"
-                lblPaare.Text = $"{ .davonRemovable} entfernbar"
-                lblSize.Text = $"Feldgröße: { .xMax}/{ .yMax}/{ .zMax}"
+                sb.Append($"Feldgröße: { .xMax}/{ .yMax}/{ .zMax} - ")
+
+                sb.Append($"Steine { .summeSteineGesamt} gesamt - ")
+                sb.Append($"{ .summeSteineAktuell} aktuell - ")
+                sb.Append($"{ .davonSelectable} nur wählbar - ")
+                sb.Append($"{ .davonRemovable} entfernbar")
                 If _sfd.SFRun.AktRenderMode = Contracts.GlobalEnum.AktRenderMode.Edit Then
-                    lblStock.Text = $"{ .imVorrat} im Vorrat"
+                    sb.Append($"- { .imVorrat} im Vorrat")
                 End If
             End With
+
+            Dim lblSatus As ToolStripLabel = TryCast(.Items("status"), ToolStripLabel)
+            lblSatus.Text = sb.ToString
         End With
     End Sub
 
@@ -273,9 +282,9 @@ Public Class SFToolbox
                 '
                 With _sfd.SFLay.rxStageUsed
 
-                    Dim bmp As New Bitmap(.Width, .Height, PixelFormat.Format32bppArgb)
+                    Dim bmpSpiel As New Bitmap(.Width, .Height, PixelFormat.Format32bppArgb)
 
-                    Using gfx As Graphics = Graphics.FromImage(bmp)
+                    Using gfx As Graphics = Graphics.FromImage(bmpSpiel)
 
                         Dim dstRect As New Rectangle(0, 0, .Width, .Height)
                         Dim srcRect As New Rectangle(.Left, .Top, .Width, .Height)
@@ -284,12 +293,69 @@ Public Class SFToolbox
 
                     End Using
 
-                    frmMain.ToolBox?.SetSpielbild(bmp)
+                    _sfd.SFInf.SpielfeldPicture = ScaleBitmapToFit(bmpSpiel, GlobalConstants.MJ_THUMB_W, MJ_THUMB_H)
 
                 End With
 
             End If
         End If
     End Sub
+
+    Private Function ScaleBitmapToFit(src As Bitmap,
+                                       maxWidth As Integer,
+                                       maxHeight As Integer) As Bitmap
+
+        If src Is Nothing Then
+            Throw New ArgumentNullException(NameOf(src))
+        End If
+
+        If maxWidth <= 0 Then
+            Throw New ArgumentOutOfRangeException(NameOf(maxWidth))
+        End If
+
+        If maxHeight <= 0 Then
+            Throw New ArgumentOutOfRangeException(NameOf(maxHeight))
+        End If
+
+        Dim scaleX As Double = CDbl(maxWidth) / CDbl(src.Width)
+        Dim scaleY As Double = CDbl(maxHeight) / CDbl(src.Height)
+
+        'kleinerer Faktor bestimmt, damit nichts übersteht
+        Dim scale As Double = Math.Min(scaleX, scaleY)
+
+        Dim targetWidth As Integer = Math.Max(1, CInt(Math.Round(src.Width * scale)))
+        Dim targetHeight As Integer = Math.Max(1, CInt(Math.Round(src.Height * scale)))
+
+        Dim dst As New Bitmap(targetWidth, targetHeight, PixelFormat.Format32bppArgb)
+
+        Using gfx As Graphics = Graphics.FromImage(dst)
+            gfx.CompositingMode = CompositingMode.SourceCopy
+            gfx.CompositingQuality = CompositingQuality.HighQuality
+            gfx.InterpolationMode = InterpolationMode.HighQualityBicubic
+            gfx.SmoothingMode = SmoothingMode.HighQuality
+            gfx.PixelOffsetMode = PixelOffsetMode.HighQuality
+
+            Using ia As New ImageAttributes()
+                ia.SetWrapMode(WrapMode.TileFlipXY)
+
+                Dim dstRect As New Rectangle(0, 0, targetWidth, targetHeight)
+                Dim srcRect As New Rectangle(0, 0, src.Width, src.Height)
+
+                gfx.DrawImage(src,
+                          dstRect,
+                          srcRect.Left,
+                          srcRect.Top,
+                          srcRect.Width,
+                          srcRect.Height,
+                          GraphicsUnit.Pixel,
+                          ia)
+            End Using
+        End Using
+
+        src.Dispose()
+
+        Return dst
+
+    End Function
 
 End Class

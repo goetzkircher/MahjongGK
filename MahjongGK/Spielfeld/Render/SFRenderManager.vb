@@ -239,6 +239,8 @@ Namespace Spielfeld
             Dim updateSpielfeld As Boolean
             Dim doRendering As Boolean
             Dim schnelltestHasMouseStateChange As Boolean
+            Dim skipMouseAction As Boolean
+            Dim useToolboxSteinDesign As Boolean
             '
 
             If _sfd.SFRun.ResizePolling.Poll Then
@@ -345,14 +347,19 @@ Namespace Spielfeld
                 Case ToolboxJobAnswer.CreateSpielbildStep1DoHideGridSetCreateSpielbild
                     'abschalten...
                     _statusGrid = INI.Editor_ShowGrid
+                    _sfd.SFInf.HideSelectableAndRemovableSteine = True
+
                     INI.Editor_ShowGrid = False
                     doRendering = True
+                    skipMouseAction = True
+                    useToolboxSteinDesign = True
                     '...und die Erzeugung des Spielbildes anordnen
                     _sfd.SFTool.SetConsumeTabpagePollEvent(ToolboxPollEvent.CreateSpielbildStep2SetDoCreateSpielbild)
 
                 Case ToolboxJobAnswer.CreateSpielbildStep2DoCreateSpielbild
                     _sfd.SFTool.CreateSpielbild()
                     INI.Editor_ShowGrid = _statusGrid
+                    _sfd.SFInf.HideSelectableAndRemovableSteine = False
                     doRendering = True
 
             End Select
@@ -447,8 +454,10 @@ Namespace Spielfeld
             End If
 
             If doRendering Then
-                DoMouseActions(schnelltestHasMouseStateChange)
-                _sfd.SFRen.RenderingHauptverteiler(e.Graphics, rectOutput, timeDifferenzFaktor)
+                If Not skipMouseAction Then
+                    DoMouseActions(schnelltestHasMouseStateChange)
+                End If
+                _sfd.SFRen.RenderingHauptverteiler(e.Graphics, rectOutput, timeDifferenzFaktor, useToolboxSteinDesign)
             End If
 
             If updateSpielfeld Then

@@ -32,7 +32,6 @@ Option Strict On
 #Disable Warning IDE0079
 #Disable Warning IDE1006
 
-
 Imports System.Globalization
 Imports System.IO
 Imports System.Text
@@ -46,7 +45,6 @@ End Enum
 
 Public Class IniManager
     Implements IDisposable
-
 
     Private ReadOnly _fileFullPath As String
     Private _iniLines As New List(Of String)
@@ -105,8 +103,6 @@ Public Class IniManager
         Load(loadTmpFile:=False)
     End Sub
 
-
-
     ''' <summary>
     ''' IniEvents hat die Werte: None, OnChangeValue, OnWriteValue, OnUpdate. Je nach Wert geben die Überladungen
     ''' WriteValue True oder False zurück. None gibt immer False zurück. Grundeinstellung bei der InitDragDropBitmaps.
@@ -143,7 +139,6 @@ Public Class IniManager
 
 #End Region
 
-
 #Region "Write/Read"
 
     ' Für die Standardwerte: 
@@ -159,7 +154,6 @@ Public Class IniManager
     ' Für alle anderen Werte sind die Konvertierungsfunktionen Cvt...
     ' zu ergänzen, die sich ganz unten am Ende des Moduls befinden,
     ' und und die Write- und Read Funktionen zu ergänzen.
-
 
 #Disable Warning IDE0079 ' Unnötige Unterdrückung entfernen
 #Disable Warning IDE0051 ' Nicht verwendete private Member entfernen
@@ -793,12 +787,10 @@ Public Class IniManager
 
 #Region "Konvertierungen"
 
-
     'In die INI werden nur einzeilige Strings geschrieben, hier sind die Konvertierungsroutinen.
     'Den "zurück"-Konvertierungen wird immer ein Default mitgegeben.
     'Das ist als Sicherungsnetz zu verstehen für den Fall, daß der Anwender in der INI herumpfuscht
     'und Werte nicht mehr lesbar sind.
-
 
     Public Function CvtIntegerToString(value As Integer) As String
         Return value.ToString(CultureInfo.InvariantCulture)
@@ -841,7 +833,6 @@ Public Class IniManager
         End If
         Return [default]
     End Function
-
 
     Private Const COLOR_EMPTY_STRING As String = "EMPTY"
 
@@ -1049,7 +1040,6 @@ Public Class IniManager
         End Try
     End Function
 
-
     ''' <summary>Triple ⇒ "x;y;z;Valide" (leer bei Nothing)</summary>
     Public Shared Function CvtTripleToString(value As Triple) As String
         If value Is Nothing Then Return String.Empty
@@ -1073,8 +1063,6 @@ Public Class IniManager
         End Try
         Return [default]
     End Function
-
-
 
     '==========================================================
     ' Point/Size/Rectangle – Semikolon-Format; int-basiert
@@ -1406,12 +1394,9 @@ Public Class IniManager
 
     End Function
 
-
 #End Region
 
-
 #Region "Pfade und Dateinamen"
-
 
     Private Const REL_PREFIX_APPROOT As String = "®"
     Private Const REL_PREFIX_USERROOT As String = "©"
@@ -1593,7 +1578,6 @@ Public Class IniManager
                                     Optional timestamp As AppDataTimeStamp = AppDataTimeStamp.None,
                                     Optional maxFiles As Integer = Integer.MaxValue) As String
 
-
         Return AppDataFullPath(
             If(subdir <> AppDataSubDir.None, subdir.ToString, String.Empty),
             AppDataSubSubDirToString(subsubdir),
@@ -1603,6 +1587,36 @@ Public Class IniManager
             )
 
     End Function
+    '
+    ''' <summary>
+    ''' Überladung speziell zu Speicherung der Spiele.
+    ''' </summary>
+    ''' <param name="subdir"></param>
+    ''' <param name="subsubdir"></param>
+    ''' <param name="filename"></param>
+    ''' <returns></returns>
+    Public Function AppDataFullPathSpiel(subdir As AppDataSubDir,
+                                   subsubdir As AppDataSubSubDir,
+                                   filename As String) As String
+
+        Dim basePath As String = AppDataDirectory(
+            If(subdir <> AppDataSubDir.None, subdir.ToString, String.Empty),
+            AppDataSubSubDirToString(subsubdir))
+
+        If String.IsNullOrWhiteSpace(filename) Then
+            filename = Guid.NewGuid.ToString
+        End If
+
+        If Not filename.EndsWith(".xml", StringComparison.OrdinalIgnoreCase) Then
+            filename &= ".xml"
+        End If
+
+        Dim fullpath As String = Path.Combine(basePath, filename)
+
+        Return fullpath
+
+    End Function
+
     '
     ''' <summary>
     ''' Montiert den kompletten Pfad aus den Enumerationen und fügt ggf. den aktuellen Zeitstempel hinzu.
@@ -1711,7 +1725,6 @@ Public Class IniManager
             Return String.Empty
         End If
     End Function
-
 
     ''' <summary>
     ''' Aus dem fullPath (einschließich Dateiname) wird der Dateiname separiert und das Pattern
@@ -1918,11 +1931,9 @@ Public Class IniManager
         Return name
     End Function
 
-
 #End Region
 
 #Region "Load Save einschließlich der verzögerten Speicherung"
-
 
     Private changed As Boolean = False
     Private saveCts As CancellationTokenSource

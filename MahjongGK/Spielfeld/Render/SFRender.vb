@@ -45,6 +45,9 @@ Namespace Spielfeld
         End Sub
 
         Private ReadOnly _sfd As SFDaten
+        Private _tile_BasisSize As Size
+        Private _tile_Colors As TileColors
+
         Private _paintEventGfx As Graphics
         Private _backBufferGfx As Graphics
         Private _rectOutputOrg As Rectangle
@@ -63,7 +66,18 @@ Namespace Spielfeld
         ''' <param name="PaintEventGfx"></param>
         ''' <param name="rectOutput"></param>
         ''' <param name="timeDifferenzFaktor"></param>
-        Public Sub RenderingHauptverteiler(PaintEventGfx As Graphics, rectOutput As Rectangle, timeDifferenzFaktor As Double)
+        Public Sub RenderingHauptverteiler(PaintEventGfx As Graphics, rectOutput As Rectangle, timeDifferenzFaktor As Double, useToolboxSteinDesign As Boolean)
+
+            If useToolboxSteinDesign Then
+                With _sfd.SFInf
+                    INI.Tile_ToolbarTileColors_Load(.SpielfeldPictureSteinDesign, .SpielfeldPictureSteinSatz, .SpielfeldPictureSteinFont)
+                    _tile_BasisSize = INI.Tile_ToolbarBasisSize
+                    _tile_Colors = INI.Tile_ToolbarTileColors
+                End With
+            Else
+                _tile_BasisSize = INI.Tile_BasisSize
+                _tile_Colors = INI.Tile_TileColors
+            End If
 
             If _lastRenderMode <> _sfd.SFRun.AktRenderMode Then
                 _lastRenderMode = _sfd.SFRun.AktRenderMode
@@ -234,7 +248,7 @@ Namespace Spielfeld
 
                             With aktSteinInfo
 
-                                Dim request As New TileRequest(_sfd.SFRun.AktRenderMode, INI.Tile_TileColors, aktSteinInfo.SteinSymbolIndex, aktSteinInfo.SteinStatus, _sfd.SFLay.steinSize, INI.Tile_BasisSize, SteinGhost.None)
+                                Dim request As New TileRequest(_sfd.SFRun.AktRenderMode, _tile_Colors, aktSteinInfo.SteinSymbolIndex, aktSteinInfo.SteinStatus, _sfd.SFLay.steinSize, _tile_BasisSize, SteinGhost.None)
 
                                 Dim bmpStein As Bitmap = TileFactory.GetTile(request)
 
@@ -311,14 +325,14 @@ Namespace Spielfeld
 
                                 If tsi IsNot Nothing Then
 
-                                    Dim request As New TileRequest(_sfd.SFRun.AktRenderMode, INI.Tile_TileColors, tsi.SteinSymbolIndex, tsi.SteinStatus, _sfd.SFLay.steinSize, INI.Tile_BasisSize, SteinGhost.None)
+                                    Dim request As New TileRequest(_sfd.SFRun.AktRenderMode, _tile_Colors, tsi.SteinSymbolIndex, tsi.SteinStatus, _sfd.SFLay.steinSize, _tile_BasisSize, SteinGhost.None)
                                     bmpStein = TileFactory.GetTile(request)
 
                                     _backBufferGfx.DrawImage(bmpStein, aktSteinInfo.RectStein)
 
                                 Else
                                     'Zeichnet alle Steine, die nicht die obersten Steine sind.
-                                    Dim request As New TileRequest(_sfd.SFRun.AktRenderMode, INI.Tile_TileColors, aktSteinInfo.SteinSymbolIndex, SteinStatus.I01Normal, _sfd.SFLay.steinSize, INI.Tile_BasisSize, SteinGhost.None)
+                                    Dim request As New TileRequest(_sfd.SFRun.AktRenderMode, _tile_Colors, aktSteinInfo.SteinSymbolIndex, SteinStatus.I01Normal, _sfd.SFLay.steinSize, _tile_BasisSize, SteinGhost.None)
                                     bmpStein = TileFactory.GetTile(request)
 
                                     _backBufferGfx.DrawImage(bmpStein, aktSteinInfo.RectStein)
@@ -526,7 +540,7 @@ Namespace Spielfeld
                                 steinStatus = SteinStatus.I01Normal
                             End If
 
-                            Dim request As New TileRequest(_sfd.SFRun.AktRenderMode, INI.Tile_TileColors, steinSymbol:=_sfd.SFInf.Generator.Stock(idx), steinStatus, _sfd.SFLay.steinSize, INI.Tile_BasisSize, SteinGhost.None)
+                            Dim request As New TileRequest(_sfd.SFRun.AktRenderMode, _tile_Colors, steinSymbol:=_sfd.SFInf.Generator.Stock(idx), steinStatus, _sfd.SFLay.steinSize, _tile_BasisSize, SteinGhost.None)
 
                             bmpStein = TileFactory.GetTile(request)
 

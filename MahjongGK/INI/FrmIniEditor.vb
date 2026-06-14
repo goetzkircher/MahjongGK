@@ -58,7 +58,7 @@ Public Class FrmIniEditor
     '
     'Hier erweitern, wenn noch zusätzliche INI-Files hinzukommen. 
     'Weiteres nicht nötig.
-    Private _iniIniFileNames() As String = {"Basis.ini", "ToolBox.ini", "Rendering.ini"}
+    Private ReadOnly _iniIniFileNames() As String = {"Basis.ini", "ToolBox.ini", "Rendering.ini"}
 
     Private ReadOnly _rtb As New RichTextBox()
     Private ReadOnly _menu As New MenuStrip()

@@ -70,7 +70,6 @@ Public Module SFEnums
 #Region "Stein-Enums"
 
 #End Region
-    'ChagGPT: alles ausgeklammerte mit aufnehmen
     '
     ' StoneStream
     ' |Base144              

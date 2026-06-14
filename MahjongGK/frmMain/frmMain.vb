@@ -64,16 +64,16 @@ Public Class frmMain
 
     Private Sub Test2()
 
-        Dim lwp As String = "C:\Users\goetz\MahjongGK\Temporär\SpielfeldInfo"
-        Dim dirInfo As New DirectoryInfo(lwp)
+        'AktVisibleUserControl = VisibleUserControl.Spielauswahl
+        'Dim lwp As String = "C:\Users\goetz\MahjongGK\Temporär\SpielfeldInfo"
+        'Dim dirInfo As New DirectoryInfo(lwp)
 
-        AktVisibleUserControl = VisibleUserControl.Spielauswahl
-        Dim arrFI() As FileInfo = dirInfo.GetFiles
-        UctlSpielauswahlMain.Initialisierung(arrFI)
-        'Using frm As New frmWebPTest
-        '    frm.ShowDialog()
-        'End Using
-        UCtlSpielfeldMain.Invalidate()
+        'Dim arrFI() As FileInfo = dirInfo.GetFiles
+        'UctlSpielauswahlMain.Initialisierung(arrFI)
+        ''Using frm As New frmWebPTest
+        ''    frm.ShowDialog()
+        ''End Using
+        'UCtlSpielfeldMain.Invalidate()
 
     End Sub
 
@@ -257,7 +257,6 @@ Public Class frmMain
 
         'Das Menue wird dynamisch erzeugt, damit es
         'übersichtlicher wird, als die statische Erzeugung im Designer.
-        ' BuildMenu_ZLV(Me.MenuStripExMain)
         InitializeMainMenu()
 
         BuildBottomToolStrip()
@@ -609,20 +608,21 @@ Public Class frmMain
         ' =======================
         ' Status-Gruppe (links)
         ' =======================
-        ToolStripExMain.Items.Add(MkLbl("stat_size", "Feldgröße: 00/00/00"))
+
+        ToolStripExMain.Items.Add(MkLbl("status", "Status"))
         ToolStripExMain.Items.Add(New ToolStripSeparator())
-        'ToolStripExMain.Items.AddRenderBitmapTopZOrder(MkLbl("stat_title", "Steine:"))
-        'ToolStripExMain.Items.AddRenderBitmapTopZOrder(New ToolStripSeparator())
-        ToolStripExMain.Items.Add(MkLbl("stat_total", "Summe Steine: 000"))
-        ToolStripExMain.Items.Add(New ToolStripSeparator())
-        ToolStripExMain.Items.Add(MkLbl("stat_current", "Aktuell: 000"))
-        ToolStripExMain.Items.Add(New ToolStripSeparator())
-        ToolStripExMain.Items.Add(MkLbl("stat_sel", "wählbar: 00"))
-        ToolStripExMain.Items.Add(New ToolStripSeparator())
-        ToolStripExMain.Items.Add(MkLbl("stat_pairs", "Paare: 00"))
-        ToolStripExMain.Items.Add(New ToolStripSeparator())
-        ToolStripExMain.Items.Add(MkLbl("stat_stock", "im Vorrat: 000"))
-        ToolStripExMain.Items.Add(New ToolStripSeparator())
+        ''ToolStripExMain.Items.AddRenderBitmapTopZOrder(MkLbl("stat_title", "Steine:"))
+        ''ToolStripExMain.Items.AddRenderBitmapTopZOrder(New ToolStripSeparator())
+        'ToolStripExMain.Items.Add(MkLbl("stat_total", "Summe Steine: 000"))
+        'ToolStripExMain.Items.Add(New ToolStripSeparator())
+        'ToolStripExMain.Items.Add(MkLbl("stat_current", "Aktuell: 000"))
+        'ToolStripExMain.Items.Add(New ToolStripSeparator())
+        'ToolStripExMain.Items.Add(MkLbl("stat_sel", "wählbar: 00"))
+        'ToolStripExMain.Items.Add(New ToolStripSeparator())
+        'ToolStripExMain.Items.Add(MkLbl("stat_pairs", "Paare: 00"))
+        'ToolStripExMain.Items.Add(New ToolStripSeparator())
+        'ToolStripExMain.Items.Add(MkLbl("stat_stock", "im Vorrat: 000"))
+        'ToolStripExMain.Items.Add(New ToolStripSeparator())
 
         ' =======================
         ' Rechte Gruppe (Alignment = Right)
@@ -965,6 +965,9 @@ Public Class frmMain
     End Sub
 
     Public Sub DoToolBox()
+        If Not INI.Editor_UsingEditorAllowed Then
+            Exit Sub
+        End If
         If SFMain.RenderMode = RenderMode.NoRendering Then
             MsgBox("Kein Spielfeld geladen", MsgBoxStyle.Information)
         Else
@@ -1005,6 +1008,7 @@ Public Class frmMain
     ''' Aktualisiert die Statuswerte (Gesamt, Aktuell, Wählbar, Paare).
     ''' </summary>
     Public Sub UpdateStatus(gesamt As Integer, aktuell As Integer, waehlbar As Integer, paare As Integer, maxSteine As Triple)
+
         Dim lblSize As ToolStripLabel = TryCast(ToolStripExMain.Items("stat_size"), ToolStripLabel)
         Dim lblGesamt As ToolStripLabel = TryCast(ToolStripExMain.Items("stat_total"), ToolStripLabel)
         Dim lblAktuell As ToolStripLabel = TryCast(ToolStripExMain.Items("stat_current"), ToolStripLabel)
@@ -1016,6 +1020,7 @@ Public Class frmMain
         If lblWaehlbar IsNot Nothing Then lblWaehlbar.Text = $"{waehlbar} wählbar"
         If lblPaare IsNot Nothing Then lblPaare.Text = $"{paare} Paare"
         If lblSize IsNot Nothing Then lblSize.Text = $"Feldgröße: {maxSteine.x }/{maxSteine.y}/{maxSteine.z }"
+
     End Sub
 
     Public Sub UpdateSpielfeldEditorButtons()
@@ -1052,6 +1057,11 @@ Public Class frmMain
     Public Sub ShowOrHideToolboxAndUpdateToolboxButton()
 
         If Not INI.Editor_UsingEditorAllowed Then
+            Exit Sub
+        End If
+
+        If SFMain.RenderMode <> RenderMode.Edit Then
+            MsgBox("Editor nicht aktiv", MsgBoxStyle.Exclamation)
             Exit Sub
         End If
 
@@ -1165,16 +1175,32 @@ Public Class frmMain
 
     Private Sub InitializeMainMenu()
 
-        Dim mnuSpielOeffnen As New ToolStripMenuItem("&Spiel öffnen (Einzeln)")
-        Dim mnuSpielauswählen As New ToolStripMenuItem("S&piel auswählen (Übersicht)")
+        Dim mnuSpielOpen As New ToolStripMenuItem("&Spiel")
+
         Dim mnuSteinDesign As New ToolStripMenuItem("S&tein-Design")
         Dim mnuEinstellungen As New ToolStripMenuItem("&Einstellungen")
         Dim mnuAbout As New ToolStripMenuItem("&About")
         Dim mnuHilfe As New ToolStripMenuItem("&Hilfe")
 
-        Dim mnuNeuesSpielOeffnen As New ToolStripMenuItem("&Neues Spiel öffnen")
+        Dim mnuEigenesSpielOeffnen As New ToolStripMenuItem("&Eigene Spiele öffnen")
+        Dim mnuESOpenAlle As New ToolStripMenuItem("&Alle Spiele anzeigen")
+        Dim mnuESOpenLeicht As New ToolStripMenuItem("nur &Leichte")
+        Dim mnuESOpenMittel As New ToolStripMenuItem("&Mittlere")
+        Dim mnuESOpenSchwer As New ToolStripMenuItem("&Schwere")
+        Dim mnuESOpenProfi As New ToolStripMenuItem("&Profi")
+        Dim mnuESOpenOhne As New ToolStripMenuItem("&Ohne Einstufung")
+
+        Dim mnuSpielesammlungÖffnen As New ToolStripMenuItem("&Spielesammlung öffnen")
+        Dim mnuSSOpenAlle As New ToolStripMenuItem("&Alle Spiele anzeigen")
+        Dim mnuSSOpenLeicht As New ToolStripMenuItem("nur &Leichte")
+        Dim mnuSSOpenMittel As New ToolStripMenuItem("&Mittlere")
+        Dim mnuSSOpenSchwer As New ToolStripMenuItem("&Schwere")
+        Dim mnuSSOpenProfi As New ToolStripMenuItem("&Profi")
+        Dim mnuSSOpenOhne As New ToolStripMenuItem("&Ohne Einstufung")
+
         Dim mnuLetztesSpielOeffnen As New ToolStripMenuItem("&Letztes Spiel öffnen")
-        Dim mnuNeuesSpielAnlegen As New ToolStripMenuItem("N&eues Spiel anlegen")
+        Dim mnuNeuesSpielAnlegen As New ToolStripMenuItem("&Neues Spiel anlegen")
+        Dim mnuNeuesSpielToolboxAufrufen As New ToolStripMenuItem("Speichern (&Toolbox aufrufen)")
 
         Dim mnuSegoe As New ToolStripMenuItem("&Segoe")
         Dim mnuNoto As New ToolStripMenuItem("&Noto")
@@ -1199,11 +1225,64 @@ Public Class frmMain
             _stoneFontItems.Add(mnuSegoe)
             _stoneFontItems.Add(mnuNoto)
 
-            AddHandler mnuNeuesSpielOeffnen.Click,
+            AddHandler mnuESOpenAlle.Click,
             Sub(sender As Object, e As EventArgs)
-                Go()
-                'Me.AktVisibleUserControl = VisibleUserControl.SpielfeldWählen
+                OpenSpielQuelle_Eigene(CType(-1, SpielStärke))
             End Sub
+            AddHandler mnuESOpenOhne.Click,
+            Sub(sender As Object, e As EventArgs)
+                OpenSpielQuelle_Eigene(SpielStärke.Ohne)
+            End Sub
+            AddHandler mnuESOpenLeicht.Click,
+            Sub(sender As Object, e As EventArgs)
+                OpenSpielQuelle_Eigene(SpielStärke.Leicht)
+            End Sub
+            AddHandler mnuESOpenMittel.Click,
+            Sub(sender As Object, e As EventArgs)
+                OpenSpielQuelle_Eigene(SpielStärke.Mittel)
+            End Sub
+            AddHandler mnuESOpenSchwer.Click,
+            Sub(sender As Object, e As EventArgs)
+                OpenSpielQuelle_Eigene(SpielStärke.Schwer)
+            End Sub
+            AddHandler mnuESOpenProfi.Click,
+            Sub(sender As Object, e As EventArgs)
+                OpenSpielQuelle_Eigene(SpielStärke.Profi)
+            End Sub
+            '
+            mnuEigenesSpielOeffnen.DropDownItems.AddRange({mnuESOpenAlle, mnuESOpenLeicht, mnuESOpenMittel, mnuESOpenSchwer, mnuESOpenProfi, mnuESOpenOhne})
+            '
+            '
+            AddHandler mnuSSOpenAlle.Click,
+            Sub(sender As Object, e As EventArgs)
+                OpenSpielQuelle_Sammlung(CType(-1, SpielStärke))
+            End Sub
+            AddHandler mnuSSOpenOhne.Click,
+            Sub(sender As Object, e As EventArgs)
+                OpenSpielQuelle_Sammlung(SpielStärke.Ohne)
+            End Sub
+            AddHandler mnuSSOpenLeicht.Click,
+            Sub(sender As Object, e As EventArgs)
+                OpenSpielQuelle_Sammlung(SpielStärke.Leicht)
+            End Sub
+            AddHandler mnuSSOpenMittel.Click,
+            Sub(sender As Object, e As EventArgs)
+                OpenSpielQuelle_Sammlung(SpielStärke.Mittel)
+            End Sub
+            AddHandler mnuSSOpenSchwer.Click,
+            Sub(sender As Object, e As EventArgs)
+                OpenSpielQuelle_Sammlung(SpielStärke.Schwer)
+            End Sub
+            AddHandler mnuSSOpenProfi.Click,
+            Sub(sender As Object, e As EventArgs)
+                OpenSpielQuelle_Sammlung(SpielStärke.Profi)
+            End Sub
+            mnuSpielesammlungÖffnen.DropDownItems.AddRange({mnuSSOpenAlle, mnuSSOpenLeicht, mnuSSOpenMittel, mnuSSOpenSchwer, mnuSSOpenProfi, mnuSSOpenOhne})
+
+            'AddHandler mnuSpielesammlungÖffnen.Click,
+            'Sub(sender As Object, e As EventArgs)
+            '    OpenSpielQuelle_Sammlung()
+            'End Sub
 
             AddHandler mnuLetztesSpielOeffnen.Click,
             Sub(sender As Object, e As EventArgs)
@@ -1215,19 +1294,24 @@ Public Class frmMain
                 OpenNewSpiel()
             End Sub
 
-            mnuSpielOeffnen.DropDownItems.Add(mnuNeuesSpielOeffnen)
-            mnuSpielOeffnen.DropDownItems.Add(mnuLetztesSpielOeffnen)
-            mnuSpielOeffnen.DropDownItems.Add(New ToolStripSeparator())
-            mnuSpielOeffnen.DropDownItems.Add(mnuNeuesSpielAnlegen)
-
-            AddHandler mnuSpielOeffnen.Click,
+            AddHandler mnuNeuesSpielToolboxAufrufen.Click,
             Sub(sender As Object, e As EventArgs)
-                Me.AktVisibleUserControl = VisibleUserControl.Spielfeld
+                OpenToolbox()
             End Sub
 
-            AddHandler mnuSpielauswählen.Click,
+            mnuSpielOpen.DropDownItems.Add(mnuEigenesSpielOeffnen)
+            mnuSpielOpen.DropDownItems.Add(mnuSpielesammlungÖffnen)
+            mnuSpielOpen.DropDownItems.Add(mnuLetztesSpielOeffnen)
+
+            If INI.Editor_UsingEditorAllowed Then
+                mnuSpielOpen.DropDownItems.Add(New ToolStripSeparator())
+                mnuSpielOpen.DropDownItems.Add(mnuNeuesSpielAnlegen)
+                mnuSpielOpen.DropDownItems.Add(mnuNeuesSpielToolboxAufrufen)
+            End If
+
+            AddHandler mnuSpielOpen.Click,
             Sub(sender As Object, e As EventArgs)
-                Me.AktVisibleUserControl = VisibleUserControl.Spielauswahl
+                Me.AktVisibleUserControl = VisibleUserControl.Spielfeld
             End Sub
 
             '  mnuSpielauswählen.DropDownItems.Add(mnuSpielauswählen)
@@ -1260,8 +1344,7 @@ Public Class frmMain
 
             Me.MenuStripExMain.Items.AddRange(
             New ToolStripItem() {
-                mnuSpielOeffnen,
-                mnuSpielauswählen,
+                mnuSpielOpen,
                 mnuSteinDesign,
                 mnuEinstellungen,
                 mnuAbout,
@@ -1370,16 +1453,52 @@ Public Class frmMain
 
     End Function
 
+    Private Sub OpenSpielQuelle_Eigene(sg As SpielStärke)
+        Me.AktVisibleUserControl = VisibleUserControl.Spielauswahl
+        UctlSpielauswahlMain.Initialisierung(SpielQuelle.Eigene, sg)
+    End Sub
+
+    Private Sub OpenSpielQuelle_Sammlung(sg As SpielStärke)
+        Me.AktVisibleUserControl = VisibleUserControl.Spielauswahl
+        UctlSpielauswahlMain.Initialisierung(SpielQuelle.Sammlung, sg)
+    End Sub
     Private Sub OpenLastSpiel()
 
     End Sub
 
     Private Sub OpenNewSpiel()
 
+        Using frm As New frmSpielAnlegen
+            If frm.ShowDialog = DialogResult.OK Then
+
+                AktVisibleUserControl = VisibleUserControl.Spielfeld
+
+                SFMain.CreateSpielfeld(frm.GetSpielfeldSize, frm.GetGeneratorModus, frm.GetName)
+                'startet die Anzeige
+                SFMain.RenderMode = RenderMode.Edit
+            End If
+        End Using
+
+    End Sub
+    Private Sub OpenToolbox()
+        ShowOrHideToolboxAndUpdateToolboxButton()
     End Sub
 
-    Private Sub OpenNewBackGround(save As Boolean)
+#End Region
 
+#Region "Spielauswahl"
+
+    Private Sub UctlSpielauswahlMain_SoielauswahlAbbrechen(sender As Object, e As EventArgs) _
+        Handles UctlSpielauswahlMain.SpielauswahlAbbrechen
+        Me.AktVisibleUserControl = VisibleUserControl.Spielfeld
+
+    End Sub
+
+    Private Sub UctlSpielauswahlMain_SpielSelected(sender As Object, e As EventArgs) _
+        Handles UctlSpielauswahlMain.SpielSelected
+        Me.AktVisibleUserControl = VisibleUserControl.Spielfeld
+        SFMain.OpenSpielfeld(UctlSpielauswahlMain.SelectedSfInfo)
+        SFMain.RenderMode = RenderMode.Edit
     End Sub
 
 #End Region

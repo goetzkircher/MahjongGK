@@ -226,23 +226,23 @@ Namespace Spielfeld
 
             If _steinInfoIndex >= 0 Then
                 'Stein aus dem Feld
-                request = New TileRequest(_sfd.SFRun.AktRenderMode, INI.Tile_TileColors, _sfd.SFInf.SteinInfos(_steinInfoIndex).SteinSymbolIndex, SteinStatus.I01Normal, _sfd.SFLay.steinSize, INI.Tile_BasisSize, SteinGhost.None)
+                request = New TileRequest(_sfd.SFRun.AktRenderMode, INI.Tile_TileColors, _sfd.SFInf.SteinInfos(_steinInfoIndex).SteinSymbolIndex, SteinStatus.I02Selected, _sfd.SFLay.steinSize, INI.Tile_BasisSize, SteinGhost.None)
                 _bmpNormal = TileFactory.GetTile(request)
-                request = New TileRequest(_sfd.SFRun.AktRenderMode, INI.Tile_TileColors, _sfd.SFInf.SteinInfos(_steinInfoIndex).SteinSymbolIndex, SteinStatus.I01Normal, _sfd.SFLay.steinSize, INI.Tile_BasisSize, SteinGhost.Light)
+                request = New TileRequest(_sfd.SFRun.AktRenderMode, INI.Tile_TileColors, _sfd.SFInf.SteinInfos(_steinInfoIndex).SteinSymbolIndex, SteinStatus.I02Selected, _sfd.SFLay.steinSize, INI.Tile_BasisSize, SteinGhost.Light)
                 _bmpGhostLight = TileFactory.GetTileDeepCopy(request)
                 '
-                request = New TileRequest(_sfd.SFRun.AktRenderMode, INI.Tile_TileColors, _sfd.SFInf.SteinInfos(_steinInfoIndex).SteinSymbolIndex, SteinStatus.I01Normal, _sfd.SFLay.steinSize, INI.Tile_BasisSize, SteinGhost.Medium)
+                request = New TileRequest(_sfd.SFRun.AktRenderMode, INI.Tile_TileColors, _sfd.SFInf.SteinInfos(_steinInfoIndex).SteinSymbolIndex, SteinStatus.I02Selected, _sfd.SFLay.steinSize, INI.Tile_BasisSize, SteinGhost.Medium)
                 _bmpGhostMedium = TileFactory.GetTile(request)
 
             ElseIf _steinSymbolEnum >= 0 Then
                 'Stein aus dem Vorrat
                 'Falls _steinSymbolEnum ungültig ist. wird die Errorgrafik erzeugt
-                request = New TileRequest(_sfd.SFRun.AktRenderMode, INI.Tile_TileColors, _steinSymbolEnum, SteinStatus.I01Normal, _sfd.SFLay.steinSize, INI.Tile_BasisSize, SteinGhost.None)
+                request = New TileRequest(_sfd.SFRun.AktRenderMode, INI.Tile_TileColors, _steinSymbolEnum, SteinStatus.I02Selected, _sfd.SFLay.steinSize, INI.Tile_BasisSize, SteinGhost.None)
                 _bmpNormal = TileFactory.GetTile(request)
-                request = New TileRequest(_sfd.SFRun.AktRenderMode, INI.Tile_TileColors, _steinSymbolEnum, SteinStatus.I01Normal, _sfd.SFLay.steinSize, INI.Tile_BasisSize, SteinGhost.Light)
+                request = New TileRequest(_sfd.SFRun.AktRenderMode, INI.Tile_TileColors, _steinSymbolEnum, SteinStatus.I02Selected, _sfd.SFLay.steinSize, INI.Tile_BasisSize, SteinGhost.Light)
                 _bmpGhostLight = TileFactory.GetTileDeepCopy(request)
                 '
-                request = New TileRequest(_sfd.SFRun.AktRenderMode, INI.Tile_TileColors, _steinSymbolEnum, SteinStatus.I01Normal, _sfd.SFLay.steinSize, INI.Tile_BasisSize, SteinGhost.Medium)
+                request = New TileRequest(_sfd.SFRun.AktRenderMode, INI.Tile_TileColors, _steinSymbolEnum, SteinStatus.I02Selected, _sfd.SFLay.steinSize, INI.Tile_BasisSize, SteinGhost.Medium)
                 _bmpGhostMedium = TileFactory.GetTile(request)
             Else
                 Return False
@@ -750,7 +750,7 @@ Namespace Spielfeld
                 If steinInfoIndex >= 0 Then ' Andernfalls Klick auf eine freie Fläche
                     Dim tplSrc As Triple = _sfd.SFInf.SteinInfos(steinInfoIndex).Pos3D
                     Dim steinSymbol As SteinSymbol = _sfd.SFInf.SteinInfos(steinInfoIndex).SteinSymbolIndex
-                    Dim request As New TileRequest(_sfd.SFRun.AktRenderMode, INI.Tile_TileColors, _sfd.SFInf.SteinInfos(steinInfoIndex).SteinSymbolIndex, SteinStatus.I01Normal, _sfd.SFLay.steinSize, INI.Tile_BasisSize, SteinGhost.Medium)
+                    Dim request As New TileRequest(_sfd.SFRun.AktRenderMode, INI.Tile_TileColors, _sfd.SFInf.SteinInfos(steinInfoIndex).SteinSymbolIndex, SteinStatus.I02Selected, _sfd.SFLay.steinSize, INI.Tile_BasisSize, SteinGhost.Medium)
                     Dim bmp As Bitmap = TileFactory.GetTile(request)
                     _sfd.SFStock.StartNewFadeOutJob(steinInfoIndex, startAsGhost:=False)
                     _sfd.SFStock.StartNewGapJob(idxGapInsert:=_sfd.SFStock.SteinVisibleAktFistIdx, bmpGapInsert:=bmp, steinSymbol)
@@ -770,7 +770,7 @@ Namespace Spielfeld
 
                     Dim stockSteinIndex As Integer = _sfd.SFStock.SteinVisibleAktFistIdx
                     Dim steinSymbol As SteinSymbol = _sfd.SFStock.GetSteinSymbolIndexDontRemove(stockSteinIndex)
-                    Dim request As New TileRequest(_sfd.SFRun.AktRenderMode, INI.Tile_TileColors, steinSymbol, SteinStatus.I01Normal, _sfd.SFLay.steinSize, INI.Tile_BasisSize, SteinGhost.Medium)
+                    Dim request As New TileRequest(_sfd.SFRun.AktRenderMode, INI.Tile_TileColors, steinSymbol, SteinStatus.I02Selected, _sfd.SFLay.steinSize, INI.Tile_BasisSize, SteinGhost.Medium)
                     Dim bmp As Bitmap = TileFactory.GetTile(request)
                     _sfd.SFStock.StartNewGapJob(idxGapRemove:=_sfd.SFStock.SteinVisibleAktFistIdx, bmpGapRemove:=bmp, steinSymbolRemove:=steinSymbol)
 
@@ -868,7 +868,7 @@ Namespace Spielfeld
 
                 Dim st As SteinSymbol = _sfd.SFStock.GetSteinSymbolIndexDontRemove(index:=0)
                 Dim steinGhost As SteinGhost = If(INI.Editor_ShowDoubleclickGhost, SteinGhost.Light, SteinGhost.Dark)
-                Dim request As New TileRequest(_sfd.SFRun.AktRenderMode, INI.Tile_TileColors, st, SteinStatus.I01Normal, _sfd.SFLay.steinSize, INI.Tile_BasisSize, steinGhost)
+                Dim request As New TileRequest(_sfd.SFRun.AktRenderMode, INI.Tile_TileColors, st, SteinStatus.I02Selected, _sfd.SFLay.steinSize, INI.Tile_BasisSize, steinGhost)
                 Dim bmp As Bitmap = TileFactory.GetTile(request)
 
                 SetDoubleClickGhostBmp(bmp, _sfd.SFInf.GetSteinRenderRect(tpl), zEbene:=tpl.z)

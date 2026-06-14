@@ -1,25 +1,4 @@
-﻿'
-' SPDX-License-Identifier: GPL-3.0-or-later
-'###########################################################################
-'#                                                                         #
-'#   Copyright © 2025–2026 Götz Kircher <mahjonggk@t-online.de>            #
-'#                                                                         #
-'#                     MahjongGK  -  Mahjong Solitär                       #
-'#                                                                         #
-'#   This program is free software: you can redistribute it and/or modify  #
-'#   it under the terms of the GNU General Public License as published by  #
-'#   the Free Software Fundament, either version 3 of the License, or     #
-'#   at your option any later version.                                     #
-'#                                                                         #
-'#   This program is distributed in the hope that it will be useful,       #
-'#   but WITHOUT ANY WARRANTY; without even the implied warranty of        #
-'#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the          #
-'#   GNU General Public License for more details.                          #
-'#   https://www.gnu.org/licenses/gpl-3.0.html                             #
-'#                                                                         #
-'###########################################################################
-'
-'
+﻿
 Option Compare Text
 Option Explicit On
 Option Infer Off
@@ -94,6 +73,77 @@ Namespace Spielfeld
     '    JahrWinter
     'End Enum
 
+    '
+    ' StoneStream
+    ' |Base144              
+    ' ||Count HightBit
+    ' |||Count LowBit
+    ' ||||
+    ' 0000 = 0   = GeneratorModi.StoneStream_Base144_Continuous    unendlicher Steinstrom mit 144er Steinverteilung
+    ' 0001 = 1   = GeneratorModi.StoneStream_Base144_Low           Der zahlenmäßige Wert von Low, Medium und High 
+    ' 0010 = 2   = GeneratorModi.StoneStream_Base144_Medium        ist in der INI hinterlegt und fei definierbar.
+    ' 0011 = 3   = GeneratorModi.StoneStream_Base144_Height
+    ' |Base152
+    ' ||Count HightBit
+    ' |||Count LowBit
+    ' ||||  
+    ' 0100 = 4    = GeneratorModi.StoneStream_Base152_Continuous   unendlicher Steinstrom mit 152er Steinverteilung 
+    ' 0101 = 5    = GeneratorModi.StoneStream_Base152_Low
+    ' 0110 = 6    = GeneratorModi.StoneStream_Base152_Medium
+    ' 0111 = 7    = GeneratorModi.StoneStream_Base152_Heigh
+    '
+    ' StoneSet
+    ' |Base144 
+    ' ||Count HightBit
+    ' |||Count LowBit
+    ' ||||
+    ' 1000 = 8    = GeneratorModi.StoneSet_072  = 1 * 72
+    ' 1001 = 9    = GeneratorModi.StoneSet_144  = 2 * 72
+    ' 1010 = 10   = GeneratorModi.StoneSet_216  = 3 * 72
+    ' 1011 = 11   = GeneratorModi.StoneSet_288  = 4 * 72
+    ' |Base152
+    ' ||Count HightBit
+    ' |||Count LowBit
+    ' ||||
+    ' 1100 = 12   = GeneratorModi.StoneSet_076  = 1 * 76
+    ' 1101 = 13   = GeneratorModi.StoneSet_152  = 2 * 76
+    ' 1110 = 14   = GeneratorModi.StoneSet_228  = 3 * 76
+    ' 1111 = 15   = GeneratorModi.StoneSet_304  = 4 * 76
+    '
+    ' Konvertierung siehe: (im Spielsteingenerator)
+    ' Public Function GetGeneratorModi(isStoneSet As Boolean,
+    '                                     isBase152 As Boolean,
+    '                                     count As Integer) As GeneratorModi
+    ' Public Function GetValueFromGeneratorModi(genmod As GeneratorModi) As (isStoneSet As Boolean,
+    '                                                                            isBase152 As Boolean,
+    '                                                                            count As Integer)
+
+    'Public Enum GeneratorModus
+    '    None = -1
+    '    StoneStream_Base144_Continuous = 0
+    '    StoneStream_Base152_Continuous = 4
+    '    StoneStream_Base144_Low = 1
+    '    StoneStream_Base152_Low = 5
+    '    StoneStream_Base144_Medium = 2
+    '    StoneStream_Base152_Medium = 6
+    '    StoneStream_Base144_Height = 3
+    '    StoneStream_Base152_Height = 7
+    '    StoneSet_072 = 8
+    '    StoneSet_076 = 12
+    '    StoneSet_144 = 9
+    '    StoneSet_152 = 13
+    '    StoneSet_216 = 10
+    '    StoneSet_228 = 14
+    '    StoneSet_288 = 11
+    '    StoneSet_304 = 15
+    'End Enum
+
+    Public Enum SteinRndGruppe
+        Normal
+        Flower
+        Season
+    End Enum
+
     ''' <summary>
     ''' Pfad: MahjongGK/Spielfeld/Daten
     ''' 
@@ -145,29 +195,19 @@ Namespace Spielfeld
             _GeneratorModus = generatorModus
             Me.HalfSteinsetsCount = halfSteinsetsCount
             Me.StoneSet152SteineErzeugen = stoneSet152SteineErzeugen
-            StockNoSortAreaEndIndex = INI.SpielsteinGenerator_VorratNoSortAreaEndIndexDefault 'Default = 10
-            StockMaxUBound = INI.SpielsteinGenerator_VorratMaxUBoundDefault 'Default = MJ_STEINE_MAXCOUNT
-            StockNachschubschwelle = INI.SpielsteinGenerator_VorratNachschubschwelleDefault ' Default = 100
+            StockNoSortAreaEndIndex = INI.SpielsteinGenerator_VorratNoSortAreaEndIndexDefault 'Default = 9
+
+            'Die Werte werden nur beim SteinStrom benötigt.
+            Dim min As Integer = If(stoneSet152SteineErzeugen, 152 \ 2 - 1, 144 \ 2 - 1)
+            Dim delta As Integer = If(stoneSet152SteineErzeugen, 152, 144)
+            StockMaxUBound = min + delta
+            StockNachschubschwelle = min
             CheckAndRefillVorrat()
         End Sub
         '
-        ''' <summary>
-        ''' Initialisiert den Zufallsgenerator.
-        ''' Mehrfaches aufrufen ist schadlos.
-        ''' </summary>
-        Private Sub InitGenerator()
-            If _packGen Is Nothing Then
-                Dim cfg As New GeneratorConfig(k:=0.1)
-                Dim stats As New PackStats()
-                _packGen = New PackGenerator(cfg, stats)
-            End If
-        End Sub
-
 #End Region
 
 #Region "Deklarationen"
-
-        Private _packGen As PackGenerator = Nothing
 
 #End Region
 
@@ -175,7 +215,7 @@ Namespace Spielfeld
         '
         ''' <summary>
         ''' Verkürzt gewaltsam den Stock.
-        ''' Funktioniert nur, wenn Debugger.IsAttached.
+        ''' Funktioniert nur, wenn Debugger.IsAttached. und nur zum Debuggen gedacht.
         ''' Andernfalls ist der Aufruf unschädlich, aber wirkungslos.
         ''' </summary>
         Public WriteOnly Property DebugStoneCountLimit As Integer
@@ -193,6 +233,16 @@ Namespace Spielfeld
             End Set
         End Property
 
+        <XmlIgnore>
+        Private _rndGenerator As Random
+
+        Private Sub InitGeneratorRandomIfNeeded()
+
+            If _rndGenerator Is Nothing Then
+                _rndGenerator = CreateGeneratorRandom()
+            End If
+
+        End Sub
 #End Region
 
 #Region "Eigenschaften persistent"
@@ -360,7 +410,7 @@ Namespace Spielfeld
 
 #Region "statisch"
         '
-        Public Shared ReadOnly NORMALS As SteinSymbol() = {
+        Public Shared ReadOnly NormalSteinsymbole As SteinSymbol() = {
             SteinSymbol.Punkt01, SteinSymbol.Punkt02, SteinSymbol.Punkt03, SteinSymbol.Punkt04, SteinSymbol.Punkt05,
             SteinSymbol.Punkt06, SteinSymbol.Punkt07, SteinSymbol.Punkt08, SteinSymbol.Punkt09,
             SteinSymbol.Bambus1, SteinSymbol.Bambus2, SteinSymbol.Bambus3, SteinSymbol.Bambus4, SteinSymbol.Bambus5,
@@ -371,11 +421,11 @@ Namespace Spielfeld
             SteinSymbol.WindOst, SteinSymbol.WindSüd, SteinSymbol.WindWst, SteinSymbol.WindNrd
         } ' = 34
 
-        Public Shared ReadOnly FLOWERS As SteinSymbol() = {
+        Public Shared ReadOnly FlowerSteinsymbole As SteinSymbol() = {
         SteinSymbol.BlütePf, SteinSymbol.BlüteOr, SteinSymbol.BlüteCt, SteinSymbol.BlüteBa
         } ' = 4
 
-        Public Shared ReadOnly SEASONS As SteinSymbol() = {
+        Public Shared ReadOnly SeasonSteinsymbole As SteinSymbol() = {
         SteinSymbol.JahrFrl, SteinSymbol.JahrSom, SteinSymbol.JahrHer, SteinSymbol.JahrWin
         } ' = 4
 
@@ -394,21 +444,26 @@ Namespace Spielfeld
                 Return False
             End If
         End Function
-
+        '
+        ''' <summary>
+        ''' Die Funktion ist zeitkritisch, deshalb wird das Original geliefert und keine Kopie.
+        ''' Das Original darf nur aufbewahr werden und keinesfalls geändert werden.
+        ''' </summary>
+        ''' <returns></returns>
         Public Function UndoStocksnapShot() As SteinSymbol()
             Return _undoStockSnapShot
         End Function
 
         Public Function GetGroup(ByVal idx As SteinSymbol) As SteinRndGruppe
             Dim i As Integer
-            For i = 0 To NORMALS.Length - 1
-                If NORMALS(i) = idx Then Return SteinRndGruppe.Normal
+            For i = 0 To NormalSteinsymbole.Length - 1
+                If NormalSteinsymbole(i) = idx Then Return SteinRndGruppe.Normal
             Next
-            For i = 0 To FLOWERS.Length - 1
-                If FLOWERS(i) = idx Then Return SteinRndGruppe.Flower
+            For i = 0 To FlowerSteinsymbole.Length - 1
+                If FlowerSteinsymbole(i) = idx Then Return SteinRndGruppe.Flower
             Next
-            For i = 0 To SEASONS.Length - 1
-                If SEASONS(i) = idx Then Return SteinRndGruppe.Season
+            For i = 0 To SeasonSteinsymbole.Length - 1
+                If SeasonSteinsymbole(i) = idx Then Return SteinRndGruppe.Season
             Next
             ' Fallback: behandle Unbekanntes als Normal
             Return SteinRndGruppe.Normal
@@ -418,49 +473,58 @@ Namespace Spielfeld
         ''' <summary>
         ''' Nach manuellem clearen des Vorrat kann er hiermit auch manuell
         ''' wieder gefüllt werden.
-        ''' Im GeneratorModi.StoneSet wird der Vorrat nur aufgefüllt, 
-        ''' wenn refillStoneSet true ist und Vorrat.Count = 0
-        ''' _VorratStopNachschub wird bei refillStoneSet = True nicht berücksichtigt.
+        ''' Im GeneratorModi.StoneSet wird der Vorrat nur einmalig aufgefüllt. 
         ''' </summary>
-        Public Sub CheckAndRefillVorrat(Optional refillStoneSet As Boolean = False)
-
-            If Stock Is Nothing Then Stock = New List(Of SteinSymbol)()
+        Public Sub CheckAndRefillVorrat()
 
             Dim genmod As (isStoneSet As Boolean, isBase152 As Boolean, count As Integer) = GetValueFromGeneratorModi(_GeneratorModus)
 
-            If _VorratStopNachschub AndAlso Not refillStoneSet AndAlso Not genmod.isStoneSet Then
+            If genmod.isStoneSet Then
+                If Stock Is Nothing Then
+                    'Nur beim ersten Aufruf füllen
+                    Stock = New List(Of SteinSymbol)()
+                    Dim stones1 As List(Of SteinSymbol)
+                    InitGeneratorRandomIfNeeded()
+
+                    stones1 = BuildStoneSetStones(halfSetCount:=genmod.count + 1,
+                                 isBase152:=genmod.isBase152,
+                                 rnd:=_rndGenerator)
+
+                    Stock.AddRange(stones1)
+                    _hasUndoStockSnapshot = True
+                    _undoStockSnapShot = Stock.ToArray()
+                End If
+
                 Exit Sub
             End If
 
-            If genmod.isStoneSet Then
-                If Stock.Count > 0 AndAlso Not refillStoneSet Then
-                    Exit Sub
-                End If
-            Else 'GeneratorModus = GeneratorModi.StoneStream 
-                If Stock.Count > StockNachschubschwelle Then
-                    Exit Sub
-                End If
+            'Ab hier: GeneratorModus = GeneratorModi.StoneStream 
+
+            If Stock Is Nothing Then
+                Stock = New List(Of SteinSymbol)()
             End If
 
-            InitGenerator()
-
-            Dim stones As List(Of SteinSymbol)
-
-            If genmod.isStoneSet Then
-                '-- endlicher Vorrat aus N Sets)
-                Dim stoneSet As New StoneSet(setsCount:=HalfSteinsetsCount, StoneSet152SteineErzeugen)
-                _packGen.UseStoneSet(stoneSet)
-                stones = _packGen.BuildPacksetOfStones()
-            Else
-                '_GeneratorModus = GeneratorModi.StoneStream 
-                Dim steinpaare As Integer = (StockMaxUBound - Stock.Count) \ 2
-
-                stones = _packGen.BuildPortionStones(steinpaare)
+            If _VorratStopNachschub Then
+                Exit Sub
             End If
+
+            If Stock.Count > StockNachschubschwelle Then
+                Exit Sub
+            End If
+
+            InitGeneratorRandomIfNeeded()
+
+            Dim pairCount As Integer = (StockMaxUBound - Stock.Count + 1) \ 2
+
+            Dim stones2 As List(Of SteinSymbol)
+
+            stones2 = BuildStoneStreamPortion(pairCount:=pairCount,
+                                         isBase152:=genmod.isBase152,
+                                         rnd:=_rndGenerator)
 
             _hasUndoStockSnapshot = True
-            _undoStockSnapShot = Stock.ToArray
-            Stock.AddRange(stones)
+            _undoStockSnapShot = Stock.ToArray()
+            Stock.AddRange(stones2)
 
         End Sub
         '
@@ -477,6 +541,7 @@ Namespace Spielfeld
             Else
                 Dim retval As SteinSymbol = Stock(index)
                 Stock.RemoveAt(index)  ' <- exakt diese Position löschen
+                CheckAndRefillVorrat()
                 Return retval
             End If
         End Function
@@ -689,7 +754,7 @@ Namespace Spielfeld
                 Exit Sub
             End If
 
-            '' wied in SortStockByPairs erledigt
+            '' wieder in SortStockByPairs erledigt
             ''_hasUndoStockSnapshot = True
             ''_undoStockSnapShot = Stock.ToArray
 
@@ -717,19 +782,39 @@ Namespace Spielfeld
             'In dem wiederhergestelltem Stock sind die Witwen ja noch drin.
             'diese herauslöschen
             For idx1 As Integer = 0 To witwen.GetUpperBound(0)
-                Dim klickgruppe As Integer = SFInfo.GetSteinClickGruppe(witwen(idx1), windsInOneClickGroup:=False)
-                For idx2 As Integer = 0 To Stock.Count - 1
-                    If SFInfo.GetSteinClickGruppe(Stock(idx2), windsInOneClickGroup:=False) = klickgruppe Then
-                        Stock.RemoveAt(idx2)
-                        Exit For
-                    End If
-                Next
+                If Not RemoveFirstExactSymbol(Stock, witwen(idx1)) Then
+                    Throw New Exception("unklarer Programmierfehler")
+                    ''Nur Sicherheits-Fallback, eigentlich sollte das nicht nötig sein.
+                    'Dim klickgruppe As Integer = SFInfo.GetSteinClickGruppe(witwen(idx1), windsInOneClickGroup:=False)
+
+                    'For idx2 As Integer = 0 To Stock.Count - 1
+                    '    If SFInfo.GetSteinClickGruppe(Stock(idx2), windsInOneClickGroup:=False) = klickgruppe Then
+                    '        Stock.RemoveAt(idx2)
+                    '        Exit For
+                    '    End If
+                    'Next
+
+                End If
             Next
             '
             'und am Anfang wieder hinzu fügen
             Stock.InsertRange(0, witwen)
 
         End Sub
+
+        Private Function RemoveFirstExactSymbol(stock As List(Of SteinSymbol),
+                                               sie As SteinSymbol) As Boolean
+
+            For idx As Integer = 0 To stock.Count - 1
+                If stock(idx) = sie Then
+                    stock.RemoveAt(idx)
+                    Return True
+                End If
+            Next
+
+            Return False
+
+        End Function
 #End Region
 
 #Region "Statistik"
@@ -865,6 +950,7 @@ Namespace Spielfeld
                                    Optional itemsPerLine As Integer = 9,
                                    Optional showEnumName As Boolean = True)
             Dim txt As String = FormatStatisticString(onlyNonZero, itemsPerLine, showEnumName)
+            Debug.Print(txt)
         End Sub
 
         '
@@ -880,71 +966,72 @@ Namespace Spielfeld
 
 #End Region
 
-#Region "Strohwitwen"
+        ''Wird vermutlich nicht gebrauct.
+        ''#Region "Strohwitwen"
 
-        Private ReadOnly _VorratStrohWitwen As New List(Of SteinSymbol)
+        ''        Private ReadOnly _VorratStrohWitwen As New List(Of SteinSymbol)
 
-        ''' <summary>
-        ''' Entfernt alls Paare aus dem Vorrat, sodaß anschließend nur noch Strohwitwen darin sind.
-        ''' Gibt die Anzahl der Strohwitwen zurück.
-        ''' ACHTUNG: Setzt VorratStopNachschub auf True. Muss manuell rückgestellt werden,
-        ''' dann wird der Vorrat auch sofort wieder aufgefüllt. (für "weiter Editieren")
-        ''' Die Strohwitwen bleiben drin(!) und stehen ganz am Anfang.
-        ''' </summary>
-        ''' <param name="windsAreInOneClickGroup"></param>
-        ''' <returns></returns>
-        Public Function RemovePaareFromVorrat(windsAreInOneClickGroup As Boolean) As Integer
-            CreateVorratStrohWitwen(windsAreInOneClickGroup)
-            Stock = _VorratStrohWitwen
-            StockStopNachschub = True
-            Return Stock.Count
-        End Function
+        ''        ''' <summary>
+        ''        ''' Entfernt alls Paare aus dem Vorrat, sodaß anschließend nur noch Strohwitwen darin sind.
+        ''        ''' Gibt die Anzahl der Strohwitwen zurück.
+        ''        ''' ACHTUNG: Setzt VorratStopNachschub auf True. Muss manuell rückgestellt werden,
+        ''        ''' dann wird der Vorrat auch sofort wieder aufgefüllt. (für "weiter Editieren")
+        ''        ''' Die Strohwitwen bleiben drin(!) und stehen ganz am Anfang.
+        ''        ''' </summary>
+        ''        ''' <param name="windsAreInOneClickGroup"></param>
+        ''        ''' <returns></returns>
+        ''        Public Function RemovePaareFromVorrat(windsAreInOneClickGroup As Boolean) As Integer
+        ''            CreateVorratStrohWitwen(windsAreInOneClickGroup)
+        ''            Stock = _VorratStrohWitwen
+        ''            StockStopNachschub = True
+        ''            Return Stock.Count
+        ''        End Function
 
-        Public ReadOnly Property VorratStrohWitwen(windsAreInOneClickGroup As Boolean) As List(Of SteinSymbol)
-            Get
-                CreateVorratStrohWitwen(windsAreInOneClickGroup)
-                Return _VorratStrohWitwen
-            End Get
-        End Property
+        ''        Public ReadOnly Property VorratStrohWitwen(windsAreInOneClickGroup As Boolean) As List(Of SteinSymbol)
+        ''            Get
+        ''                CreateVorratStrohWitwen(windsAreInOneClickGroup)
+        ''                Return _VorratStrohWitwen
+        ''            End Get
+        ''        End Property
 
-        Public ReadOnly Property VorratHasStrohWitwen(windsAreInOneClickGroup As Boolean) As Boolean
-            Get
-                CreateVorratStrohWitwen(windsAreInOneClickGroup)
-                Return _VorratStrohWitwen.Count > 0
-            End Get
-        End Property
+        ''        Public ReadOnly Property VorratHasStrohWitwen(windsAreInOneClickGroup As Boolean) As Boolean
+        ''            Get
+        ''                CreateVorratStrohWitwen(windsAreInOneClickGroup)
+        ''                Return _VorratStrohWitwen.Count > 0
+        ''            End Get
+        ''        End Property
 
-        Private Sub CreateVorratStrohWitwen(windsAreInOneClickGroup As Boolean)
+        ''        Private Sub CreateVorratStrohWitwen(windsAreInOneClickGroup As Boolean)
 
-            _VorratStrohWitwen.Clear()
-            If Stock Is Nothing OrElse Stock.Count = 0 Then
-                Exit Sub
-            End If
+        ''            _VorratStrohWitwen.Clear()
+        ''            If Stock Is Nothing OrElse Stock.Count = 0 Then
+        ''                Exit Sub
+        ''            End If
 
-            ' Enum ist lückenlos 0..MJ_STEININDEX_MAX
-            Dim counts(MJ_STEININDEX_MAX) As Integer
+        ''            ' Enum ist lückenlos 0..MJ_STEININDEX_MAX
+        ''            Dim counts(MJ_STEININDEX_MAX) As Integer
 
-            For i As Integer = 0 To Stock.Count - 1
-                Dim idx As Integer = SFInfo.GetSteinClickGruppe(CType(Stock(i), SteinSymbol), windsAreInOneClickGroup)
-                If idx >= 0 AndAlso idx <= MJ_STEININDEX_MAX Then
-                    counts(idx) += 1
-                End If
-            Next
+        ''            For i As Integer = 0 To Stock.Count - 1
+        ''                Dim idx As Integer = SFInfo.GetSteinClickGruppe(CType(Stock(i), SteinSymbol), windsAreInOneClickGroup)
+        ''                If idx >= 0 AndAlso idx <= MJ_STEININDEX_MAX Then
+        ''                    counts(idx) += 1
+        ''                End If
+        ''            Next
 
-            ' ---- Sonderfall Fehlergrafik (0): bei Vorkommen immer genau einmal aufnehmen
-            If counts(0) > 0 Then
-                _VorratStrohWitwen.Add(CType(0, SteinSymbol))
-            End If
+        ''            ' ---- Sonderfall Fehlergrafik (0): bei Vorkommen immer genau einmal aufnehmen
+        ''            If counts(0) > 0 Then
+        ''                _VorratStrohWitwen.Add(CType(0, SteinSymbol))
+        ''            End If
 
-            ' ---- Alle anderen: nur bei ungerader Häufigkeit je einmal aufnehmen
-            For idx As Integer = 1 To MJ_STEININDEX_MAX
-                If (counts(idx) And 1) <> 0 Then
-                    _VorratStrohWitwen.Add(CType(idx, SteinSymbol))
-                End If
-            Next
-        End Sub
+        ''            ' ---- Alle anderen: nur bei ungerader Häufigkeit je einmal aufnehmen
+        ''            For idx As Integer = 1 To MJ_STEININDEX_MAX
+        ''                If (counts(idx) And 1) <> 0 Then
+        ''                    _VorratStrohWitwen.Add(CType(idx, SteinSymbol))
+        ''                End If
+        ''            Next
+        ''        End Sub
 
-#End Region
+        ''#End Region
 
 #Region "Hilfsfunktionen GeneratorModi"
         ''' <summary>
@@ -954,7 +1041,7 @@ Namespace Spielfeld
         ''' <param name="isBase152"></param>
         ''' <param name="count">Darf die Werte 0, 1, 2 und 3 annehmen. (sonst Exception)</param>
         ''' <returns></returns>
-        Public Shared Function GetGeneratorModi(isStoneSet As Boolean,
+        Public Shared Function GetGeneratorModus(isStoneSet As Boolean,
                                          isBase152 As Boolean,
                                          count As Integer) As GeneratorModus
 
@@ -985,7 +1072,12 @@ Namespace Spielfeld
         Public Shared Function GetValueFromGeneratorModi(genmod As GeneratorModus) As (isStoneSet As Boolean,
                                                                                 isBase152 As Boolean,
                                                                                 count As Integer)
+
             Dim value As Integer = CInt(genmod)
+            If value < 0 OrElse value > 15 Then
+                Throw New ArgumentOutOfRangeException(NameOf(genmod),
+                                              "Ungültiger GeneratorModus: " & genmod.ToString())
+            End If
 
             Dim isStoneSet As Boolean = (value And &H8) <> 0
             Dim isBase152 As Boolean = (value And &H4) <> 0
@@ -997,366 +1089,210 @@ Namespace Spielfeld
 
 #End Region
 
-#Region "Klassen für die Steinerzeugung"
+#Region "Klassen für die Steinerzeugung - vereinfacht"
 
-        'Anmerkung von ChatGPT zu den Zufallsgeneratoren
-        'Du initialisierst mehrere Random mit fixen Seeds (gut für Reproduzierbarkeit) und an zwei Stellen mit
-        'Guid.NewGuid().GetHashCode() (gut für Streuung). Das ist bewusst gemischt – nur Hinweis: deterministische
-        'Runs sind damit nicht 100% reproduzierbar. Wenn Du deterministisch testen willst, gib überall Random aus
-        'GeneratorConfig rein.
+        Private Shared Function CreateGeneratorRandom() As Random
 
-        Public Class GeneratorConfig
+            Dim iniSeed As Integer = INI.SpielsteinGenerator_DebugMode
 
-            Public Sub New(k As Double)
-                Me.K = k
+            If iniSeed = 0 Then
+                Return New Random()
+            Else
+                Return New Random(iniSeed + 3000)
+            End If
 
-                Dim iniSeed As Integer = INI.SpielsteinGenerator_DebugMode
+        End Function
 
-                If iniSeed = 0 Then
-                    ' Normalbetrieb: EINMAL echten Zufall nehmen
-                    ' und daraus unterschiedliche Seeds ableiten.
-                    Dim baseRnd As New Random()
-                    RndSelect = New Random(baseRnd.Next()) 'oder Random(Guid.NewGuid().GetHashCode())
-                    RndShuffle = New Random(baseRnd.Next())
+        Private Shared Function BuildStoneSetStones(halfSetCount As Integer,
+                                            isBase152 As Boolean,
+                                            rnd As Random) As List(Of SteinSymbol)
+
+            If halfSetCount < 1 OrElse halfSetCount > 4 Then
+                Throw New ArgumentOutOfRangeException(NameOf(halfSetCount),
+                                              "halfSetCount muss 1 bis 4 sein.")
+            End If
+
+            If rnd Is Nothing Then
+                Throw New ArgumentNullException(NameOf(rnd))
+            End If
+
+            Dim stones As New List(Of SteinSymbol)
+
+            Dim startWithFlowers As Boolean = (rnd.Next(2) = 0)
+
+            For halfSetIdx As Integer = 0 To halfSetCount - 1
+
+                AddNormalHalfSet(stones)
+
+                If isBase152 Then
+
+                    AddSpecialSingles(stones, FlowerSteinsymbole, rnd)
+                    AddSpecialSingles(stones, SeasonSteinsymbole, rnd)
+
                 Else
-                    ' Debug/Test: deterministisch und unterscheidbar
-                    RndSelect = New Random(iniSeed + 1000)
-                    RndShuffle = New Random(iniSeed + 2000)
-                End If
 
-            End Sub
+                    Dim addFlowers As Boolean
 
-            ' Verhältnis Normal : (Flower+Season) in PACKS => 17 : 1
-            Public Property RatioNormalToSpecial As Double = INI.SpielsteinGenerator_VerhältnisNormalsteineZuSondersteine
-            ' Aufteilung des Special-Anteils: 50:50
-            Public Property SpecialSplitFlower As Double = 0.5
-            ' Sanfter Regler
-            Public Property K As Double
-            ' Kappung
-            Public Property MinWeight As Double = 0.000001
-            Public Property MaxWeight As Double = 1000000.0
-            ' RNG
-            Public Property RndSelect As Random
-            Public Property RndShuffle As Random
-        End Class
-
-        ' --- Statistik für gewichteten Modus -----------------------------------------
-        Public Class PackStats
-            Public Property TotalPacks As Integer
-            Public ReadOnly NormalPackCount As Integer() = New Integer(NORMALS.Length - 1) {}
-            Public Property FlowerPackCount As Integer
-            Public Property SeasonPackCount As Integer
-        End Class
-
-        Public Structure Pack
-            Public ReadOnly A As SteinSymbol
-            Public ReadOnly B As SteinSymbol
-            Public Sub New(ByVal a As SteinSymbol, ByVal b As SteinSymbol)
-                Me.A = a
-                Me.B = b
-            End Sub
-        End Structure
-
-        ' --- StoneSet (endlicher Vorrat) --------------------------------------------------
-
-        Public Class StoneSet
-
-            Private ReadOnly _packs As List(Of Pack)
-
-            Private _cursor As Integer
-
-            Private _toggleFlag As Boolean
-            Private ReadOnly _startRndFlag As Boolean
-            Private ReadOnly _stoneSet152 As Boolean
-            Private ReadOnly _rndShuffleInPlace As Random
-
-            Public Sub New(ByVal setsCount As Integer, ByVal stoneSet152 As Boolean)
-
-                Dim iniSeed As Integer = INI.SpielsteinGenerator_DebugMode
-
-                If iniSeed = 0 Then
-                    _rndShuffleInPlace = New Random(Guid.NewGuid().GetHashCode())
-                Else
-                    _rndShuffleInPlace = New Random(iniSeed + 4000)
-                End If
-
-                _packs = BuildStoneSets(setsCount)
-                ShuffleInPlace(_packs)
-                _cursor = 0
-                _stoneSet152 = stoneSet152
-                _startRndFlag = GetZufallTrueFalse()
-
-            End Sub
-
-            Public Function RemainingPacks() As Integer
-                Return _packs.Count - _cursor
-            End Function
-
-            Public Function TryDrawPack(ByRef pack As Pack) As Boolean
-                If _cursor >= _packs.Count Then
-                    pack = NothingPack()
-                    Return False
-                End If
-                pack = _packs(_cursor)
-                _cursor += 1
-                Return True
-            End Function
-
-            Private Shared Function NothingPack() As Pack
-                Return New Pack(NORMALS(0), NORMALS(0))
-            End Function
-
-            Private Function BuildStoneSets(ByVal setsCount As Integer) As List(Of Pack)
-                Dim packs As New List(Of Pack)
-                Dim s As Integer
-                For s = 1 To setsCount
-                    ' Normale: pro Typ 4 Steine => 2 Packs (identische Paare)
-                    Dim i As Integer
-                    For i = 0 To NORMALS.Length - 1
-                        ' ergibt 34 Steinpaare, also 68 Steine.
-                        Dim idx As SteinSymbol = NORMALS(i)
-                        packs.Add(New Pack(idx, idx))
-                        packs.Add(New Pack(idx, idx))
-                    Next
-
-                    If _stoneSet152 Then
-                        AddFlowers(packs)
-                        AddSeasons(packs)
+                    If startWithFlowers Then
+                        addFlowers = ((halfSetIdx And 1) = 0)
                     Else
-                        'im StoneSet144 werden abwechselnd Steine geliefert.
-                        'Grund: Im vollständigem Satz gibt es 144 Einzelsteine =
-                        '2 x 68 = 136 Steine + 2 x die je 4 Steine AddSeasons ODER AddFlowers = 144 
-                        '2 x 68 = 136 Steine + 2 x die je 4 Steine AddSeasons UND AddFlowers = 152  
-                        If _startRndFlag Then
-                            If _toggleFlag Then
-                                AddSeasons(packs)
-                            Else
-                                AddFlowers(packs)
-                            End If
-                        Else
-                            If _toggleFlag Then
-                                AddFlowers(packs)
-                            Else
-                                AddSeasons(packs)
-                            End If
-                        End If
+                        addFlowers = ((halfSetIdx And 1) <> 0)
                     End If
 
-                    _toggleFlag = Not _toggleFlag
-
-                Next
-                Return packs
-            End Function
-
-            Private Sub AddFlowers(packs As List(Of Pack))
-                ' Flowers: 4 Einzelsteine => 2 Packs
-                Dim arr As SteinSymbol() = CType(FLOWERS.Clone(), SteinSymbol())
-                ShuffleInPlace(arr)
-                packs.Add(New Pack(arr(0), arr(1)))
-                packs.Add(New Pack(arr(2), arr(3)))
-            End Sub
-
-            Private Sub AddSeasons(packs As List(Of Pack))
-                ' Seasons: 4 Einzelsteine => 2 Packs
-                Dim arr As SteinSymbol() = CType(SEASONS.Clone(), SteinSymbol())
-                ShuffleInPlace(arr)
-                packs.Add(New Pack(arr(0), arr(1)))
-                packs.Add(New Pack(arr(2), arr(3)))
-            End Sub
-
-            Private Sub ShuffleInPlace(Of T)(ByVal list As IList(Of T))
-                Dim i As Integer
-                For i = list.Count - 1 To 1 Step -1
-                    Dim j As Integer = _rndShuffleInPlace.Next(i + 1)
-                    Dim tmp As T = list(i)
-                    list(i) = list(j)
-                    list(j) = tmp
-                Next
-            End Sub
-
-            Private Sub ShuffleInPlace(Of T)(ByVal arr As T())
-                Dim i As Integer
-                For i = arr.Length - 1 To 1 Step -1
-                    Dim j As Integer = _rndShuffleInPlace.Next(i + 1)
-                    Dim tmp As T = arr(i)
-                    arr(i) = arr(j)
-                    arr(j) = tmp
-                Next
-            End Sub
-        End Class
-
-        ' --- Generator (gewichteter Modus ODER Stoneset) ----------------------------------
-
-        Public Class PackGenerator
-
-            Private ReadOnly _cfg As GeneratorConfig
-            Private ReadOnly _stats As PackStats
-            Private _stoneSet As StoneSet ' optional
-
-            Public Sub New(ByVal cfg As GeneratorConfig, ByVal stats As PackStats)
-                _cfg = cfg
-                _stats = stats
-            End Sub
-
-            Public Sub UseStoneSet(ByVal shoe As StoneSet)
-                _stoneSet = shoe
-            End Sub
-
-            ''' <summary>
-            ''' Im Modus StoneSet werden alle Steine zurückgegeben, 
-            ''' im kontinuierlichem Modus so viele Steine, wie in
-            ''' INI.Spielfeld_StandardMengeSteinPaareJePortion angegebn.
-            ''' </summary>
-            ''' <returns></returns>
-            Public Function BuildPacksetOfStones() As List(Of SteinSymbol)
-
-                If _stoneSet IsNot Nothing Then
-                    Return BuildPortionStones(9999)
-                Else
-                    Return BuildPortionStones(0)
-                End If
-            End Function
-
-            Public Function BuildPortionStones(ByVal packsPerPortion As Integer) As List(Of SteinSymbol)
-
-                If packsPerPortion = 0 Then
-                    Throw New Exception("packsPerPortion darf nicht 0 sein.(Hinweis: UseStoneSet mit überprüfen.)")
-                End If
-
-                Dim portionPacks As New List(Of Pack)
-                Dim pass As Integer
-                For pass = 1 To packsPerPortion
-                    Dim p As Pack
-                    If _stoneSet IsNot Nothing Then
-                        If Not _stoneSet.TryDrawPack(p) Then Exit For
+                    If addFlowers Then
+                        AddSpecialSingles(stones, FlowerSteinsymbole, rnd)
                     Else
-                        p = DrawOnePackStoneStream()
+                        AddSpecialSingles(stones, SeasonSteinsymbole, rnd)
                     End If
-                    portionPacks.Add(p)
-                Next
 
-                Dim tiles As New List(Of SteinSymbol)(portionPacks.Count * 2)
-                Dim k As Integer
-                For k = 0 To portionPacks.Count - 1
-                    tiles.Add(portionPacks(k).A)
-                    tiles.Add(portionPacks(k).B)
-                Next
+                End If
 
-                ' Anzeige-Mischen
-                ShuffleInPlace(tiles, _cfg.RndShuffle)
-                Return tiles
-            End Function
+            Next
 
-            ' ------------ Gewichtete Ziehung (wenn kein Shoe gesetzt) ------------------
+            ShuffleInPlace(stones, rnd)
 
-            Private Structure Kandidat
-                Public Kind As SteinRndGruppe
-                Public NormalIndex As Integer ' 0..33, sonst -1 für Flower/Season
-                Public Weight As Double
-            End Structure
+            Return stones
 
-            Private Function DrawOnePackStoneStream() As Pack
-                ' 34 Normal-Typen + FlowerPack + SeasonPack = 36 Kandidaten
-                Dim Kandidats As New List(Of Kandidat)(NORMALS.Length + 2)
+        End Function
 
-                ' Basisgewichte so, dass Summe Normal ~ 17 und Special ~ 1
-                Dim baseNormal As Double = (_cfg.RatioNormalToSpecial) / CDbl(NORMALS.Length) ' 17/34=0,5
-                Dim baseFlower As Double = 1.0R * _cfg.SpecialSplitFlower                                     ' 0,5
-                Dim baseSeason As Double = 1.0R * (1.0R - _cfg.SpecialSplitFlower)                           ' 0,5
+        Private Shared Sub AddNormalHalfSet(stones As List(Of SteinSymbol))
 
-                Dim t As Integer = Math.Max(1, _stats.TotalPacks)
-                Dim targetPerSlot As Double = CDbl(_stats.TotalPacks) * (1.0R / 36.0R)
+            '34 normale Steintypen, je ein Paar = 68 Steine
+            For idx As Integer = 0 To NormalSteinsymbole.Length - 1
+                Dim sie As SteinSymbol = NormalSteinsymbole(idx)
+                stones.Add(sie)
+                stones.Add(sie)
+            Next
 
-                ' Normale
-                Dim i As Integer
-                For i = 0 To NORMALS.Length - 1
-                    Dim ist As Integer = _stats.NormalPackCount(i)
-                    Dim deficit As Double = targetPerSlot - ist
-                    Dim w As Double = baseNormal * (1.0R + _cfg.K * deficit)
-                    w = Clamp(w, _cfg.MinWeight, _cfg.MaxWeight)
-                    Kandidats.Add(New Kandidat With {.Kind = SteinRndGruppe.Normal, .NormalIndex = i, .Weight = w})
-                Next
+        End Sub
 
-                ' Flower
-                Dim istF As Integer = _stats.FlowerPackCount
-                Dim wF As Double = baseFlower * (1.0R + _cfg.K * (targetPerSlot - istF))
-                Kandidats.Add(New Kandidat With {.Kind = SteinRndGruppe.Flower, .NormalIndex = -1, .Weight = Clamp(wF, _cfg.MinWeight, _cfg.MaxWeight)})
+        Private Shared Sub AddSpecialSingles(stones As List(Of SteinSymbol),
+                                     source() As SteinSymbol,
+                                     rnd As Random)
 
-                ' Season
-                Dim istS As Integer = _stats.SeasonPackCount
-                Dim wS As Double = baseSeason * (1.0R + _cfg.K * (targetPerSlot - istS))
-                Kandidats.Add(New Kandidat With {.Kind = SteinRndGruppe.Season, .NormalIndex = -1, .Weight = Clamp(wS, _cfg.MinWeight, _cfg.MaxWeight)})
+            'Blumen/Jahreszeiten sind keine identischen Paare.
+            'Sie bilden über SFInfo.GetSteinClickGruppe() eine gemeinsame Klickgruppe.
+            Dim arr() As SteinSymbol = CType(source.Clone(), SteinSymbol())
+            ShuffleInPlace(arr, rnd)
 
-                ' Roulette
-                Dim choice As Kandidat = StoneStreamChoice(Kandidats, _cfg.RndSelect)
+            For idx As Integer = 0 To arr.Length - 1
+                stones.Add(arr(idx))
+            Next
 
-                ' Pack + Statistik
-                Select Case choice.Kind
+        End Sub
+
+        Private Shared Function BuildStoneStreamPortion(pairCount As Integer,
+                                                isBase152 As Boolean,
+                                                rnd As Random) As List(Of SteinSymbol)
+
+            If pairCount < 1 Then
+                Return New List(Of SteinSymbol)
+            End If
+
+            If rnd Is Nothing Then
+                Throw New ArgumentNullException(NameOf(rnd))
+            End If
+
+            Dim stones As New List(Of SteinSymbol)(pairCount * 2)
+
+            For pairIdx As Integer = 1 To pairCount
+
+                Dim group As SteinRndGruppe = DrawStreamGroup(isBase152, rnd)
+
+                Select Case group
+
                     Case SteinRndGruppe.Normal
-                        Dim idx As SteinSymbol = NORMALS(choice.NormalIndex)
-                        _stats.NormalPackCount(choice.NormalIndex) += 1
-                        _stats.TotalPacks += 1
-                        Return New Pack(idx, idx)
+                        Dim sie As SteinSymbol = NormalSteinsymbole(rnd.Next(NormalSteinsymbole.Length))
+                        stones.Add(sie)
+                        stones.Add(sie)
 
                     Case SteinRndGruppe.Flower
-                        Dim a As SteinSymbol = RandomOf(FLOWERS, _cfg.RndSelect)
-                        Dim b As SteinSymbol = RandomOf(FLOWERS, _cfg.RndSelect)
-                        _stats.FlowerPackCount += 1
-                        _stats.TotalPacks += 1
-                        Return New Pack(a, b)
+                        AddRandomSpecialPair(stones, FlowerSteinsymbole, rnd)
 
                     Case SteinRndGruppe.Season
-                        Dim a2 As SteinSymbol = RandomOf(SEASONS, _cfg.RndSelect)
-                        Dim b2 As SteinSymbol = RandomOf(SEASONS, _cfg.RndSelect)
-                        _stats.SeasonPackCount += 1
-                        _stats.TotalPacks += 1
-                        Return New Pack(a2, b2)
+                        AddRandomSpecialPair(stones, SeasonSteinsymbole, rnd)
 
                     Case Else
-                        Throw New InvalidOperationException("Unbekannter Kandidat.")
+                        Throw New InvalidOperationException("Unbekannte SteinRndGruppe.")
+
                 End Select
-            End Function
 
-            ' --- Utilities -------------------------------------------------------------
+            Next
 
-            Private Shared Function Clamp(ByVal v As Double, ByVal lo As Double, ByVal hi As Double) As Double
-                If v < lo Then Return lo
-                If v > hi Then Return hi
-                Return v
-            End Function
+            ShuffleInPlace(stones, rnd)
 
-            Private Shared Function RandomOf(ByVal arr As SteinSymbol(), ByVal rnd As Random) As SteinSymbol
-                Return arr(rnd.Next(arr.Length))
-            End Function
+            Return stones
 
-            Private Shared Sub ShuffleInPlace(Of T)(ByVal list As IList(Of T), ByVal rnd As Random)
-                Dim i As Integer
-                For i = list.Count - 1 To 1 Step -1
-                    Dim j As Integer = rnd.Next(i + 1)
-                    Dim tmp As T = list(i)
-                    list(i) = list(j)
-                    list(j) = tmp
-                Next
-            End Sub
+        End Function
 
-            Private Shared Function StoneStreamChoice(ByVal Kandidats As List(Of Kandidat), ByVal rnd As Random) As Kandidat
-                Dim sum As Double = 0.0R
-                Dim i As Integer
-                For i = 0 To Kandidats.Count - 1
-                    sum += Kandidats(i).Weight
-                Next
-                Dim u As Double = rnd.NextDouble() * sum
-                Dim acc As Double = 0.0R
-                For i = 0 To Kandidats.Count - 1
-                    acc += Kandidats(i).Weight
-                    If u < acc Then Return Kandidats(i)
-                Next
-                Return Kandidats(Kandidats.Count - 1) ' Fallback
-            End Function
-        End Class
+        Private Shared Function DrawStreamGroup(isBase152 As Boolean,
+                                        rnd As Random) As SteinRndGruppe
 
-    End Class
+            'Base144-HalfSet:
+            '34 Normalpaare + 1 Blumen-Paar + 1 Jahreszeiten-Paar = 36 Paare
+            '
+            'Base152-HalfSet:
+            '34 Normalpaare + 2 Blumen-Paare + 2 Jahreszeiten-Paare = 38 Paare
+
+            Dim normalWeight As Integer = 34
+            Dim flowerWeight As Integer
+            Dim seasonWeight As Integer
+
+            If isBase152 Then
+                flowerWeight = 2
+                seasonWeight = 2
+            Else
+                flowerWeight = 1
+                seasonWeight = 1
+            End If
+
+            Dim sum As Integer = normalWeight + flowerWeight + seasonWeight
+            Dim n As Integer = rnd.Next(sum)
+
+            If n < normalWeight Then
+                Return SteinRndGruppe.Normal
+            End If
+
+            n -= normalWeight
+
+            If n < flowerWeight Then
+                Return SteinRndGruppe.Flower
+            End If
+
+            Return SteinRndGruppe.Season
+
+        End Function
+
+        Private Shared Sub AddRandomSpecialPair(stones As List(Of SteinSymbol),
+                                        source() As SteinSymbol,
+                                        rnd As Random)
+
+            Dim idx1 As Integer = rnd.Next(source.Length)
+            Dim idx2 As Integer = rnd.Next(source.Length - 1)
+
+            If idx2 >= idx1 Then
+                idx2 += 1
+            End If
+
+            stones.Add(source(idx1))
+            stones.Add(source(idx2))
+
+        End Sub
+
+        Private Shared Sub ShuffleInPlace(Of T)(list As IList(Of T),
+                                        rnd As Random)
+
+            For idx1 As Integer = list.Count - 1 To 1 Step -1
+                Dim idx2 As Integer = rnd.Next(idx1 + 1)
+
+                Dim tmp As T = list(idx1)
+                list(idx1) = list(idx2)
+                list(idx2) = tmp
+            Next
+
+        End Sub
 
 #End Region
+    End Class
 
 End Namespace

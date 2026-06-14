@@ -11,6 +11,15 @@
     End Enum
     '
     ''' <summary>
+    ''' Weitere Fonts: siehe http://quivira-font.com/ 
+    ''' und https://www.gnu.org/software/freefont/ranges/mahjong.html
+    ''' </summary>
+    Public Enum SteinFont
+        Segoe
+        Noto
+    End Enum
+    '
+    ''' <summary>
     ''' Grundsätzlicher Aufbau
     ''' Ein SteinDesign besteht aus drei Steinsätzen.
     ''' Es kann beliebig viele SteinDesigns geben, wie werden im
@@ -28,15 +37,6 @@
         Light
         Medium
         Dark
-    End Enum
-    '
-    ''' <summary>
-    ''' Weitere Fonts: siehe http://quivira-font.com/ 
-    ''' und https://www.gnu.org/software/freefont/ranges/mahjong.html
-    ''' </summary>
-    Public Enum SteinFont
-        Segoe
-        Noto
     End Enum
 
     '
@@ -298,6 +298,19 @@
         Dark = 1       'Geist: normaler Stein, Alpha < 255
         Medium = 2         'Geist: heller/blasser Stein, Alpha 255 
         Light = 3  'Geist: heller/blasser Stein, Alpha < 255
+    End Enum
+
+    Public Enum SpielQuelle
+        Sammlung
+        Eigene
+    End Enum
+
+    Public Enum SpielStärke
+        Ohne
+        Leicht
+        Mittel
+        Schwer
+        Profi
     End Enum
 
 End Module

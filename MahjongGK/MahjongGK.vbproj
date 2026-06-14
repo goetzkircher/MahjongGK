@@ -184,6 +184,12 @@
     </Compile>
     <Compile Include="Spielfeld\Daten\EditorUndoItem.vb" />
     <Compile Include="Spielfeld\Daten\EditorUndoItems.vb" />
+    <Compile Include="Spielfeld\Layout\FrmSpielAnlegen\frmSpielAnlegen.Designer.vb">
+      <DependentUpon>frmSpielAnlegen.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Spielfeld\Layout\FrmSpielAnlegen\frmSpielAnlegen.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Spielfeld\Layout\Toolbox\SFToolbox.vb" />
     <Compile Include="Spielfeld\Render\FrmRenderLoadMeter.vb">
       <SubType>Form</SubType>
@@ -402,6 +408,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="frmMain\frmSplash.resx">
       <DependentUpon>frmSplash.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Spielfeld\Layout\FrmSpielAnlegen\frmSpielAnlegen.resx">
+      <DependentUpon>frmSpielAnlegen.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Spielfeld\Layout\Toolbox\frmToolBox.resx">
       <DependentUpon>frmToolBox.vb</DependentUpon>

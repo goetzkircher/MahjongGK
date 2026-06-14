@@ -3,6 +3,10 @@ Option Explicit On
 Option Infer Off
 Option Strict On
 
+#Disable Warning IDE0079
+#Disable Warning IDE1006
+#Disable Warning IDE0140
+
 Imports System.ComponentModel
 Imports System.Drawing.Drawing2D
 Imports System.Drawing.Imaging
@@ -127,7 +131,6 @@ Public Class ButtonTooltip
         End Set
     End Property
 
-
     <Category("Behavior"),
      Description("Erzwingt DarkMode-Darstellung (nur Hover/Pressed-Hintergrund).")>
     Public Property DarkMode As Boolean
@@ -195,7 +198,6 @@ Public Class ButtonTooltip
     Description("Verzögerung (ms) bis der Tooltip beim Hover erscheint.")>
     <DefaultValue(330)>
     Public Property HoverDelayMs As Integer = 330
-
 
     <Category("Layout"),
      Description("Hält den Button quadratisch (Breite = Höhe).")>
@@ -266,7 +268,6 @@ Public Class ButtonTooltip
         MyBase.OnMouseUp(e)
     End Sub
 
-
     Protected Overrides Sub OnGotFocus(e As EventArgs)
         MyBase.OnGotFocus(e)
         If _showOnFocus AndAlso Not String.IsNullOrEmpty(_infoText) Then
@@ -288,7 +289,6 @@ Public Class ButtonTooltip
         Dim bg As Color = If(Me.Parent IsNot Nothing, Me.Parent.BackColor, SystemColors.Control)
         e.Graphics.Clear(bg)
     End Sub
-
 
     Protected Overrides Sub OnPaint(e As PaintEventArgs)
         MyBase.OnPaint(e)

@@ -16,16 +16,17 @@ Friend Class TileFactoryManager
 
     Private Const CACHE_MODE_COUNT As Integer = 2
     Private Const CACHE_STATUS_COUNT As Integer = 9
-    Private Const CACHE_TYPE_COUNT As Integer = 43
+    Private Const CACHE_SYMBOL_COUNT As Integer = 43
     Private Const CACHE_GHOST_COUNT As Integer = 3 'Transparent, LightOnly, LightTransparent
-    Private Const CACHE_NORMAL_LENGTH As Integer = CACHE_MODE_COUNT * CACHE_STATUS_COUNT * CACHE_TYPE_COUNT
-    Private Const CACHE_GHOST_LENGTH As Integer = CACHE_MODE_COUNT * CACHE_GHOST_COUNT * CACHE_TYPE_COUNT
+    Private Const CACHE_NORMAL_LENGTH As Integer = CACHE_MODE_COUNT * CACHE_STATUS_COUNT * CACHE_SYMBOL_COUNT
+    Private Const CACHE_GHOST_LENGTH As Integer = CACHE_MODE_COUNT * CACHE_GHOST_COUNT * CACHE_SYMBOL_COUNT
     Private Const CACHE_LENGTH As Integer = CACHE_NORMAL_LENGTH + CACHE_GHOST_LENGTH
 
     'Grundsatzfrage: für wen gilt das ReadOnly?
     Private ReadOnly _tileCache(CACHE_LENGTH - 1) As Bitmap
     Private ReadOnly _tileCacheQueryCount(CACHE_LENGTH - 1) As Integer
     Private ReadOnly _tileCacheIsValide(CACHE_LENGTH - 1) As Boolean
+    Private ReadOnly _tileGhostSteinStatus(CACHE_GHOST_LENGTH - 1) As SteinStatus
 
     Private _spielSteinSize As Size = Size.Empty
     Private _editSteinSize As Size = Size.Empty
@@ -37,7 +38,6 @@ Friend Class TileFactoryManager
 
     End Sub
 
-    ' Ich habe den Fehler eingekreist.
     '
     ''' <summary>
     ''' Liefert einen Mahjongstein.
@@ -66,6 +66,20 @@ Friend Class TileFactoryManager
 
         ''Der cacheIndex gibt auch die immer gleichen gültigen Werte der immer gleichen Steine zurück
         Dim cacheIndex As Integer = TileFactoryManager.GetIndexCache(request)
+
+        If request.SteinGhost <> SteinGhost.None Then
+            'Für die Geister gibt es nur einen Cache pro SteinStatus.
+            '(Was normal ausreichend ist)
+            'Sollte der Status dennoch wechseln, wird hier der betreffende
+            'Cache gelöscht.
+            '
+            Dim cacheGhostSteinStatusIdx As Integer = cacheIndex - CACHE_NORMAL_LENGTH
+            If _tileGhostSteinStatus(cacheGhostSteinStatusIdx) <> request.SteinStatus Then
+                _tileGhostSteinStatus(cacheGhostSteinStatusIdx) = request.SteinStatus
+                _tileCacheIsValide(cacheIndex) = False
+            End If
+
+        End If
 
         If _tileCacheIsValide(cacheIndex) Then
             _tileCacheQueryCount(cacheIndex) += 1
@@ -199,8 +213,8 @@ Friend Class TileFactoryManager
         Dim count As Long = 0
 
         For statusIndex As Integer = 0 To CACHE_STATUS_COUNT - 1
-            For typeIndex As Integer = 0 To CACHE_TYPE_COUNT - 1
-                Dim cacheIndex As Integer = ((GetModeIndex(aktRenderMode) * CACHE_STATUS_COUNT) + statusIndex) * CACHE_TYPE_COUNT + typeIndex
+            For typeIndex As Integer = 0 To CACHE_SYMBOL_COUNT - 1
+                Dim cacheIndex As Integer = ((GetModeIndex(aktRenderMode) * CACHE_STATUS_COUNT) + statusIndex) * CACHE_SYMBOL_COUNT + typeIndex
                 count += _tileCacheQueryCount(cacheIndex)
             Next
         Next
@@ -216,8 +230,8 @@ Friend Class TileFactoryManager
         Dim modeIndex As Integer = GetModeIndex(aktRenderMode)
         Dim statusIndex As Integer = GetStatusIndex(steinStatus)
 
-        For typeIndex As Integer = 0 To CACHE_TYPE_COUNT - 1
-            Dim cacheIndex As Integer = ((modeIndex * CACHE_STATUS_COUNT) + statusIndex) * CACHE_TYPE_COUNT + typeIndex
+        For typeIndex As Integer = 0 To CACHE_SYMBOL_COUNT - 1
+            Dim cacheIndex As Integer = ((modeIndex * CACHE_STATUS_COUNT) + statusIndex) * CACHE_SYMBOL_COUNT + typeIndex
             count += _tileCacheQueryCount(cacheIndex)
         Next
 
@@ -244,8 +258,8 @@ Friend Class TileFactoryManager
         Dim count As Integer = 0
 
         For statusIndex As Integer = 0 To CACHE_STATUS_COUNT - 1
-            For typeIndex As Integer = 0 To CACHE_TYPE_COUNT - 1
-                Dim cacheIndex As Integer = ((GetModeIndex(aktRenderMode) * CACHE_STATUS_COUNT) + statusIndex) * CACHE_TYPE_COUNT + typeIndex
+            For typeIndex As Integer = 0 To CACHE_SYMBOL_COUNT - 1
+                Dim cacheIndex As Integer = ((GetModeIndex(aktRenderMode) * CACHE_STATUS_COUNT) + statusIndex) * CACHE_SYMBOL_COUNT + typeIndex
                 If _tileCache(cacheIndex) IsNot Nothing Then
                     count += 1
                 End If
@@ -263,8 +277,8 @@ Friend Class TileFactoryManager
         Dim modeIndex As Integer = GetModeIndex(aktRenderMode)
         Dim statusIndex As Integer = GetStatusIndex(steinStatus)
 
-        For typeIndex As Integer = 0 To CACHE_TYPE_COUNT - 1
-            Dim cacheIndex As Integer = ((modeIndex * CACHE_STATUS_COUNT) + statusIndex) * CACHE_TYPE_COUNT + typeIndex
+        For typeIndex As Integer = 0 To CACHE_SYMBOL_COUNT - 1
+            Dim cacheIndex As Integer = ((modeIndex * CACHE_STATUS_COUNT) + statusIndex) * CACHE_SYMBOL_COUNT + typeIndex
             If _tileCache(cacheIndex) IsNot Nothing Then
                 count += 1
             End If
@@ -438,26 +452,31 @@ Friend Class TileFactoryManager
 
         _spielLayout = Nothing
         _editLayout = Nothing
+
+        For idx As Integer = 0 To _tileGhostSteinStatus.GetUpperBound(0)
+            _tileGhostSteinStatus(idx) = CType(-1, SteinStatus)
+        Next
+
     End Sub
 
     Private Shared Function GetIndexCache(request As TileRequest) As Integer
 
         With request
             Dim modeIndex As Integer = GetModeIndex(.AktRenderMode)
-            Dim typeIndex As Integer = CInt(.SteinSymbol)
+            Dim symbolIndex As Integer = CInt(.SteinSymbol)
 
             If .SteinGhost = SteinGhost.None Then
                 Dim statusIndex As Integer = GetStatusIndex(.SteinStatus)
 
                 Return ((modeIndex * CACHE_STATUS_COUNT) + statusIndex) *
-                   CACHE_TYPE_COUNT + typeIndex
+                   CACHE_SYMBOL_COUNT + symbolIndex
             Else
                 Dim ghostIndex As Integer = CInt(.SteinGhost) - 1
                 'Transparent=0, LightOnly=1, LightTransparent=2
 
                 Return CACHE_NORMAL_LENGTH +
                    ((modeIndex * CACHE_GHOST_COUNT) + ghostIndex) *
-                   CACHE_TYPE_COUNT + typeIndex
+                   CACHE_SYMBOL_COUNT + symbolIndex
             End If
         End With
 

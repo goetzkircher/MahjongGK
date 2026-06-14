@@ -27,9 +27,9 @@
     'verdauen kann, ist wieder eine andere Frage.
 
     'Steine nebeneinander
-    Public Const MJ_STEINE_MAXX As Integer = 60
-    Public Const MJ_STEINE_MAXY As Integer = 20
-    Public Const MJ_STEINE_MAXZ As Integer = 15
+    Public Const MJ_STEINE_MAXX As Integer = 45 'maximal möglich: 60
+    Public Const MJ_STEINE_MAXY As Integer = 15 'maximal möglich: 20
+    Public Const MJ_STEINE_MAXZ As Integer = 10 'maximal möglich: 15
 
     ''' <summary>
     ''' Theoretischer Wert zur Begrenzung der maximal erzeugten Steine.
@@ -101,4 +101,8 @@
 
     'Public Const MJ_OFFSET3DFAKTOR_MAX_LEFT As Double = MJ_OFFSET3D_MAX_LEFT / MJ_GRAFIK_ORG_WIDTH
     'Public Const MJ_OFFSET3DFAKTOR_MAX_TOP As Double = MJ_OFFSET3D_MAX_TOP / MJ_GRAFIK_ORG_HEIGHT
+
+    'Alle weiteren Konstanten finden sich in UCtlSpielauswahl
+    Public Const MJ_THUMB_W As Integer = 380
+    Public Const MJ_THUMB_H As Integer = 165
 End Module

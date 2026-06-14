@@ -901,6 +901,19 @@ Public Module INI
         End Set
     End Property
 
+    Public Property Editor_SaveToSpielesammlungAllowed As Boolean
+        Get
+            Dim [Default] As Boolean = Debugger.IsAttached
+            Dim comment As String = "Schaltet die Speicherung in der Toolbox frei. Default: Debugger.IsAttached"
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As Boolean)
+            If BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value) Then
+                RaiseEvent Editor_UsingEditorAllowed_Changed(value)
+            End If
+        End Set
+    End Property
+
     Public Property Editor_MessageFont As Font
         Get
             Dim [Default] As New Font("Arial", 10.0F, FontStyle.Regular)
@@ -1087,6 +1100,22 @@ Public Module INI
         End Set
     End Property
 
+    Private _Editor_ShowSteinBlokadeWarnung As Boolean?
+    Public Property Editor_ShowSteinBlokadeWarnung As Boolean
+        Get
+            If IsNothing(_Editor_ShowSteinBlokadeWarnung) Then
+                Dim [Default] As Boolean = True
+                Dim comment As String = "Das kleine blassgelbe Tooltip-Formular im Editor, das an die Maus gekoppelt ist."
+                _Editor_ShowSteinBlokadeWarnung = BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+            End If
+            Return CBool(_Editor_ShowSteinBlokadeWarnung)
+        End Get
+        Set(value As Boolean)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
+            _Editor_ShowSteinBlokadeWarnung = Nothing
+        End Set
+    End Property
+
     Private _Editor_DoubleClickRemoveStein As Boolean?
     Public Property Editor_DoubleClickRemoveStein As Boolean
         'Editor_DoubleClickRemoveStein und Editor_DoubleClickSetStein 
@@ -1206,31 +1235,6 @@ Public Module INI
         End Set
     End Property
 
-    Public Property SpielsteinGenerator_VorratMaxUBoundDefault As Integer
-        Get
-            Dim [Default] As Integer = MJ_STEINE_VORRATMAXDEFAULT
-            Dim comment As String = "Die Anzahl der Steine in der Vorratskiste die ""pro Portion"" erzeugt werden. Satz1: " & MJ_STEINE_VORRATMAXDEFAULT.ToString
-
-            'Rückgabe 
-            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-        End Get
-        Set(value As Integer)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
-        End Set
-    End Property
-
-    Public Property SpielsteinGenerator_VorratNachschubschwelleDefault As Integer
-        Get
-            Dim [Default] As Integer = MJ_STEINE_VORRATNACHSCHUBSCHWELLEDEFAULT
-            Dim comment As String = "Unterschreitet die Anzahl der Steine in der Vorratskiste diesen Wert, wird Nachschub erzeugt. Satz1: " & MJ_STEINE_VORRATNACHSCHUBSCHWELLEDEFAULT.ToString
-            'Rückgabe 
-            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
-        End Get
-        Set(value As Integer)
-            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value.ToString)
-        End Set
-    End Property
-
     Public Property SpielsteinGenerator_DebugMode As Integer
         Get
             Dim [Default] As Integer = 0
@@ -1342,6 +1346,17 @@ Public Module INI
         Set(value As Boolean)
             BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
             _Spielbetrieb_UseUnDoReDoSpielfeld = Nothing
+        End Set
+    End Property
+
+    Public Property Spielauswahl_SortorderName As Boolean
+        Get
+            Dim [Default] As Boolean = True
+            Dim comment As String = "Spielauswahl True = Sortierordnung Name, False = Sortierordnung Datum."
+            Return BasisIni.ReadValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), [Default], comment)
+        End Get
+        Set(value As Boolean)
+            BasisIni.WriteValue(FolderAndKeyFrom(MethodBase.GetCurrentMethod().Name), value)
         End Set
     End Property
 
@@ -2608,7 +2623,7 @@ Public Module INI
 #Region "Tile"
 
     'alles was 'Stein' heißt bezieht sich auf die alten Steine,
-    'die als png-Dateien vorliegen/vorlagen (will ich will alles ausbauen),
+    'die als png-Dateien vorliegen/vorlagen (will ich alles ausbauen),
     'alles was Tile heißt, auf die neuen Steine, die komplett bei Gebrauch
     'erzeugt werden in der TileFactory.
     '
@@ -2616,10 +2631,17 @@ Public Module INI
     '
     'Wichtig für Rendering_AktTileColor:
     'In der Tilefactory gilt: wenn sich die Instanz geändert hat,
-    'wid angenommen, irgendwelche Farben hätten sich geändert und
+    'wird angenommen, irgendwelche Farben hätten sich geändert und
     'das Cache wird neu aufgebaut. ===> Die Instanz nur ändern, 
     'wenn sich wirklich was ändern.
     '()
+
+    Private _Tile_ToolbarAktTileColor As TileColors
+    Public ReadOnly Property Tile_ToolbarTileColors As TileColors
+        Get
+            Return _Tile_ToolbarAktTileColor
+        End Get
+    End Property
 
     Private _Tile_AktTileColor As TileColors
     Public ReadOnly Property Tile_TileColors As TileColors
@@ -2671,6 +2693,49 @@ Public Module INI
 
     End Sub
 
+    Private _loadedSteinDesign As SteinDesign = CType(-1, SteinDesign)
+    Private _loadedSteinSatz As SteinSatz = CType(-1, SteinSatz)
+    Private _loadedSteinFont As SteinFont = CType(-1, SteinFont)
+    Public Sub Tile_ToolbarTileColors_Load(sd As SteinDesign, ss As SteinSatz, sf As SteinFont)
+
+        If _loadedSteinDesign = sd AndAlso _loadedSteinSatz = ss AndAlso _loadedSteinFont = sf Then
+            Exit Sub
+        End If
+        _loadedSteinDesign = sd
+        _loadedSteinSatz = ss
+        _loadedSteinFont = sf
+
+        If sd.ToString.StartsWith("Test") Then
+            If Not Tile_AllowTileColorsTestFiles Then
+                sd = SteinDesign.Default
+            End If
+        End If
+
+        Dim fullpath As String = TileColors.GetFullPathOnlyForLoading(sd, ss, sf, useDevelopmentPath:=False)
+
+        If File.Exists(fullpath) Then
+            Try
+                _Tile_ToolbarAktTileColor = TileColors.Load(sd, ss, sf)
+            Catch ex As Exception
+                _Tile_ToolbarAktTileColor = New TileColors
+            End Try
+        Else
+            Try
+                _Tile_ToolbarAktTileColor = TileColors.Load(SteinDesign.Default, SteinSatz.Medium, SteinFont.Segoe)
+            Catch ex As Exception
+                _Tile_ToolbarAktTileColor = New TileColors
+            End Try
+        End If
+
+        _tile_ToolbarBasisSize = _Tile_ToolbarAktTileColor.GetTileBasisSize
+        If _tile_ToolbarBasisSize.Width < 120 OrElse _tile_ToolbarBasisSize.Height < 120 Then
+            _tile_ToolbarBasisSize = New Size(200, 242)
+        End If
+
+        _tile_ToolbarBasisSizeChanged = True
+
+    End Sub
+
     Private _tile_BasisSize As Size
     Private _tile_BasisSizeChanged As Boolean
     Private _tile_lastBasisSize As Size
@@ -2680,18 +2745,42 @@ Public Module INI
             Return _tile_BasisSize
         End Get
     End Property
+
+    Private _tile_ToolbarBasisSize As Size
+    Private _tile_ToolbarBasisSizeChanged As Boolean
+    Private _tile_ToolbarlastBasisSize As Size
+
+    Public ReadOnly Property Tile_ToolbarBasisSize As Size
+        Get
+            Return _tile_ToolbarBasisSize
+        End Get
+    End Property
     '
     ''' <summary>
-    ''' Gibt auch True zurück, wenn ein neuer Steinsatz geladen wurde.
+    ''' Gibt auch True zurück, wenn ein neuer Steinsatz geladen wurde
+    ''' oder zwischen den Steinsätzen umgeschaltet wurde.
     ''' </summary>
     ''' <returns></returns>
     Public Function Tile_ConsumeSteinSatzOrBasisSizeChanged() As Boolean
-        Dim retval As Boolean = _tile_BasisSizeChanged
-        If _tile_lastBasisSize <> _tile_BasisSize Then
+        Dim retval As Boolean
+        If _tile_BasisSizeChanged Then
+            _tile_BasisSizeChanged = False
             retval = True
-            _tile_lastBasisSize = _tile_BasisSize
         End If
-        _tile_BasisSizeChanged = False
+        If _tile_ToolbarBasisSizeChanged Then
+            _tile_ToolbarBasisSizeChanged = False
+            retval = True
+        End If
+
+        If _tile_lastBasisSize <> _tile_BasisSize Then
+            _tile_lastBasisSize = _tile_BasisSize
+            retval = True
+        End If
+        If _tile_ToolbarlastBasisSize <> _tile_ToolbarBasisSize Then
+            _tile_ToolbarlastBasisSize = _tile_ToolbarBasisSize
+            retval = True
+        End If
+
         Return retval
     End Function
 

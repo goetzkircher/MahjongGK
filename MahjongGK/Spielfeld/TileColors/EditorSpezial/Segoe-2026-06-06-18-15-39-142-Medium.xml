@@ -250,7 +250,7 @@
   <SymbolColRemovable>FF3CB371</SymbolColRemovable>
   <SymbolColRoterDrache>00FFFFFF</SymbolColRoterDrache>
   <SymbolColSelectable>FFF0E68C</SymbolColSelectable>
-  <SymbolColSelected>FFFFFFFF</SymbolColSelected>
+  <SymbolColSelected>FF000000</SymbolColSelected>
   <SymbolColWinde>00FFFFFF</SymbolColWinde>
   <BrgSymbolGradientFrom>100</BrgSymbolGradientFrom>
   <SatSymbolGradientFrom>100</SatSymbolGradientFrom>

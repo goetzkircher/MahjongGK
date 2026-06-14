@@ -1,6 +1,5 @@
 ﻿Public Module IniEnumerationen
 
-
     ''' <summary>
     ''' Enumeration der verwendeten Unterverzeichnisse in "C:\Users\aktueller User\MahjongGK\SubDefault.value.ToString"
     ''' Verwendung: Entweder über Dim Path As String = INI.AppDataDefault(.....)
@@ -10,8 +9,7 @@
     Public Enum AppDataSubDir
         None
         INI
-        Steine198x252Layout
-        Grafiken
+        Spiele
         Diverses
         Hintergrundgrafiken
         Eigene_Hintergrundgrafiken
@@ -23,11 +21,10 @@
     ''' </summary>
     Public Enum AppDataSubSubDir
         None
-        letztesSpiel
-        Layout
+        LetztesSpiel
+        EigeneSpiele
+        Spielesammlung
         Diverses_ScreenShots
-        Grafiken_AppGrafiken16x16
-        Werkbank_Basisformen
         Temporär_SpielfeldInfo
     End Enum
 

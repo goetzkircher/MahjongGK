@@ -13,6 +13,7 @@ Public NotInheritable Class ContextMenueEditor
     Private ReadOnly _mnuNoDoubleClick As ToolStripMenuItem
     Private ReadOnly _mnuShowGhost As ToolStripMenuItem
     Private ReadOnly _mnuShowTooltip As ToolStripMenuItem
+    Private ReadOnly _mnuShowWarnung As ToolStripMenuItem
     Private ReadOnly _mnuWindsAreInOneClickGroup As ToolStripMenuItem
     Private ReadOnly _sfd As SFDaten
 
@@ -54,9 +55,15 @@ Public NotInheritable Class ContextMenueEditor
         AddHandler mnuToolBoxOpen.Click, AddressOf OnToolboxOpen
         Items.Add(mnuToolBoxOpen)
 
-        _mnuShowTooltip = New ToolStripMenuItem("Tooltips zu denSteinen zeigen")
+        _mnuShowTooltip = New ToolStripMenuItem("Tooltips zu den Steinen zeigen")
         AddHandler _mnuShowTooltip.Click, AddressOf OnShowTooltip
         Items.Add(_mnuShowTooltip)
+
+        'Ist komplett verdrated, aber noch nichts weiter programmiert.
+        _mnuShowWarnung = New ToolStripMenuItem("Vor Steinblockierung warnen")
+        AddHandler _mnuShowWarnung.Click, AddressOf OnShowWarnung
+        Items.Add(_mnuShowWarnung)
+        _mnuShowWarnung.Visible = False
 
         Dim mnuInfoToolbox As New ToolStripMenuItem("Info")
         AddHandler mnuInfoToolbox.Click, AddressOf OnInfoToolboxOpen
@@ -72,7 +79,7 @@ Public NotInheritable Class ContextMenueEditor
         AddHandler mnuShuffleOnly.Click, AddressOf OnShuffleOnly
         Items.Add(mnuShuffleOnly)
 
-        Dim mnuInfoShuffle As New ToolStripMenuItem("Info + Info Doppelklick im Vorrat")
+        Dim mnuInfoShuffle As New ToolStripMenuItem("Info")
         AddHandler mnuInfoShuffle.Click, AddressOf OnInfoShuffle
         Items.Add(mnuInfoShuffle)
 
@@ -86,13 +93,19 @@ Public NotInheritable Class ContextMenueEditor
         AddHandler mnuSortByPair.Click, AddressOf OnSortByPair
         Items.Add(mnuSortByPair)
 
-        Dim mnuSeperateStockWidow As New ToolStripMenuItem("Witwen an den Anfang ziehen")
+        Dim mnuSeperateStockWidow As New ToolStripMenuItem("Strohwitwen an den Anfang ziehen")
         AddHandler mnuSeperateStockWidow.Click, AddressOf OnSeperateStockWidow
         Items.Add(mnuSeperateStockWidow)
 
-        Dim mnuInfoSort As New ToolStripMenuItem("Info")
+        Items.Add(New ToolStripSeparator())
+
+        Dim mnuInfoSort As New ToolStripMenuItem("Info Sortierung und Strohwitwen")
         AddHandler mnuInfoSort.Click, AddressOf OnInfoSort
         Items.Add(mnuInfoSort)
+
+        Dim mnuInfoSteinDesign As New ToolStripMenuItem("Info SteinDesign und Doppelklick im Vorrat")
+        AddHandler mnuInfoSteinDesign.Click, AddressOf OnInfoSteinDesign
+        Items.Add(mnuInfoSteinDesign)
 
         If INI.Editor_UsingFrmRenderLoadMeter Then
             Items.Add(New ToolStripSeparator())
@@ -116,6 +129,8 @@ Public NotInheritable Class ContextMenueEditor
         _mnuWindsAreInOneClickGroup.Checked = INI.Spielbetrieb_WindsAreInOneClickGroup
         _mnuShowGhost.Checked = INI.Editor_ShowDoubleclickGhost
         _mnuShowTooltip.Checked = INI.Editor_ShowFrmTooltipSteinInfo
+        _mnuShowWarnung.Checked = INI.Editor_ShowSteinBlokadeWarnung
+
     End Sub
 
     Private Sub OnDoubleClickSetStein(sender As Object, e As EventArgs)
@@ -165,6 +180,11 @@ Public NotInheritable Class ContextMenueEditor
     End Sub
     Private Sub OnShowTooltip(sender As Object, e As EventArgs)
         INI.Editor_ShowFrmTooltipSteinInfo = Not INI.Editor_ShowFrmTooltipSteinInfo
+        _sfd.SFTool.SetConsumeTabpagePollEvent(ToolboxPollEvent.ContextmenueEditor_ShowTooltipChanged)
+        RefreshCheckMarks()
+    End Sub
+    Private Sub OnShowWarnung(sender As Object, e As EventArgs)
+        INI.Editor_ShowSteinBlokadeWarnung = Not INI.Editor_ShowSteinBlokadeWarnung
         _sfd.SFTool.SetConsumeTabpagePollEvent(ToolboxPollEvent.ContextmenueEditor_ShowTooltipChanged)
         RefreshCheckMarks()
     End Sub
@@ -270,19 +290,43 @@ Public NotInheritable Class ContextMenueEditor
         sb.AppendLine("Paarweise:")
         sb.AppendLine("Die Reihenfolge bleibt erhalten mit zwei Besonderheiten:")
         sb.AppendLine("1.) Jedem Stein wird sein Partnerstein zugeordnet.")
-        sb.AppendLine("2.) die ""Witwen"" kommen ganz nach vorne")
-        sb.AppendLine("Witwen sind die Steine, deren Partnerstein bereits auf dem Spielfeld steht.")
+        sb.AppendLine("2.) die ""Strohwitwen"" kommen ganz nach vorne")
+        sb.AppendLine("Strohwitwen sind die Steine, deren Partnerstein bereits auf dem Spielfeld steht.")
         sb.AppendLine()
-        sb.AppendLine("Witwen an den Anfang ziehen:")
+        sb.AppendLine("Strohwitwen an den Anfang ziehen:")
         sb.AppendLine("Jeder Stein braucht einen Partnerstein.")
         sb.AppendLine("Die Funktion zieht die im Spielfeld noch fehlenden Steine ganz nach vorne. Sie sind mit einem ""!"" markiert.")
 
         sb.AppendLine("Generell:")
-        sb.Append("Witwensteine werden im Vorrat immer mit einem Ausrufezeichen ""!"" links oben markiert. ")
+        sb.Append("Strohwitwensteine werden im Vorrat immer mit einem Ausrufezeichen ""!"" links oben markiert. ")
         sb.Append("Aber: Wenn zwei gleiche Steine im Blickfeld sind, und einer wird entnommen, wird nicht ")
         sb.Append("zwangsweise der Andere makiert. Es wird der erste Parterstein von Links markiert, und das ")
         sb.Append("kann ein anderer Stein sein, der sich außerhalb des Sichtfeldes befindet.")
 
+        MessageBox.Show(
+            sb.ToString,
+            "Info",
+            MessageBoxButtons.OK,
+            MessageBoxIcon.Information)
+    End Sub
+
+    Private Sub OnInfoSteinDesign(sender As Object, e As EventArgs)
+        Dim sb As New StringBuilder
+
+        sb.AppendLine("Stein-Design EditorSpezial:")
+        sb.AppendLine("Bei diesem Design hat die Symbolfarbe eine klare Aufgabe:")
+        sb.AppendLine("Die Übersicht sicherstellen, dass das Spiel auch spielbar ist.")
+        sb.AppendLine("Es bedeuten:")
+        sb.AppendLine("Grün: Dieser Stein ist entnehmbar - er hat einen Partnerstein.")
+        sb.AppendLine("Gelb: Dieser Stein ist wählbar - ihm fehlt aber der Partnerstein.")
+        sb.AppendLine("Rot: Dieser Stein ist nicht wählbar.")
+        sb.AppendLine()
+        sb.AppendLine("Grundsätzlich ist das bei den anderen Designs auch erkennbar, aber nicht so deutlich in Ampelfarben.")
+        sb.AppendLine()
+        sb.AppendLine("Doppelklick im Steinvorrat:")
+        sb.AppendLine("Ein Doppelklick auf einen Stein im Steinvorrat transportiert diesen Stein immer ganz an den Anfang an die erste Position im reservierten Bereich.")
+        sb.AppendLine()
+        sb.AppendLine("Hinweis: Bitte den Menuepunkt ""Strohwitwen an den Anfang ziehen"" beachten.")
         MessageBox.Show(
             sb.ToString,
             "Info",

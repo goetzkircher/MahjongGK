@@ -34,7 +34,7 @@ Public Class HScrollRenderer
 
     ' Layout
     Private Const ArrowWidth As Integer = 22
-    Private Const ThumbMinPx As Integer = 24
+    Private Const ThumbMinPx As Integer = 75 '24 sind ohne die Zahlen ausreichend.
 
     ' Maus-Zustand
     Private _isDragging As Boolean = False

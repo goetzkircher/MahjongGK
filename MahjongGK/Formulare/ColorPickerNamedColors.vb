@@ -2,6 +2,11 @@
 Option Explicit On
 Option Infer Off
 Option Strict On
+
+#Disable Warning IDE0079
+#Disable Warning IDE1006
+#Disable Warning IDE0140
+
 Imports System.Drawing.Drawing2D
 Imports System.Drawing.Text
 
@@ -32,7 +37,6 @@ Public NotInheritable Class ColorPickerNamedColors
     Private ReadOnly _btnCopyName As Button = New Button()
     Private ReadOnly _btnCopyHex As Button = New Button()
     Private ReadOnly _btnCopyDez As Button = New Button()
-
 
     ' ── Tabellengesteuerte Reihenfolge ───────────────────────────────────────────
     ' Format:
@@ -200,7 +204,6 @@ Public NotInheritable Class ColorPickerNamedColors
     "Beige"
 }
 
-
     ' ── Konstruktor ────────────────────────────────────────────────────────────
     Public Sub New()
 
@@ -208,7 +211,6 @@ Public NotInheritable Class ColorPickerNamedColors
         Me.MinimumSize = New Size(500, 500)
         Me.KeyPreview = True
         Me.Icon = My.Resources.MahjongGK
-
 
         ApplyTheme()
 
@@ -305,9 +307,6 @@ Public NotInheritable Class ColorPickerNamedColors
         pnlButtons.Controls.Add(_btnCopyHex)
         pnlButtons.Controls.Add(_btnCopyDez)
 
-
-
-
         ' ... Setup von _grid und Buttons ...
 
         ' Form zusammensetzen
@@ -343,8 +342,6 @@ Public NotInheritable Class ColorPickerNamedColors
         End Set
     End Property
 
-
-
     ' Nach ShowDialog wird OnShown ausgelöst – hier zentrieren wir wirklich
     Protected Overrides Sub OnShown(e As EventArgs)
         MyBase.OnShown(e)
@@ -353,7 +350,6 @@ Public NotInheritable Class ColorPickerNamedColors
             _grid.ScrollSelectionIntoView(True)   ' True = möglichst vertikal zentrieren
         End If
     End Sub
-
 
     Private Sub ApplyTheme()
         Dim dark As Boolean
@@ -540,15 +536,15 @@ Public NotInheritable Class ColorPickerNamedColors
 
         Dim chroma As List(Of NamedColorItem) = items.Except(neutrals).ToList()
 
-        Dim groups As List(Of ColorGroup) = New List(Of ColorGroup)()
-
-        groups.Add(MakeRangeGroup("Rot", Color.FromArgb(255, 0, 0), chroma, 345, 360, 0, 15, Hue))
-        groups.Add(MakeRangeGroup("Orange", Color.FromArgb(255, 128, 0), chroma, 15, 45, Hue))
-        groups.Add(MakeRangeGroup("Gelb", Color.FromArgb(255, 215, 0), chroma, 45, 75, Hue))
-        groups.Add(MakeRangeGroup("Grün", Color.FromArgb(0, 170, 0), chroma, 75, 165, Hue))
-        groups.Add(MakeRangeGroup("Cyan", Color.FromArgb(0, 170, 170), chroma, 165, 195, Hue))
-        groups.Add(MakeRangeGroup("Blau", Color.FromArgb(0, 90, 255), chroma, 195, 255, Hue))
-        groups.Add(MakeRangeGroup("Magenta", Color.FromArgb(200, 0, 200), chroma, 255, 345, Hue))
+        Dim groups As New List(Of ColorGroup) From {
+            MakeRangeGroup("Rot", Color.FromArgb(255, 0, 0), chroma, 345, 360, 0, 15, Hue),
+            MakeRangeGroup("Orange", Color.FromArgb(255, 128, 0), chroma, 15, 45, Hue),
+            MakeRangeGroup("Gelb", Color.FromArgb(255, 215, 0), chroma, 45, 75, Hue),
+            MakeRangeGroup("Grün", Color.FromArgb(0, 170, 0), chroma, 75, 165, Hue),
+            MakeRangeGroup("Cyan", Color.FromArgb(0, 170, 170), chroma, 165, 195, Hue),
+            MakeRangeGroup("Blau", Color.FromArgb(0, 90, 255), chroma, 195, 255, Hue),
+            MakeRangeGroup("Magenta", Color.FromArgb(200, 0, 200), chroma, 255, 345, Hue)
+        }
 
         If neutrals.Count > 0 Then
             Dim orderedNeutrals As IEnumerable(Of NamedColorItem) =
@@ -604,7 +600,6 @@ Public NotInheritable Class ColorPickerNamedColors
 
         Return New ColorGroup(title, circle, take)
     End Function
-
 
     ' --- Format-Helper ---
     Private Shared Function ToRgbHex(ByVal c As Color) As String
@@ -669,7 +664,7 @@ Public NotInheritable Class ColorPickerNamedColors
         ' --- Felder ---
         Private _groups As List(Of ColorGroup) = New List(Of ColorGroup)()
         Private _selected As Selection = New Selection()
-        Private _layout As List(Of LayoutEntry) = New List(Of LayoutEntry)()
+        Private ReadOnly _layout As List(Of LayoutEntry) = New List(Of LayoutEntry)()
 
         Public Sub New()
             Me.DoubleBuffered = True
@@ -792,7 +787,6 @@ Public NotInheritable Class ColorPickerNamedColors
                 _layout.Add(hdr)
                 y += Me.GroupHeaderHeight
                 y += Me.VGap            ' <-- NEU: Abstand wie zwischen Kacheln
-
 
                 ' Items
                 Dim i As Integer
@@ -986,7 +980,6 @@ Public NotInheritable Class ColorPickerNamedColors
             Return Nothing
         End Function
 
-
         Protected Overrides Sub OnKeyDown(e As KeyEventArgs)
             MyBase.OnKeyDown(e)
             If _groups.Count = 0 Then Return
@@ -1122,7 +1115,6 @@ Public NotInheritable Class ColorPickerNamedColors
             Me.AutoScrollPosition = New Point(currentX, desiredY)
             Me.Invalidate()
         End Sub
-
 
         ' --- Dummy für ScrollControlIntoView (Bounds „shadows“, nicht Overrides) ---
         Private NotInheritable Class DummyProxy

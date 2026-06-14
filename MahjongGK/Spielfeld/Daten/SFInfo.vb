@@ -81,6 +81,21 @@ Namespace Spielfeld
 
         End Sub
 
+        Public Sub New(spielsize As Triple, name As String)
+
+            If Not CheckSpielsize(spielsize) Then
+                Throw New Exception("Ungültige Spielfeldgröße.")
+            End If
+
+            Initialisierung(spielsize)
+            Me.Name = name
+
+        End Sub
+
+        Public Sub New(fullpath As String)
+            Me.fullPath = fullpath
+        End Sub
+
         Public Shared Function CheckSpielsize(spielsize As Triple) As Boolean
             With spielsize
                 If .x < MJ_STEINE_MINX Then
@@ -189,9 +204,49 @@ Namespace Spielfeld
         Public Property Version As String = "1"
 
         Public Property Name As String = "unbenannt"
-        Public Property Beschreibung As String = "nicht festgelegt"
         Public Property Anmerkung As String = "keine"
-        Public Property SpielInfo As String = "keine vorhanden"
+        Public ReadOnly Property SpielInfo As String
+            Get
+                Dim sumStock As Integer
+                If GeneratorValuesForXml IsNot Nothing AndAlso GeneratorValuesForXml.Stock IsNot Nothing Then
+                    sumStock = GeneratorValuesForXml.Stock.Count
+                End If
+                Dim sb As New StringBuilder
+                sb.Append($"Breite={_xMaxSteine} Steine, Höhe={_yMaxSteine} ,Tiefe={_zMaxSteine}")
+                sb.AppendLine($", Steine={SteinInfos.Count}, entfernt={SteineRemovedCount}")
+                sb.Append($"Spielstärke={SpielStärke}")
+                If INI.Editor_UsingEditor Then
+                    If GeneratorValuesForXml.GeneratorModusStoneStream Then
+                        sb.Append(", Maximale Spielgröße= unbeschränkt.")
+                    Else
+                        sb.Append($", Max. Spielgröße={SteinInfos.Count + sumStock}, davon im Vorrat={sumStock}")
+                    End If
+                End If
+                Return sb.ToString
+            End Get
+        End Property
+
+        Public ReadOnly Property SteineRemovedCount As Integer
+            Get
+                Dim count As Integer = 0
+                For Each si As SteinInfo In SteinInfos
+                    If si.IsRemoved Then
+                        count += 1
+                    End If
+                Next
+                Return count
+            End Get
+        End Property
+
+        Public Property SpielStärke As SpielStärke
+        Public Property FileName As String = Guid.NewGuid.ToString & "." & "xml"
+        '
+        ''' <summary>
+        ''' Zur temporären Speicherung nach dem Laden
+        ''' </summary>
+        ''' <returns></returns>
+        <XmlIgnore>
+        Public Property fullPath As String
 
         <XmlElement(ElementName:="PersistentIdent")>
         Public _persistentIdent As String = Helfer.NewIdent
@@ -344,7 +399,11 @@ Namespace Spielfeld
 
         Public ReadOnly Property IsValide As Boolean
             Get
-                Return _xMax > 0 AndAlso _yMax > 0
+                If _SpielSizeInSteinen Is Nothing Then
+                    Return False
+                Else
+                    Return Not _SpielSizeInSteinen.IsEmpty
+                End If
             End Get
         End Property
         '
@@ -556,50 +615,6 @@ Namespace Spielfeld
             End With
             Return sci
         End Function
-
-        ''Diese Properties gehörten eigentlich nach hierher, sind aber ganz 
-        ''oben angesiedelt, damit sie in der Xml am Anfang sichtbar sind.
-        ''Public Property Name As String = "unbenannt"
-        ''Public Property Beschreibung As String = "nicht festgelegt"
-        ''Public Property Anmerkung As String = "keine"
-        ''
-        <XmlIgnore>
-        Public Property SpielfeldPicture As Bitmap
-            Get
-                If String.IsNullOrEmpty(SpielfeldPictureXml) Then
-                    Return Nothing
-                End If
-
-                Dim bytes() As Byte = Convert.FromBase64String(SpielfeldPictureXml)
-
-                Using ms As New MemoryStream(bytes)
-                    Using img As Image = Image.FromStream(ms)
-                        Return New Bitmap(img)
-                    End Using
-                End Using
-            End Get
-            Set(value As Bitmap)
-                If value Is Nothing Then
-                    SpielfeldPictureXml = String.Empty
-                    Return
-                End If
-
-                Using ms As New MemoryStream()
-                    value.Save(ms, Imaging.ImageFormat.Png)
-                    SpielfeldPictureXml = Convert.ToBase64String(ms.ToArray(), Base64FormattingOptions.InsertLineBreaks)
-                End Using
-            End Set
-        End Property
-
-        Private _spielfeldPictureXml As String
-        Public Property SpielfeldPictureXml As String
-            Get
-                Return _spielfeldPictureXml
-            End Get
-            Set(value As String)
-                _spielfeldPictureXml = value
-            End Set
-        End Property
 
 #End Region
 
@@ -874,6 +889,71 @@ Namespace Spielfeld
             Return BitmapUGrdSingleImgCache.BackgroundDominantColor
         End Function
 #End Region
+
+#Region "SpielfeldPicture"
+
+        Public Sub SetDesignForSpielfeldPicture(sf As SteinFont, sd As SteinDesign, ss As SteinSatz)
+            SpielfeldPictureSteinFont = sf
+            SpielfeldPictureSteinDesign = sd
+            SpielfeldPictureSteinSatz = ss
+            SpielfeldPictureSteinIsInit = True
+        End Sub
+
+        Public Property SpielfeldPictureSteinIsInit As Boolean
+        Public Property SpielfeldPictureSteinFont As SteinFont
+        Public Property SpielfeldPictureSteinDesign As SteinDesign
+        Public Property SpielfeldPictureSteinSatz As SteinSatz
+
+        ''Diese Properties gehörten eigentlich nach hierher, sind aber ganz 
+        ''oben angesiedelt, damit sie in der Xml am Anfang sichtbar sind.
+        ''Public Property Name As String = "unbenannt"
+        ''Public Property Beschreibung As String = "nicht festgelegt"
+        ''Public Property Anmerkung As String = "keine"
+        ''
+        <XmlIgnore>
+        Public Property SpielfeldPicture As Bitmap
+            Get
+                If String.IsNullOrEmpty(SpielfeldPictureXml) Then
+                    Return Nothing
+                End If
+
+                Dim bytes() As Byte = Convert.FromBase64String(SpielfeldPictureXml)
+
+                Using ms As New MemoryStream(bytes)
+                    Using img As Image = Image.FromStream(ms)
+                        Return New Bitmap(img)
+                    End Using
+                End Using
+            End Get
+            Set(value As Bitmap)
+                If value Is Nothing Then
+                    SpielfeldPictureXml = String.Empty
+                    Return
+                End If
+
+                Using ms As New MemoryStream()
+                    value.Save(ms, Imaging.ImageFormat.Png)
+                    SpielfeldPictureXml = Convert.ToBase64String(ms.ToArray(), Base64FormattingOptions.InsertLineBreaks)
+                End Using
+            End Set
+        End Property
+
+        Private _spielfeldPictureXml As String
+
+        Public Property SpielfeldPictureXml As String
+            Get
+                Return _spielfeldPictureXml
+            End Get
+            Set(value As String)
+                _spielfeldPictureXml = value
+            End Set
+        End Property
+
+#End Region
+
+        'Ab hier keine gespeicherten Properties mehr, da sie nach SpielfeldPictureXml
+        'in der Xml stehen und damit sehr weit unten, den die SpielfeldPictureXml ist sehr groß.
+        '################################################################################
 
 #Region "Zustand / Status"
         'TODO
@@ -3105,6 +3185,14 @@ Namespace Spielfeld
             End If
 
         End Function
+
+        Private _hideSelectableAndRemovableSteine As Boolean
+        Public WriteOnly Property HideSelectableAndRemovableSteine As Boolean
+            Set(value As Boolean)
+                _hideSelectableAndRemovableSteine = value
+                UpdateTopSteinInfos()
+            End Set
+        End Property
         '
         ''' <summary>
         ''' Erzeugt/aktualisiert eine aktuelle Liste der vollständig sichtbaren Steine und deren Eigenschaften.
@@ -3117,7 +3205,10 @@ Namespace Spielfeld
             Dim showRemovableSteine As Boolean
             Dim renderModeEdit As Boolean = _sfd.SFRun.AktRenderMode = AktRenderMode.Edit
 
-            If renderModeEdit Then
+            If _hideSelectableAndRemovableSteine Then
+                showSelectableSteine = False
+                showRemovableSteine = False
+            ElseIf renderModeEdit Then
                 showSelectableSteine = True
                 showRemovableSteine = True
             Else 'AktRenderMode.Spiel (oder None, das kommt hier aber nicht an.)
@@ -4202,19 +4293,30 @@ Namespace Spielfeld
                                     st.SetArrFbReferenz(.ArrFB)
                                 Next
                             End If
+
+                            .fullPath = fullpath
+
+                            If Not IsNothing(.GeneratorValuesForXml) Then
+                                .Generator = New SpielsteinGenerator
+                                .GeneratorValuesForXml.CopySpielsteinGeneratorValues_To_SpielsteinGenerator(.Generator)
+
+                            End If
                         End With
 
                         Return daten
 
                     End Using
-                Catch
+                Catch ex As Exception
                     ' Fehler beim Laden – neue Instanz zurückgeben
                     ' TODO Fehlerbehandlung
-                    Return New SFInfo
+                    If Debugger.IsAttached Then
+                        Throw New InvalidOperationException("SFInfo.Load fehlgeschlagen: " & fullpath, ex)
+                    End If
+                    Return New SFInfo(fullpath)
                 End Try
             End If
 
-            Return New SFInfo()
+            Return New SFInfo(fullpath)
 
         End Function
 
@@ -4247,7 +4349,9 @@ Namespace Spielfeld
         Public Sub Save(fullpath As String)
             ' Defensive: Null-Propagation falls SteinInfos Nothing ist
             SummeSteinInfos = If(SteinInfos IsNot Nothing, SteinInfos.Count, 0)
-            Speicherdatum = Now
+            If Speicherdatum = Date.MinValue Then
+                Speicherdatum = Date.Now
+            End If
             '
             If Not IsNothing(Generator) Then
                 GeneratorValuesForXml = New SpielsteinGeneratorValuesForXml
